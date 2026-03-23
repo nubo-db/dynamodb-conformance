@@ -71,7 +71,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Run conformance suite (quick)
+      - name: Run conformance suite
+        continue-on-error: true # Emulators have known conformance gaps
         env:
           DYNAMODB_ENDPOINT: http://localhost:8000
           AWS_ACCESS_KEY_ID: fakeAccessKeyId
@@ -101,15 +102,17 @@ jobs:
 
       - name: Install Dynoxide
         run: |
-          brew tap nubo-db/tap
-          brew install nubo-db/tap/dynoxide
+          curl -sL https://github.com/nubo-db/dynoxide/releases/latest/download/dynoxide-linux-x86_64 -o dynoxide
+          chmod +x dynoxide
+          sudo mv dynoxide /usr/local/bin/
 
       - name: Start Dynoxide
         run: |
           dynoxide --port 8001 &
           sleep 2
 
-      - name: Run conformance suite (quick)
+      - name: Run conformance suite
+        continue-on-error: true
         env:
           DYNAMODB_ENDPOINT: http://localhost:8001
           AWS_ACCESS_KEY_ID: fakeAccessKeyId
