@@ -87,6 +87,42 @@ jobs:
           name: results-dynamodb-local
           path: results/
 
+  test-localstack:
+    name: LocalStack
+    runs-on: ubuntu-latest
+    services:
+      localstack:
+        image: localstack/localstack:latest
+        ports:
+          - 4566:4566
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run conformance suite
+        continue-on-error: true
+        env:
+          DYNAMODB_ENDPOINT: http://localhost:4566
+          AWS_ACCESS_KEY_ID: fakeAccessKeyId
+          AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
+          AWS_REGION: us-east-1
+        run: npm test
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-localstack
+          path: results/
+
   test-dynoxide:
     name: Dynoxide
     runs-on: ubuntu-latest

@@ -73,8 +73,11 @@ kill %1
 
 ### LocalStack
 
+LocalStack requires a free account. Sign up at [localstack.cloud](https://www.localstack.cloud) and set your auth token.
+
 ```bash
-docker run -d --name localstack -p 4566:4566 localstack/localstack
+export LOCALSTACK_AUTH_TOKEN=your-token-here
+docker run -d --name localstack -p 4566:4566 -e LOCALSTACK_AUTH_TOKEN localstack/localstack
 DYNAMODB_ENDPOINT=http://localhost:4566 npm test
 docker stop localstack && docker rm localstack
 ```
