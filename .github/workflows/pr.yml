@@ -1,0 +1,125 @@
+name: Conformance Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-dynamodb:
+    name: DynamoDB (ground truth)
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: conformance-testing
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-2
+
+      - name: Run conformance suite (excludes GSI lifecycle — see README)
+        env:
+          AWS_REGION: eu-west-2
+        run: npm run test:quick
+
+      - name: Sanitize account IDs
+        if: always()
+        run: node scripts/sanitize-arns.mjs
+
+      - name: Cleanup conformance tables
+        if: always()
+        timeout-minutes: 3
+        run: |
+          aws dynamodb list-tables --query "TableNames[?starts_with(@, '_conformance_')]" --output text | \
+          tr '\t' '\n' | \
+          xargs -P4 -I{} aws dynamodb delete-table --table-name {} 2>/dev/null || true
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-dynamodb
+          path: results/
+
+  test-dynamodb-local:
+    name: DynamoDB Local
+    runs-on: ubuntu-latest
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local:latest
+        ports:
+          - 8000:8000
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run conformance suite (quick)
+        env:
+          DYNAMODB_ENDPOINT: http://localhost:8000
+          AWS_ACCESS_KEY_ID: fakeAccessKeyId
+          AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
+          AWS_REGION: us-east-1
+        run: npm test
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-dynamodb-local
+          path: results/
+
+  test-dynoxide:
+    name: Dynoxide
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install Dynoxide
+        run: |
+          brew tap nubo-db/tap
+          brew install nubo-db/tap/dynoxide
+
+      - name: Start Dynoxide
+        run: |
+          dynoxide --port 8001 &
+          sleep 2
+
+      - name: Run conformance suite (quick)
+        env:
+          DYNAMODB_ENDPOINT: http://localhost:8001
+          AWS_ACCESS_KEY_ID: fakeAccessKeyId
+          AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
+          AWS_REGION: us-east-1
+        run: npm test
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-dynoxide
+          path: results/

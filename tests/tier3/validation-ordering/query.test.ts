@@ -1,0 +1,72 @@
+import {
+  QueryCommand,
+  DynamoDBServiceException,
+} from '@aws-sdk/client-dynamodb'
+import { ddb } from '../../../src/client.js'
+import { hashTableDef } from '../../../src/helpers.js'
+
+describe('Query — validation ordering', () => {
+  it('reports invalid TableName pattern', async () => {
+    try {
+      await ddb.send(
+        new QueryCommand({
+          TableName: 'abc!',
+          KeyConditionExpression: '#pk = :pk',
+          ExpressionAttributeNames: { '#pk': 'pk' },
+          ExpressionAttributeValues: { ':pk': { S: 'test' } },
+          Select: 'INVALID',
+        } as any),
+      )
+      expect.unreachable('should have thrown')
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(DynamoDBServiceException)
+      const err = e as DynamoDBServiceException
+      expect(err.name).toBe('ValidationException')
+      // DynamoDB reports at least one validation error
+      expect(err.message).toContain('validation error')
+    }
+  })
+
+  it('reports invalid Limit value', async () => {
+    try {
+      await ddb.send(
+        new QueryCommand({
+          TableName: hashTableDef.name,
+          KeyConditionExpression: '#pk = :pk',
+          ExpressionAttributeNames: { '#pk': 'pk' },
+          ExpressionAttributeValues: { ':pk': { S: 'test' } },
+          Limit: 0,
+        } as any),
+      )
+      expect.unreachable('should have thrown')
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(DynamoDBServiceException)
+      const err = e as DynamoDBServiceException
+      expect(err.name).toBe('ValidationException')
+      // DynamoDB uses capital-L 'Limit' in the message
+      expect(err.message).toContain('Limit')
+    }
+  })
+
+  it('reports invalid ReturnConsumedCapacity', async () => {
+    try {
+      await ddb.send(
+        new QueryCommand({
+          TableName: hashTableDef.name,
+          KeyConditionExpression: '#pk = :pk',
+          ExpressionAttributeNames: { '#pk': 'pk' },
+          ExpressionAttributeValues: { ':pk': { S: 'test' } },
+          ReturnConsumedCapacity: 'INVALID',
+          Select: 'INVALID',
+        } as any),
+      )
+      expect.unreachable('should have thrown')
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(DynamoDBServiceException)
+      const err = e as DynamoDBServiceException
+      expect(err.name).toBe('ValidationException')
+      // DynamoDB reports returnConsumedCapacity (may or may not include select)
+      expect(err.message).toContain('returnConsumedCapacity')
+    }
+  })
+})
