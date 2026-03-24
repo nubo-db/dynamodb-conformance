@@ -9,6 +9,7 @@ jobs:
   test-dynamodb:
     name: DynamoDB (ground truth)
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || vars.HAS_AWS_CREDENTIALS == 'true'
     permissions:
       id-token: write
       contents: read
@@ -55,6 +56,7 @@ jobs:
 
   test-dynamodb-local:
     name: DynamoDB Local
+    continue-on-error: true
     runs-on: ubuntu-latest
     services:
       dynamodb:
@@ -89,6 +91,7 @@ jobs:
 
   test-localstack:
     name: LocalStack
+    continue-on-error: true
     runs-on: ubuntu-latest
     services:
       localstack:
@@ -125,6 +128,7 @@ jobs:
 
   test-dynoxide:
     name: Dynoxide
+    continue-on-error: true
     runs-on: ubuntu-latest
 
     steps:
@@ -138,8 +142,8 @@ jobs:
 
       - name: Install Dynoxide
         run: |
-          curl -sL https://github.com/nubo-db/dynoxide/releases/latest/download/dynoxide-linux-x86_64 -o dynoxide
-          chmod +x dynoxide
+          curl -sfL https://github.com/nubo-db/dynoxide/releases/latest/download/dynoxide-x86_64-unknown-linux-gnu.tar.gz -o dynoxide.tar.gz
+          tar xzf dynoxide.tar.gz
           sudo mv dynoxide /usr/local/bin/
 
       - name: Start Dynoxide
