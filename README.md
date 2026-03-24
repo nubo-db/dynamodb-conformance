@@ -6,7 +6,7 @@ An independent test suite that validates any DynamoDB-compatible endpoint agains
 
 There's no official AWS conformance suite for DynamoDB. The closest thing the community has is Dynalite's test suite, but over half of its tests are stale against current DynamoDB behaviour (verified March 2026). DynamoDB Local ships with no test suite at all. Every emulator author ends up guessing at behaviour and testing against their own assumptions.
 
-This suite fixes that by running every test against real DynamoDB first, recording what passes, and using those results as the baseline. An emulator passes a test only if it produces the same result as DynamoDB itself.
+This suite fixes that by running every test against real DynamoDB first, recording what passes, and using those results as the baseline. An emulator only passes if it gives the same answer DynamoDB does.
 
 ## Quick start
 
@@ -43,7 +43,7 @@ Regenerate with `npm run results:table`.
 
 **Tier 3 - Strict.** Validation ordering, exact error message formatting, edge cases around limits, legacy API compatibility (ScanFilter, QueryFilter). An emulator that passes Tier 1 and Tier 2 but fails some Tier 3 is production-quality for local dev.
 
-The tiers let emulator authors report meaningful pass rates. "100% Tier 1, 95% Tier 2, 80% Tier 3" tells you far more than a single percentage.
+The tiers give emulator authors something meaningful to report. "100% Tier 1, 95% Tier 2, 80% Tier 3" tells you far more than a single percentage.
 
 ## Running against targets
 
@@ -98,7 +98,7 @@ npm test
 
 The full suite includes 11 UpdateTable GSI lifecycle tests that add and remove Global Secondary Indexes from existing tables. On real DynamoDB, each GSI creation triggers a backfill that takes 5-15 minutes even on empty tables. These tests are important for conformance but they dominate runtime against real AWS.
 
-`test:quick` excludes the GSI lifecycle tests for faster iteration. CI uses `test:quick` for the real DynamoDB job to save billable AWS time, and `npm test` for local emulator targets where GSI creation is instant. If you're modifying GSI-related code, run the full suite against real DynamoDB manually before merging.
+`test:quick` excludes the GSI lifecycle tests for faster iteration. CI uses `test:quick` for the real DynamoDB job to save billable AWS time. Emulator targets run the full `npm test` since GSI creation is instant locally. If you're modifying GSI-related code, run the full suite against real DynamoDB manually before merging.
 
 ## Design principles
 
@@ -169,7 +169,7 @@ This suite uses the AWS SDK v3 (not raw HTTP), which means it can't test:
 3. **Content-type handling** - the SDK always sends `application/x-amz-json-1.0`
 4. **Connection-level behaviour** - HTTP headers, chunked encoding, CRC32 checks
 
-These would need a raw HTTP test layer using `fetch()` with `aws4` signing. The dynalite test suite is a good reference for that approach.
+You'd need a raw HTTP test layer using `fetch()` with `aws4` signing for those. The dynalite test suite is a good reference for that approach.
 
 ## Contributing
 
