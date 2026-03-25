@@ -45,7 +45,7 @@ describe('CreateTable — validation ordering', () => {
     try {
       await ddb.send(
         new CreateTableCommand({
-          TableName: 'valid_table_name',
+          TableName: '_conformance_valid_table_name',
           AttributeDefinitions: [{ AttributeName: 'pk', AttributeType: 'S' }],
           KeySchema: [
             { AttributeName: 'pk', KeyType: 'INVALID' },
@@ -66,7 +66,7 @@ describe('CreateTable — validation ordering', () => {
     try {
       await ddb.send(
         new CreateTableCommand({
-          TableName: 'valid_table_name',
+          TableName: '_conformance_valid_table_name',
           AttributeDefinitions: [{ AttributeName: 'pk', AttributeType: 'S' }],
           KeySchema: [
             { AttributeName: 'pk', KeyType: 'INVALID' },

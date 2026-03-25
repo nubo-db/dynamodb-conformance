@@ -44,7 +44,7 @@ describe('PutItem — validation ordering', () => {
     try {
       await ddb.send(
         new PutItemCommand({
-          TableName: 'valid_table_name',
+          TableName: '_conformance_valid_table_name',
           Item: { pk: { S: 'test' } },
           ReturnConsumedCapacity: 'INVALID',
           ReturnItemCollectionMetrics: 'INVALID',

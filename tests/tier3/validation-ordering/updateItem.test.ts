@@ -26,7 +26,7 @@ describe('UpdateItem — validation ordering', () => {
     try {
       await ddb.send(
         new UpdateItemCommand({
-          TableName: 'valid_table_name',
+          TableName: '_conformance_valid_table_name',
           Key: { pk: { S: 'test' } },
           ReturnValues: 'INVALID',
           ReturnConsumedCapacity: 'INVALID',
