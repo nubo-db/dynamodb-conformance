@@ -6,32 +6,44 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import {
-  hashTableDef,
-  compositeTableDef,
-  cleanupItems,
+  uniqueTableName,
+  createTable,
+  deleteTable,
 } from '../../../src/helpers.js'
+import type { TestTableDef } from '../../../src/types.js'
 
-const PREFIX = 'lim-resp-'
-const hashKeys: { pk: { S: string } }[] = []
-const compositeKeys: { pk: { S: string }; sk: { S: string } }[] = []
+const hashDef: TestTableDef = {
+  name: uniqueTableName('lim_resp_h'),
+  hashKey: { name: 'pk', type: 'S' },
+  billingMode: 'PAY_PER_REQUEST',
+}
+
+const compositeDef: TestTableDef = {
+  name: uniqueTableName('lim_resp_c'),
+  hashKey: { name: 'pk', type: 'S' },
+  rangeKey: { name: 'sk', type: 'S' },
+  billingMode: 'PAY_PER_REQUEST',
+}
+
+beforeAll(async () => {
+  await Promise.all([createTable(hashDef), createTable(compositeDef)])
+})
 
 afterAll(async () => {
-  await cleanupItems(hashTableDef.name, hashKeys)
-  await cleanupItems(compositeTableDef.name, compositeKeys)
+  await Promise.all([deleteTable(hashDef.name), deleteTable(compositeDef.name)])
 })
 
 describe('Response size limit (1MB)', () => {
   // Seed ~20 items of ~60KB each into the composite table under one partition key
   // so we can query them. Total ~1.2MB — should trigger pagination.
-  const partitionKey = `${PREFIX}query-pk`
+  const partitionKey = 'query-pk'
 
   beforeAll(async () => {
     for (let i = 0; i < 20; i++) {
       const sk = `sk-${String(i).padStart(3, '0')}`
-      compositeKeys.push({ pk: { S: partitionKey }, sk: { S: sk } })
       await ddb.send(
         new PutItemCommand({
-          TableName: compositeTableDef.name,
+          TableName: compositeDef.name,
           Item: {
             pk: { S: partitionKey },
             sk: { S: sk },
@@ -45,7 +57,7 @@ describe('Response size limit (1MB)', () => {
   it('Query returns LastEvaluatedKey when response would exceed 1MB', async () => {
     const result = await ddb.send(
       new QueryCommand({
-        TableName: compositeTableDef.name,
+        TableName: compositeDef.name,
         KeyConditionExpression: '#pk = :pk',
         ExpressionAttributeNames: { '#pk': 'pk' },
         ExpressionAttributeValues: { ':pk': { S: partitionKey } },
@@ -64,12 +76,10 @@ describe('Response size limit (1MB)', () => {
   it('Scan returns LastEvaluatedKey when response would exceed 1MB', async () => {
     // Seed items into hash table for scanning
     for (let i = 0; i < 20; i++) {
-      const k = { pk: { S: `${PREFIX}scan-${i}` } }
-      hashKeys.push(k)
       await ddb.send(
         new PutItemCommand({
-          TableName: hashTableDef.name,
-          Item: { ...k, payload: { S: 'y'.repeat(60_000) } },
+          TableName: hashDef.name,
+          Item: { pk: { S: `scan-${i}` }, payload: { S: 'y'.repeat(60_000) } },
         }),
       )
     }
@@ -82,7 +92,7 @@ describe('Response size limit (1MB)', () => {
     do {
       const result = await ddb.send(
         new ScanCommand({
-          TableName: hashTableDef.name,
+          TableName: hashDef.name,
           ConsistentRead: true,
           ...(lastKey ? { ExclusiveStartKey: lastKey } : {}),
         }),
@@ -93,25 +103,22 @@ describe('Response size limit (1MB)', () => {
     } while (lastKey)
 
     // We should have needed pagination (multiple pages)
-    // Note: this depends on the table not having too many other items
     expect(totalItems).toBeGreaterThanOrEqual(20)
     expect(pageCount).toBeGreaterThanOrEqual(2)
   })
 
   it('single large item (under 400KB) is always returned', async () => {
-    const k = { pk: { S: `${PREFIX}single-big` } }
-    hashKeys.push(k)
     await ddb.send(
       new PutItemCommand({
-        TableName: hashTableDef.name,
-        Item: { ...k, payload: { S: 'z'.repeat(390_000) } },
+        TableName: hashDef.name,
+        Item: { pk: { S: 'single-big' }, payload: { S: 'z'.repeat(390_000) } },
       }),
     )
 
     const get = await ddb.send(
       new GetItemCommand({
-        TableName: hashTableDef.name,
-        Key: k,
+        TableName: hashDef.name,
+        Key: { pk: { S: 'single-big' } },
         ConsistentRead: true,
       }),
     )
@@ -127,7 +134,7 @@ describe('Response size limit (1MB)', () => {
     do {
       const result = await ddb.send(
         new QueryCommand({
-          TableName: compositeTableDef.name,
+          TableName: compositeDef.name,
           KeyConditionExpression: '#pk = :pk',
           ExpressionAttributeNames: { '#pk': 'pk' },
           ExpressionAttributeValues: { ':pk': { S: partitionKey } },
@@ -147,7 +154,7 @@ describe('Response size limit (1MB)', () => {
     // With Limit=5, should return exactly 5 items (Limit triggers before 1MB)
     const result = await ddb.send(
       new QueryCommand({
-        TableName: compositeTableDef.name,
+        TableName: compositeDef.name,
         KeyConditionExpression: '#pk = :pk',
         ExpressionAttributeNames: { '#pk': 'pk' },
         ExpressionAttributeValues: { ':pk': { S: partitionKey } },

@@ -5,49 +5,49 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import {
-  hashTableDef,
-  cleanupItems,
+  uniqueTableName,
+  createTable,
+  deleteTable,
   expectDynamoError,
 } from '../../../src/helpers.js'
+import type { TestTableDef } from '../../../src/types.js'
 
-const PREFIX = 'lim-batch-'
-const keysToClean: { pk: { S: string } }[] = []
+const tableDef: TestTableDef = {
+  name: uniqueTableName('lim_batch'),
+  hashKey: { name: 'pk', type: 'S' },
+  billingMode: 'PAY_PER_REQUEST',
+}
 
-afterAll(async () => {
-  await cleanupItems(hashTableDef.name, keysToClean)
+beforeAll(async () => {
+  await createTable(tableDef)
 })
 
-function trackKey(id: string) {
-  const k = { pk: { S: `${PREFIX}${id}` } }
-  keysToClean.push(k)
-  return k
-}
+afterAll(async () => {
+  await deleteTable(tableDef.name)
+})
 
 describe('BatchWriteItem limits', () => {
   it('BatchWriteItem with exactly 25 items succeeds', async () => {
-    const requests = Array.from({ length: 25 }, (_, i) => {
-      trackKey(`w25-${i}`)
-      return {
-        PutRequest: {
-          Item: { pk: { S: `${PREFIX}w25-${i}` }, idx: { N: String(i) } },
-        },
-      }
-    })
+    const requests = Array.from({ length: 25 }, (_, i) => ({
+      PutRequest: {
+        Item: { pk: { S: `w25-${i}` }, idx: { N: String(i) } },
+      },
+    }))
 
     const result = await ddb.send(
       new BatchWriteItemCommand({
-        RequestItems: { [hashTableDef.name]: requests },
+        RequestItems: { [tableDef.name]: requests },
       }),
     )
 
-    const unprocessed = result.UnprocessedItems?.[hashTableDef.name]
+    const unprocessed = result.UnprocessedItems?.[tableDef.name]
     expect(unprocessed ?? []).toHaveLength(0)
   })
 
   it('BatchWriteItem with 26 items fails with ValidationException', async () => {
     const requests = Array.from({ length: 26 }, (_, i) => ({
       PutRequest: {
-        Item: { pk: { S: `${PREFIX}w26-${i}` }, idx: { N: String(i) } },
+        Item: { pk: { S: `w26-${i}` }, idx: { N: String(i) } },
       },
     }))
 
@@ -55,7 +55,7 @@ describe('BatchWriteItem limits', () => {
       () =>
         ddb.send(
           new BatchWriteItemCommand({
-            RequestItems: { [hashTableDef.name]: requests },
+            RequestItems: { [tableDef.name]: requests },
           }),
         ),
       'ValidationException',
@@ -65,25 +65,22 @@ describe('BatchWriteItem limits', () => {
 
   it('BatchWriteItem with large items (each ~20KB, 25 items) succeeds', async () => {
     // Use 20KB per item (total ~500KB) to stay well under 16MB request limit
-    const requests = Array.from({ length: 25 }, (_, i) => {
-      trackKey(`wlg-${i}`)
-      return {
-        PutRequest: {
-          Item: {
-            pk: { S: `${PREFIX}wlg-${i}` },
-            payload: { S: 'x'.repeat(20_000) },
-          },
+    const requests = Array.from({ length: 25 }, (_, i) => ({
+      PutRequest: {
+        Item: {
+          pk: { S: `wlg-${i}` },
+          payload: { S: 'x'.repeat(20_000) },
         },
-      }
-    })
+      },
+    }))
 
     const result = await ddb.send(
       new BatchWriteItemCommand({
-        RequestItems: { [hashTableDef.name]: requests },
+        RequestItems: { [tableDef.name]: requests },
       }),
     )
 
-    const unprocessed = result.UnprocessedItems?.[hashTableDef.name]
+    const unprocessed = result.UnprocessedItems?.[tableDef.name]
     expect(unprocessed ?? []).toHaveLength(0)
   })
 })
@@ -91,18 +88,14 @@ describe('BatchWriteItem limits', () => {
 describe('BatchGetItem limits', () => {
   // Seed 101 items for BatchGetItem tests
   beforeAll(async () => {
-    // Write in batches of 25, with sleeps to avoid ProvisionedThroughputExceededException
-    // (hashTableDef is provisioned at 5 WCU, each batch consumes 25 WCU)
     for (let batch = 0; batch < 5; batch++) {
-      if (batch > 0) await new Promise((r) => setTimeout(r, 6_000))
       const requests = Array.from(
         { length: Math.min(25, 101 - batch * 25) },
         (_, i) => {
           const idx = batch * 25 + i
-          trackKey(`g-${idx}`)
           return {
             PutRequest: {
-              Item: { pk: { S: `${PREFIX}g-${idx}` }, idx: { N: String(idx) } },
+              Item: { pk: { S: `g-${idx}` }, idx: { N: String(idx) } },
             },
           }
         },
@@ -110,7 +103,7 @@ describe('BatchGetItem limits', () => {
       if (requests.length > 0) {
         await ddb.send(
           new BatchWriteItemCommand({
-            RequestItems: { [hashTableDef.name]: requests },
+            RequestItems: { [tableDef.name]: requests },
           }),
         )
       }
@@ -119,23 +112,23 @@ describe('BatchGetItem limits', () => {
 
   it('BatchGetItem with exactly 100 keys succeeds', async () => {
     const keys = Array.from({ length: 100 }, (_, i) => ({
-      pk: { S: `${PREFIX}g-${i}` },
+      pk: { S: `g-${i}` },
     }))
 
     const result = await ddb.send(
       new BatchGetItemCommand({
         RequestItems: {
-          [hashTableDef.name]: { Keys: keys, ConsistentRead: true },
+          [tableDef.name]: { Keys: keys, ConsistentRead: true },
         },
       }),
     )
 
-    expect(result.Responses?.[hashTableDef.name]).toBeDefined()
+    expect(result.Responses?.[tableDef.name]).toBeDefined()
   })
 
   it('BatchGetItem with 101 keys fails with ValidationException', async () => {
     const keys = Array.from({ length: 101 }, (_, i) => ({
-      pk: { S: `${PREFIX}g-${i}` },
+      pk: { S: `g-${i}` },
     }))
 
     await expectDynamoError(
@@ -143,7 +136,7 @@ describe('BatchGetItem limits', () => {
         ddb.send(
           new BatchGetItemCommand({
             RequestItems: {
-              [hashTableDef.name]: { Keys: keys, ConsistentRead: true },
+              [tableDef.name]: { Keys: keys, ConsistentRead: true },
             },
           }),
         ),

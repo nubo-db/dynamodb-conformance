@@ -6,35 +6,35 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import {
-  hashTableDef,
-  cleanupItems,
+  uniqueTableName,
+  createTable,
+  deleteTable,
   expectDynamoError,
 } from '../../../src/helpers.js'
+import type { TestTableDef } from '../../../src/types.js'
 
-const PREFIX = 'lim-txn-'
-const keysToClean: { pk: { S: string } }[] = []
+const tableDef: TestTableDef = {
+  name: uniqueTableName('lim_txn'),
+  hashKey: { name: 'pk', type: 'S' },
+  billingMode: 'PAY_PER_REQUEST',
+}
 
-afterAll(async () => {
-  await cleanupItems(hashTableDef.name, keysToClean)
+beforeAll(async () => {
+  await createTable(tableDef)
 })
 
-function trackKey(id: string) {
-  const k = { pk: { S: `${PREFIX}${id}` } }
-  keysToClean.push(k)
-  return k
-}
+afterAll(async () => {
+  await deleteTable(tableDef.name)
+})
 
 describe('TransactWriteItems limits', () => {
   it('TransactWriteItems with exactly 100 Put actions succeeds', async () => {
-    const items = Array.from({ length: 100 }, (_, i) => {
-      trackKey(`tw100-${i}`)
-      return {
-        Put: {
-          TableName: hashTableDef.name,
-          Item: { pk: { S: `${PREFIX}tw100-${i}` }, idx: { N: String(i) } },
-        },
-      }
-    })
+    const items = Array.from({ length: 100 }, (_, i) => ({
+      Put: {
+        TableName: tableDef.name,
+        Item: { pk: { S: `tw100-${i}` }, idx: { N: String(i) } },
+      },
+    }))
 
     const result = await ddb.send(
       new TransactWriteItemsCommand({ TransactItems: items }),
@@ -45,8 +45,8 @@ describe('TransactWriteItems limits', () => {
   it('TransactWriteItems with 101 actions fails with ValidationException', async () => {
     const items = Array.from({ length: 101 }, (_, i) => ({
       Put: {
-        TableName: hashTableDef.name,
-        Item: { pk: { S: `${PREFIX}tw101-${i}` }, idx: { N: String(i) } },
+        TableName: tableDef.name,
+        Item: { pk: { S: `tw101-${i}` }, idx: { N: String(i) } },
       },
     }))
 
@@ -62,18 +62,15 @@ describe('TransactWriteItems limits', () => {
 
   it('TransactWriteItems total item size approaching 4MB succeeds', async () => {
     // 10 items of ~350KB each = ~3.5MB — under the 4MB transaction limit
-    const items = Array.from({ length: 10 }, (_, i) => {
-      trackKey(`tw4mb-ok-${i}`)
-      return {
-        Put: {
-          TableName: hashTableDef.name,
-          Item: {
-            pk: { S: `${PREFIX}tw4mb-ok-${i}` },
-            payload: { S: 'x'.repeat(350_000) },
-          },
+    const items = Array.from({ length: 10 }, (_, i) => ({
+      Put: {
+        TableName: tableDef.name,
+        Item: {
+          pk: { S: `tw4mb-ok-${i}` },
+          payload: { S: 'x'.repeat(350_000) },
         },
-      }
-    })
+      },
+    }))
 
     const result = await ddb.send(
       new TransactWriteItemsCommand({ TransactItems: items }),
@@ -85,9 +82,9 @@ describe('TransactWriteItems limits', () => {
     // 12 items of ~350KB each = ~4.2MB — over the 4MB transaction limit
     const items = Array.from({ length: 12 }, (_, i) => ({
       Put: {
-        TableName: hashTableDef.name,
+        TableName: tableDef.name,
         Item: {
-          pk: { S: `${PREFIX}tw4mb-fail-${i}` },
+          pk: { S: `tw4mb-fail-${i}` },
           payload: { S: 'x'.repeat(350_000) },
         },
       },
@@ -106,17 +103,14 @@ describe('TransactWriteItems limits', () => {
 describe('TransactGetItems limits', () => {
   // Seed 101 items for TransactGetItems tests
   beforeAll(async () => {
-    // Write in batches of 25, with sleeps to avoid ProvisionedThroughputExceededException
     for (let batch = 0; batch < 5; batch++) {
-      if (batch > 0) await new Promise((r) => setTimeout(r, 6_000))
       const requests = Array.from(
         { length: Math.min(25, 101 - batch * 25) },
         (_, i) => {
           const idx = batch * 25 + i
-          trackKey(`tg-${idx}`)
           return {
             PutRequest: {
-              Item: { pk: { S: `${PREFIX}tg-${idx}` }, idx: { N: String(idx) } },
+              Item: { pk: { S: `tg-${idx}` }, idx: { N: String(idx) } },
             },
           }
         },
@@ -124,7 +118,7 @@ describe('TransactGetItems limits', () => {
       if (requests.length > 0) {
         await ddb.send(
           new BatchWriteItemCommand({
-            RequestItems: { [hashTableDef.name]: requests },
+            RequestItems: { [tableDef.name]: requests },
           }),
         )
       }
@@ -134,8 +128,8 @@ describe('TransactGetItems limits', () => {
   it('TransactGetItems with exactly 100 items succeeds', async () => {
     const items = Array.from({ length: 100 }, (_, i) => ({
       Get: {
-        TableName: hashTableDef.name,
-        Key: { pk: { S: `${PREFIX}tg-${i}` } },
+        TableName: tableDef.name,
+        Key: { pk: { S: `tg-${i}` } },
       },
     }))
 
@@ -149,8 +143,8 @@ describe('TransactGetItems limits', () => {
   it('TransactGetItems with 101 items fails with ValidationException', async () => {
     const items = Array.from({ length: 101 }, (_, i) => ({
       Get: {
-        TableName: hashTableDef.name,
-        Key: { pk: { S: `${PREFIX}tg-${i}` } },
+        TableName: tableDef.name,
+        Key: { pk: { S: `tg-${i}` } },
       },
     }))
 
