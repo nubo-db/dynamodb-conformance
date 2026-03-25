@@ -8,7 +8,7 @@ describe('GetItem — validation', () => {
       () =>
         ddb.send(
           new GetItemCommand({
-            TableName: 'this_table_does_not_exist_xyz',
+            TableName: '_conformance_nonexistent_table',
             Key: { pk: { S: 'test' } },
           }),
         ),

@@ -36,7 +36,7 @@ describe('BatchGetItem — validation', () => {
       () => ddb.send(
         new BatchGetItemCommand({
           RequestItems: {
-            this_table_does_not_exist_xyz: {
+            _conformance_nonexistent_table: {
               Keys: [{ pk: { S: 'test' } }],
             },
           },

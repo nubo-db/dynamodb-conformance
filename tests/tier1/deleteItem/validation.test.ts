@@ -7,7 +7,7 @@ describe('DeleteItem — validation', () => {
     await expectDynamoError(
       () => ddb.send(
         new DeleteItemCommand({
-          TableName: 'this_table_does_not_exist_xyz',
+          TableName: '_conformance_nonexistent_table',
           Key: { pk: { S: 'test' } },
         }),
       ),

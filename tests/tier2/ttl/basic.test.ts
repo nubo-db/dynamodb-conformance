@@ -147,7 +147,7 @@ describe('TTL — validation', () => {
       () =>
         ddb.send(
           new UpdateTimeToLiveCommand({
-            TableName: 'nonexistent_table_that_does_not_exist',
+            TableName: '_conformance_nonexistent_table',
             TimeToLiveSpecification: {
               Enabled: true,
               AttributeName: 'ttl',

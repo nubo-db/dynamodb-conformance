@@ -59,7 +59,7 @@ describe('DescribeTable — validation', () => {
     await expectDynamoError(
       () => ddb.send(
         new DescribeTableCommand({
-          TableName: 'this_table_does_not_exist_xyz',
+          TableName: '_conformance_nonexistent_table',
         }),
       ),
       'ResourceNotFoundException',

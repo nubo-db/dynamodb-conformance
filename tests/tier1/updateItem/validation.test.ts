@@ -7,7 +7,7 @@ describe('UpdateItem — validation', () => {
     await expectDynamoError(
       () => ddb.send(
         new UpdateItemCommand({
-          TableName: 'this_table_does_not_exist_xyz',
+          TableName: '_conformance_nonexistent_table',
           Key: { pk: { S: 'test' } },
           UpdateExpression: 'SET x = :v',
           ExpressionAttributeValues: { ':v': { S: 'test' } },

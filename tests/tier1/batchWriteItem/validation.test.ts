@@ -36,7 +36,7 @@ describe('BatchWriteItem — validation', () => {
       () => ddb.send(
         new BatchWriteItemCommand({
           RequestItems: {
-            this_table_does_not_exist_xyz: [
+            _conformance_nonexistent_table: [
               {
                 PutRequest: { Item: { pk: { S: 'test' } } },
               },

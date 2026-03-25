@@ -669,7 +669,7 @@ describe('TransactWriteItems - validation', () => {
             TransactItems: [
               {
                 Put: {
-                  TableName: 'nonexistent-table-abc123',
+                  TableName: '_conformance_nonexistent_table',
                   Item: { pk: { S: 'x' } },
                 },
               },

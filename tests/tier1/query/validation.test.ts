@@ -8,7 +8,7 @@ describe('Query — validation', () => {
       () =>
         ddb.send(
           new QueryCommand({
-            TableName: 'this_table_does_not_exist_xyz',
+            TableName: '_conformance_nonexistent_table',
             KeyConditionExpression: 'pk = :pk',
             ExpressionAttributeValues: { ':pk': { S: 'test' } },
           }),

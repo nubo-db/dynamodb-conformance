@@ -214,7 +214,7 @@ describe('TransactGetItems - validation', () => {
             TransactItems: [
               {
                 Get: {
-                  TableName: 'nonexistent-table-abc123',
+                  TableName: '_conformance_nonexistent_table',
                   Key: { pk: { S: 'x' } },
                 },
               },

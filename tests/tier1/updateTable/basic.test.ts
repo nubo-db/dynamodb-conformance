@@ -200,7 +200,7 @@ describe('UpdateTable — validation', () => {
       () =>
         ddb.send(
           new UpdateTableCommand({
-            TableName: 'this_table_does_not_exist_at_all',
+            TableName: '_conformance_nonexistent_table',
             ProvisionedThroughput: {
               ReadCapacityUnits: 10,
               WriteCapacityUnits: 10,

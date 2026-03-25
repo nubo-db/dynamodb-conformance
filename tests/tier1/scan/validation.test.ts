@@ -8,7 +8,7 @@ describe('Scan — validation', () => {
       () =>
         ddb.send(
           new ScanCommand({
-            TableName: 'this_table_does_not_exist_xyz',
+            TableName: '_conformance_nonexistent_table',
           }),
         ),
       'ResourceNotFoundException',
