@@ -106,8 +106,9 @@ describe('TransactWriteItems limits', () => {
 describe('TransactGetItems limits', () => {
   // Seed 101 items for TransactGetItems tests
   beforeAll(async () => {
-    // Write in batches of 25
+    // Write in batches of 25, with sleeps to avoid ProvisionedThroughputExceededException
     for (let batch = 0; batch < 5; batch++) {
+      if (batch > 0) await new Promise((r) => setTimeout(r, 6_000))
       const requests = Array.from(
         { length: Math.min(25, 101 - batch * 25) },
         (_, i) => {
