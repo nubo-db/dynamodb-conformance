@@ -91,8 +91,10 @@ describe('BatchWriteItem limits', () => {
 describe('BatchGetItem limits', () => {
   // Seed 101 items for BatchGetItem tests
   beforeAll(async () => {
-    // Write in batches of 25
+    // Write in batches of 25, with sleeps to avoid ProvisionedThroughputExceededException
+    // (hashTableDef is provisioned at 5 WCU, each batch consumes 25 WCU)
     for (let batch = 0; batch < 5; batch++) {
+      if (batch > 0) await new Promise((r) => setTimeout(r, 6_000))
       const requests = Array.from(
         { length: Math.min(25, 101 - batch * 25) },
         (_, i) => {
