@@ -380,7 +380,7 @@ describe('ExecuteStatement — PartiQL', () => {
   it('rejects a reference to a non-existent table', async () => {
     try {
       await ddb.send(new ExecuteStatementCommand({
-        Statement: `SELECT * FROM "table_that_does_not_exist_xyz" WHERE pk = 'x'`,
+        Statement: `SELECT * FROM "_conformance_nonexistent_table" WHERE pk = 'x'`,
       }))
       expect.unreachable('should have thrown')
     } catch (e: unknown) {

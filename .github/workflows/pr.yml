@@ -29,6 +29,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-2
+          role-duration-seconds: 3600
 
       - name: Run conformance suite (excludes GSI lifecycle — see README)
         env:

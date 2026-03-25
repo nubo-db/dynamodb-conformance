@@ -6,6 +6,7 @@ import {
   ListTablesCommand,
   QueryCommand,
   DynamoDBServiceException,
+  ResourceInUseException,
   ResourceNotFoundException,
   type CreateTableCommandInput,
   type AttributeDefinition,
@@ -160,7 +161,7 @@ export async function createTable(def: TestTableDef): Promise<void> {
   await waitUntilActive(def.name)
 }
 
-/** Delete a table, ignoring ResourceNotFoundException */
+/** Delete a table, ignoring ResourceNotFoundException and ResourceInUseException */
 export async function deleteTable(tableName: string): Promise<void> {
   try {
     await ddb.send(new DeleteTableCommand({ TableName: tableName }))
@@ -179,6 +180,7 @@ export async function deleteTable(tableName: string): Promise<void> {
     }
   } catch (e: unknown) {
     if (e instanceof ResourceNotFoundException) return
+    if (e instanceof ResourceInUseException) return // already being deleted
     throw e
   }
 }

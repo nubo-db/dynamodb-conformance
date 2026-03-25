@@ -114,7 +114,7 @@ describe('BatchExecuteStatement — PartiQL', () => {
     const result = await ddb.send(new BatchExecuteStatementCommand({
       Statements: [
         { Statement: `SELECT * FROM "${hashTableDef.name}" WHERE pk = 'batch-partial-1'` },
-        { Statement: `SELECT * FROM "table_that_does_not_exist_xyz" WHERE pk = 'x'` },
+        { Statement: `SELECT * FROM "_conformance_nonexistent_table" WHERE pk = 'x'` },
       ],
     }))
 
