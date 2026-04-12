@@ -1,6 +1,8 @@
 name: Conformance Tests
 
 on:
+  schedule:
+    - cron: '0 6 * * 1' # 6am UTC every Monday
   push:
     branches: [main]
   pull_request:
@@ -9,7 +11,7 @@ jobs:
   test-dynamodb:
     name: DynamoDB (ground truth)
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || vars.HAS_AWS_CREDENTIALS == 'true'
+    if: github.event_name == 'push' || github.event_name == 'schedule' || vars.HAS_AWS_CREDENTIALS == 'true'
     permissions:
       id-token: write
       contents: read
