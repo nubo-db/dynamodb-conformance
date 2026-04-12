@@ -143,15 +143,9 @@ jobs:
 
       - run: npm ci
 
-      - name: Install Dynoxide
-        run: |
-          curl -sfL https://github.com/nubo-db/dynoxide/releases/latest/download/dynoxide-x86_64-unknown-linux-gnu.tar.gz -o dynoxide.tar.gz
-          tar xzf dynoxide.tar.gz
-          sudo mv dynoxide /usr/local/bin/
-
       - name: Start Dynoxide
         run: |
-          dynoxide --port 8001 &
+          npx dynoxide --port 8001 &
           sleep 2
 
       - name: Run conformance suite
