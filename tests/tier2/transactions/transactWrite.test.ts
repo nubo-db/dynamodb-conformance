@@ -40,6 +40,7 @@ const hashKeys = [
   { pk: { S: 'tw-multi-del-3' } },
   { pk: { S: 'tw-dup-1' } },
   { pk: { S: 'tw-idem-mismatch' } },
+  { pk: { S: 'tw-cond-noexist' } },
 ]
 
 const compositeKeys = [
@@ -678,5 +679,45 @@ describe('TransactWriteItems - validation', () => {
         ),
       'ResourceNotFoundException',
     )
+  })
+
+  it('Update with attribute_exists rejects non-existent item', async () => {
+    // TransactWriteItems Update with attribute_exists(pk) on a key that does
+    // not exist must cancel the transaction — not silently create the item.
+    await cleanupItems(hashTableDef.name, [{ pk: { S: 'tw-cond-noexist' } }])
+
+    try {
+      await ddb.send(
+        new TransactWriteItemsCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: hashTableDef.name,
+                Key: { pk: { S: 'tw-cond-noexist' } },
+                UpdateExpression: 'ADD hit_count :inc',
+                ConditionExpression: 'attribute_exists(pk)',
+                ExpressionAttributeValues: { ':inc': { N: '1' } },
+              },
+            },
+          ],
+        }),
+      )
+      expect.unreachable('should have thrown TransactionCanceledException')
+    } catch (e) {
+      expect(e).toBeInstanceOf(TransactionCanceledException)
+      const err = e as TransactionCanceledException
+      expect(err.CancellationReasons).toBeDefined()
+      expect(err.CancellationReasons![0].Code).toBe('ConditionalCheckFailed')
+    }
+
+    // Verify no ghost item was created
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: 'tw-cond-noexist' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item).toBeUndefined()
   })
 })
