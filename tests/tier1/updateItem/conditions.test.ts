@@ -16,6 +16,7 @@ describe('UpdateItem — ConditionExpression', () => {
       { pk: { S: 'upd-cond-cmp' } },
       { pk: { S: 'upd-cond-and' } },
       { pk: { S: 'upd-cond-rvcf' } },
+      { pk: { S: 'upd-cond-noexist' } },
     ])
   })
 
@@ -266,5 +267,35 @@ describe('UpdateItem — ConditionExpression', () => {
       expect(err.Item!.status.S).toBe('locked')
       expect(err.Item!.data.S).toBe('important')
     }
+  })
+
+  it('attribute_exists rejects update on non-existent item (no upsert)', async () => {
+    // attribute_exists(pk) on a key that does not exist must fail —
+    // the update should NOT create a ghost item.
+    await cleanupItems(hashTableDef.name, [{ pk: { S: 'upd-cond-noexist' } }])
+
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new UpdateItemCommand({
+            TableName: hashTableDef.name,
+            Key: { pk: { S: 'upd-cond-noexist' } },
+            UpdateExpression: 'ADD hit_count :inc',
+            ConditionExpression: 'attribute_exists(pk)',
+            ExpressionAttributeValues: { ':inc': { N: '1' } },
+          }),
+        ),
+      'ConditionalCheckFailedException',
+    )
+
+    // Verify no ghost item was created
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: 'upd-cond-noexist' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item).toBeUndefined()
   })
 })
