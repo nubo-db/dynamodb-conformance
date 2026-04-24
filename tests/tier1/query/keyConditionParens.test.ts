@@ -65,10 +65,13 @@ describe('Query — KeyConditionExpression with parentheses', () => {
   })
 
   it('handles nested parentheses in KeyConditionExpression', async () => {
+    // DynamoDB rejects redundant wrapping like `((x)) AND ((y))` with
+    // "The expression has redundant parentheses", so we use a genuinely
+    // nested form (outer parens wrap the AND, inner parens wrap one side).
     const result = await ddb.send(
       new QueryCommand({
         TableName: compositeTableDef.name,
-        KeyConditionExpression: '((#pk = :pk)) AND ((#sk = :sk))',
+        KeyConditionExpression: '(#pk = :pk AND (#sk = :sk))',
         ExpressionAttributeNames: { '#pk': 'pk', '#sk': 'sk' },
         ExpressionAttributeValues: {
           ':pk': { S: pk },
