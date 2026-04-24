@@ -41,6 +41,11 @@ const hashKeys = [
   { pk: { S: 'tw-dup-1' } },
   { pk: { S: 'tw-idem-mismatch' } },
   { pk: { S: 'tw-cond-noexist' } },
+  { pk: { S: 'tw-cep-put' } },
+  { pk: { S: 'tw-cep-upd' } },
+  { pk: { S: 'tw-cep-del' } },
+  { pk: { S: 'tw-cep-cc' } },
+  { pk: { S: 'tw-cep-fail' } },
 ]
 
 const compositeKeys = [
@@ -719,5 +724,197 @@ describe('TransactWriteItems - validation', () => {
       }),
     )
     expect(check.Item).toBeUndefined()
+  })
+})
+
+describe('TransactWriteItems - ConditionExpression parens', () => {
+  // Each action type (Put, Update, Delete, ConditionCheck) is exercised
+  // through the transactional code path with a parenthesised ConditionExpression.
+  // Seeds existing items for the Update, Delete, and ConditionCheck cases.
+  beforeAll(async () => {
+    await Promise.all(
+      [
+        { pk: 'tw-cep-upd', status: 'active', score: '10' },
+        { pk: 'tw-cep-del', status: 'active' },
+        { pk: 'tw-cep-cc', status: 'active' },
+        { pk: 'tw-cep-fail', status: 'active' },
+      ].map((item) =>
+        ddb.send(
+          new PutItemCommand({
+            TableName: hashTableDef.name,
+            Item: {
+              pk: { S: item.pk },
+              status: { S: item.status },
+              ...(item.score ? { score: { N: item.score } } : {}),
+            },
+          }),
+        ),
+      ),
+    )
+    await cleanupItems(hashTableDef.name, [{ pk: { S: 'tw-cep-put' } }])
+  })
+
+  it('Put with per-condition parens succeeds on fresh key', async () => {
+    await ddb.send(
+      new TransactWriteItemsCommand({
+        TransactItems: [
+          {
+            Put: {
+              TableName: hashTableDef.name,
+              Item: { pk: { S: 'tw-cep-put' }, status: { S: 'new' } },
+              ConditionExpression:
+                '(attribute_not_exists(pk)) AND (attribute_not_exists(#s))',
+              ExpressionAttributeNames: { '#s': 'status' },
+            },
+          },
+        ],
+      }),
+    )
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: 'tw-cep-put' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item!.status.S).toBe('new')
+  })
+
+  it('Update with full-expression wrap succeeds when condition holds', async () => {
+    await ddb.send(
+      new TransactWriteItemsCommand({
+        TransactItems: [
+          {
+            Update: {
+              TableName: hashTableDef.name,
+              Key: { pk: { S: 'tw-cep-upd' } },
+              UpdateExpression: 'SET #s = :next',
+              ConditionExpression: '(#s = :cur AND #sc > :min)',
+              ExpressionAttributeNames: { '#s': 'status', '#sc': 'score' },
+              ExpressionAttributeValues: {
+                ':cur': { S: 'active' },
+                ':next': { S: 'updated' },
+                ':min': { N: '5' },
+              },
+            },
+          },
+        ],
+      }),
+    )
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: 'tw-cep-upd' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item!.status.S).toBe('updated')
+  })
+
+  it('Delete with non-redundant nested parens succeeds when condition holds', async () => {
+    await ddb.send(
+      new TransactWriteItemsCommand({
+        TransactItems: [
+          {
+            Delete: {
+              TableName: hashTableDef.name,
+              Key: { pk: { S: 'tw-cep-del' } },
+              ConditionExpression: '(attribute_exists(pk) AND (#s = :v))',
+              ExpressionAttributeNames: { '#s': 'status' },
+              ExpressionAttributeValues: { ':v': { S: 'active' } },
+            },
+          },
+        ],
+      }),
+    )
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: 'tw-cep-del' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item).toBeUndefined()
+  })
+
+  it('ConditionCheck with per-condition parens passes when condition holds', async () => {
+    // ConditionCheck-only transaction also needs a write action to be valid,
+    // so we pair it with a harmless Put on a fresh key.
+    const putKey = 'tw-cep-cc-put'
+    await cleanupItems(hashTableDef.name, [{ pk: { S: putKey } }])
+
+    await ddb.send(
+      new TransactWriteItemsCommand({
+        TransactItems: [
+          {
+            ConditionCheck: {
+              TableName: hashTableDef.name,
+              Key: { pk: { S: 'tw-cep-cc' } },
+              ConditionExpression: '(attribute_exists(pk)) AND (#s = :v)',
+              ExpressionAttributeNames: { '#s': 'status' },
+              ExpressionAttributeValues: { ':v': { S: 'active' } },
+            },
+          },
+          {
+            Put: {
+              TableName: hashTableDef.name,
+              Item: { pk: { S: putKey }, data: { S: 'witness' } },
+            },
+          },
+        ],
+      }),
+    )
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: putKey } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item!.data.S).toBe('witness')
+    await cleanupItems(hashTableDef.name, [{ pk: { S: putKey } }])
+  })
+
+  it('cancels transaction when any parenthesised condition fails', async () => {
+    try {
+      await ddb.send(
+        new TransactWriteItemsCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: hashTableDef.name,
+                Key: { pk: { S: 'tw-cep-fail' } },
+                UpdateExpression: 'SET #s = :next',
+                ConditionExpression: '(#s = :wrong) AND (attribute_exists(pk))',
+                ExpressionAttributeNames: { '#s': 'status' },
+                ExpressionAttributeValues: {
+                  ':wrong': { S: 'inactive' },
+                  ':next': { S: 'should-not-apply' },
+                },
+              },
+            },
+          ],
+        }),
+      )
+      expect.unreachable('should have thrown TransactionCanceledException')
+    } catch (e) {
+      expect(e).toBeInstanceOf(TransactionCanceledException)
+      const err = e as TransactionCanceledException
+      expect(err.CancellationReasons![0].Code).toBe('ConditionalCheckFailed')
+    }
+
+    // Item unchanged
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: 'tw-cep-fail' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item!.status.S).toBe('active')
   })
 })

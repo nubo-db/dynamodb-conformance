@@ -299,3 +299,129 @@ describe('UpdateItem — ConditionExpression', () => {
     expect(check.Item).toBeUndefined()
   })
 })
+
+describe('UpdateItem — ConditionExpression parens', () => {
+  const pk = 'upd-cep-seed'
+
+  beforeAll(async () => {
+    await cleanupItems(hashTableDef.name, [{ pk: { S: pk } }])
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: pk }, status: { S: 'active' }, score: { N: '10' } },
+      }),
+    )
+  })
+
+  afterAll(async () => {
+    await cleanupItems(hashTableDef.name, [{ pk: { S: pk } }])
+  })
+
+  it('accepts per-condition parens and updates', async () => {
+    await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET #s = :next',
+        ConditionExpression: '(#s = :cur) AND (#sc > :min)',
+        ExpressionAttributeNames: { '#s': 'status', '#sc': 'score' },
+        ExpressionAttributeValues: {
+          ':cur': { S: 'active' },
+          ':next': { S: 'step-1' },
+          ':min': { N: '5' },
+        },
+      }),
+    )
+
+    const result = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(result.Item!.status.S).toBe('step-1')
+  })
+
+  it('accepts full-expression wrap and updates', async () => {
+    await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET #s = :next',
+        ConditionExpression: '(#s = :cur AND #sc > :min)',
+        ExpressionAttributeNames: { '#s': 'status', '#sc': 'score' },
+        ExpressionAttributeValues: {
+          ':cur': { S: 'step-1' },
+          ':next': { S: 'step-2' },
+          ':min': { N: '5' },
+        },
+      }),
+    )
+
+    const result = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(result.Item!.status.S).toBe('step-2')
+  })
+
+  it('accepts non-redundant nested parens and updates', async () => {
+    await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET #s = :next',
+        ConditionExpression: '(#s = :cur AND (#sc > :min))',
+        ExpressionAttributeNames: { '#s': 'status', '#sc': 'score' },
+        ExpressionAttributeValues: {
+          ':cur': { S: 'step-2' },
+          ':next': { S: 'step-3' },
+          ':min': { N: '5' },
+        },
+      }),
+    )
+
+    const result = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(result.Item!.status.S).toBe('step-3')
+  })
+
+  it('rejects UpdateItem when parenthesised condition fails; item unchanged', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new UpdateItemCommand({
+            TableName: hashTableDef.name,
+            Key: { pk: { S: pk } },
+            UpdateExpression: 'SET #s = :next',
+            ConditionExpression: '(#s = :wrong) AND (#sc > :min)',
+            ExpressionAttributeNames: { '#s': 'status', '#sc': 'score' },
+            ExpressionAttributeValues: {
+              ':wrong': { S: 'inactive' },
+              ':next': { S: 'should-not-apply' },
+              ':min': { N: '5' },
+            },
+          }),
+        ),
+      'ConditionalCheckFailedException',
+    )
+
+    const result = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(result.Item!.status.S).toBe('step-3')
+  })
+})
