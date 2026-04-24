@@ -9,3 +9,6 @@ dist/
 .env.local
 .env.*.local
 .DS_Store
+ground-truth/
+.claude/settings.local.json
+.claude/*.lock
