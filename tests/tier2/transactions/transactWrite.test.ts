@@ -46,6 +46,11 @@ const hashKeys = [
   { pk: { S: 'tw-cep-del' } },
   { pk: { S: 'tw-cep-cc' } },
   { pk: { S: 'tw-cep-fail' } },
+  { pk: { S: 'tw-upsert' } },
+  { pk: { S: 'tw-cmp-noexist' } },
+  { pk: { S: 'tw-and-noexist' } },
+  { pk: { S: 'tw-mix-existing' } },
+  { pk: { S: 'tw-mix-noexist' } },
 ]
 
 const compositeKeys = [
@@ -724,6 +729,195 @@ describe('TransactWriteItems - validation', () => {
       }),
     )
     expect(check.Item).toBeUndefined()
+  })
+
+  it('Update with attribute_not_exists upserts on non-existent key', async () => {
+    // Canonical "create if absent" through TransactWriteItems. Mirror of the
+    // UpdateItem upsert test, now through the transactional code path.
+    const pk = 'tw-upsert'
+    await cleanupItems(hashTableDef.name, [{ pk: { S: pk } }])
+
+    await ddb.send(
+      new TransactWriteItemsCommand({
+        TransactItems: [
+          {
+            Update: {
+              TableName: hashTableDef.name,
+              Key: { pk: { S: pk } },
+              UpdateExpression: 'SET #s = :new',
+              ConditionExpression: 'attribute_not_exists(pk)',
+              ExpressionAttributeNames: { '#s': 'status' },
+              ExpressionAttributeValues: { ':new': { S: 'created' } },
+            },
+          },
+        ],
+      }),
+    )
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item).toBeDefined()
+    expect(check.Item!.status.S).toBe('created')
+  })
+
+  it('Update with comparison condition cancels on non-existent key; no ghost item', async () => {
+    const pk = 'tw-cmp-noexist'
+    await cleanupItems(hashTableDef.name, [{ pk: { S: pk } }])
+
+    try {
+      await ddb.send(
+        new TransactWriteItemsCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: hashTableDef.name,
+                Key: { pk: { S: pk } },
+                UpdateExpression: 'SET #s = :new',
+                ConditionExpression: '#sc > :min',
+                ExpressionAttributeNames: { '#s': 'status', '#sc': 'score' },
+                ExpressionAttributeValues: {
+                  ':new': { S: 'should-not-apply' },
+                  ':min': { N: '0' },
+                },
+              },
+            },
+          ],
+        }),
+      )
+      expect.unreachable('should have thrown TransactionCanceledException')
+    } catch (e) {
+      expect(e).toBeInstanceOf(TransactionCanceledException)
+      const err = e as TransactionCanceledException
+      expect(err.CancellationReasons![0].Code).toBe('ConditionalCheckFailed')
+    }
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item).toBeUndefined()
+  })
+
+  it('Update with combined attribute_exists + equality cancels on non-existent key; no ghost item', async () => {
+    const pk = 'tw-and-noexist'
+    await cleanupItems(hashTableDef.name, [{ pk: { S: pk } }])
+
+    try {
+      await ddb.send(
+        new TransactWriteItemsCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: hashTableDef.name,
+                Key: { pk: { S: pk } },
+                UpdateExpression: 'SET #s = :new',
+                ConditionExpression: 'attribute_exists(pk) AND #s = :expected',
+                ExpressionAttributeNames: { '#s': 'status' },
+                ExpressionAttributeValues: {
+                  ':new': { S: 'should-not-apply' },
+                  ':expected': { S: 'active' },
+                },
+              },
+            },
+          ],
+        }),
+      )
+      expect.unreachable('should have thrown TransactionCanceledException')
+    } catch (e) {
+      expect(e).toBeInstanceOf(TransactionCanceledException)
+      const err = e as TransactionCanceledException
+      expect(err.CancellationReasons![0].Code).toBe('ConditionalCheckFailed')
+    }
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item).toBeUndefined()
+  })
+
+  it('mixed transaction: one passing, one failing on non-existent cancels everything', async () => {
+    // Integration: two Updates in one transaction. One targets an existing
+    // item (condition holds), the other targets a non-existent key with
+    // attribute_exists(pk) (condition fails). The whole transaction must be
+    // cancelled and the existing item must remain unmodified.
+    const existingPk = 'tw-mix-existing'
+    const noexistPk = 'tw-mix-noexist'
+    await cleanupItems(hashTableDef.name, [
+      { pk: { S: existingPk } },
+      { pk: { S: noexistPk } },
+    ])
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: existingPk }, status: { S: 'active' } },
+      }),
+    )
+
+    try {
+      await ddb.send(
+        new TransactWriteItemsCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: hashTableDef.name,
+                Key: { pk: { S: existingPk } },
+                UpdateExpression: 'SET #s = :new',
+                ConditionExpression: 'attribute_exists(pk)',
+                ExpressionAttributeNames: { '#s': 'status' },
+                ExpressionAttributeValues: { ':new': { S: 'updated' } },
+              },
+            },
+            {
+              Update: {
+                TableName: hashTableDef.name,
+                Key: { pk: { S: noexistPk } },
+                UpdateExpression: 'SET #s = :new',
+                ConditionExpression: 'attribute_exists(pk)',
+                ExpressionAttributeNames: { '#s': 'status' },
+                ExpressionAttributeValues: { ':new': { S: 'should-not-apply' } },
+              },
+            },
+          ],
+        }),
+      )
+      expect.unreachable('should have thrown TransactionCanceledException')
+    } catch (e) {
+      expect(e).toBeInstanceOf(TransactionCanceledException)
+      const err = e as TransactionCanceledException
+      expect(err.CancellationReasons![1].Code).toBe('ConditionalCheckFailed')
+    }
+
+    // Existing item unchanged
+    const existing = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: existingPk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(existing.Item!.status.S).toBe('active')
+
+    // Non-existent key still absent
+    const noexist = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: noexistPk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(noexist.Item).toBeUndefined()
   })
 })
 
