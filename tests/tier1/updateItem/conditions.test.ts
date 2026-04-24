@@ -17,6 +17,10 @@ describe('UpdateItem — ConditionExpression', () => {
       { pk: { S: 'upd-cond-and' } },
       { pk: { S: 'upd-cond-rvcf' } },
       { pk: { S: 'upd-cond-noexist' } },
+      { pk: { S: 'upd-cond-upsert' } },
+      { pk: { S: 'upd-cond-cmp-noexist' } },
+      { pk: { S: 'upd-cond-and-noexist' } },
+      { pk: { S: 'upd-cond-upsert-allnew' } },
     ])
   })
 
@@ -297,6 +301,125 @@ describe('UpdateItem — ConditionExpression', () => {
       }),
     )
     expect(check.Item).toBeUndefined()
+  })
+
+  it('attribute_not_exists upserts on non-existent key', async () => {
+    // Canonical "create if absent" pattern. attribute_not_exists(pk) on a key
+    // that does not exist must succeed, and the update should be applied.
+    const pk = 'upd-cond-upsert'
+    await cleanupItems(hashTableDef.name, [{ pk: { S: pk } }])
+
+    await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET #s = :new',
+        ConditionExpression: 'attribute_not_exists(pk)',
+        ExpressionAttributeNames: { '#s': 'status' },
+        ExpressionAttributeValues: { ':new': { S: 'created' } },
+      }),
+    )
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item).toBeDefined()
+    expect(check.Item!.status.S).toBe('created')
+  })
+
+  it('comparison condition rejects update on non-existent key; no ghost item', async () => {
+    // `score > :min` evaluates false because the attribute (and the item)
+    // does not exist. Update must fail and must not create a ghost item.
+    const pk = 'upd-cond-cmp-noexist'
+    await cleanupItems(hashTableDef.name, [{ pk: { S: pk } }])
+
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new UpdateItemCommand({
+            TableName: hashTableDef.name,
+            Key: { pk: { S: pk } },
+            UpdateExpression: 'SET #s = :new',
+            ConditionExpression: '#sc > :min',
+            ExpressionAttributeNames: { '#s': 'status', '#sc': 'score' },
+            ExpressionAttributeValues: {
+              ':new': { S: 'should-not-apply' },
+              ':min': { N: '0' },
+            },
+          }),
+        ),
+      'ConditionalCheckFailedException',
+    )
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item).toBeUndefined()
+  })
+
+  it('combined attribute_exists + equality rejects update on non-existent key; no ghost item', async () => {
+    const pk = 'upd-cond-and-noexist'
+    await cleanupItems(hashTableDef.name, [{ pk: { S: pk } }])
+
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new UpdateItemCommand({
+            TableName: hashTableDef.name,
+            Key: { pk: { S: pk } },
+            UpdateExpression: 'SET #s = :new',
+            ConditionExpression: 'attribute_exists(pk) AND #s = :expected',
+            ExpressionAttributeNames: { '#s': 'status' },
+            ExpressionAttributeValues: {
+              ':new': { S: 'should-not-apply' },
+              ':expected': { S: 'active' },
+            },
+          }),
+        ),
+      'ConditionalCheckFailedException',
+    )
+
+    const check = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(check.Item).toBeUndefined()
+  })
+
+  it('attribute_not_exists upsert with ReturnValues: ALL_NEW returns created attributes', async () => {
+    const pk = 'upd-cond-upsert-allnew'
+    await cleanupItems(hashTableDef.name, [{ pk: { S: pk } }])
+
+    const result = await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET #s = :new, #sc = :score',
+        ConditionExpression: 'attribute_not_exists(pk)',
+        ExpressionAttributeNames: { '#s': 'status', '#sc': 'score' },
+        ExpressionAttributeValues: {
+          ':new': { S: 'fresh' },
+          ':score': { N: '42' },
+        },
+        ReturnValues: 'ALL_NEW',
+      }),
+    )
+
+    expect(result.Attributes).toBeDefined()
+    expect(result.Attributes!.pk.S).toBe(pk)
+    expect(result.Attributes!.status.S).toBe('fresh')
+    expect(result.Attributes!.score.N).toBe('42')
   })
 })
 
