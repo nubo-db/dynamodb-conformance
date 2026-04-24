@@ -27,11 +27,11 @@ DYNAMODB_ENDPOINT=http://localhost:8000 npm run test:tier1
 
 | Target | Tier 1 | Tier 2 | Tier 3 | Total | Pass/Fail |
 |--------|--------|--------|--------|-------|-----------|
-| DynamoDB | 100% | 100% | 100% | 100% | 526/0 (ground truth) |
-| Dynoxide | 100% | 100% | 100% | 100% | 526/0 |
-| LocalStack | 98.9% | 95.7% | 81.9% | 93.0% | 489/37 |
-| DynamoDB Local | 98.9% | 90.3% | 81.9% | 92.0% | 484/42 |
-| Dynalite | 98.1% | 10.8% | 92.8% | 81.0% | 426/57 |
+| DynamoDB | 100% | 100% | 100% | 100% | 572/0 (ground truth) |
+| Dynoxide | 100% | 100% | 100% | 100% | 572/0 |
+| LocalStack | 99.0% | 96.1% | 81.9% | 93.5% | 535/37 |
+| DynamoDB Local | 99.0% | 91.3% | 81.9% | 92.7% | 530/42 |
+| Dynalite | 98.3% | 9.7% | 92.8% | 80.8% | 462/67 |
 
 Regenerate with `npm run results:table`.
 
@@ -197,12 +197,12 @@ All test data must be synthetic. Don't use real names, emails, addresses, or any
 
 | Operation | Tier 1 | Tier 2 | Tier 3 |
 |-----------|--------|--------|--------|
-| PutItem | basic, conditions, validation, expressions, dataTypes, consumedCapacity, itemCollectionMetrics | | error messages |
+| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, itemCollectionMetrics | | error messages |
 | GetItem | basic, validation, projection, consumedCapacity | | |
-| UpdateItem | basic, conditions, validation, paths | | error messages |
-| DeleteItem | basic, validation | | error messages |
-| Query | basic, GSI, LSI, expressions, select, numericKeys, binaryKeys, pagination | | error messages, validation ordering |
-| Scan | basic, validation, GSI, LSI, parallel, select, filterOperators | | validation ordering |
+| UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths | | error messages |
+| DeleteItem | basic, conditions (incl. parens), validation | | error messages |
+| Query | basic, GSI, LSI, expressions (incl. KeyCondition + Filter parens), select, numericKeys, binaryKeys, pagination | | error messages, validation ordering |
+| Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens | | validation ordering |
 | BatchWriteItem | basic, validation | | |
 | BatchGetItem | basic, validation | | |
 | CreateTable | basic, GSI, LSI | | error messages, validation ordering |
@@ -210,7 +210,7 @@ All test data must be synthetic. Don't use real names, emails, addresses, or any
 | DescribeTable | basic | | |
 | ListTables | basic | | |
 | UpdateTable | basic (throughput, billing mode) | GSI lifecycle | |
-| TransactWriteItems | | basic, conditions, idempotency, cancellation | |
+| TransactWriteItems | | basic, conditions (incl. parens, non-existent key branch), idempotency, cancellation | |
 | TransactGetItems | | basic, validation | |
 | ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised | |
 | BatchExecuteStatement | | batch, partial failure | |
