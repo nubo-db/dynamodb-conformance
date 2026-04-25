@@ -1,10 +1,12 @@
-import { UpdateItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb'
+import {
+  UpdateItemCommand,
+  DynamoDBServiceException,
+} from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
   compositeTableDef,
   cleanupItems,
-  expectDynamoError,
 } from '../../../src/helpers.js'
 
 const hashKeys = [
@@ -23,38 +25,48 @@ afterAll(async () => {
 
 describe('UpdateItem — exact error messages', () => {
   it('cannot update hash key attribute', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+    try {
+      await ddb.send(
         new UpdateItemCommand({
           TableName: hashTableDef.name,
           Key: { pk: { S: 'em-upd-key-mod' } },
           UpdateExpression: 'SET pk = :v',
           ExpressionAttributeValues: { ':v': { S: 'new-val' } },
         }),
-      ),
-      'ValidationException',
-      /Cannot update attribute.*key/i,
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values were invalid: Cannot update attribute pk. This attribute is part of the key',
+      )
+    }
   })
 
   it('invalid UpdateExpression syntax', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+    try {
+      await ddb.send(
         new UpdateItemCommand({
           TableName: hashTableDef.name,
           Key: { pk: { S: 'em-upd-key-mod' } },
           UpdateExpression: 'INVALID SYNTAX HERE',
           ExpressionAttributeValues: { ':v': { S: 'val' } },
         }),
-      ),
-      'ValidationException',
-      'Invalid UpdateExpression',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Invalid UpdateExpression: Syntax error; token: "INVALID", near: "INVALID SYNTAX"',
+      )
+    }
   })
 
   it('unused ExpressionAttributeNames', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+    try {
+      await ddb.send(
         new UpdateItemCommand({
           TableName: hashTableDef.name,
           Key: { pk: { S: 'em-upd-key-mod' } },
@@ -62,44 +74,59 @@ describe('UpdateItem — exact error messages', () => {
           ExpressionAttributeValues: { ':v': { S: 'val' } },
           ExpressionAttributeNames: { '#unused': 'someattr' },
         }),
-      ),
-      'ValidationException',
-      'Value provided in ExpressionAttributeNames unused in expressions',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}',
+      )
+    }
   })
 
   it('unused ExpressionAttributeValues', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+    try {
+      await ddb.send(
         new UpdateItemCommand({
           TableName: hashTableDef.name,
           Key: { pk: { S: 'em-upd-key-mod' } },
           UpdateExpression: 'SET attr1 = :v',
           ExpressionAttributeValues: { ':v': { S: 'val' }, ':unused': { S: 'extra' } },
         }),
-      ),
-      'ValidationException',
-      'Value provided in ExpressionAttributeValues unused in expressions',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}',
+      )
+    }
   })
 
   it('missing ExpressionAttributeValues reference', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+    try {
+      await ddb.send(
         new UpdateItemCommand({
           TableName: hashTableDef.name,
           Key: { pk: { S: 'em-upd-key-mod' } },
           UpdateExpression: 'SET attr1 = :v',
         }),
-      ),
-      'ValidationException',
-      /was not substituted|not defined|expression attribute value|Value provided in ExpressionAttributeValues unused in expressions|ExpressionAttributeValues must not be empty/,
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v',
+      )
+    }
   })
 
   it('mixing UpdateExpression with AttributeUpdates', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+    try {
+      await ddb.send(
         new UpdateItemCommand({
           TableName: hashTableDef.name,
           Key: { pk: { S: 'em-upd-key-mod' } },
@@ -109,38 +136,53 @@ describe('UpdateItem — exact error messages', () => {
             attr1: { Value: { S: 'val' }, Action: 'PUT' },
           },
         }),
-      ),
-      'ValidationException',
-      'Can not use both expression and non-expression',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}',
+      )
+    }
   })
 
   it('empty UpdateExpression', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+    try {
+      await ddb.send(
         new UpdateItemCommand({
           TableName: hashTableDef.name,
           Key: { pk: { S: 'em-upd-key-mod' } },
           UpdateExpression: '',
         }),
-      ),
-      'ValidationException',
-      'Invalid UpdateExpression',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Invalid UpdateExpression: The expression can not be empty;',
+      )
+    }
   })
 
   it('cannot update range key attribute on composite table', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+    try {
+      await ddb.send(
         new UpdateItemCommand({
           TableName: compositeTableDef.name,
           Key: { pk: { S: 'em-upd-range-mod' }, sk: { S: 'sk1' } },
           UpdateExpression: 'SET sk = :v',
           ExpressionAttributeValues: { ':v': { S: 'new-sk' } },
         }),
-      ),
-      'ValidationException',
-      /Cannot update attribute.*key/i,
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values were invalid: Cannot update attribute sk. This attribute is part of the key',
+      )
+    }
   })
 })

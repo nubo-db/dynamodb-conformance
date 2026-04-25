@@ -1,10 +1,11 @@
-import { PutItemCommand } from '@aws-sdk/client-dynamodb'
+import {
+  PutItemCommand,
+  DynamoDBServiceException,
+} from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
-  compositeTableDef,
   cleanupItems,
-  expectDynamoError,
 } from '../../../src/helpers.js'
 
 const keysToCleanup = [
@@ -16,136 +17,186 @@ afterAll(async () => {
 })
 
 describe('PutItem — exact error messages', () => {
-  it('missing table name: "Member must not be null"', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('missing table name: full validation error string', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: undefined as unknown as string,
           Item: { pk: { S: 'test' } },
         }),
-      ),
-      'ValidationException',
-      'Member must not be null',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        "1 validation error detected: Value null at 'tableName' failed to satisfy constraint: Member must not be null",
+      )
+    }
   })
 
-  it('empty table name: validation error for minimum length', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('empty table name: minimum length 1 error', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: '',
           Item: { pk: { S: 'test' } },
         }),
-      ),
-      'ValidationException',
-      /Member must have length greater than or equal to 1|Member must satisfy regular expression/,
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+      )
+    }
   })
 
-  it('table name too long (256 chars): "Member must have length less than or equal to 255"', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('table name too long (256 chars): maximum length 255 error', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: 'a'.repeat(256),
           Item: { pk: { S: 'test' } },
         }),
-      ),
-      'ValidationException',
-      'Member must have length less than or equal to 255',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        `1 validation error detected: Value '${'a'.repeat(256)}' at 'tableName' failed to satisfy constraint: Member must have length less than or equal to 255`,
+      )
+    }
   })
 
-  it('table name with invalid chars: "Member must satisfy regular expression pattern"', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('table name with invalid chars: regex pattern error', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: 'bad table!@#',
           Item: { pk: { S: 'test' } },
         }),
-      ),
-      'ValidationException',
-      /Member must satisfy regular expression pattern: \[a-zA-Z0-9_.\-\]\+/,
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        "1 validation error detected: Value 'bad table!@#' at 'tableName' failed to satisfy constraint: Member must satisfy regular expression pattern: [a-zA-Z0-9_.-]+",
+      )
+    }
   })
 
-  it('empty string set: "An string set  may not be empty"', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('empty string set: full parameter-values-invalid error', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: hashTableDef.name,
           Item: { pk: { S: 'test' }, bad: { SS: [] } },
         }),
-      ),
-      'ValidationException',
-      'An string set  may not be empty',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values were invalid: An string set  may not be empty',
+      )
+    }
   })
 
-  it('empty number set: "An number set  may not be empty"', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('empty number set: full parameter-values-invalid error', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: hashTableDef.name,
           Item: { pk: { S: 'test' }, bad: { NS: [] } },
         }),
-      ),
-      'ValidationException',
-      'An number set  may not be empty',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values were invalid: An number set  may not be empty',
+      )
+    }
   })
 
-  it('duplicate values in SS: "Input collection [x, x] contains duplicates"', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('duplicate values in SS: full duplicates error', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: hashTableDef.name,
           Item: { pk: { S: 'test' }, bad: { SS: ['a', 'a'] } },
         }),
-      ),
-      'ValidationException',
-      /Input collection.*contains duplicates/,
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values were invalid: Input collection [a, a] contains duplicates.',
+      )
+    }
   })
 
-  it('NULL attr with false: "Null attribute value types must have the value of true"', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('NULL attr with false: full null-attribute error', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: hashTableDef.name,
           Item: { pk: { S: 'em-put-null-false' }, attr1: { NULL: false } },
         }),
-      ),
-      'ValidationException',
-      'Null attribute value types must have the value of true',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values were invalid: Null attribute value types must have the value of true',
+      )
+    }
   })
 
-  it('mixing expression and non-expression: exact message', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('mixing expression and non-expression: full conflict error', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: hashTableDef.name,
           Item: { pk: { S: 'test' } },
           Expected: { pk: { Exists: false } },
           ConditionExpression: 'attribute_not_exists(pk)',
         }),
-      ),
-      'ValidationException',
-      'Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}',
+      )
+    }
   })
 
-  it('ExpressionAttributeValues without expression: error message', async () => {
-    await expectDynamoError(
-      () => ddb.send(
+  it('ExpressionAttributeValues without expression: full unused-EAV error', async () => {
+    try {
+      await ddb.send(
         new PutItemCommand({
           TableName: hashTableDef.name,
           Item: { pk: { S: 'test' } },
           ExpressionAttributeValues: { ':v': { S: 'unused' } },
         }),
-      ),
-      'ValidationException',
-      'ExpressionAttributeValues can only be specified when using expressions',
-    )
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'ExpressionAttributeValues can only be specified when using expressions: ConditionExpression is null',
+      )
+    }
   })
 })
