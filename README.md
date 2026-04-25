@@ -28,7 +28,7 @@ DYNAMODB_ENDPOINT=http://localhost:8000 npm run test:tier1
 | Target | Tier 1 | Tier 2 | Tier 3 | Total | Pass/Fail |
 |--------|--------|--------|--------|-------|-----------|
 | DynamoDB | 100% | 100% | 100% | 100% | 572/0 (ground truth) |
-| Dynoxide 0.9.9 | 100.0% | 100.0% | 96.4% | 99.0% | 566/6 |
+| Dynoxide | 100.0% | 100.0% | 96.4% | 99.0% | 566/6 |
 | LocalStack | 99.0% | 96.1% | 77.7% | 92.3% | 528/44 |
 | DynamoDB Local | 99.0% | 91.3% | 77.7% | 91.4% | 523/49 |
 | Dynalite | 98.3% | 9.7% | 89.8% | 79.9% | 457/72 |
