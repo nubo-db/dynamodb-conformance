@@ -153,12 +153,18 @@ describe('Conditional check — exact error messages', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(TransactionCanceledException)
       const txErr = err as TransactionCanceledException
-      expect(txErr.message).toContain('Transaction cancelled')
-      expect(txErr.CancellationReasons).toBeDefined()
-      expect(txErr.CancellationReasons!.length).toBe(1)
-      expect(txErr.CancellationReasons![0].Code).toBe(
-        'ConditionalCheckFailed',
+      // Build the expected message and the structural cross-check from a
+      // single source of truth — the reasons array we drive via the failing
+      // ConditionExpression. AWS's cancellation-reasons summary is fully
+      // deterministic given known inputs, so this is exact-match on both
+      // the message and the parsed structure, not a regex tolerance.
+      const expectedReasons = ['ConditionalCheckFailed'] as const
+      expect(txErr.message).toBe(
+        `Transaction cancelled, please refer cancellation reasons for specific reasons [${expectedReasons.join(', ')}]`,
       )
+      expect(txErr.CancellationReasons?.map((r) => r.Code)).toEqual([
+        ...expectedReasons,
+      ])
     }
   })
 
