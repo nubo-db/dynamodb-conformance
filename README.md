@@ -45,6 +45,17 @@ Regenerate with `npm run results:table`.
 
 The tiers give emulator authors something meaningful to report. "100% Tier 1, 95% Tier 2, 80% Tier 3" tells you far more than a single percentage.
 
+### Tier 3 structure
+
+Tier 3 splits into four sub-directories by what each test asserts:
+
+- `validation-ordering/` - which validation fires first when a request has multiple problems. Uses `toContain` against the message; the wording can drift, the ordering should not.
+- `error-messages/` - the exact error string DynamoDB returns. Uses inline `try/catch` with `expect(err).toBeInstanceOf(...)` and `expect(err.message).toBe(...)`.
+- `limits/` - hard-coded service limits and the errors that fire when you cross them (item size, batch size, response size, transaction size).
+- `legacy-api/` - the older request shapes (`AttributeUpdates`, `QueryFilter`, `ScanFilter`, `Expected`, `AttributesToGet`) for backwards compatibility.
+
+A new test goes in whichever sub-directory matches what it asserts. If you care about the exact wording, that's `error-messages/`. If you only care which error fires, that's `validation-ordering/`.
+
 ## Running against targets
 
 ### DynamoDB Local

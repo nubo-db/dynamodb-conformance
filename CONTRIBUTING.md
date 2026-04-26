@@ -56,6 +56,28 @@ is a maintainer task and does not block your PR.
   grouped by the definition of each tier in the `README.md`.
 - Prefer the existing wait/retry helpers over `setTimeout` sleeps.
 
+### Tier 3 sub-directory choice
+
+If a new Tier 3 test cares about the exact error message string, put
+it in `tests/tier3/error-messages/`. If it only needs to confirm
+which validation fired or which error code came back, put it in
+`tests/tier3/validation-ordering/`. Limit and shape errors go in
+`tests/tier3/limits/`. Legacy API request shapes go in
+`tests/tier3/legacy-api/`.
+
+`error-messages/` uses inline `try/catch` with
+`expect(err).toBeInstanceOf(...)` and `expect(err.message).toBe(...)`.
+Don't use `expectDynamoError` there - it routes string messages
+through `toContain`, which is the right behaviour for
+`validation-ordering/` but the wrong one for exact-match tests.
+
+For error messages with a stable prefix and a variable reason or
+identifier suffix (`TransactionCanceledException` is the obvious
+case), build the expected message from a known reasons array and
+structurally cross-check `CancellationReasons[].Code` against the
+same array. See `tests/tier3/error-messages/conditionalCheck.test.ts`
+for the pattern. Don't use `toContain` inside `error-messages/`.
+
 ## Commit style
 
 Short subject, lower-case, imperative where possible. A Conventional
