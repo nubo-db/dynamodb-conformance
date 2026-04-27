@@ -166,3 +166,108 @@ jobs:
         with:
           name: results-dynoxide
           path: results/
+
+  test-floci:
+    name: Floci
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    services:
+      floci:
+        image: floci/floci:latest
+        ports:
+          - 4566:4566
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run conformance suite
+        continue-on-error: true
+        env:
+          DYNAMODB_ENDPOINT: http://localhost:4566
+          AWS_ACCESS_KEY_ID: fakeAccessKeyId
+          AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
+          AWS_REGION: us-east-1
+        run: npm test
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-floci
+          path: results/
+
+  test-ministack:
+    name: Ministack
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    services:
+      ministack:
+        image: ministackorg/ministack:latest
+        ports:
+          - 4566:4566
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run conformance suite
+        continue-on-error: true
+        env:
+          DYNAMODB_ENDPOINT: http://localhost:4566
+          AWS_ACCESS_KEY_ID: fakeAccessKeyId
+          AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
+          AWS_REGION: us-east-1
+        run: npm test
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-ministack
+          path: results/
+
+  test-dynalite:
+    name: Dynalite
+    continue-on-error: true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Start Dynalite
+        run: |
+          npx -y dynalite --port 8002 &
+          sleep 2
+
+      - name: Run conformance suite
+        continue-on-error: true
+        env:
+          DYNAMODB_ENDPOINT: http://localhost:8002
+          AWS_ACCESS_KEY_ID: fakeAccessKeyId
+          AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
+          AWS_REGION: us-east-1
+        run: npm test
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-dynalite
+          path: results/

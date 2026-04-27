@@ -1,6 +1,6 @@
 # DynamoDB Conformance Suite
 
-An independent test suite that validates any DynamoDB-compatible endpoint against real DynamoDB behaviour. It works against DynamoDB, DynamoDB Local, Dynoxide, Dynalite, LocalStack, or anything else that implements the DynamoDB HTTP API.
+An independent test suite that validates any DynamoDB-compatible endpoint against real DynamoDB behaviour. It works against DynamoDB, DynamoDB Local, Dynoxide, Dynalite, LocalStack, Floci, Ministack, or anything else that implements the DynamoDB HTTP API.
 
 ## Why this exists
 
@@ -32,6 +32,8 @@ DYNAMODB_ENDPOINT=http://localhost:8000 npm run test:tier1
 | LocalStack | 99.0% | 96.1% | 77.7% | 92.3% | 528/44 |
 | DynamoDB Local | 99.0% | 91.3% | 77.7% | 91.4% | 523/49 |
 | Dynalite | 98.3% | 9.7% | 89.8% | 79.9% | 457/72 |
+| Ministack | 85.1% | 58.3% | 23.6% | 60.6% | 364/219 |
+| Floci | 78.2% | 64.1% | 25.6% | 58.7% | 353/223 |
 
 Regenerate with `npm run results:table`.
 
@@ -91,6 +93,22 @@ export LOCALSTACK_AUTH_TOKEN=your-token-here
 docker run -d --name localstack -p 4566:4566 -e LOCALSTACK_AUTH_TOKEN localstack/localstack
 DYNAMODB_ENDPOINT=http://localhost:4566 npm test
 docker stop localstack && docker rm localstack
+```
+
+### Ministack
+
+```bash
+docker run -d --name ministack -p 4566:4566 ministackorg/ministack:latest
+DYNAMODB_ENDPOINT=http://localhost:4566 npm test
+docker stop ministack && docker rm ministack
+```
+
+### Floci
+
+```bash
+docker run -d --name floci -p 4566:4566 floci/floci:latest
+DYNAMODB_ENDPOINT=http://localhost:4566 npm test
+docker stop floci && docker rm floci
 ```
 
 ### Real DynamoDB
