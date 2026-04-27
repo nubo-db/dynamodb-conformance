@@ -27,11 +27,11 @@ DYNAMODB_ENDPOINT=http://localhost:8000 npm run test:tier1
 
 | Target | Tier 1 | Tier 2 | Tier 3 | Total | Pass/Fail |
 |--------|--------|--------|--------|-------|-----------|
-| DynamoDB | 100% | 100% | 100% | 100% | 572/0 (ground truth) |
-| Dynoxide | 100.0% | 100.0% | 96.4% | 99.0% | 566/6 |
-| LocalStack | 99.0% | 96.1% | 77.7% | 92.3% | 528/44 |
-| DynamoDB Local | 99.0% | 91.3% | 77.7% | 91.4% | 523/49 |
-| Dynalite | 98.3% | 9.7% | 89.8% | 79.9% | 457/72 |
+| DynamoDB | 100% | 100% | 100% | 100% | 601/0 (ground truth) |
+| Dynoxide | 100.0% | 100.0% | 100.0% | 100.0% | 601/0 |
+| LocalStack | 99.0% | 96.1% | 69.7% | 89.0% | 535/66 |
+| DynamoDB Local | 99.0% | 91.3% | 69.7% | 88.2% | 530/71 |
+| Dynalite | 98.3% | 9.7% | 82.6% | 78.0% | 469/89 |
 | Ministack | 85.1% | 58.3% | 23.6% | 60.6% | 364/219 |
 | Floci | 78.2% | 64.1% | 25.6% | 58.7% | 353/223 |
 
@@ -143,7 +143,7 @@ The full suite includes 11 UpdateTable GSI lifecycle tests that add and remove G
 
 ```
 tests/
-  tier1/                    # ~290 tests
+  tier1/                    # ~300 tests
     createTable/            # basic, gsi, lsi
     putItem/                # basic, conditions, validation, expressions, dataTypes, ...
     getItem/                # basic, validation, projection, consumedCapacity
@@ -157,14 +157,14 @@ tests/
     describeTable/          # basic
     listTables/             # basic
     updateTable/            # basic
-  tier2/                    # ~85 tests
+  tier2/                    # ~100 tests
     transactions/           # transactWrite, transactGet
     partiql/                # executeStatement, batchExecuteStatement, executeTransaction
     ttl/                    # basic
     streams/                # basic
     tags/                   # basic
     updateTable/            # gsi
-  tier3/                    # ~150 tests
+  tier3/                    # ~195 tests
     validation-ordering/    # per-operation validation error ordering
     error-messages/         # exact error message strings
     limits/                 # itemSize, batchLimits, responseSize, transactionLimits,
@@ -227,20 +227,20 @@ All test data must be synthetic. Don't use real names, emails, addresses, or any
 | Operation | Tier 1 | Tier 2 | Tier 3 |
 |-----------|--------|--------|--------|
 | PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, itemCollectionMetrics | | error messages |
-| GetItem | basic, validation, projection, consumedCapacity | | |
+| GetItem | basic, validation, projection, consumedCapacity | | error messages |
 | UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths | | error messages |
 | DeleteItem | basic, conditions (incl. parens), validation | | error messages |
 | Query | basic, GSI, LSI, expressions (incl. KeyCondition + Filter parens), select, numericKeys, binaryKeys, pagination | | error messages, validation ordering |
-| Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens | | validation ordering |
-| BatchWriteItem | basic, validation | | |
-| BatchGetItem | basic, validation | | |
+| Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens | | error messages, validation ordering |
+| BatchWriteItem | basic, validation | | error messages |
+| BatchGetItem | basic, validation | | error messages |
 | CreateTable | basic, GSI, LSI | | error messages, validation ordering |
 | DeleteTable | basic | | |
 | DescribeTable | basic | | |
 | ListTables | basic | | |
 | UpdateTable | basic (throughput, billing mode) | GSI lifecycle | |
-| TransactWriteItems | | basic, conditions (incl. parens, non-existent key branch), idempotency, cancellation | |
-| TransactGetItems | | basic, validation | |
+| TransactWriteItems | | basic, conditions (incl. parens, non-existent key branch), idempotency, cancellation | error messages |
+| TransactGetItems | | basic, validation | error messages |
 | ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised | |
 | BatchExecuteStatement | | batch, partial failure | |
 | ExecuteTransaction | | atomic, rollback | |
