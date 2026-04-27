@@ -100,8 +100,19 @@ describe('CreateTable — exact error messages', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
-      expect((err as DynamoDBServiceException).message).toBe(
-        "1 validation error detected: Value '[KeySchemaElement(attributeName=pk, keyType=HASH), KeySchemaElement(attributeName=sk, keyType=RANGE), KeySchemaElement(attributeName=extra, keyType=RANGE)]' at 'keySchema' failed to satisfy constraint: Member must have length less than or equal to 2",
+      // AWS's serialiser renders KeySchemaElement two different ways
+      // depending on which backend serves the request — sometimes the
+      // friendly form `KeySchemaElement(attributeName=…, keyType=…)`, and
+      // sometimes the Java default `com.amazonaws.dynamodb.v…@<hash>`.
+      // The variance is server-side, not input-driven, so the structural
+      // pattern from `conditionalCheck.test.ts` doesn't apply. Anchored
+      // regex tolerates both shapes while still pinning the prefix, the
+      // element count, and the suffix exactly.
+      const elementShape = String.raw`(?:KeySchemaElement\(attributeName=\w+, keyType=(?:HASH|RANGE)\)|com\.amazonaws\.dynamodb\.v\d+\.KeySchemaElement@[0-9a-f]+)`
+      expect((err as DynamoDBServiceException).message).toMatch(
+        new RegExp(
+          `^1 validation error detected: Value '\\[${elementShape}(, ${elementShape}){2}\\]' at 'keySchema' failed to satisfy constraint: Member must have length less than or equal to 2$`,
+        ),
       )
     }
   })
