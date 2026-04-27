@@ -25,15 +25,22 @@ DYNAMODB_ENDPOINT=http://localhost:8000 npm run test:tier1
 
 ## Results
 
-| Target | Tier 1 | Tier 2 | Tier 3 | Total | Pass/Fail |
-|--------|--------|--------|--------|-------|-----------|
-| DynamoDB | 100% | 100% | 100% | 100% | 601/0 (ground truth) |
-| Dynoxide | 100.0% | 100.0% | 100.0% | 100.0% | 601/0 |
-| LocalStack | 99.0% | 96.1% | 69.7% | 89.0% | 535/66 |
-| DynamoDB Local | 99.0% | 91.3% | 69.7% | 88.2% | 530/71 |
-| Dynalite | 98.3% | 9.7% | 82.6% | 78.0% | 469/89 |
-| Ministack | 85.1% | 58.3% | 23.6% | 60.6% | 364/219 |
-| Floci | 78.2% | 64.1% | 25.6% | 58.7% | 353/223 |
+| Target | Tier 1 | Tier 2 | Tier 3 | Total | Pass | Fail | Skip |
+|--------|--------|--------|--------|-------|------|------|------|
+| DynamoDB | 100% | 100% | 100% | 100% | 601 | 0 | 0 |
+| Dynoxide | 100.0% | 100.0% | 100.0% | 100.0% | 601 | 0 | 0 |
+| LocalStack | 99.0% | 96.1% | 69.7% | 89.0% | 535 | 66 | 0 |
+| DynamoDB Local | 99.0% | 91.3% | 69.7% | 88.2% | 530 | 71 | 0 |
+| Dynalite | 98.3% | 9.7% | 82.6% | 78.0% | 469 | 89 | 43 |
+| Ministack | 85.1% | 58.3% | 23.6% | 60.6% | 364 | 219 | 18 |
+| Floci | 78.2% | 64.1% | 25.6% | 58.7% | 353 | 223 | 25 |
+
+DynamoDB is the ground truth. Skipped tests are deliberate - each test
+file probes for feature support in `beforeAll` and skips itself if the
+target doesn't implement that operation (PartiQL on Dynalite, Floci,
+and Ministack; transactions on Dynalite). The total percentage treats
+skips as conformance gaps, so they pull the score down the same way a
+fail would.
 
 Regenerate with `npm run results:table`.
 

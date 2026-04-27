@@ -76,13 +76,14 @@ for (const file of files) {
     total: pct(allP, allTotal),
     passed: allP,
     failed: summary.tier1.f + summary.tier2.f + summary.tier3.f,
+    skipped: summary.tier1.s + summary.tier2.s + summary.tier3.s,
     count: allTotal,
   })
 }
 
 // Print markdown table
-console.log('| Target | Tier 1 | Tier 2 | Tier 3 | Total | Pass/Fail |')
-console.log('|--------|--------|--------|--------|-------|-----------|')
+console.log('| Target | Tier 1 | Tier 2 | Tier 3 | Total | Pass | Fail | Skip |')
+console.log('|--------|--------|--------|--------|-------|------|------|------|')
 for (const r of rows) {
-  console.log(`| ${r.target} | ${r.tier1} | ${r.tier2} | ${r.tier3} | ${r.total} | ${r.passed}/${r.failed} |`)
+  console.log(`| ${r.target} | ${r.tier1} | ${r.tier2} | ${r.tier3} | ${r.total} | ${r.passed} | ${r.failed} | ${r.skipped} |`)
 }
