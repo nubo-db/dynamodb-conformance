@@ -99,6 +99,10 @@ jobs:
     name: LocalStack
     continue-on-error: true
     runs-on: ubuntu-latest
+    # LOCALSTACK_AUTH_TOKEN is not exposed to PRs from forks, and the
+    # LocalStack image refuses to start without it. Skip the job rather
+    # than leave a spurious red X on every external PR.
+    if: github.event.pull_request.head.repo.fork != true
     services:
       localstack:
         image: localstack/localstack:latest
