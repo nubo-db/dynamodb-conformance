@@ -18,6 +18,12 @@ jobs:
     name: DynamoDB (ground truth)
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'schedule' || vars.HAS_AWS_CREDENTIALS == 'true'
+    # Serialise AWS runs: the suite shares one account and cleanup deletes every
+    # _conformance_ table by prefix, so overlapping runs delete each other's
+    # tables. Queue rather than cancel — a cancelled run leaves orphan tables.
+    concurrency:
+      group: conformance-aws
+      cancel-in-progress: false
     permissions:
       id-token: write
       contents: read
