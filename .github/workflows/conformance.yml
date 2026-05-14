@@ -10,6 +10,9 @@ on:
   repository_dispatch:
     types: [dynoxide-release]
 
+permissions:
+  contents: read
+
 jobs:
   test-dynamodb:
     name: DynamoDB (ground truth)
