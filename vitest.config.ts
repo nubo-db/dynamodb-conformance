@@ -1,5 +1,9 @@
 import { defineConfig } from 'vitest/config'
 
+const resultTarget =
+  process.env.CONFORMANCE_TARGET ??
+  (process.env.DYNAMODB_ENDPOINT ? 'local' : 'dynamodb')
+
 export default defineConfig({
   test: {
     globals: true,
@@ -13,7 +17,8 @@ export default defineConfig({
       forks: { singleFork: true },
     },
     setupFiles: ['./src/setup.ts'],
-    reporters: ['verbose'],
+    reporters: ['verbose', 'json'],
+    outputFile: `results/${resultTarget}.json`,
     include: ['tests/**/*.test.ts'],
   },
 })

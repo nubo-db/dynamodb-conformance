@@ -47,6 +47,7 @@ jobs:
 
       - name: Run conformance suite (excludes GSI lifecycle — see README)
         env:
+          CONFORMANCE_TARGET: dynamodb
           AWS_REGION: eu-west-2
         run: npm run test:quick
 
@@ -91,6 +92,7 @@ jobs:
       - name: Run conformance suite
         continue-on-error: true # Emulators have known conformance gaps
         env:
+          CONFORMANCE_TARGET: dynamodb-local
           DYNAMODB_ENDPOINT: http://localhost:8000
           AWS_ACCESS_KEY_ID: fakeAccessKeyId
           AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
@@ -132,6 +134,7 @@ jobs:
       - name: Run conformance suite
         continue-on-error: true
         env:
+          CONFORMANCE_TARGET: localstack
           DYNAMODB_ENDPOINT: http://localhost:4566
           AWS_ACCESS_KEY_ID: fakeAccessKeyId
           AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
@@ -167,6 +170,7 @@ jobs:
       - name: Run conformance suite
         continue-on-error: true
         env:
+          CONFORMANCE_TARGET: dynoxide
           DYNAMODB_ENDPOINT: http://localhost:8001
           AWS_ACCESS_KEY_ID: fakeAccessKeyId
           AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
@@ -202,6 +206,7 @@ jobs:
       - name: Run conformance suite
         continue-on-error: true
         env:
+          CONFORMANCE_TARGET: floci
           DYNAMODB_ENDPOINT: http://localhost:4566
           AWS_ACCESS_KEY_ID: fakeAccessKeyId
           AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
@@ -237,6 +242,7 @@ jobs:
       - name: Run conformance suite
         continue-on-error: true
         env:
+          CONFORMANCE_TARGET: ministack
           DYNAMODB_ENDPOINT: http://localhost:4566
           AWS_ACCESS_KEY_ID: fakeAccessKeyId
           AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
@@ -272,6 +278,7 @@ jobs:
       - name: Run conformance suite
         continue-on-error: true
         env:
+          CONFORMANCE_TARGET: dynalite
           DYNAMODB_ENDPOINT: http://localhost:8002
           AWS_ACCESS_KEY_ID: fakeAccessKeyId
           AWS_SECRET_ACCESS_KEY: fakeSecretAccessKey
