@@ -6,7 +6,11 @@ import {
   type QueryCommandOutput,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
-import { compositeTableDef, cleanupItems } from '../../../src/helpers.js'
+import {
+  compositeTableDef,
+  cleanupItems,
+  expectDynamoError,
+} from '../../../src/helpers.js'
 
 describe('Query — basic', () => {
   const pk = 'query-basic'
@@ -385,5 +389,42 @@ describe('Query — Limit + FilterExpression interaction', () => {
     expect(result.Count).toBe(1)
     expect(result.Items).toHaveLength(1)
     expect(result.LastEvaluatedKey).toBeDefined()
+  })
+
+  // Pagination tests above only ever feed back a well-formed LastEvaluatedKey.
+  // A target that does not validate ExclusiveStartKey against the schema is too
+  // lenient; real DynamoDB rejects a key that does not match.
+  it('rejects ExclusiveStartKey that does not match the table schema', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new QueryCommand({
+            TableName: compositeTableDef.name,
+            KeyConditionExpression: 'pk = :pk',
+            ExpressionAttributeValues: { ':pk': { S: 'query-basic' } },
+            ExclusiveStartKey: { bad: { S: 'p' } },
+          }),
+        ),
+      'ValidationException',
+      /provided starting key is invalid/,
+    )
+  })
+
+  it('rejects ExclusiveStartKey missing the index key on a GSI query', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new QueryCommand({
+            TableName: compositeTableDef.name,
+            IndexName: 'gsi1',
+            KeyConditionExpression: '#hk = :v',
+            ExpressionAttributeNames: { '#hk': 'lsi1sk' },
+            ExpressionAttributeValues: { ':v': { S: 'x' } },
+            ExclusiveStartKey: { pk: { S: 'x' } },
+          }),
+        ),
+      'ValidationException',
+      /provided starting key is invalid/,
+    )
   })
 })

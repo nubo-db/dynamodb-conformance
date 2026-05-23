@@ -187,4 +187,26 @@ describe('Query — exact error messages', () => {
       )
     }
   })
+
+  // Query and Scan return different messages for the same malformed key: Query
+  // gives this short form, Scan gives a longer one (see scan.test.ts).
+  it('malformed ExclusiveStartKey: short invalid-starting-key error', async () => {
+    try {
+      await ddb.send(
+        new QueryCommand({
+          TableName: compositeTableDef.name,
+          KeyConditionExpression: 'pk = :v',
+          ExpressionAttributeValues: { ':v': { S: 'val' } },
+          ExclusiveStartKey: { bad: { S: 'p' } },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'The provided starting key is invalid',
+      )
+    }
+  })
 })

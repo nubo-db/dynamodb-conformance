@@ -138,4 +138,24 @@ describe('Scan — exact error messages', () => {
       )
     }
   })
+
+  // Scan returns the long form of the invalid-starting-key error; Query returns
+  // a shorter one (see query.test.ts). Pin each separately.
+  it('malformed ExclusiveStartKey: long schema-mismatch error', async () => {
+    try {
+      await ddb.send(
+        new ScanCommand({
+          TableName: hashTableDef.name,
+          ExclusiveStartKey: { bad: { S: 'p' } },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'The provided starting key is invalid: The provided key element does not match the schema',
+      )
+    }
+  })
 })

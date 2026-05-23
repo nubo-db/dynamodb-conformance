@@ -6,7 +6,11 @@ import {
   type ScanCommandOutput,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
-import { hashTableDef, cleanupItems } from '../../../src/helpers.js'
+import {
+  hashTableDef,
+  cleanupItems,
+  expectDynamoError,
+} from '../../../src/helpers.js'
 
 describe('Scan — basic', () => {
   const items = Array.from({ length: 5 }, (_, i) => ({
@@ -199,5 +203,21 @@ describe('Scan — ProjectionExpression', () => {
     expect(result.Items![0].a.S).toBe('alpha')
     expect(result.Items![0].b).toBeUndefined()
     expect(result.Items![0].pk).toBeUndefined()
+  })
+
+  // Pagination above only feeds back a well-formed LastEvaluatedKey. Real
+  // DynamoDB rejects an ExclusiveStartKey that does not match the schema.
+  it('rejects ExclusiveStartKey that does not match the table schema', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new ScanCommand({
+            TableName: hashTableDef.name,
+            ExclusiveStartKey: { bad: { S: 'p' } },
+          }),
+        ),
+      'ValidationException',
+      /provided starting key is invalid/,
+    )
   })
 })
