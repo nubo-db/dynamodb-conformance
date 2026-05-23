@@ -127,4 +127,21 @@ describe('DeleteItem — ConditionExpression parens', () => {
     expect(check.Item).toBeDefined()
     expect(check.Item!.status.S).toBe('active')
   })
+
+  // Parse-time rejection, distinct from the ConditionalCheckFailedException
+  // above. A target that accepts redundant wrapping is too lenient.
+  it('rejects redundant parentheses in ConditionExpression', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new DeleteItemCommand({
+            TableName: hashTableDef.name,
+            Key: { pk: { S: 'del-cep-percond' } },
+            ConditionExpression: '((attribute_exists(pk)))',
+          }),
+        ),
+      'ValidationException',
+      /redundant parentheses/,
+    )
+  })
 })

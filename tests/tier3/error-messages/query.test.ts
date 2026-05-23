@@ -5,6 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import {
   compositeTableDef,
+  hashTableDef,
 } from '../../../src/helpers.js'
 
 describe('Query — exact error messages', () => {
@@ -164,6 +165,25 @@ describe('Query — exact error messages', () => {
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
         'Invalid FilterExpression: An expression attribute name used in the document path is not defined; attribute name: #missing',
+      )
+    }
+  })
+
+  it('redundant parentheses in KeyConditionExpression: full error string', async () => {
+    try {
+      await ddb.send(
+        new QueryCommand({
+          TableName: hashTableDef.name,
+          KeyConditionExpression: '((pk = :v))',
+          ExpressionAttributeValues: { ':v': { S: 'val' } },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Invalid KeyConditionExpression: The expression has redundant parentheses;',
       )
     }
   })

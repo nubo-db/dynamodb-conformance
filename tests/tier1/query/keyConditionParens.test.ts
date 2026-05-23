@@ -3,7 +3,11 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
-import { compositeTableDef, cleanupItems } from '../../../src/helpers.js'
+import {
+  compositeTableDef,
+  cleanupItems,
+  expectDynamoError,
+} from '../../../src/helpers.js'
 
 describe('Query — KeyConditionExpression with parentheses', () => {
   const pk = 'kce-parens'
@@ -82,5 +86,24 @@ describe('Query — KeyConditionExpression with parentheses', () => {
 
     expect(result.Items).toHaveLength(1)
     expect(result.Items![0].data?.S).toBe('c')
+  })
+
+  // The acceptance cases above deliberately avoid redundant wrapping. This is
+  // the matching rejection: a target that parses parens but does not reject the
+  // redundant form is too lenient. Real DynamoDB rejects it.
+  it('rejects redundant parentheses in KeyConditionExpression', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new QueryCommand({
+            TableName: compositeTableDef.name,
+            KeyConditionExpression: '((#pk = :pk)) AND (#sk = :sk)',
+            ExpressionAttributeNames: { '#pk': 'pk', '#sk': 'sk' },
+            ExpressionAttributeValues: { ':pk': { S: pk }, ':sk': { S: '1' } },
+          }),
+        ),
+      'ValidationException',
+      /redundant parentheses/,
+    )
   })
 })

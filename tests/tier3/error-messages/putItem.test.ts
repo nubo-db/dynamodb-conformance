@@ -199,4 +199,43 @@ describe('PutItem — exact error messages', () => {
       )
     }
   })
+
+  it('redundant parentheses in ConditionExpression: full error string', async () => {
+    try {
+      await ddb.send(
+        new PutItemCommand({
+          TableName: hashTableDef.name,
+          Item: { pk: { S: 'em-put-redundant' } },
+          ConditionExpression: '((attribute_not_exists(pk)))',
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Invalid ConditionExpression: The expression has redundant parentheses;',
+      )
+    }
+  })
+
+  it('contains() with duplicate path and operand: full distinct-operand error', async () => {
+    try {
+      await ddb.send(
+        new PutItemCommand({
+          TableName: hashTableDef.name,
+          Item: { pk: { S: 'em-put-contains-dup' } },
+          ConditionExpression: 'contains(#a, #a)',
+          ExpressionAttributeNames: { '#a': 'data' },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Invalid ConditionExpression: The first operand must be distinct from the remaining operands for this operator or function; operator: contains, first operand: [data]',
+      )
+    }
+  })
 })

@@ -114,4 +114,38 @@ describe('PutItem — ConditionExpression parens', () => {
       'ConditionalCheckFailedException',
     )
   })
+
+  // Structural rejections: a parse-time ValidationException, distinct from the
+  // ConditionalCheckFailedException above. A lenient target that accepts these
+  // is what this catches.
+  it('rejects redundant parentheses in ConditionExpression', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new PutItemCommand({
+            TableName: hashTableDef.name,
+            Item: { pk: { S: 'put-cep-redundant' } },
+            ConditionExpression: '((attribute_not_exists(pk)))',
+          }),
+        ),
+      'ValidationException',
+      /redundant parentheses/,
+    )
+  })
+
+  it('rejects contains() with a duplicate path and operand', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new PutItemCommand({
+            TableName: hashTableDef.name,
+            Item: { pk: { S: 'put-cep-contains' } },
+            ConditionExpression: 'contains(#a, #a)',
+            ExpressionAttributeNames: { '#a': 'data' },
+          }),
+        ),
+      'ValidationException',
+      /first operand must be distinct/,
+    )
+  })
 })

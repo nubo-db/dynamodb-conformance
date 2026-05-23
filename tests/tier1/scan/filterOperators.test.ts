@@ -3,7 +3,11 @@ import {
   ScanCommand,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
-import { hashTableDef, cleanupItems } from '../../../src/helpers.js'
+import {
+  hashTableDef,
+  cleanupItems,
+  expectDynamoError,
+} from '../../../src/helpers.js'
 
 describe('Scan — filter operators on different types', () => {
   const items = [
@@ -309,5 +313,41 @@ describe('Scan — set equality', () => {
     expect(result.Items!.length).toBe(2)
     const pks = result.Items!.map((i) => i.pk.S).sort()
     expect(pks).toEqual(['fo-2', 'fo-3'])
+  })
+})
+
+// Structural validation of FilterExpression. The operator tests above only send
+// well-formed filters; these assert the rejection path a lenient target skips.
+describe('Scan — filter expression validation', () => {
+  it('rejects begins_with with a non-string/binary operand', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new ScanCommand({
+            TableName: hashTableDef.name,
+            FilterExpression: 'begins_with(#a, :n)',
+            ExpressionAttributeNames: { '#a': 'strVal' },
+            ExpressionAttributeValues: { ':n': { N: '1' } },
+          }),
+        ),
+      'ValidationException',
+      /Incorrect operand type/,
+    )
+  })
+
+  it('rejects redundant parentheses in FilterExpression', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new ScanCommand({
+            TableName: hashTableDef.name,
+            FilterExpression: '((#a = :v))',
+            ExpressionAttributeNames: { '#a': 'strVal' },
+            ExpressionAttributeValues: { ':v': { S: 'apple' } },
+          }),
+        ),
+      'ValidationException',
+      /redundant parentheses/,
+    )
   })
 })
