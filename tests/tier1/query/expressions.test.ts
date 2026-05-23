@@ -396,3 +396,64 @@ describe('Query — FilterExpression functions and operators', () => {
     expect(result.Items![0].sk.S).toBe('4')
   })
 })
+
+// size() on a string counts UTF-16 code units, not UTF-8 bytes. The operator
+// tests above use ASCII, where the two agree; this distinguishes them, and
+// also pins that size() of an absent attribute is undefined (no match), not 0.
+describe('Query — size() string encoding', () => {
+  const pk = 'size-enc'
+  // "é" (U+00E9) is 1 UTF-16 code unit; "𝄞" (U+1D11E) is a surrogate pair, 2
+  // code units. Total: 3 code units. UTF-8 byte length is 6.
+  const s = 'é\u{1d11e}'
+  const item = { pk: { S: pk }, sk: { S: '1' }, s: { S: s } }
+
+  beforeAll(async () => {
+    await ddb.send(
+      new PutItemCommand({ TableName: compositeTableDef.name, Item: item }),
+    )
+  })
+
+  afterAll(async () => {
+    await cleanupItems(compositeTableDef.name, [{ pk: item.pk, sk: item.sk }])
+  })
+
+  it('counts UTF-16 code units (3), not UTF-8 bytes (6)', async () => {
+    const match = await ddb.send(
+      new QueryCommand({
+        TableName: compositeTableDef.name,
+        KeyConditionExpression: '#pk = :pk',
+        FilterExpression: 'size(#s) = :three',
+        ExpressionAttributeNames: { '#pk': 'pk', '#s': 's' },
+        ExpressionAttributeValues: { ':pk': { S: pk }, ':three': { N: '3' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(match.Items).toHaveLength(1)
+
+    const noMatch = await ddb.send(
+      new QueryCommand({
+        TableName: compositeTableDef.name,
+        KeyConditionExpression: '#pk = :pk',
+        FilterExpression: 'size(#s) = :six',
+        ExpressionAttributeNames: { '#pk': 'pk', '#s': 's' },
+        ExpressionAttributeValues: { ':pk': { S: pk }, ':six': { N: '6' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(noMatch.Items).toHaveLength(0)
+  })
+
+  it('size() of a missing attribute does not match (undefined, not 0)', async () => {
+    const result = await ddb.send(
+      new QueryCommand({
+        TableName: compositeTableDef.name,
+        KeyConditionExpression: '#pk = :pk',
+        FilterExpression: 'size(#m) = :zero',
+        ExpressionAttributeNames: { '#pk': 'pk', '#m': 'no_such_attr' },
+        ExpressionAttributeValues: { ':pk': { S: pk }, ':zero': { N: '0' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(result.Items).toHaveLength(0)
+  })
+})

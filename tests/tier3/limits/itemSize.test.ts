@@ -5,6 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
+  hashNTableDef,
   cleanupItems,
 } from '../../../src/helpers.js'
 
@@ -197,6 +198,58 @@ describe('Item size limit (400KB)', () => {
         new PutItemCommand({
           TableName: hashTableDef.name,
           Item: { ...k, bindata: { B: buf } },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (e: unknown) {
+      expect((e as any).name).toBe('ValidationException')
+      expect((e as any).message).toMatch(
+        /[Ii]tem size has exceeded the maximum allowed size|[Ii]tem size to update has exceeded the maximum allowed size/,
+      )
+    }
+  })
+})
+
+// The size tests above are dominated by strings and binary, where one byte of
+// payload is one byte of item size. Numbers are different: DynamoDB sizes a
+// number at roughly 1 byte per two significant digits plus 1, so a 38-digit
+// number is ~20 bytes, not 38. A target that sizes numbers by their string
+// length (or a fixed width) computes a very different total, which shifts the
+// 400KB boundary. With thousands of numbers, even a small per-number error
+// crosses the limit. Uses the on-demand table so writes are not throttled and
+// the only rejection cause is the size limit itself.
+describe('Item size limit — number sizing', () => {
+  const NUM = '9'.repeat(38) // 38 significant digits → ~20 bytes in DynamoDB.
+
+  afterAll(async () => {
+    await cleanupItems(hashNTableDef.name, [{ pk: { N: '1' } }])
+  })
+
+  it('a number-dominated item under 400KB succeeds (15000 numbers)', async () => {
+    const nums = { L: Array.from({ length: 15000 }, () => ({ N: NUM })) }
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashNTableDef.name,
+        Item: { pk: { N: '1' }, nums },
+      }),
+    )
+    const get = await ddb.send(
+      new GetItemCommand({
+        TableName: hashNTableDef.name,
+        Key: { pk: { N: '1' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(get.Item!.nums.L).toHaveLength(15000)
+  })
+
+  it('a number-dominated item over 400KB fails (21000 numbers)', async () => {
+    const nums = { L: Array.from({ length: 21000 }, () => ({ N: NUM })) }
+    try {
+      await ddb.send(
+        new PutItemCommand({
+          TableName: hashNTableDef.name,
+          Item: { pk: { N: '2' }, nums },
         }),
       )
       expect.unreachable('should have thrown')
