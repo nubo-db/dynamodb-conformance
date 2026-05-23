@@ -87,6 +87,15 @@ Before opening a PR that adds or modifies a test:
    behaves across more than one emulator**, for example "passes on
    Dynoxide, fails on DynamoDB Local, matches real DynamoDB". This
    accelerates maintainer review.
+4. **Consider the rejection path, not just acceptance.** Where a
+   behaviour has inputs real DynamoDB rejects (a malformed expression,
+   an out-of-range parameter, a key that doesn't match the schema),
+   cover the rejection too, not only the accepted form. A target that is
+   too lenient passes acceptance-only tests while still diverging from
+   DynamoDB, so acceptance-only coverage of a feature with a validation
+   boundary is incomplete. Put the error-code assertion in the
+   operation's own tier (or `tests/tier3/validation-ordering/`) and the
+   exact message, where it's stable, in `tests/tier3/error-messages/`.
 
 Regenerating the published results table across all tracked targets
 (DynamoDB, Dynoxide, DynamoDB Local, Dynalite, LocalStack, ExtendDB) is a

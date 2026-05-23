@@ -38,6 +38,14 @@ Before opening a PR that adds or modifies a test:
    you have them to hand.
 3. **Optional but helpful:** note in the PR description how the test
    behaves across more than one emulator.
+4. **Consider the rejection path, not just acceptance.** If the
+   behaviour has inputs real DynamoDB rejects (a malformed expression,
+   an out-of-range parameter, a key that doesn't match the schema),
+   cover the rejection too, not only the accepted form. A target that
+   is too lenient passes acceptance-only tests while still diverging
+   from DynamoDB. Put the error-code check in the operation's own tier
+   (or `tests/tier3/validation-ordering/`) and the exact message, where
+   it's stable, in `tests/tier3/error-messages/`.
 
 Regenerating the published results table across every tracked target
 is a maintainer task and does not block your PR.
