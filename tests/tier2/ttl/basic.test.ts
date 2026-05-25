@@ -157,4 +157,17 @@ describe('TTL — validation', () => {
       'ResourceNotFoundException',
     )
   })
+
+  it('rejects DescribeTimeToLive on non-existent table', async () => {
+    // A too-lenient target returns a result for a missing table; AWS throws.
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new DescribeTimeToLiveCommand({
+            TableName: '_conformance_nonexistent_table',
+          }),
+        ),
+      'ResourceNotFoundException',
+    )
+  })
 })

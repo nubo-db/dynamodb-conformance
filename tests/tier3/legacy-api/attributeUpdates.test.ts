@@ -255,4 +255,25 @@ describe('Legacy API — AttributeUpdates (legacy UpdateExpression)', () => {
       'ValidationException',
     )
   })
+
+  it('AttributeUpdates with a Value and no Action defaults to PUT', async () => {
+    const k = 'attrupd-noaction'
+    await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: k } },
+        // No Action specified — AWS defaults to PUT and writes the value.
+        AttributeUpdates: { col: { Value: { S: 'written' } } },
+      }),
+    )
+    const got = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: k } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(got.Item!.col.S).toBe('written')
+    await cleanupItems(hashTableDef.name, [{ pk: { S: k } }])
+  })
 })

@@ -203,4 +203,42 @@ describe('Legacy API — KeyConditions and QueryFilter', () => {
     const sortKeys = result.Items!.map((i) => i.sk.S)
     expect(sortKeys).toEqual(['gamma', 'epsilon', 'delta', 'beta', 'alpha'])
   })
+
+  it('QueryFilter with ComparisonOperator EQ on a BOOL attribute filters correctly', async () => {
+    const bpk = 'legacy-query-bool'
+    await ddb.send(
+      new PutItemCommand({
+        TableName: compositeTableDef.name,
+        Item: { pk: { S: bpk }, sk: { S: 'a' }, flag: { BOOL: true } },
+      }),
+    )
+    await ddb.send(
+      new PutItemCommand({
+        TableName: compositeTableDef.name,
+        Item: { pk: { S: bpk }, sk: { S: 'b' }, flag: { BOOL: false } },
+      }),
+    )
+
+    const result = await ddb.send(
+      new QueryCommand({
+        TableName: compositeTableDef.name,
+        KeyConditions: {
+          pk: { ComparisonOperator: 'EQ', AttributeValueList: [{ S: bpk }] },
+        },
+        QueryFilter: {
+          flag: { ComparisonOperator: 'EQ', AttributeValueList: [{ BOOL: true }] },
+        },
+        ConsistentRead: true,
+      }),
+    )
+
+    // EQ is valid on a BOOL attribute in real DynamoDB; only the true item matches.
+    expect(result.Count).toBe(1)
+    expect(result.Items![0].sk.S).toBe('a')
+
+    await cleanupItems(compositeTableDef.name, [
+      { pk: { S: bpk }, sk: { S: 'a' } },
+      { pk: { S: bpk }, sk: { S: 'b' } },
+    ])
+  })
 })

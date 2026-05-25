@@ -61,4 +61,25 @@ describe('BatchWriteItem — validation', () => {
       'ValidationException',
     )
   })
+
+  it('rejects a key-less item with a 400 ValidationException, not a 500', async () => {
+    try {
+      await ddb.send(
+        new BatchWriteItemCommand({
+          RequestItems: {
+            [hashTableDef.name]: [
+              { PutRequest: { Item: { notkey: { S: 'x' } } } },
+            ],
+          },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (e) {
+      // A too-lenient target returns 500 InternalError here; AWS rejects with
+      // a 400 ValidationException for the schema-mismatched item.
+      const err = e as { name?: string; $metadata?: { httpStatusCode?: number } }
+      expect(err.name).toBe('ValidationException')
+      expect(err.$metadata?.httpStatusCode).toBe(400)
+    }
+  })
 })
