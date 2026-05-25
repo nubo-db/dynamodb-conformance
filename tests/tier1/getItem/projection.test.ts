@@ -123,4 +123,32 @@ describe('Nested attribute projection', () => {
     expect(items[0].mymap.M!.nested.S).toBe('deep')
     expect(items[0].mymap.M!.other).toBeUndefined()
   })
+
+  it('GetItem ProjectionExpression with multiple sibling paths in one map keeps all of them', async () => {
+    const k = 'proj-multi'
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: {
+          pk: { S: k },
+          m: { M: { a: { S: 'A' }, b: { S: 'B' }, c: { S: 'C' } } },
+        },
+      }),
+    )
+    const result = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: k } },
+        ProjectionExpression: '#m.#a, #m.#b',
+        ExpressionAttributeNames: { '#m': 'm', '#a': 'a', '#b': 'b' },
+        ConsistentRead: true,
+      }),
+    )
+    // Both projected siblings survive (not just the last), and the structure is
+    // preserved; the unprojected sibling is dropped.
+    expect(result.Item!.m.M!.a.S).toBe('A')
+    expect(result.Item!.m.M!.b.S).toBe('B')
+    expect(result.Item!.m.M!.c).toBeUndefined()
+    await cleanupItems(hashTableDef.name, [{ pk: { S: k } }])
+  })
 })

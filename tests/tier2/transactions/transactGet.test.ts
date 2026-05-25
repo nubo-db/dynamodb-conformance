@@ -302,3 +302,40 @@ describe('TransactGetItems — ConsumedCapacity', () => {
     expect(entry.Table?.ReadCapacityUnits).toBeGreaterThan(0)
   })
 })
+
+describe('TransactGetItems — projection matching nothing', () => {
+  const present = { pk: { S: 'tg-proj-present' } }
+
+  beforeAll(async () => {
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { ...present, real: { S: 'here' } },
+      }),
+    )
+  })
+
+  afterAll(async () => {
+    await cleanupItems(hashTableDef.name, [present])
+  })
+
+  it('omits Item when the projection matches no attribute on a present item', async () => {
+    const res = await ddb.send(
+      new TransactGetItemsCommand({
+        TransactItems: [
+          {
+            Get: {
+              TableName: hashTableDef.name,
+              Key: present,
+              ProjectionExpression: '#x',
+              ExpressionAttributeNames: { '#x': 'doesNotExist' },
+            },
+          },
+        ],
+      }),
+    )
+    // The item exists but the projection selects nothing, so AWS omits Item
+    // rather than returning an empty {} object.
+    expect(res.Responses![0].Item).toBeUndefined()
+  })
+})
