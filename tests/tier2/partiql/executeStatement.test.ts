@@ -385,6 +385,30 @@ describe('ExecuteStatement — PartiQL', () => {
     expect(res.ConsumedCapacity!.CapacityUnits).toBeGreaterThan(0)
   })
 
+  it('evaluates negated predicates (NOT begins_with, IS NOT MISSING)', async () => {
+    keysToCleanup.push({ pk: { S: 'pq-neg-a' } }, { pk: { S: 'pq-neg-b' } })
+    await ddb.send(new ExecuteStatementCommand({
+      Statement: `INSERT INTO "${hashTableDef.name}" VALUE { 'pk': 'pq-neg-a', 'kind': 'alpha' }`,
+    }))
+    await ddb.send(new ExecuteStatementCommand({
+      Statement: `INSERT INTO "${hashTableDef.name}" VALUE { 'pk': 'pq-neg-b', 'kind': 'beta' }`,
+    }))
+
+    // NOT begins_with must evaluate, not fail: only 'beta' does not begin with 'al'.
+    const notBw = await ddb.send(new ExecuteStatementCommand({
+      Statement: `SELECT * FROM "${hashTableDef.name}" WHERE pk IN ['pq-neg-a','pq-neg-b'] AND NOT begins_with("kind", 'al')`,
+    }))
+    expect(notBw.Items).toHaveLength(1)
+    expect(notBw.Items![0].pk.S).toBe('pq-neg-b')
+
+    // IS NOT MISSING must evaluate: 'kind' is present, so the row matches.
+    const notMissing = await ddb.send(new ExecuteStatementCommand({
+      Statement: `SELECT * FROM "${hashTableDef.name}" WHERE pk = 'pq-neg-a' AND "kind" IS NOT MISSING`,
+    }))
+    expect(notMissing.Items).toHaveLength(1)
+    expect(notMissing.Items![0].pk.S).toBe('pq-neg-a')
+  })
+
   // ── Error tests ───────────────────────────────────────────────────────
 
   it('rejects a statement with syntax error', async () => {
