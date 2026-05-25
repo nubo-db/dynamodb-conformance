@@ -5,8 +5,13 @@ import {
   ExportTableToPointInTimeCommand,
   DescribeExportCommand,
   ListExportsCommand,
+  ImportTableCommand,
+  DescribeImportCommand,
+  ListImportsCommand,
 } from '@aws-sdk/client-dynamodb'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { ddb } from '../../../src/client.js'
+import { s3 } from '../../../src/aws-aux.js'
 import {
   uniqueTableName,
   waitUntilActive,
@@ -15,17 +20,16 @@ import {
 } from '../../../src/helpers.js'
 import { isUnsupportedFault, withS3Bucket } from '../../../src/infra.js'
 
-// Table export to S3. Export requires PITR and runs asynchronously (minutes to
-// COMPLETED), so assert it initiates and is reported, not that it finishes. The
-// bucket is torn down by the harness; the export job failing once the bucket is
-// gone is harmless and leaves no billable resource.
-//
-// ImportTable coverage is held until the test account grants CloudWatch Logs
-// access (logs:CreateLogGroup/CreateLogStream/PutLogEvents on
-// /aws-dynamodb/imports), which the import service requires; see the gap map.
+// Table export and import via S3. Both run asynchronously (minutes), so export
+// asserts initiation; import waits for COMPLETED while the bucket is still alive
+// so it can finish reading. The bucket is torn down by the harness; the import
+// target table is waited out and deleted in teardown.
 
-describe('Export to S3', () => {
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+describe('Export and import — S3', () => {
   const source = uniqueTableName('exp_src')
+  const importTargets: string[] = []
   let arn = ''
   let supported = true
 
@@ -51,8 +55,16 @@ describe('Export to S3', () => {
   }, 180_000)
 
   afterAll(async () => {
+    for (const t of importTargets) {
+      try {
+        await waitUntilActive(t, 300_000)
+      } catch {
+        // best-effort
+      }
+      await deleteTable(t)
+    }
     await deleteTable(source)
-  })
+  }, 360_000)
 
   it('ExportTableToPointInTime initiates an export and reports it', async ({ skip }) => {
     if (!supported) return skip()
@@ -71,4 +83,55 @@ describe('Export to S3', () => {
       expect((list.ExportSummaries ?? []).map((s) => s.ExportArn)).toContain(exportArn)
     })
   }, 240_000)
+
+  it('ImportTable ingests S3 data into a new table', async ({ skip }) => {
+    if (!supported) return skip()
+    const target = uniqueTableName('imp_tgt')
+    importTargets.push(target)
+    await withS3Bucket(async (bucket) => {
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: 'imp/data.json',
+          Body: '{"Item":{"pk":{"S":"imported1"}}}\n',
+        }),
+      )
+      const imp = await ddb.send(
+        new ImportTableCommand({
+          S3BucketSource: { S3Bucket: bucket, S3KeyPrefix: 'imp/' },
+          InputFormat: 'DYNAMODB_JSON',
+          InputCompressionType: 'NONE',
+          TableCreationParameters: {
+            TableName: target,
+            AttributeDefinitions: [{ AttributeName: 'pk', AttributeType: 'S' }],
+            KeySchema: [{ AttributeName: 'pk', KeyType: 'HASH' }],
+            BillingMode: 'PAY_PER_REQUEST',
+          },
+        }),
+      )
+      const importArn = imp.ImportTableDescription?.ImportArn
+      expect(importArn).toBeTruthy()
+      expect(imp.ImportTableDescription?.ImportStatus).toBe('IN_PROGRESS')
+
+      const list = await ddb.send(new ListImportsCommand({}))
+      expect((list.ImportSummaryList ?? []).map((s) => s.ImportArn)).toContain(importArn)
+
+      // Let the import finish reading S3 before the bucket is torn down.
+      const start = Date.now()
+      for (;;) {
+        const d = await ddb.send(new DescribeImportCommand({ ImportArn: importArn }))
+        const status = d.ImportTableDescription?.ImportStatus
+        if (status && status !== 'IN_PROGRESS') {
+          if (status !== 'COMPLETED') {
+            throw new Error(
+              `import ${status}: ${d.ImportTableDescription?.FailureCode} - ${d.ImportTableDescription?.FailureMessage}`,
+            )
+          }
+          break
+        }
+        if (Date.now() - start > 270_000) throw new Error('import did not finish in time')
+        await sleep(5000)
+      }
+    })
+  }, 360_000)
 })
