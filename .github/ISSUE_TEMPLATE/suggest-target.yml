@@ -1,0 +1,51 @@
+name: Suggest a target
+description: Suggest a DynamoDB emulator or compatible adapter to add to the conformance suite.
+title: "Suggest a target: "
+labels: ["target-suggestion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. The suite runs against anything that speaks the
+        DynamoDB HTTP API and scores it against live AWS DynamoDB. The more you can
+        fill in about how to run it, the sooner it can be added.
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      description: The emulator or adapter's name.
+      placeholder: e.g. Acme DynamoDB
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Project URL
+      description: Link to the source repository or product page.
+      placeholder: https://github.com/...
+    validations:
+      required: true
+  - type: textarea
+    id: run
+    attributes:
+      label: How to run it
+      description: How should the suite point at it? Endpoint, container image or install command, and any auth or configuration needed.
+      placeholder: |
+        docker run -d -p 8000:8000 acme/dynamodb:latest
+        DYNAMODB_ENDPOINT=http://localhost:8000 npm test
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Maturity, known limitations, why it's worth including, or operations you expect it not to implement.
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: It implements the DynamoDB HTTP API (the AWS SDK can talk to it), not a different interface.
+          required: true
+        - label: I've checked it isn't already in the results table.
+          required: true
