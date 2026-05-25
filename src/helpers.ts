@@ -188,11 +188,18 @@ export async function deleteTable(tableName: string): Promise<void> {
     if (
       e instanceof DynamoDBServiceException &&
       e.name === 'ValidationException' &&
-      /protected against deletion/i.test(e.message)
+      /protected against deletion|deletion protection is enabled/i.test(e.message)
     ) {
-      await disableDeletionProtection(tableName)
-      await waitUntilActive(tableName)
-      await deleteTable(tableName)
+      // Best-effort: disable protection then delete. A target that blocks the
+      // delete but rejects the protection toggle (some emulators) must not make
+      // cleanup throw and poison the run.
+      try {
+        await disableDeletionProtection(tableName)
+        await waitUntilActive(tableName)
+        await ddb.send(new DeleteTableCommand({ TableName: tableName }))
+      } catch {
+        // give up; cleanup is best-effort
+      }
       return
     }
     throw e
@@ -275,7 +282,11 @@ export async function cleanupAllTables(): Promise<void> {
   } while (exclusiveStartTableName)
 
   for (let i = 0; i < allNames.length; i += 10) {
-    await Promise.all(allNames.slice(i, i + 10).map(deleteTable))
+    // Best-effort: one undeletable table (e.g. a deletion-protected table on a
+    // target that won't toggle protection off) must not poison setup.
+    await Promise.all(
+      allNames.slice(i, i + 10).map((n) => deleteTable(n).catch(() => {})),
+    )
   }
 }
 
