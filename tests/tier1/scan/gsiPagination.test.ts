@@ -54,7 +54,7 @@ describe('Scan — GSI pagination', () => {
       partitionKey: { name: 'Type', value: { S: 'widget' } },
       expectedCount: ITEM_COUNT,
     })
-  }, 30_000)
+  })
 
   afterAll(async () => {
     await deleteTable(tableDef.name)
@@ -170,7 +170,7 @@ describe('Scan — GSI pagination across tied sort keys', () => {
       partitionKey: { name: 'GType', value: { S: 'tie' } },
       expectedCount: COUNT,
     })
-  }, 30_000)
+  })
 
   afterAll(async () => {
     await deleteTable(tableDef.name)
