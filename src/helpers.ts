@@ -3,6 +3,7 @@ import {
   DeleteTableCommand,
   DeleteItemCommand,
   DescribeTableCommand,
+  UpdateTableCommand,
   ListTablesCommand,
   QueryCommand,
   DynamoDBServiceException,
@@ -181,6 +182,39 @@ export async function deleteTable(tableName: string): Promise<void> {
   } catch (e: unknown) {
     if (e instanceof ResourceNotFoundException) return
     if (e instanceof ResourceInUseException) return // already being deleted
+    // A deletion-protected table cannot be deleted until protection is
+    // disabled. Disable and retry once so cleanup is robust.
+    if (
+      e instanceof DynamoDBServiceException &&
+      e.name === 'ValidationException' &&
+      /protected against deletion/i.test(e.message)
+    ) {
+      await disableDeletionProtection(tableName)
+      await waitUntilActive(tableName)
+      await deleteTable(tableName)
+      return
+    }
+    throw e
+  }
+}
+
+/**
+ * Disable deletion protection, absorbing DynamoDB's throttle on changing the
+ * deletion-protection setting more than once per 15 seconds.
+ */
+async function disableDeletionProtection(tableName: string): Promise<void> {
+  try {
+    await ddb.send(
+      new UpdateTableCommand({ TableName: tableName, DeletionProtectionEnabled: false }),
+    )
+  } catch (e: unknown) {
+    if (e instanceof DynamoDBServiceException && e.name === 'ThrottlingException') {
+      await sleep(16_000)
+      await ddb.send(
+        new UpdateTableCommand({ TableName: tableName, DeletionProtectionEnabled: false }),
+      )
+      return
+    }
     throw e
   }
 }
