@@ -366,6 +366,25 @@ describe('ExecuteStatement — PartiQL', () => {
     expect(result.Item!.keep.S).toBe('stay')
   })
 
+  it('returns a populated ConsumedCapacity block when requested', async () => {
+    const pk = 'partiql-cc'
+    keysToCleanup.push({ pk: { S: pk } })
+
+    await ddb.send(new ExecuteStatementCommand({
+      Statement: `INSERT INTO "${hashTableDef.name}" VALUE { 'pk': '${pk}', 'v': 1 }`,
+    }))
+
+    const res = await ddb.send(new ExecuteStatementCommand({
+      Statement: `SELECT * FROM "${hashTableDef.name}" WHERE pk = '${pk}'`,
+      ReturnConsumedCapacity: 'TOTAL',
+    }))
+
+    // PartiQL always returns the ConsumedCapacity block when asked; some
+    // emulators omit it entirely.
+    expect(res.ConsumedCapacity).toBeDefined()
+    expect(res.ConsumedCapacity!.CapacityUnits).toBeGreaterThan(0)
+  })
+
   // ── Error tests ───────────────────────────────────────────────────────
 
   it('rejects a statement with syntax error', async () => {

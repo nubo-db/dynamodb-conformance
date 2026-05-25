@@ -1112,3 +1112,40 @@ describe('TransactWriteItems - ConditionExpression parens', () => {
     expect(check.Item!.status.S).toBe('active')
   })
 })
+
+describe('TransactWriteItems — ConsumedCapacity', () => {
+  const keys = [{ pk: { S: 'tw-cap-1' } }, { pk: { S: 'tw-cap-2' } }]
+
+  afterAll(async () => {
+    await cleanupItems(hashTableDef.name, keys)
+  })
+
+  it('charges 2 write capacity units per item', async () => {
+    const res = await ddb.send(
+      new TransactWriteItemsCommand({
+        ReturnConsumedCapacity: 'TOTAL',
+        TransactItems: [
+          {
+            Put: {
+              TableName: hashTableDef.name,
+              Item: { pk: { S: 'tw-cap-1' }, v: { N: '1' } },
+            },
+          },
+          {
+            Put: {
+              TableName: hashTableDef.name,
+              Item: { pk: { S: 'tw-cap-2' }, v: { N: '1' } },
+            },
+          },
+        ],
+      }),
+    )
+    const total = (res.ConsumedCapacity ?? []).reduce(
+      (sum, c) => sum + (c.CapacityUnits ?? 0),
+      0,
+    )
+    // Sub-1KB items cost 1 WCU each non-transactionally; a transaction doubles
+    // that to 2 per item, so two items total 4.
+    expect(total).toBe(4)
+  })
+})

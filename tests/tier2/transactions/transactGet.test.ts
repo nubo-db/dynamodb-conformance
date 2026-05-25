@@ -250,3 +250,55 @@ describe('TransactGetItems - validation', () => {
     )
   })
 })
+
+describe('TransactGetItems — ConsumedCapacity', () => {
+  const present = { pk: { S: 'tg-cap-present' } }
+
+  beforeAll(async () => {
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { ...present, v: { N: '1' } },
+      }),
+    )
+  })
+
+  afterAll(async () => {
+    await cleanupItems(hashTableDef.name, [present])
+  })
+
+  it('charges 2 read capacity units per item, including a missing item', async () => {
+    const res = await ddb.send(
+      new TransactGetItemsCommand({
+        ReturnConsumedCapacity: 'TOTAL',
+        TransactItems: [
+          { Get: { TableName: hashTableDef.name, Key: present } },
+          {
+            Get: {
+              TableName: hashTableDef.name,
+              Key: { pk: { S: 'tg-cap-missing' } },
+            },
+          },
+        ],
+      }),
+    )
+    const total = (res.ConsumedCapacity ?? []).reduce(
+      (sum, c) => sum + (c.CapacityUnits ?? 0),
+      0,
+    )
+    // 2 RCU per requested item, and a missing item is still charged: 4 total.
+    expect(total).toBe(4)
+  })
+
+  it('INDEXES breakdown includes the table read capacity units', async () => {
+    const res = await ddb.send(
+      new TransactGetItemsCommand({
+        ReturnConsumedCapacity: 'INDEXES',
+        TransactItems: [{ Get: { TableName: hashTableDef.name, Key: present } }],
+      }),
+    )
+    const entry = (res.ConsumedCapacity ?? [])[0]
+    expect(entry).toBeDefined()
+    expect(entry.Table?.ReadCapacityUnits).toBeGreaterThan(0)
+  })
+})
