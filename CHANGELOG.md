@@ -3,6 +3,18 @@
 A dated log of how the conformance test suite has grown: tests added, tiers
 broadened, and targets brought into the run. Newest first.
 
+## 2026-05-26
+
+Grew to 684 tests with a control-plane and table-configuration sweep: the
+CreateTable/UpdateTable config parameters and the secondary control-plane
+operations (limits, backups and PITR, exports and imports, Kinesis, resource
+policies, contributor insights), each characterised against real AWS and
+probe-skipped where a target doesn't implement it.
+
+The published percentage changed with it. It now measures correctness over
+implemented operations, Pass / (Pass + Fail), so skips no longer count against
+the score. A skip is honest scope; a fail is a bug.
+
 ## 2026-05-24
 
 Grew to 625 tests, up 24 on the previous run: eleven more in Tier 1 and

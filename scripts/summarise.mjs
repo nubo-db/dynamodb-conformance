@@ -4,9 +4,9 @@
  * Post-process Vitest JSON output files into the Markdown comparison table.
  *
  * Usage:
- *   node scripts/summarize.mjs                 # all results/*.json -> stdout
- *   node scripts/summarize.mjs results/*.json  # explicit files     -> stdout
- *   node scripts/summarize.mjs --write         # splice into README.md markers
+ *   node scripts/summarise.mjs                 # all results/*.json -> stdout
+ *   node scripts/summarise.mjs results/*.json  # explicit files     -> stdout
+ *   node scripts/summarise.mjs --write         # splice into README.md markers
  *
  * Each JSON file is a Vitest --reporter=json output; the target slug is the
  * filename (e.g. "dynoxide" from "dynoxide.json"). Run date comes from the
@@ -15,6 +15,12 @@
  * The real-DynamoDB row is synthesised, not read from a file: real DynamoDB is
  * the ground truth, so it is 100% by definition across the full suite. This
  * keeps the row present and correct even on runs that don't exercise AWS.
+ *
+ * The percentage is correctness over IMPLEMENTED operations: passed / (passed +
+ * failed). Skips are operations the target does not implement (the feature-probe
+ * declined to run them) and are reported in their own column, not counted
+ * against the percentage. A skip is honest scope documentation; a fail is a
+ * correctness bug. The two are not the same and the table treats them apart.
  */
 
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
@@ -32,7 +38,7 @@ if (files.length === 0) {
         .map((f) => join('results', f)),
     )
   } catch {
-    console.error('Usage: node scripts/summarize.mjs [--write] [results/*.json]')
+    console.error('Usage: node scripts/summarise.mjs [--write] [results/*.json]')
     process.exit(1)
   }
 }
@@ -115,20 +121,23 @@ for (const file of files) {
   }
 
   const total = (s) => s.p + s.f + s.s
-  const pct = (p, t) => (t === 0 ? '-' : `${((p / t) * 100).toFixed(1)}%`)
+  // Correctness over implemented operations: skips (operations the target does
+  // not implement, where the feature-probe declined to run) are excluded from
+  // the denominator. A skip is scope, not a failure.
+  const pct = (p, f) => (p + f === 0 ? '-' : `${((p / (p + f)) * 100).toFixed(1)}%`)
   const allP = summary.tier1.p + summary.tier2.p + summary.tier3.p
-  const allTotal = total(summary.tier1) + total(summary.tier2) + total(summary.tier3)
+  const allF = summary.tier1.f + summary.tier2.f + summary.tier3.f
 
   rows.push({
     target: label(slug),
-    tier1: pct(summary.tier1.p, total(summary.tier1)),
-    tier2: pct(summary.tier2.p, total(summary.tier2)),
-    tier3: pct(summary.tier3.p, total(summary.tier3)),
-    total: pct(allP, allTotal),
+    tier1: pct(summary.tier1.p, summary.tier1.f),
+    tier2: pct(summary.tier2.p, summary.tier2.f),
+    tier3: pct(summary.tier3.p, summary.tier3.f),
+    total: pct(allP, allF),
     passed: allP,
-    failed: summary.tier1.f + summary.tier2.f + summary.tier3.f,
+    failed: allF,
     skipped: summary.tier1.s + summary.tier2.s + summary.tier3.s,
-    count: allTotal,
+    count: total(summary.tier1) + total(summary.tier2) + total(summary.tier3),
     version,
     runDate,
   })

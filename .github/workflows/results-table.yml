@@ -74,7 +74,7 @@ jobs:
           done
 
       - name: Regenerate results table
-        run: node scripts/summarize.mjs --write
+        run: node scripts/summarise.mjs --write
 
       - name: Commit if changed
         run: |

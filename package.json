@@ -12,7 +12,7 @@
     "test:tier3": "vitest run --include 'tests/tier3/**/*.test.ts'",
     "test:capture-ground-truth": "DYNAMODB_ENDPOINT= vitest run --reporter=json --outputFile=ground-truth/latest.json",
     "test:capture-ddb-local": "DYNAMODB_ENDPOINT=http://localhost:8000 vitest run --reporter=json --outputFile=results/dynamodb-local.json",
-    "results:table": "node scripts/summarize.mjs",
+    "results:table": "node scripts/summarise.mjs",
     "test:ui": "vitest --ui"
   },
   "dependencies": {
