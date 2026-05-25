@@ -370,4 +370,38 @@ describe('UpdateItem — nested path semantics', () => {
     expect(list).toHaveLength(1)
     expect(list[0].S).toBe('first')
   })
+
+  it('SET on a document path nests under an existing map without flattening', async () => {
+    const pkVal = 'path-map-nest'
+    keysToCleanup.push({ pk: { S: pkVal } })
+
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: pkVal }, parent: { M: { keep: { S: 'k' } } } },
+      }),
+    )
+
+    await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pkVal } },
+        UpdateExpression: 'SET parent.child = :v',
+        ExpressionAttributeValues: { ':v': { S: 'nested' } },
+      }),
+    )
+
+    const result = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pkVal } },
+        ConsistentRead: true,
+      }),
+    )
+    // child nests under the existing map, the sibling survives, and no
+    // top-level attribute literally named "parent.child" is created.
+    expect(result.Item!.parent.M!.child.S).toBe('nested')
+    expect(result.Item!.parent.M!.keep.S).toBe('k')
+    expect(result.Item!['parent.child']).toBeUndefined()
+  })
 })

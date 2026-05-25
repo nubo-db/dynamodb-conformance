@@ -548,3 +548,130 @@ describe('UpdateItem — return values', () => {
     await cleanupItems(hashTableDef.name, [{ pk: { S: 'upd-ret3' } }])
   })
 })
+
+describe('UpdateItem — SET evaluation semantics', () => {
+  const keys: { pk: { S: string } }[] = []
+  afterAll(async () => {
+    await cleanupItems(hashTableDef.name, keys)
+  })
+
+  it('a second SET clause reads the pre-update value of another attribute', async () => {
+    const pk = 'upd-snapshot'
+    keys.push({ pk: { S: pk } })
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: pk }, a: { S: 'OLD' } },
+      }),
+    )
+    // DynamoDB evaluates the whole expression against the pre-update snapshot,
+    // so `b` gets the old value of `a`, not the value just assigned in the same call.
+    const res = await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET a = :v, b = a',
+        ExpressionAttributeValues: { ':v': { S: 'NEW' } },
+        ReturnValues: 'ALL_NEW',
+      }),
+    )
+    expect(res.Attributes!.a.S).toBe('NEW')
+    expect(res.Attributes!.b.S).toBe('OLD')
+  })
+
+  it('applies parenthesised arithmetic (SET c = (c - :v))', async () => {
+    const pk = 'upd-paren'
+    keys.push({ pk: { S: pk } })
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: pk }, c: { N: '10' } },
+      }),
+    )
+    const res = await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET c = (c - :v)',
+        ExpressionAttributeValues: { ':v': { N: '3' } },
+        ReturnValues: 'ALL_NEW',
+      }),
+    )
+    expect(res.Attributes!.c.N).toBe('7')
+  })
+
+  it('applies arithmetic around if_not_exists (SET v = if_not_exists(v, :d) - :amt)', async () => {
+    const pk = 'upd-ifnot-arith'
+    keys.push({ pk: { S: pk } })
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: pk }, v: { N: '10' } },
+      }),
+    )
+    const res = await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET v = if_not_exists(v, :d) - :amt',
+        ExpressionAttributeValues: { ':d': { N: '0' }, ':amt': { N: '3' } },
+        ReturnValues: 'ALL_NEW',
+      }),
+    )
+    expect(res.Attributes!.v.N).toBe('7')
+  })
+
+  it('composes nested functions: list_append(if_not_exists(list, :empty), :more) on a missing list', async () => {
+    const pk = 'upd-nested-fn'
+    keys.push({ pk: { S: pk } })
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: pk } },
+      }),
+    )
+    await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET mylist = list_append(if_not_exists(mylist, :empty), :more)',
+        ExpressionAttributeValues: { ':empty': { L: [] }, ':more': { L: [{ S: 'x' }] } },
+      }),
+    )
+    const result = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(result.Item!.mylist.L).toEqual([{ S: 'x' }])
+  })
+
+  it('list_append argument order controls prepend vs append', async () => {
+    const pk = 'upd-prepend'
+    keys.push({ pk: { S: pk } })
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: pk }, vals: { L: [{ S: 'b' }, { S: 'c' }] } },
+      }),
+    )
+    await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET vals = list_append(:new, vals)',
+        ExpressionAttributeValues: { ':new': { L: [{ S: 'a' }] } },
+      }),
+    )
+    const result = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(result.Item!.vals.L).toEqual([{ S: 'a' }, { S: 'b' }, { S: 'c' }])
+  })
+})
