@@ -2,6 +2,7 @@ import {
   PutItemCommand,
   GetItemCommand,
   QueryCommand,
+  UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import {
@@ -388,5 +389,27 @@ describe('Number precision — DynamoDB number limits and edge cases', () => {
     const sortKeys = result.Items!.map((i) => parseFloat(i.sk.N!))
     expect(sortKeys[0]).toBeLessThan(sortKeys[1])
     expect(sortKeys[1]).toBeLessThan(sortKeys[2])
+  })
+
+  it('rejects arithmetic that overflows the supported number magnitude', async () => {
+    // A too-lenient target stores the overflowed result; AWS rejects the
+    // arithmetic with a Number overflow ValidationException.
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new UpdateItemCommand({
+            TableName: hashTableDef.name,
+            Key: { pk: { S: 'np-overflow' } },
+            UpdateExpression: 'SET n = :a + :b',
+            ExpressionAttributeValues: {
+              ':a': { N: '9.9e125' },
+              ':b': { N: '9.9e125' },
+            },
+          }),
+        ),
+      'ValidationException',
+      'Number overflow',
+    )
+    await cleanupItems(hashTableDef.name, [{ pk: { S: 'np-overflow' } }])
   })
 })

@@ -76,6 +76,35 @@ describe('PutItem — validation', () => {
     )
   })
 
+  it('rejects duplicate values in number set', async () => {
+    await expectDynamoError(
+      () => ddb.send(
+        new PutItemCommand({
+          TableName: hashTableDef.name,
+          Item: { pk: { S: 'test' }, bad: { NS: ['1', '1', '2'] } },
+        }),
+      ),
+      'ValidationException',
+      'duplicates',
+    )
+  })
+
+  it('rejects duplicate values in binary set', async () => {
+    await expectDynamoError(
+      () => ddb.send(
+        new PutItemCommand({
+          TableName: hashTableDef.name,
+          Item: {
+            pk: { S: 'test' },
+            bad: { BS: [new Uint8Array([1]), new Uint8Array([1])] },
+          },
+        }),
+      ),
+      'ValidationException',
+      'duplicates',
+    )
+  })
+
   it('rejects invalid ReturnValues', async () => {
     await expectDynamoError(
       () => ddb.send(
