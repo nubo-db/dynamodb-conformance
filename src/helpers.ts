@@ -4,6 +4,7 @@ import {
   DeleteItemCommand,
   DescribeTableCommand,
   UpdateTableCommand,
+  UpdateContinuousBackupsCommand,
   ListTablesCommand,
   QueryCommand,
   DynamoDBServiceException,
@@ -195,6 +196,38 @@ export async function deleteTable(tableName: string): Promise<void> {
       return
     }
     throw e
+  }
+}
+
+/**
+ * Enable point-in-time recovery, retrying while DynamoDB is still enabling
+ * continuous backups on a freshly-created table (it throws
+ * ContinuousBackupsUnavailableException during that window).
+ */
+export async function enablePitr(tableName: string, timeoutMs = 90_000): Promise<void> {
+  const start = Date.now()
+  let delay = 0
+  for (;;) {
+    try {
+      await ddb.send(
+        new UpdateContinuousBackupsCommand({
+          TableName: tableName,
+          PointInTimeRecoverySpecification: { PointInTimeRecoveryEnabled: true },
+        }),
+      )
+      return
+    } catch (e: unknown) {
+      if (
+        e instanceof DynamoDBServiceException &&
+        e.name === 'ContinuousBackupsUnavailableException' &&
+        Date.now() - start < timeoutMs
+      ) {
+        if (delay > 0) await sleep(delay)
+        delay = Math.min(delay || 2000, 5000)
+        continue
+      }
+      throw e
+    }
   }
 }
 
