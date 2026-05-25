@@ -200,22 +200,19 @@ export async function deleteTable(tableName: string): Promise<void> {
 }
 
 /**
- * Enable point-in-time recovery, retrying while DynamoDB is still enabling
- * continuous backups on a freshly-created table (it throws
+ * Retry an operation while DynamoDB is still enabling continuous backups on a
+ * freshly-created table (CreateBackup and UpdateContinuousBackups both throw
  * ContinuousBackupsUnavailableException during that window).
  */
-export async function enablePitr(tableName: string, timeoutMs = 90_000): Promise<void> {
+export async function retryWhileBackupsEnabling<T>(
+  fn: () => Promise<T>,
+  timeoutMs = 120_000,
+): Promise<T> {
   const start = Date.now()
   let delay = 0
   for (;;) {
     try {
-      await ddb.send(
-        new UpdateContinuousBackupsCommand({
-          TableName: tableName,
-          PointInTimeRecoverySpecification: { PointInTimeRecoveryEnabled: true },
-        }),
-      )
-      return
+      return await fn()
     } catch (e: unknown) {
       if (
         e instanceof DynamoDBServiceException &&
@@ -229,6 +226,18 @@ export async function enablePitr(tableName: string, timeoutMs = 90_000): Promise
       throw e
     }
   }
+}
+
+/** Enable point-in-time recovery, waiting out the post-create enabling window. */
+export async function enablePitr(tableName: string): Promise<void> {
+  await retryWhileBackupsEnabling(() =>
+    ddb.send(
+      new UpdateContinuousBackupsCommand({
+        TableName: tableName,
+        PointInTimeRecoverySpecification: { PointInTimeRecoveryEnabled: true },
+      }),
+    ),
+  )
 }
 
 /**
