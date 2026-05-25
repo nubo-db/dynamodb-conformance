@@ -4,7 +4,9 @@
  * Sanitize AWS account IDs from JSON result files.
  *
  * Replaces all 12-digit account IDs in ARN patterns with '000000000000'.
- * Covers: TableArn, LatestStreamArn, IndexArn, and any other ARN field.
+ * Covers ARNs for any AWS service (TableArn, LatestStreamArn, IndexArn, backup,
+ * Kinesis, KMS, S3 access points) and bare account IDs in IAM "AWS" principals
+ * inside resource-policy documents.
  *
  * Usage:
  *   node scripts/sanitize-arns.mjs results/*.json ground-truth/*.json
@@ -14,8 +16,11 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-const ARN_ACCOUNT_REGEX = /(arn:aws:dynamodb:[^:]+:)\d{12}(:)/g
-const REPLACEMENT = '$1000000000000$2'
+const REPLACERS = [
+  { re: /(arn:aws[a-z-]*:[a-z0-9-]+:[^:]*:)\d{12}(:)/g, repl: '$1000000000000$2' },
+  // Tolerates backslash-escaped quotes — policy docs land in result JSON escaped.
+  { re: /(\\?"AWS\\?"\s*:\s*\\?")\d{12}(\\?")/g, repl: '$1000000000000$2' },
+]
 
 const files = process.argv.slice(2)
 
@@ -37,8 +42,13 @@ let totalReplacements = 0
 
 for (const file of files) {
   const content = readFileSync(file, 'utf8')
-  const sanitized = content.replace(ARN_ACCOUNT_REGEX, REPLACEMENT)
-  const replacements = (content.match(ARN_ACCOUNT_REGEX) || []).length
+  let sanitized = content
+  let replacements = 0
+  for (const { re, repl } of REPLACERS) {
+    re.lastIndex = 0
+    replacements += (sanitized.match(re) || []).length
+    sanitized = sanitized.replace(re, repl)
+  }
 
   if (replacements > 0) {
     writeFileSync(file, sanitized)

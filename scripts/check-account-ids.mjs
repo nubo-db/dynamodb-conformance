@@ -13,7 +13,17 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 const PLACEHOLDER = '000000000000'
-const ARN_ACCOUNT_REGEX = /arn:aws:dynamodb:[^:]+:(\d{12}):/g
+// Account IDs appear in ARNs for any AWS service (DynamoDB, Kinesis, KMS, S3
+// access points, backups) and bare inside IAM "AWS" principals in
+// resource-policy documents. Cover both so the control-plane operations can't
+// leak a real account ID through a non-DynamoDB ARN or a PutResourcePolicy body.
+// The "AWS" principal pattern tolerates backslash-escaped quotes, because a
+// resource-policy document lands in result JSON as an escaped string
+// (\"AWS\":\"123456789012\").
+const ACCOUNT_PATTERNS = [
+  /arn:aws[a-z-]*:[a-z0-9-]+:[^:]*:(\d{12}):/g,
+  /\\?"AWS\\?"\s*:\s*\\?"(\d{12})\\?"/g,
+]
 
 const files = process.argv.slice(2)
 
@@ -30,12 +40,15 @@ let found = false
 
 for (const file of files) {
   const content = readFileSync(file, 'utf8')
-  let match
-  while ((match = ARN_ACCOUNT_REGEX.exec(content)) !== null) {
-    const accountId = match[1]
-    if (accountId !== PLACEHOLDER) {
-      console.error(`LEAKED: ${file} contains real account ID: ${accountId}`)
-      found = true
+  for (const pattern of ACCOUNT_PATTERNS) {
+    pattern.lastIndex = 0
+    let match
+    while ((match = pattern.exec(content)) !== null) {
+      const accountId = match[1]
+      if (accountId !== PLACEHOLDER) {
+        console.error(`LEAKED: ${file} contains real account ID: ${accountId}`)
+        found = true
+      }
     }
   }
 }
