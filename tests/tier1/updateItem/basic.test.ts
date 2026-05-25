@@ -675,3 +675,73 @@ describe('UpdateItem — SET evaluation semantics', () => {
     expect(result.Item!.vals.L).toEqual([{ S: 'a' }, { S: 'b' }, { S: 'c' }])
   })
 })
+
+describe('UpdateItem — ReturnValues granularity', () => {
+  const keys: { pk: { S: string } }[] = []
+  afterAll(async () => {
+    await cleanupItems(hashTableDef.name, keys)
+  })
+
+  it('UPDATED_NEW on a create returns the newly set attributes', async () => {
+    const pk = 'rv-create'
+    keys.push({ pk: { S: pk } })
+    const res = await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET a = :a',
+        ExpressionAttributeValues: { ':a': { S: 'x' } },
+        ReturnValues: 'UPDATED_NEW',
+      }),
+    )
+    // Even when the update creates the item, AWS returns the set attribute.
+    expect(res.Attributes).toBeDefined()
+    expect(res.Attributes!.a.S).toBe('x')
+  })
+
+  it('UPDATED_NEW on a nested SET returns only the changed fragment', async () => {
+    const pk = 'rv-nested'
+    keys.push({ pk: { S: pk } })
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: {
+          pk: { S: pk },
+          parent: { M: { keep: { S: 'k' }, child: { S: 'old' } } },
+        },
+      }),
+    )
+    const res = await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'SET parent.child = :v',
+        ExpressionAttributeValues: { ':v': { S: 'new' } },
+        ReturnValues: 'UPDATED_NEW',
+      }),
+    )
+    // Only the changed path comes back, not the whole parent map.
+    expect(res.Attributes!.parent.M!.child.S).toBe('new')
+    expect(res.Attributes!.parent.M!.keep).toBeUndefined()
+  })
+
+  it('REMOVE with UPDATED_NEW omits Attributes (nothing was set to a new value)', async () => {
+    const pk = 'rv-remove'
+    keys.push({ pk: { S: pk } })
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: pk }, x: { S: 'keep' }, y: { S: 'drop' } },
+      }),
+    )
+    const res = await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: pk } },
+        UpdateExpression: 'REMOVE y',
+        ReturnValues: 'UPDATED_NEW',
+      }),
+    )
+    expect(res.Attributes).toBeUndefined()
+  })
+})

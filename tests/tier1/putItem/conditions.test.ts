@@ -1,6 +1,7 @@
 import {
   PutItemCommand,
   GetItemCommand,
+  ConditionalCheckFailedException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, expectDynamoError, cleanupItems } from '../../../src/helpers.js'
@@ -195,5 +196,35 @@ describe('PutItem — ConditionExpression', () => {
       ),
       'ConditionalCheckFailedException',
     )
+  })
+
+  it('returns the conflicting item via ReturnValuesOnConditionCheckFailure on a failed Put', async () => {
+    const k = 'put-rvcf'
+    await cleanupItems(hashTableDef.name, [{ pk: { S: k } }])
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: k }, val: { S: 'first' } },
+      }),
+    )
+
+    try {
+      await ddb.send(
+        new PutItemCommand({
+          TableName: hashTableDef.name,
+          Item: { pk: { S: k }, val: { S: 'second' } },
+          ConditionExpression: 'attribute_not_exists(pk)',
+          ReturnValuesOnConditionCheckFailure: 'ALL_OLD',
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConditionalCheckFailedException)
+      const err = e as ConditionalCheckFailedException
+      expect(err.Item).toBeDefined()
+      expect(err.Item!.val.S).toBe('first')
+    }
+
+    await cleanupItems(hashTableDef.name, [{ pk: { S: k } }])
   })
 })
