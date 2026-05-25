@@ -428,3 +428,58 @@ describe('Query — Limit + FilterExpression interaction', () => {
     )
   })
 })
+
+describe('Query — ExclusiveStartKey exclusivity', () => {
+  const pk = 'esk-excl'
+  const items = ['a', 'b', 'c', 'd', 'e'].map((s) => ({
+    pk: { S: pk },
+    sk: { S: s },
+  }))
+
+  beforeAll(async () => {
+    await Promise.all(
+      items.map((item) =>
+        ddb.send(
+          new PutItemCommand({ TableName: compositeTableDef.name, Item: item }),
+        ),
+      ),
+    )
+  })
+
+  afterAll(async () => {
+    await cleanupItems(
+      compositeTableDef.name,
+      items.map((i) => ({ pk: i.pk, sk: i.sk })),
+    )
+  })
+
+  it('does not repeat the item equal to ExclusiveStartKey', async () => {
+    const firstPage = await ddb.send(
+      new QueryCommand({
+        TableName: compositeTableDef.name,
+        KeyConditionExpression: 'pk = :pk',
+        ExpressionAttributeValues: { ':pk': { S: pk } },
+        ConsistentRead: true,
+        Limit: 2,
+      }),
+    )
+    expect(firstPage.Items).toHaveLength(2)
+    const startKey = firstPage.LastEvaluatedKey
+    expect(startKey).toBeDefined()
+
+    const secondPage = await ddb.send(
+      new QueryCommand({
+        TableName: compositeTableDef.name,
+        KeyConditionExpression: 'pk = :pk',
+        ExpressionAttributeValues: { ':pk': { S: pk } },
+        ConsistentRead: true,
+        ExclusiveStartKey: startKey,
+      }),
+    )
+    const secondSks = secondPage.Items!.map((i) => i.sk.S)
+    // The item equal to ExclusiveStartKey must not reappear.
+    expect(secondSks).not.toContain(startKey!.sk.S)
+    // Continues strictly after the start key (a, b on page 1 → c, d, e next).
+    expect(secondSks).toEqual(['c', 'd', 'e'])
+  })
+})

@@ -133,3 +133,75 @@ describe('Scan — GSI pagination', () => {
     expect(allItems).toHaveLength(10)
   })
 })
+
+describe('Scan — GSI pagination across tied sort keys', () => {
+  // GSI range key distinct from the base key, so the GSI sort key can tie while
+  // base keys stay unique. Real AWS composes LastEvaluatedKey from the base key
+  // AND the index keys; an emulator that omits the base key loops or drops rows.
+  const tableDef: TestTableDef = {
+    name: uniqueTableName('gsi-tie-scan'),
+    hashKey: { name: 'ID', type: 'S' },
+    billingMode: 'PAY_PER_REQUEST',
+    gsis: [
+      {
+        indexName: 'TieIndex',
+        hashKey: { name: 'GType', type: 'S' },
+        rangeKey: { name: 'GSort', type: 'S' },
+        projectionType: 'ALL',
+      },
+    ],
+  }
+
+  const COUNT = 5
+
+  beforeAll(async () => {
+    await createTable(tableDef)
+    for (let i = 0; i < COUNT; i++) {
+      await ddb.send(
+        new PutItemCommand({
+          TableName: tableDef.name,
+          Item: { ID: { S: `id-${i}` }, GType: { S: 'tie' }, GSort: { S: 'same' } },
+        }),
+      )
+    }
+    await waitForGsiConsistency({
+      tableName: tableDef.name,
+      indexName: 'TieIndex',
+      partitionKey: { name: 'GType', value: { S: 'tie' } },
+      expectedCount: COUNT,
+    })
+  }, 30_000)
+
+  afterAll(async () => {
+    await deleteTable(tableDef.name)
+  })
+
+  it('walks every item once across a paged GSI scan with tied sort keys', async () => {
+    const seen: string[] = []
+    let lastKey: Record<string, AttributeValue> | undefined
+    let pages = 0
+
+    do {
+      const page = await ddb.send(
+        new ScanCommand({
+          TableName: tableDef.name,
+          IndexName: 'TieIndex',
+          Limit: 1,
+          ...(lastKey ? { ExclusiveStartKey: lastKey } : {}),
+        }),
+      )
+      pages++
+      for (const item of page.Items ?? []) seen.push(item.ID!.S!)
+      lastKey = page.LastEvaluatedKey
+      if (lastKey) {
+        expect(Object.keys(lastKey).sort()).toEqual(['GSort', 'GType', 'ID'])
+      }
+      expect(pages).toBeLessThanOrEqual(COUNT + 1)
+    } while (lastKey)
+
+    expect(seen.sort()).toEqual(
+      Array.from({ length: COUNT }, (_, i) => `id-${i}`).sort(),
+    )
+    expect(new Set(seen).size).toBe(COUNT)
+  })
+})

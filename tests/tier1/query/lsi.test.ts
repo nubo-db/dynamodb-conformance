@@ -1,6 +1,7 @@
 import {
   PutItemCommand,
   QueryCommand,
+  type AttributeValue,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import {
@@ -212,5 +213,67 @@ describe('Query — LSI', () => {
 
     expect(result.Items).toHaveLength(0)
     expect(result.Count).toBe(0)
+  })
+})
+
+describe('Query — LSI pagination across tied sort keys', () => {
+  // Items in one partition sharing the LSI sort key (lsi1sk), distinct base sk.
+  // The LSI continuation key must carry the base-table keys (pk, sk) alongside
+  // the index sort key, or a paged walk loops or drops rows on the tie.
+  const tied = [0, 1, 2, 3].map((i) => ({
+    pk: { S: 'lsi-tie' },
+    sk: { S: `s-${i}` },
+    lsi1sk: { S: 'lsi-tie-sk' },
+    data: { S: `d${i}` },
+  }))
+
+  beforeAll(async () => {
+    await Promise.all(
+      tied.map((item) =>
+        ddb.send(
+          new PutItemCommand({ TableName: compositeTableDef.name, Item: item }),
+        ),
+      ),
+    )
+  })
+
+  afterAll(async () => {
+    await cleanupItems(
+      compositeTableDef.name,
+      tied.map((item) => ({ pk: item.pk, sk: item.sk })),
+    )
+  })
+
+  it('composes LastEvaluatedKey from base and index keys and walks every tied item once', async () => {
+    const seen: string[] = []
+    let lastKey: Record<string, AttributeValue> | undefined
+    let pages = 0
+
+    do {
+      const page = await ddb.send(
+        new QueryCommand({
+          TableName: compositeTableDef.name,
+          IndexName: 'lsi1',
+          KeyConditionExpression: 'pk = :p AND lsi1sk = :v',
+          ExpressionAttributeValues: {
+            ':p': { S: 'lsi-tie' },
+            ':v': { S: 'lsi-tie-sk' },
+          },
+          ConsistentRead: true,
+          Limit: 1,
+          ...(lastKey ? { ExclusiveStartKey: lastKey } : {}),
+        }),
+      )
+      pages++
+      for (const item of page.Items ?? []) seen.push(item.sk!.S!)
+      lastKey = page.LastEvaluatedKey
+      if (lastKey) {
+        expect(Object.keys(lastKey).sort()).toEqual(['lsi1sk', 'pk', 'sk'])
+      }
+      expect(pages).toBeLessThanOrEqual(tied.length + 1)
+    } while (lastKey)
+
+    expect(seen.sort()).toEqual(tied.map((t) => t.sk.S).sort())
+    expect(new Set(seen).size).toBe(tied.length)
   })
 })

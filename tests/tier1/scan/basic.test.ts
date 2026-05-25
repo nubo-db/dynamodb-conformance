@@ -221,3 +221,73 @@ describe('Scan — ProjectionExpression', () => {
     )
   })
 })
+
+describe('Scan — ExclusiveStartKey exclusivity and filtered Limit', () => {
+  const items = Array.from({ length: 4 }, (_, i) => ({
+    pk: { S: `sesk-${i}` },
+    val: { N: String(i) },
+  }))
+
+  beforeAll(async () => {
+    await Promise.all(
+      items.map((item) =>
+        ddb.send(
+          new PutItemCommand({ TableName: hashTableDef.name, Item: item }),
+        ),
+      ),
+    )
+  })
+
+  afterAll(async () => {
+    await cleanupItems(
+      hashTableDef.name,
+      items.map((item) => ({ pk: item.pk })),
+    )
+  })
+
+  it('does not repeat the item equal to ExclusiveStartKey', async () => {
+    const filter = {
+      FilterExpression: 'begins_with(pk, :p)',
+      ExpressionAttributeValues: { ':p': { S: 'sesk-' } },
+    }
+    const firstPage = await ddb.send(
+      new ScanCommand({
+        TableName: hashTableDef.name,
+        Limit: 1,
+        ConsistentRead: true,
+        ...filter,
+      }),
+    )
+    const startKey = firstPage.LastEvaluatedKey
+    expect(startKey).toBeDefined()
+
+    const secondPage = await ddb.send(
+      new ScanCommand({
+        TableName: hashTableDef.name,
+        ExclusiveStartKey: startKey,
+        ConsistentRead: true,
+        ...filter,
+      }),
+    )
+    const secondPks = secondPage.Items!.map((i) => i.pk.S)
+    // The item equal to ExclusiveStartKey must not reappear on the next page.
+    expect(secondPks).not.toContain(startKey!.pk.S)
+  })
+
+  it('returns LastEvaluatedKey while items remain, counting scanned-not-matched against Limit', async () => {
+    const result = await ddb.send(
+      new ScanCommand({
+        TableName: hashTableDef.name,
+        Limit: 1,
+        FilterExpression: 'val > :hi',
+        ExpressionAttributeValues: { ':hi': { N: '100' } }, // matches none of ours
+        ConsistentRead: true,
+      }),
+    )
+    // Limit caps scanned items, not matched items: one scanned, none matched,
+    // and a cursor is returned because the table is not exhausted.
+    expect(result.ScannedCount).toBe(1)
+    expect(result.Count).toBe(0)
+    expect(result.LastEvaluatedKey).toBeDefined()
+  })
+})
