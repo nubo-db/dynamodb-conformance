@@ -56,7 +56,7 @@ function sleep(ms: number): Promise<void> {
  * implemented and the test should assert, not skip. U2 refines the exact fault
  * shapes each target uses.
  */
-function isUnsupportedFault(err: unknown): boolean {
+export function isUnsupportedFault(err: unknown): boolean {
   const e = err as { name?: string; message?: string; $metadata?: { httpStatusCode?: number } }
   const name = e?.name ?? ''
   const message = e?.message ?? ''
