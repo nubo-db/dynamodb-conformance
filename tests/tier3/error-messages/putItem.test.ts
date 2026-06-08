@@ -1,5 +1,6 @@
 import {
   PutItemCommand,
+  GetItemCommand,
   DynamoDBServiceException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
@@ -48,7 +49,7 @@ describe('PutItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+        "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
       )
     }
   })
@@ -102,7 +103,7 @@ describe('PutItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'One or more parameter values were invalid: An string set  may not be empty',
+        '1 validation error detected: One or more parameter values were invalid: An string set  may not be empty',
       )
     }
   })
@@ -120,7 +121,7 @@ describe('PutItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'One or more parameter values were invalid: An number set  may not be empty',
+        '1 validation error detected: One or more parameter values were invalid: An number set  may not be empty',
       )
     }
   })
@@ -138,27 +139,32 @@ describe('PutItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'One or more parameter values were invalid: Input collection [a, a] contains duplicates.',
+        '1 validation error detected: One or more parameter values were invalid: Input collection ["a", "a"] contains duplicates.',
       )
     }
   })
 
-  it('NULL attr with false: full null-attribute error', async () => {
-    try {
-      await ddb.send(
-        new PutItemCommand({
-          TableName: hashTableDef.name,
-          Item: { pk: { S: 'em-put-null-false' }, attr1: { NULL: false } },
-        }),
-      )
-      expect.unreachable('should have thrown')
-    } catch (err) {
-      expect(err).toBeInstanceOf(DynamoDBServiceException)
-      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
-      expect((err as DynamoDBServiceException).message).toBe(
-        'One or more parameter values were invalid: Null attribute value types must have the value of true',
-      )
-    }
+  it('NULL attr with false is accepted and normalises to NULL true', async () => {
+    // AWS behaviour change captured 2026-06-08 (eu-west-2): PutItem with a
+    // { NULL: false } attribute is no longer rejected. The value is accepted
+    // and normalises to { NULL: true } on read.
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: 'em-put-null-false' }, attr1: { NULL: false } },
+      }),
+    )
+    const got = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: 'em-put-null-false' } },
+        ConsistentRead: true,
+      }),
+    )
+    expect(got.Item).toEqual({
+      pk: { S: 'em-put-null-false' },
+      attr1: { NULL: true },
+    })
   })
 
   it('mixing expression and non-expression: full conflict error', async () => {
@@ -176,7 +182,7 @@ describe('PutItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}',
+        '1 validation error detected: Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}',
       )
     }
   })
@@ -195,7 +201,7 @@ describe('PutItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'ExpressionAttributeValues can only be specified when using expressions: ConditionExpression is null',
+        '1 validation error detected: ExpressionAttributeValues can only be specified when using expressions',
       )
     }
   })
@@ -214,7 +220,7 @@ describe('PutItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'Invalid ConditionExpression: The expression has redundant parentheses;',
+        '1 validation error detected: Invalid ConditionExpression: The expression has redundant parentheses;',
       )
     }
   })
@@ -234,7 +240,7 @@ describe('PutItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'Invalid ConditionExpression: The first operand must be distinct from the remaining operands for this operator or function; operator: contains, first operand: [data]',
+        '1 validation error detected: Invalid ConditionExpression: The first operand must be distinct from the remaining operands for this operator or function; operator: contains, first operand: [data]',
       )
     }
   })

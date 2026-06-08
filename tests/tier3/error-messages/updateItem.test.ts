@@ -59,7 +59,7 @@ describe('UpdateItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'Invalid UpdateExpression: Syntax error; token: "INVALID", near: "INVALID SYNTAX"',
+        '1 validation error detected: Invalid UpdateExpression: Syntax error; token: "INVALID", near: "INVALID SYNTAX"',
       )
     }
   })
@@ -80,7 +80,7 @@ describe('UpdateItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}',
+        '1 validation error detected: Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}',
       )
     }
   })
@@ -100,7 +100,7 @@ describe('UpdateItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}',
+        '1 validation error detected: Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}',
       )
     }
   })
@@ -119,7 +119,7 @@ describe('UpdateItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v',
+        '1 validation error detected: Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v',
       )
     }
   })
@@ -142,7 +142,7 @@ describe('UpdateItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}',
+        '1 validation error detected: Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}',
       )
     }
   })
@@ -161,7 +161,7 @@ describe('UpdateItem — exact error messages', () => {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
-        'Invalid UpdateExpression: The expression can not be empty;',
+        '1 validation error detected: Invalid UpdateExpression: The expression can not be empty;',
       )
     }
   })

@@ -18,7 +18,11 @@ describe('DeleteItem — validation ordering', () => {
       expect(e).toBeInstanceOf(DynamoDBServiceException)
       const err = e as DynamoDBServiceException
       expect(err.name).toBe('ValidationException')
-      expect(err.message).toContain('tableName')
+      // Field is 'TableName' (eu-west-2, 2026-06) or 'tableName' (older
+      // regions); match case-insensitively. One error proves it stops at the
+      // table name rather than also reporting the empty Key.
+      expect(err.message.toLowerCase()).toContain('tablename')
+      expect(err.message).toMatch(/^1 validation error detected:/)
     }
   })
 
@@ -37,8 +41,11 @@ describe('DeleteItem — validation ordering', () => {
       expect(e).toBeInstanceOf(DynamoDBServiceException)
       const err = e as DynamoDBServiceException
       expect(err.name).toBe('ValidationException')
-      expect(err.message).toContain('returnValues')
-      expect(err.message).toContain('returnConsumedCapacity')
+      // Both invalid enums are caught (2 errors). eu-west-2 names
+      // returnConsumedCapacity and reports the ReturnValues enum violation
+      // generically; assert the count plus the named field.
+      expect(err.message).toMatch(/^2 validation errors detected:/)
+      expect(err.message.toLowerCase()).toContain('returnconsumedcapacity')
     }
   })
 

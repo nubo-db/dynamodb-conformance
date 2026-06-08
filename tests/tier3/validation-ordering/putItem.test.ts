@@ -18,7 +18,12 @@ describe('PutItem — validation ordering', () => {
       expect(e).toBeInstanceOf(DynamoDBServiceException)
       const err = e as DynamoDBServiceException
       expect(err.name).toBe('ValidationException')
-      expect(err.message).toContain('tableName')
+      // The field is named 'TableName' (eu-west-2, 2026-06) or 'tableName'
+      // (older regions); match case-insensitively. Exactly one error proves
+      // validation stops at the table name rather than also reporting the
+      // empty Item.
+      expect(err.message.toLowerCase()).toContain('tablename')
+      expect(err.message).toMatch(/^1 validation error detected:/)
     }
   })
 
@@ -36,7 +41,11 @@ describe('PutItem — validation ordering', () => {
       expect(e).toBeInstanceOf(DynamoDBServiceException)
       const err = e as DynamoDBServiceException
       expect(err.name).toBe('ValidationException')
-      expect(err.message).toContain('tableName')
+      // eu-west-2 (2026-06) stops at the table name and does not also report
+      // the invalid ReturnValues; older regions aggregate both. Pin the
+      // ground-truth short-circuit: table name present, ReturnValues absent.
+      expect(err.message.toLowerCase()).toContain('tablename')
+      expect(err.message.toLowerCase()).not.toContain('returnvalues')
     }
   })
 
@@ -56,9 +65,13 @@ describe('PutItem — validation ordering', () => {
       expect(e).toBeInstanceOf(DynamoDBServiceException)
       const err = e as DynamoDBServiceException
       expect(err.name).toBe('ValidationException')
-      expect(err.message).toContain('returnConsumedCapacity')
-      expect(err.message).toContain('returnItemCollectionMetrics')
-      expect(err.message).toContain('returnValues')
+      // All three invalid enums are caught (3 errors). eu-west-2 names
+      // returnConsumedCapacity and ReturnItemCollectionMetrics explicitly and
+      // reports the ReturnValues enum violation generically, so assert the
+      // count plus the two named fields (case-insensitive across regions).
+      expect(err.message).toMatch(/^3 validation errors detected:/)
+      expect(err.message.toLowerCase()).toContain('returnconsumedcapacity')
+      expect(err.message.toLowerCase()).toContain('returnitemcollectionmetrics')
     }
   })
 
