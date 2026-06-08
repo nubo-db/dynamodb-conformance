@@ -78,13 +78,23 @@ describe('Resource policies — Put/Get/Delete', () => {
       try {
         return await fn()
       } catch (e: unknown) {
-        if (
-          e instanceof DynamoDBServiceException &&
-          e.name === 'ThrottlingException' &&
-          attempt < 3
-        ) {
-          await sleep(16_000)
-          continue
+        if (e instanceof DynamoDBServiceException && attempt < 3) {
+          // Resource-policy writes are throttled to roughly once per several
+          // seconds (ThrottlingException). A freshly written policy also leaves
+          // the table briefly "pending previous resource-based policy update",
+          // so a follow-up Put/Delete races against it (ResourceInUseException).
+          // Retry both with bounded backoff; let every other fault surface.
+          if (e.name === 'ThrottlingException') {
+            await sleep(16_000)
+            continue
+          }
+          if (
+            e.name === 'ResourceInUseException' &&
+            /pending previous resource-based policy update/i.test(e.message)
+          ) {
+            await sleep(4_000)
+            continue
+          }
         }
         throw e
       }
@@ -122,7 +132,7 @@ describe('Resource policies — Put/Get/Delete', () => {
     }
   }
 
-  it('Put then Get round-trips the policy, and Delete removes it', async ({ skip }) => {
+  it('Put then Get round-trips the policy, and Delete removes it', { timeout: 60_000 }, async ({ skip }) => {
     if (!supported) return skip()
     const put = await retryOnThrottle(() =>
       ddb.send(new PutResourcePolicyCommand({ ResourceArn: arn, Policy: policyFor(arn) })),
