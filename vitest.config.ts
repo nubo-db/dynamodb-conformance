@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     testTimeout: 30_000,
-    hookTimeout: 120_000,
+    hookTimeout: 180_000,
     // singleFork is a CORRECTNESS requirement, not just performance.
     // Table definitions are resolved at module load time and shared by reference
     // across test files. Parallel execution would cause table contention.

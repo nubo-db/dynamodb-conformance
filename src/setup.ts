@@ -18,7 +18,7 @@ beforeAll(async () => {
     createTable(compositeNTableDef),
     createTable(compositeBTableDef),
   ])
-}, 120_000)
+}, 180_000)
 
 // Cleanup after all tests
 afterAll(async () => {

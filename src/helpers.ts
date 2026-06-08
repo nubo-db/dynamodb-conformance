@@ -132,7 +132,7 @@ function buildCreateInput(def: TestTableDef): CreateTableCommandInput {
 /** Wait until a table reaches ACTIVE status (and all GSIs are ACTIVE) */
 export async function waitUntilActive(
   tableName: string,
-  timeoutMs = 60_000,
+  timeoutMs = 120_000,
 ): Promise<void> {
   const start = Date.now()
   let delay = 0
