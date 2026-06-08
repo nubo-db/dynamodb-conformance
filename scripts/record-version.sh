@@ -46,3 +46,13 @@ fi
 [ -z "$ver" ] && ver="-"
 printf '%s\n' "$ver" >"results/${target}.version"
 echo "recorded ${target} version: ${ver}"
+
+# Region the target was exercised in. Meaningful chiefly for the ground-truth
+# dynamodb run (emulator targets sign for a placeholder region). Written to a
+# separate sibling file so summarise.mjs stays byte-stable, and so the results
+# table and paritysuite.org can render "observed in <region>" from data rather
+# than hand-authoring it.
+region="${AWS_REGION:-}"
+[ -z "$region" ] && region="-"
+printf '%s\n' "$region" >"results/${target}.region"
+echo "recorded ${target} region: ${region}"

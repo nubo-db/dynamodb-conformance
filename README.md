@@ -176,7 +176,7 @@ The full suite includes 11 UpdateTable GSI lifecycle tests that add and remove G
 
 ## Design principles
 
-**Ground truth first.** Every test is validated against real DynamoDB. If DynamoDB's behaviour changes, the suite updates.
+**Ground truth first.** Every test is validated against real DynamoDB, observed in the `eu-west-2` region. If DynamoDB's behaviour changes, the suite updates.
 
 **Observable behaviour only.** Tests verify what comes back over the wire: response bodies, error types, error messages. No testing of internal implementation details.
 
