@@ -58,8 +58,11 @@ describe('UpdateItem — exact error messages', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
-      expect((err as DynamoDBServiceException).message).toBe(
-        '1 validation error detected: Invalid UpdateExpression: Syntax error; token: "INVALID", near: "INVALID SYNTAX"',
+      // Structural: pin the contractual constraint, float the "N validation
+      // error detected:" envelope AWS adds in some regions and not others
+      // (2026-06 four-region capture). See CONTRIBUTING, "error-messages".
+      expect((err as DynamoDBServiceException).message).toContain(
+        'Invalid UpdateExpression: Syntax error; token: "INVALID", near: "INVALID SYNTAX"',
       )
     }
   })
@@ -79,8 +82,8 @@ describe('UpdateItem — exact error messages', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
-      expect((err as DynamoDBServiceException).message).toBe(
-        '1 validation error detected: Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}',
+      expect((err as DynamoDBServiceException).message).toContain(
+        'Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}',
       )
     }
   })
@@ -99,8 +102,8 @@ describe('UpdateItem — exact error messages', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
-      expect((err as DynamoDBServiceException).message).toBe(
-        '1 validation error detected: Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}',
+      expect((err as DynamoDBServiceException).message).toContain(
+        'Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}',
       )
     }
   })
@@ -118,8 +121,8 @@ describe('UpdateItem — exact error messages', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
-      expect((err as DynamoDBServiceException).message).toBe(
-        '1 validation error detected: Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v',
+      expect((err as DynamoDBServiceException).message).toContain(
+        'Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v',
       )
     }
   })
@@ -141,8 +144,8 @@ describe('UpdateItem — exact error messages', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
-      expect((err as DynamoDBServiceException).message).toBe(
-        '1 validation error detected: Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}',
+      expect((err as DynamoDBServiceException).message).toContain(
+        'Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}',
       )
     }
   })
@@ -160,8 +163,8 @@ describe('UpdateItem — exact error messages', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
-      expect((err as DynamoDBServiceException).message).toBe(
-        '1 validation error detected: Invalid UpdateExpression: The expression can not be empty;',
+      expect((err as DynamoDBServiceException).message).toContain(
+        'Invalid UpdateExpression: The expression can not be empty;',
       )
     }
   })

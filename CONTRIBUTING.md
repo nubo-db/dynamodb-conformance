@@ -74,17 +74,31 @@ which validation fired or which error code came back, put it in
 `tests/tier3/legacy-api/`.
 
 `error-messages/` uses inline `try/catch` with
-`expect(err).toBeInstanceOf(...)` and `expect(err.message).toBe(...)`.
-Don't use `expectDynamoError` there - it routes string messages
-through `toContain`, which is the right behaviour for
-`validation-ordering/` but the wrong one for exact-match tests.
+`expect(err).toBeInstanceOf(...)`, an exact `expect(err.name).toBe(...)`,
+and a message assertion whose strictness fits the message:
+
+- **Exact** (`expect(err.message).toBe(...)`) when the whole string is
+  stable across regions and over time. Most messages are, so this stays
+  the default.
+- **Structural** (`expect(err.message).toContain(...)` on the contractual
+  core - the field and the constraint phrase) when AWS's rendering is
+  non-deterministic. The `N validation error detected:` envelope, the
+  echoed input value, and field-name casing all vary by region (see the
+  2026-06 four-region capture) and are not part of the contract the API
+  model defines, so don't pin them. Pin what is invariant across regions
+  and float the rest. This is the same idea as `createTable.test.ts`'s
+  backend-variant handling.
+
+Don't use the `expectDynamoError` helper in `error-messages/` - it always
+routes the message through `toContain`, so it can't express the exact
+rung; use it (or a direct `toContain`) in `validation-ordering/`.
 
 For error messages with a stable prefix and a variable reason or
 identifier suffix (`TransactionCanceledException` is the obvious
 case), build the expected message from a known reasons array and
 structurally cross-check `CancellationReasons[].Code` against the
 same array. See `tests/tier3/error-messages/conditionalCheck.test.ts`
-for the pattern. Don't use `toContain` inside `error-messages/`.
+for the pattern.
 
 ## Commit style
 
