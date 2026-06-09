@@ -3,6 +3,24 @@
 A dated log of how the conformance test suite has grown: tests added, tiers
 broadened, and targets brought into the run. Newest first.
 
+## 2026-06-09
+
+Real DynamoDB in eu-west-2 reworded a chunk of its validation errors, and the
+Tier 3 error-message tests moved with it. They now assert the contract the error
+carries - its type, the field it objects to, and the constraint - rather than the
+exact prose, because AWS varies the wrapper, the echoed input value and the field
+casing from one region to the next. A four-region capture in June found eu-west-2
+and eu-central-1 on the new wording and us-east-1 and ap-southeast-2 still on the
+old, so the line between contract and cosmetic is drawn from what is invariant
+across all four.
+
+This moves some Tier 3 numbers. Targets that were only ever marked down for
+wording DynamoDB itself renders inconsistently now pass those checks, so their
+Tier 3 scores rise: the suite has stopped counting a cosmetic difference as a
+behavioural one. Genuine behavioural divergences are still pinned exactly, for
+example PutItem with a { NULL: false } attribute, which DynamoDB now accepts in
+eu-west-2 and normalises to { NULL: true }.
+
 ## 2026-05-28
 
 Grew to 699 tests, up 15 on the previous run: seven more in Tier 1 and eight
