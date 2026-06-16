@@ -51,7 +51,7 @@ jobs:
           aws-region: eu-west-2
           role-duration-seconds: 7200
 
-      - name: Run gating conformance suite (excludes GSI lifecycle and cloud-only ops — see README)
+      - name: Run gating conformance suite (excludes GSI lifecycle and integration suites — see README)
         env:
           CONFORMANCE_TARGET: dynamodb
           AWS_REGION: eu-west-2
@@ -136,22 +136,15 @@ jobs:
               --body-file "$RUNNER_TEMP/issue-body.md"
           fi
 
-  test-dynamodb-cloud-only:
-    name: DynamoDB cloud-only (non-gating)
-    # The S3 export/import and Kinesis streaming-destination suites depend on slow
-    # async AWS control-plane operations and are skipped by every emulator (no
-    # emulator implements them), so they give zero comparative signal but carry
-    # real flake risk. They run here, off the gating path, so a slow import can
-    # never red the build. continue-on-error keeps the whole lane non-gating.
-    #
-    # The suite shares one AWS account and cleanup deletes every _conformance_
-    # table by prefix, so this lane must not run alongside the gating job or they
-    # delete each other's tables (this lane's import targets are exactly what the
-    # gating cleanup would nuke mid-import). `needs` orders it after the gating
-    # job *within a run* — explicit, not relying on same-run concurrency
-    # semantics — and `always()` keeps it running even when the gate goes red.
-    # The shared conformance-aws group below additionally serialises against
-    # *other* runs (an overlapping push or schedule), matching the gating job.
+  test-dynamodb-integrations:
+    name: DynamoDB service integrations (non-gating)
+    # DynamoDB's integrations with other AWS services (S3 export/import, Kinesis
+    # streaming destinations). No emulator implements them, so they can't be
+    # compared, and they lean on slow async calls - so they run off the gating
+    # path and continue-on-error, where a slow import can't red the build.
+    # `needs` plus the shared conformance-aws group serialise this against the
+    # gating job so the two don't race the by-prefix table cleanup; `always()`
+    # keeps it running even when the gate is red.
     needs: test-dynamodb
     if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     continue-on-error: true
@@ -180,12 +173,12 @@ jobs:
           aws-region: eu-west-2
           role-duration-seconds: 7200
 
-      - name: Run cloud-only conformance suite (S3 export/import, Kinesis)
+      - name: Run service-integration suite (S3 export/import, Kinesis)
         continue-on-error: true
         env:
           CONFORMANCE_TARGET: dynamodb
           AWS_REGION: eu-west-2
-        run: npm run test:cloud-only
+        run: npm run test:integrations
 
       - name: Sanitize account IDs
         if: always()
@@ -201,11 +194,11 @@ jobs:
 
       # Uploaded under a non `results-*` name so the Update Results Table overlay
       # (which globs results-*) never folds this into the published comparison.
-      - name: Upload cloud-only results
+      - name: Upload integration results
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: cloud-only-results
+          name: integration-results
           path: results/
 
   capture-cross-region:
