@@ -6,6 +6,8 @@
   "scripts": {
     "test": "vitest run",
     "test:quick": "vitest run --exclude 'tests/tier2/updateTable/gsi.test.ts'",
+    "test:gating": "vitest run --exclude 'tests/tier2/updateTable/gsi.test.ts' --exclude 'tests/tier2/export/exportImport.test.ts' --exclude 'tests/tier2/kinesis/streamingDestination.test.ts'",
+    "test:cloud-only": "vitest run tests/tier2/export/exportImport.test.ts tests/tier2/kinesis/streamingDestination.test.ts",
     "test:watch": "vitest",
     "test:tier1": "vitest run --include 'tests/tier1/**/*.test.ts'",
     "test:tier2": "vitest run --include 'tests/tier2/**/*.test.ts'",

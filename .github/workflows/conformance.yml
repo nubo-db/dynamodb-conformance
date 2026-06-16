@@ -32,6 +32,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      issues: write # file/update a scheduled-red issue on a deterministic failure
     environment: conformance-testing
 
     steps:
@@ -50,11 +51,14 @@ jobs:
           aws-region: eu-west-2
           role-duration-seconds: 7200
 
-      - name: Run conformance suite (excludes GSI lifecycle — see README)
+      - name: Run gating conformance suite (excludes GSI lifecycle and cloud-only ops — see README)
         env:
           CONFORMANCE_TARGET: dynamodb
           AWS_REGION: eu-west-2
-        run: npm run test:quick
+          # Absorb transient flakes on the one gating job. Real drift fails
+          # deterministically and survives the retry; a one-off throttle passes.
+          CONFORMANCE_RETRY: '1'
+        run: npm run test:gating
 
       - name: Sanitize account IDs
         if: always()
@@ -79,6 +83,101 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: results-dynamodb
+          path: results/
+
+      # A scheduled red survived the retry, so it is deterministic: either real
+      # AWS drift to re-characterise or a flake the retry missed. File or update a
+      # single deduped issue so it is actionable, not a silent X. A later
+      # cross-region drift signal will label the verdict at the body's triage slot.
+      - name: Report a deterministic failure as an issue
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          node scripts/report-failure.mjs results/dynamodb.json "$RUN_URL" > "$RUNNER_TEMP/issue-body.md"
+          gh label create scheduled-red --color B60205 \
+            --description "Scheduled conformance run went red" 2>/dev/null || true
+          existing=$(gh issue list --label scheduled-red --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file "$RUNNER_TEMP/issue-body.md"
+          else
+            gh issue create --label scheduled-red \
+              --title "Scheduled conformance run went red ($(date -u +%Y-%m-%d))" \
+              --body-file "$RUNNER_TEMP/issue-body.md"
+          fi
+
+  test-dynamodb-cloud-only:
+    name: DynamoDB cloud-only (non-gating)
+    # The S3 export/import and Kinesis streaming-destination suites depend on slow
+    # async AWS control-plane operations and are skipped by every emulator (no
+    # emulator implements them), so they give zero comparative signal but carry
+    # real flake risk. They run here, off the gating path, so a slow import can
+    # never red the build. continue-on-error keeps the whole lane non-gating.
+    #
+    # The suite shares one AWS account and cleanup deletes every _conformance_
+    # table by prefix, so this lane must not run alongside the gating job or they
+    # delete each other's tables (this lane's import targets are exactly what the
+    # gating cleanup would nuke mid-import). `needs` orders it after the gating
+    # job *within a run* — explicit, not relying on same-run concurrency
+    # semantics — and `always()` keeps it running even when the gate goes red.
+    # The shared conformance-aws group below additionally serialises against
+    # *other* runs (an overlapping push or schedule), matching the gating job.
+    needs: test-dynamodb
+    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    concurrency:
+      group: conformance-aws
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: read
+    environment: conformance-testing
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-2
+          role-duration-seconds: 7200
+
+      - name: Run cloud-only conformance suite (S3 export/import, Kinesis)
+        continue-on-error: true
+        env:
+          CONFORMANCE_TARGET: dynamodb
+          AWS_REGION: eu-west-2
+        run: npm run test:cloud-only
+
+      - name: Sanitize account IDs
+        if: always()
+        run: node scripts/sanitize-arns.mjs
+
+      - name: Cleanup conformance tables
+        if: always()
+        timeout-minutes: 3
+        run: |
+          aws dynamodb list-tables --query "TableNames[?starts_with(@, '_conformance_')]" --output text | \
+          tr '\t' '\n' | \
+          xargs -P4 -I{} aws dynamodb delete-table --table-name {} 2>/dev/null || true
+
+      # Uploaded under a non `results-*` name so the Update Results Table overlay
+      # (which globs results-*) never folds this into the published comparison.
+      - name: Upload cloud-only results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cloud-only-results
           path: results/
 
   test-dynamodb-local:

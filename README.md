@@ -174,7 +174,7 @@ npm test
 
 The full suite includes 11 UpdateTable GSI lifecycle tests that add and remove Global Secondary Indexes from existing tables. On real DynamoDB, each GSI creation triggers a backfill that takes 5-15 minutes even on empty tables. These tests are important for conformance but they dominate runtime against real AWS.
 
-`test:quick` excludes the GSI lifecycle tests for faster iteration. CI uses `test:quick` for the real DynamoDB job to save billable AWS time. Emulator targets run the full `npm test` since GSI creation is instant locally. If you're modifying GSI-related code, run the full suite against real DynamoDB manually before merging.
+`test:quick` excludes the GSI lifecycle tests for faster local iteration. CI's gating real-DynamoDB job runs `test:gating`, which drops the GSI lifecycle tests *and* the cloud-only S3 and Kinesis suites (see "Cloud-only operations" below), so a slow async import can't redden the build. Those cloud-only suites still run against real AWS in a separate non-gating job via `npm run test:cloud-only`. Emulator targets run the full `npm test` since GSI creation is instant locally. If you're modifying GSI-related code, run the full suite against real DynamoDB manually before merging.
 
 ## Design principles
 
@@ -303,13 +303,23 @@ All test data must be synthetic. Don't use real names, emails, addresses, or any
 | TagResource | | add, list, remove, validation | |
 | DynamoDB Streams | | ListStreams, DescribeStream, GetRecords, view types | |
 
-### Not covered (cloud-only)
+### Cloud-only operations
+
+Some operations only exist on real AWS - no emulator implements them - so they
+can't sit in the comparison table, since every emulator would just skip them.
+Two are exercised against real DynamoDB anyway, in a separate non-gating CI job,
+because characterising AWS's own behaviour still has value:
+
+- Import/Export to S3
+- Kinesis Data Streams integration (streaming destinations)
+
+These run via `npm run test:cloud-only` and never gate the build - they lean on
+slow async control-plane calls that make poor gate material. The rest aren't
+covered at all:
 
 - Global Tables
 - Backups and Point-in-Time Recovery
 - DynamoDB Accelerator (DAX)
-- Kinesis Data Streams integration
-- Import/Export to S3
 - Table Class (Standard/Standard-IA)
 - Contributor Insights
 
