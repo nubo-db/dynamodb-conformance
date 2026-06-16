@@ -146,7 +146,9 @@ jobs:
     # gating job so the two don't race the by-prefix table cleanup; `always()`
     # keeps it running even when the gate is red.
     needs: test-dynamodb
-    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    # On a manual dispatch, only run when creds are declared - the same switch
+    # the ground-truth job uses - so a bare dispatch doesn't run a lopsided set.
+    if: always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && vars.HAS_AWS_CREDENTIALS == 'true'))
     continue-on-error: true
     runs-on: ubuntu-latest
     concurrency:
@@ -212,7 +214,8 @@ jobs:
     # race that cleanup. The lens diffs these against the committed eu-west-2
     # baseline; the scheduled-run drift verdict flags when the baseline itself
     # needs refreshing.
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # Dispatch only when creds are declared, matching the ground-truth job.
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && vars.HAS_AWS_CREDENTIALS == 'true')
     continue-on-error: true
     runs-on: ubuntu-latest
     permissions:
