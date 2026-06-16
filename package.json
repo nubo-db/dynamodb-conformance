@@ -12,6 +12,7 @@
     "test:tier1": "vitest run --include 'tests/tier1/**/*.test.ts'",
     "test:tier2": "vitest run --include 'tests/tier2/**/*.test.ts'",
     "test:tier3": "vitest run --include 'tests/tier3/**/*.test.ts'",
+    "test:tooling": "vitest run --config vitest.tooling.config.ts",
     "test:capture-ground-truth": "DYNAMODB_ENDPOINT= vitest run --reporter=json --outputFile=ground-truth/latest.json",
     "test:capture-ddb-local": "DYNAMODB_ENDPOINT=http://localhost:8000 vitest run --reporter=json --outputFile=results/dynamodb-local.json",
     "results:table": "node scripts/summarise.mjs",
