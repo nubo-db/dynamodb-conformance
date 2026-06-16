@@ -1,0 +1,995 @@
+{
+  "capturedAt": "2026-06-09",
+  "note": "Seeded from the 2026-06-09 four-region capture; the capture-cross-region CI job overwrites this weekly with a fresh capture of the candidate regions.",
+  "regions": {
+    "us-east-1": {
+      "probes": [
+        {
+          "id": "s_put_table_null",
+          "family": "echo-scalar",
+          "note": "PutItem TableName=undefined",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value null at 'tableName' failed to satisfy constraint: Member must not be null",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_put_table_empty",
+          "family": "echo-scalar",
+          "note": "PutItem TableName='' (empty echo)",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_put_table_long",
+          "family": "echo-scalar",
+          "note": "PutItem TableName='a'*256",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' at 'tableName' failed to satisfy constraint: Member must have length less than or equal to 255",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_put_table_badchars",
+          "family": "echo-scalar",
+          "note": "PutItem TableName='bad table!@#'",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value 'bad table!@#' at 'tableName' failed to satisfy constraint: Member must satisfy regular expression pattern: [a-zA-Z0-9_.-]+",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_ct_table_short",
+          "family": "echo-scalar",
+          "note": "CreateTable TableName='ab'",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value 'ab' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 3",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "c_bw_over25",
+          "family": "echo-collection",
+          "note": "BatchWrite 26 requests",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '{_conformance_capdrift_h_1780928121410175759=[WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-0, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-1, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-2, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-3, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-4, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-5, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-6, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-7, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-8, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-9, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-10, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-11, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-12, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-13, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-14, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-15, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-16, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-17, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-18, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-19, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-20, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-21, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-22, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-23, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-24, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-25, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]",
+          "n": 1,
+          "fields": [
+            "requestItems"
+          ]
+        },
+        {
+          "id": "c_ct_3keys",
+          "family": "echo-collection",
+          "note": "CreateTable 3 keySchema",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: ReadCapacityUnits and WriteCapacityUnits must both be specified when BillingMode is PROVISIONED",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_empty_ss",
+          "family": "bespoke",
+          "note": "empty string set",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: An string set  may not be empty",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_empty_ns",
+          "family": "bespoke",
+          "note": "empty number set",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: An number set  may not be empty",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_dup_ss",
+          "family": "bespoke",
+          "note": "duplicate SS",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: Input collection [a, a] contains duplicates.",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_mix_expr",
+          "family": "bespoke",
+          "note": "mixing expression and non-expression",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_eav_no_expr",
+          "family": "bespoke",
+          "note": "EAV without expression",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "ExpressionAttributeValues can only be specified when using expressions: ConditionExpression is null",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_redundant_parens",
+          "family": "bespoke",
+          "note": "redundant parentheses",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid ConditionExpression: The expression has redundant parentheses;",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_contains_dup",
+          "family": "bespoke",
+          "note": "contains distinct operand",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid ConditionExpression: The first operand must be distinct from the remaining operands for this operator or function; operator: contains, first operand: [data]",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_hashkey",
+          "family": "bespoke",
+          "note": "cannot update hash key",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: Cannot update attribute pk. This attribute is part of the key",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_syntax",
+          "family": "bespoke",
+          "note": "invalid UpdateExpression syntax",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid UpdateExpression: Syntax error; token: \"INVALID\", near: \"INVALID SYNTAX\"",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_unused_ean",
+          "family": "bespoke",
+          "note": "unused EAN",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_unused_eav",
+          "family": "bespoke",
+          "note": "unused EAV",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_missing_eav",
+          "family": "bespoke",
+          "note": "missing EAV ref",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_mix",
+          "family": "bespoke",
+          "note": "mixing UpdateExpression + AttributeUpdates",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_empty",
+          "family": "bespoke",
+          "note": "empty UpdateExpression",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid UpdateExpression: The expression can not be empty;",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_rangekey",
+          "family": "bespoke",
+          "note": "cannot update range key",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: Cannot update attribute sk. This attribute is part of the key",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "o_put_empty_table_empty_item",
+          "family": "ordering",
+          "note": "PutItem TableName='' Item={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "o_put_empty_table_bad_rv",
+          "family": "ordering",
+          "note": "PutItem TableName='' ReturnValues=INVALID Item={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 2,
+          "fields": [
+            "returnValues",
+            "tableName"
+          ]
+        },
+        {
+          "id": "o_put_three_bad_enums",
+          "family": "ordering",
+          "note": "PutItem 3 invalid enums on valid table name",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "3 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnItemCollectionMetrics' failed to satisfy constraint: Member must satisfy enum value set: [SIZE, NONE]",
+          "n": 3,
+          "fields": [
+            "returnValues",
+            "returnConsumedCapacity",
+            "returnItemCollectionMetrics"
+          ]
+        },
+        {
+          "id": "o_del_empty_table",
+          "family": "ordering",
+          "note": "DeleteItem TableName='' Key={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "o_del_two_bad_enums",
+          "family": "ordering",
+          "note": "DeleteItem 2 invalid enums",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]",
+          "n": 2,
+          "fields": [
+            "returnValues",
+            "returnConsumedCapacity"
+          ]
+        },
+        {
+          "id": "o_upd_empty_table",
+          "family": "ordering",
+          "note": "UpdateItem TableName='' Key={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "o_upd_two_bad_enums",
+          "family": "ordering",
+          "note": "UpdateItem 2 invalid enums",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]",
+          "n": 2,
+          "fields": [
+            "returnConsumedCapacity",
+            "returnValues"
+          ]
+        }
+      ],
+      "nullRoundTrip": {
+        "put": "rejected",
+        "name": "ValidationException",
+        "message": "One or more parameter values were invalid: Null attribute value types must have the value of true"
+      }
+    },
+    "ap-southeast-2": {
+      "probes": [
+        {
+          "id": "s_put_table_null",
+          "family": "echo-scalar",
+          "note": "PutItem TableName=undefined",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value null at 'tableName' failed to satisfy constraint: Member must not be null",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_put_table_empty",
+          "family": "echo-scalar",
+          "note": "PutItem TableName='' (empty echo)",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_put_table_long",
+          "family": "echo-scalar",
+          "note": "PutItem TableName='a'*256",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' at 'tableName' failed to satisfy constraint: Member must have length less than or equal to 255",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_put_table_badchars",
+          "family": "echo-scalar",
+          "note": "PutItem TableName='bad table!@#'",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value 'bad table!@#' at 'tableName' failed to satisfy constraint: Member must satisfy regular expression pattern: [a-zA-Z0-9_.-]+",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_ct_table_short",
+          "family": "echo-scalar",
+          "note": "CreateTable TableName='ab'",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value 'ab' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 3",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "c_bw_over25",
+          "family": "echo-collection",
+          "note": "BatchWrite 26 requests",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '{_conformance_capdrift_h_1780928157556847661=[WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-0, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-1, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-2, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-3, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-4, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-5, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-6, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-7, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-8, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-9, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-10, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-11, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-12, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-13, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-14, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-15, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-16, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-17, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-18, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-19, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-20, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-21, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-22, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-23, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-24, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-25, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]",
+          "n": 1,
+          "fields": [
+            "requestItems"
+          ]
+        },
+        {
+          "id": "c_ct_3keys",
+          "family": "echo-collection",
+          "note": "CreateTable 3 keySchema",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: ReadCapacityUnits and WriteCapacityUnits must both be specified when BillingMode is PROVISIONED",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_empty_ss",
+          "family": "bespoke",
+          "note": "empty string set",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: An string set  may not be empty",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_empty_ns",
+          "family": "bespoke",
+          "note": "empty number set",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: An number set  may not be empty",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_dup_ss",
+          "family": "bespoke",
+          "note": "duplicate SS",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: Input collection [a, a] contains duplicates.",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_mix_expr",
+          "family": "bespoke",
+          "note": "mixing expression and non-expression",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_eav_no_expr",
+          "family": "bespoke",
+          "note": "EAV without expression",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "ExpressionAttributeValues can only be specified when using expressions: ConditionExpression is null",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_redundant_parens",
+          "family": "bespoke",
+          "note": "redundant parentheses",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid ConditionExpression: The expression has redundant parentheses;",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_contains_dup",
+          "family": "bespoke",
+          "note": "contains distinct operand",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid ConditionExpression: The first operand must be distinct from the remaining operands for this operator or function; operator: contains, first operand: [data]",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_hashkey",
+          "family": "bespoke",
+          "note": "cannot update hash key",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: Cannot update attribute pk. This attribute is part of the key",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_syntax",
+          "family": "bespoke",
+          "note": "invalid UpdateExpression syntax",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid UpdateExpression: Syntax error; token: \"INVALID\", near: \"INVALID SYNTAX\"",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_unused_ean",
+          "family": "bespoke",
+          "note": "unused EAN",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_unused_eav",
+          "family": "bespoke",
+          "note": "unused EAV",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_missing_eav",
+          "family": "bespoke",
+          "note": "missing EAV ref",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_mix",
+          "family": "bespoke",
+          "note": "mixing UpdateExpression + AttributeUpdates",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_empty",
+          "family": "bespoke",
+          "note": "empty UpdateExpression",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "Invalid UpdateExpression: The expression can not be empty;",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_rangekey",
+          "family": "bespoke",
+          "note": "cannot update range key",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: Cannot update attribute sk. This attribute is part of the key",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "o_put_empty_table_empty_item",
+          "family": "ordering",
+          "note": "PutItem TableName='' Item={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "o_put_empty_table_bad_rv",
+          "family": "ordering",
+          "note": "PutItem TableName='' ReturnValues=INVALID Item={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 2,
+          "fields": [
+            "returnValues",
+            "tableName"
+          ]
+        },
+        {
+          "id": "o_put_three_bad_enums",
+          "family": "ordering",
+          "note": "PutItem 3 invalid enums on valid table name",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "3 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnItemCollectionMetrics' failed to satisfy constraint: Member must satisfy enum value set: [SIZE, NONE]",
+          "n": 3,
+          "fields": [
+            "returnValues",
+            "returnConsumedCapacity",
+            "returnItemCollectionMetrics"
+          ]
+        },
+        {
+          "id": "o_del_empty_table",
+          "family": "ordering",
+          "note": "DeleteItem TableName='' Key={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "o_del_two_bad_enums",
+          "family": "ordering",
+          "note": "DeleteItem 2 invalid enums",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]",
+          "n": 2,
+          "fields": [
+            "returnValues",
+            "returnConsumedCapacity"
+          ]
+        },
+        {
+          "id": "o_upd_empty_table",
+          "family": "ordering",
+          "note": "UpdateItem TableName='' Key={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "o_upd_two_bad_enums",
+          "family": "ordering",
+          "note": "UpdateItem 2 invalid enums",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]",
+          "n": 2,
+          "fields": [
+            "returnConsumedCapacity",
+            "returnValues"
+          ]
+        }
+      ],
+      "nullRoundTrip": {
+        "put": "rejected",
+        "name": "ValidationException",
+        "message": "One or more parameter values were invalid: Null attribute value types must have the value of true"
+      }
+    },
+    "eu-central-1": {
+      "probes": [
+        {
+          "id": "s_put_table_null",
+          "family": "echo-scalar",
+          "note": "PutItem TableName=undefined",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value null at 'tableName' failed to satisfy constraint: Member must not be null",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_put_table_empty",
+          "family": "echo-scalar",
+          "note": "PutItem TableName='' (empty echo)",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "TableName"
+          ]
+        },
+        {
+          "id": "s_put_table_long",
+          "family": "echo-scalar",
+          "note": "PutItem TableName='a'*256",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' at 'tableName' failed to satisfy constraint: Member must have length less than or equal to 255",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_put_table_badchars",
+          "family": "echo-scalar",
+          "note": "PutItem TableName='bad table!@#'",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value 'bad table!@#' at 'tableName' failed to satisfy constraint: Member must satisfy regular expression pattern: [a-zA-Z0-9_.-]+",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "s_ct_table_short",
+          "family": "echo-scalar",
+          "note": "CreateTable TableName='ab'",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value 'ab' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 3",
+          "n": 1,
+          "fields": [
+            "tableName"
+          ]
+        },
+        {
+          "id": "c_bw_over25",
+          "family": "echo-collection",
+          "note": "BatchWrite 26 requests",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value '{_conformance_capdrift_h_178092814461159127=[WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-0, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-1, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-2, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-3, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-4, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-5, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-6, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-7, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-8, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-9, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-10, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-11, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-12, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-13, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-14, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-15, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-16, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-17, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-18, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-19, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-20, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-21, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-22, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-23, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-24, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-25, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]",
+          "n": 1,
+          "fields": [
+            "requestItems"
+          ]
+        },
+        {
+          "id": "c_ct_3keys",
+          "family": "echo-collection",
+          "note": "CreateTable 3 keySchema",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: ReadCapacityUnits and WriteCapacityUnits must both be specified when BillingMode is PROVISIONED",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "b_put_empty_ss",
+          "family": "bespoke",
+          "note": "empty string set",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: One or more parameter values were invalid: An string set  may not be empty",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "b_put_empty_ns",
+          "family": "bespoke",
+          "note": "empty number set",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: One or more parameter values were invalid: An number set  may not be empty",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "b_put_dup_ss",
+          "family": "bespoke",
+          "note": "duplicate SS",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: One or more parameter values were invalid: Input collection [\"a\", \"a\"] contains duplicates.",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "b_put_mix_expr",
+          "family": "bespoke",
+          "note": "mixing expression and non-expression",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "b_put_eav_no_expr",
+          "family": "bespoke",
+          "note": "EAV without expression",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: ExpressionAttributeValues can only be specified when using expressions",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "b_put_redundant_parens",
+          "family": "bespoke",
+          "note": "redundant parentheses",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Invalid ConditionExpression: The expression has redundant parentheses;",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "b_put_contains_dup",
+          "family": "bespoke",
+          "note": "contains distinct operand",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Invalid ConditionExpression: The first operand must be distinct from the remaining operands for this operator or function; operator: contains, first operand: [data]",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "u_upd_hashkey",
+          "family": "bespoke",
+          "note": "cannot update hash key",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: Cannot update attribute pk. This attribute is part of the key",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "u_upd_syntax",
+          "family": "bespoke",
+          "note": "invalid UpdateExpression syntax",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Invalid UpdateExpression: Syntax error; token: \"INVALID\", near: \"INVALID SYNTAX\"",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "u_upd_unused_ean",
+          "family": "bespoke",
+          "note": "unused EAN",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "u_upd_unused_eav",
+          "family": "bespoke",
+          "note": "unused EAV",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "u_upd_missing_eav",
+          "family": "bespoke",
+          "note": "missing EAV ref",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "u_upd_mix",
+          "family": "bespoke",
+          "note": "mixing UpdateExpression + AttributeUpdates",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "u_upd_empty",
+          "family": "bespoke",
+          "note": "empty UpdateExpression",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Invalid UpdateExpression: The expression can not be empty;",
+          "n": 1,
+          "fields": []
+        },
+        {
+          "id": "u_upd_rangekey",
+          "family": "bespoke",
+          "note": "cannot update range key",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "One or more parameter values were invalid: Cannot update attribute sk. This attribute is part of the key",
+          "n": null,
+          "fields": []
+        },
+        {
+          "id": "o_put_empty_table_empty_item",
+          "family": "ordering",
+          "note": "PutItem TableName='' Item={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "TableName"
+          ]
+        },
+        {
+          "id": "o_put_empty_table_bad_rv",
+          "family": "ordering",
+          "note": "PutItem TableName='' ReturnValues=INVALID Item={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "TableName"
+          ]
+        },
+        {
+          "id": "o_put_three_bad_enums",
+          "family": "ordering",
+          "note": "PutItem 3 invalid enums on valid table name",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "3 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]; ReturnItemCollectionMetrics can only be SIZE or NONE",
+          "n": 3,
+          "fields": [
+            "returnConsumedCapacity"
+          ]
+        },
+        {
+          "id": "o_del_empty_table",
+          "family": "ordering",
+          "note": "DeleteItem TableName='' Key={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "TableName"
+          ]
+        },
+        {
+          "id": "o_del_two_bad_enums",
+          "family": "ordering",
+          "note": "DeleteItem 2 invalid enums",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]",
+          "n": 2,
+          "fields": [
+            "returnConsumedCapacity"
+          ]
+        },
+        {
+          "id": "o_upd_empty_table",
+          "family": "ordering",
+          "note": "UpdateItem TableName='' Key={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "TableName"
+          ]
+        },
+        {
+          "id": "o_upd_two_bad_enums",
+          "family": "ordering",
+          "note": "UpdateItem 2 invalid enums",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]",
+          "n": 1,
+          "fields": []
+        }
+      ],
+      "nullRoundTrip": {
+        "put": "accepted",
+        "returnedItem": {
+          "pk": {
+            "S": "em-put-null-false"
+          },
+          "attr1": {
+            "NULL": true
+          }
+        }
+      }
+    }
+  }
+}

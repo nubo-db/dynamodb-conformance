@@ -14,6 +14,19 @@ AWS_PROFILE=conformance-test node scripts/capture-validation-messages.mjs > capt
 
 It creates and deletes two temporary `_conformance_` tables per region.
 
+## cross-region-latest.json
+
+The latest capture of the candidate regions (`us-east-1`, `ap-southeast-2`,
+`eu-central-1`), refreshed weekly by the `capture-cross-region` job in
+`.github/workflows/conformance.yml` and committed back with `[skip ci]`. It
+feeds the paritysuite.org regional-drift lens, which diffs each region's raw
+wording against the committed eu-west-2 baseline. eu-west-2 itself is not in
+here - the IAM role forces a `_conformance_` table prefix that the gating job's
+cleanup deletes, so capturing eu-west-2 in that job would race the cleanup; the
+baseline lives in the dated snapshot below instead, and the scheduled-run drift
+verdict flags when it needs refreshing. Currently seeded from the 2026-06-09
+capture until the first scheduled run overwrites it.
+
 ## 2026-06-09-validation-rewording.json
 
 Real DynamoDB reworded a chunk of its validation errors. Four regions captured:
