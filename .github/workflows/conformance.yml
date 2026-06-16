@@ -86,24 +86,52 @@ jobs:
           path: results/
 
       # A scheduled red survived the retry, so it is deterministic: either real
-      # AWS drift to re-characterise or a flake the retry missed. File or update a
-      # single deduped issue so it is actionable, not a silent X. A later
-      # cross-region drift signal will label the verdict at the body's triage slot.
+      # AWS drift or a flake the retry missed. Re-capture eu-west-2's raw wording
+      # and diff it against the committed baseline so the failure can be labelled
+      # drift-versus-flake. continue-on-error: a capture hiccup must not block the
+      # issue - the reporter falls back to a generic triage note without a verdict.
+      - name: Compute the drift verdict
+        if: failure() && github.event_name == 'schedule'
+        continue-on-error: true
+        env:
+          AWS_REGION: eu-west-2
+        run: |
+          node scripts/capture-validation-messages.mjs eu-west-2 > "$RUNNER_TEMP/euw2.json"
+          node scripts/drift-diff.mjs "$RUNNER_TEMP/euw2.json" \
+            --baseline captures/2026-06-09-validation-rewording.json \
+            --region eu-west-2 --out "$RUNNER_TEMP/drift.json"
+
+      # File or update a single deduped issue so a red Monday is actionable, not a
+      # silent X. The drift verdict (if computed above) labels it aws-drift-confirmed
+      # or likely-flake and fills the body's triage slot.
       - name: Report a deterministic failure as an issue
         if: failure() && github.event_name == 'schedule'
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          node scripts/report-failure.mjs results/dynamodb.json "$RUN_URL" > "$RUNNER_TEMP/issue-body.md"
-          gh label create scheduled-red --color B60205 \
-            --description "Scheduled conformance run went red" 2>/dev/null || true
+          drift_args=()
+          if [ -f "$RUNNER_TEMP/drift.json" ]; then
+            drift_args=(--drift "$RUNNER_TEMP/drift.json" --verdict-out "$RUNNER_TEMP/verdict.txt")
+          fi
+          node scripts/report-failure.mjs results/dynamodb.json "$RUN_URL" "${drift_args[@]}" > "$RUNNER_TEMP/issue-body.md"
+
+          gh label create scheduled-red       --color B60205 --description "Scheduled conformance run went red" 2>/dev/null || true
+          gh label create aws-drift-confirmed  --color 5319E7 --description "Scheduled red is confirmed AWS wording drift" 2>/dev/null || true
+          gh label create likely-flake         --color FBCA04 --description "Scheduled red shows no wording drift; likely transient" 2>/dev/null || true
+
+          labels="scheduled-red"
+          if [ -f "$RUNNER_TEMP/verdict.txt" ]; then
+            labels="$labels,$(cat "$RUNNER_TEMP/verdict.txt")"
+          fi
+
           existing=$(gh issue list --label scheduled-red --state open \
             --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
+            gh issue edit "$existing" --add-label "$labels" >/dev/null
             gh issue comment "$existing" --body-file "$RUNNER_TEMP/issue-body.md"
           else
-            gh issue create --label scheduled-red \
+            gh issue create --label "$labels" \
               --title "Scheduled conformance run went red ($(date -u +%Y-%m-%d))" \
               --body-file "$RUNNER_TEMP/issue-body.md"
           fi

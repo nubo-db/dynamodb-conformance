@@ -1,20 +1,24 @@
 #!/usr/bin/env node
 
 /**
- * Format a GitHub issue body from a Vitest JSON report's failed assertions.
+ * Format a GitHub issue body from a Vitest JSON report's failed assertions, and
+ * - when a drift diff is supplied - label the failure as confirmed AWS drift or
+ * a likely flake.
  *
  * Usage:
- *   node scripts/report-failure.mjs results/dynamodb.json <run-url> > body.md
+ *   node scripts/report-failure.mjs <vitest-json> <run-url> \
+ *     [--drift <drift.json>] [--verdict-out <file>]
  *
  * The scheduled-run workflow calls this on a deterministic ground-truth failure
  * (after retries) and threads the output onto a single deduped issue, so a red
- * Monday is actionable rather than a silent X. The formatting lives in pure
- * functions (collectFailures / buildIssueBody) so they can be unit-tested once a
- * scripts/ tooling-test harness exists. A later cross-region drift signal will
- * fill in the drift-versus-flake verdict at the triage slot.
+ * Monday is actionable rather than a silent X. With --drift (the output of
+ * drift-diff.mjs comparing a fresh eu-west-2 capture against the committed
+ * baseline) it fills the triage slot with a verdict and writes the recommended
+ * issue label to --verdict-out. The pure functions are unit-tested via
+ * test:tooling.
  */
 
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 
 /** Pull failed assertions out of a Vitest JSON report. */
 export function collectFailures(report) {
@@ -32,8 +36,34 @@ export function collectFailures(report) {
   return out
 }
 
+/**
+ * Turn a drift-diff result (drift-diff.mjs across-time output) into a verdict.
+ * Returns null when no usable drift data is available, so the body falls back to
+ * the generic triage note.
+ */
+export function verdictFromDrift(driftResult) {
+  if (!driftResult || typeof driftResult.clean !== 'boolean') return null
+  if (driftResult.clean) {
+    return {
+      label: 'likely-flake',
+      summary:
+        "eu-west-2's wording matches the committed baseline, so this is most likely a " +
+        'transient flake the retry happened not to catch. Investigate timing rather than ' +
+        're-characterising.',
+      probes: [],
+    }
+  }
+  return {
+    label: 'aws-drift-confirmed',
+    summary:
+      "eu-west-2's wording has moved from the committed baseline, so this is real AWS drift. " +
+      'Re-characterise the affected assertions against current AWS per the suite doctrine.',
+    probes: (driftResult.drift?.probes ?? []).map((p) => p.id),
+  }
+}
+
 /** Build the Markdown issue body. `report` may be null when parsing failed. */
-export function buildIssueBody(report, runUrl) {
+export function buildIssueBody(report, runUrl, verdict = null) {
   const lines = []
   lines.push('The scheduled `Conformance Tests` ground-truth run went red after retries.')
   lines.push('')
@@ -43,46 +73,71 @@ export function buildIssueBody(report, runUrl) {
   if (!report) {
     lines.push('The Vitest report could not be read or parsed, so the failure was')
     lines.push('likely in setup/teardown or the runner itself. See the run log.')
-    return lines.join('\n')
-  }
-
-  const failures = collectFailures(report)
-  if (failures.length === 0) {
-    lines.push('No failed assertions are present in the report, so the failure was')
-    lines.push('likely in a `beforeAll`/`afterAll` hook or infrastructure rather than')
-    lines.push('a test body. See the run log.')
   } else {
-    lines.push(`**${failures.length} failed test${failures.length === 1 ? '' : 's'}:**`)
-    lines.push('')
-    for (const f of failures) {
-      lines.push(`- \`${f.name}\``)
-      if (f.detail) lines.push(`  - ${f.detail}`)
+    const failures = collectFailures(report)
+    if (failures.length === 0) {
+      lines.push('No failed assertions are present in the report, so the failure was')
+      lines.push('likely in a `beforeAll`/`afterAll` hook or infrastructure rather than')
+      lines.push('a test body. See the run log.')
+    } else {
+      lines.push(`**${failures.length} failed test${failures.length === 1 ? '' : 's'}:**`)
+      lines.push('')
+      for (const f of failures) {
+        lines.push(`- \`${f.name}\``)
+        if (f.detail) lines.push(`  - ${f.detail}`)
+      }
     }
   }
 
   lines.push('')
   lines.push('<!-- triage-slot -->')
-  lines.push(
-    '_Triage: a deterministic red here is either real AWS drift (re-characterise ' +
-      'against current AWS) or a flake the retry did not catch. The drift metric ' +
-      'will label this automatically once it lands._',
-  )
+  if (verdict) {
+    const tag = verdict.label === 'aws-drift-confirmed' ? 'AWS drift confirmed' : 'Likely a flake'
+    lines.push(`**Verdict: ${tag}.** ${verdict.summary}`)
+    if (verdict.probes.length) {
+      lines.push('')
+      lines.push('Drifted probes: ' + verdict.probes.map((id) => `\`${id}\``).join(', '))
+    }
+  } else {
+    lines.push(
+      '_Triage: a deterministic red here is either real AWS drift (re-characterise ' +
+        'against current AWS) or a flake the retry did not catch. No drift verdict was ' +
+        'available for this run._',
+    )
+  }
   return lines.join('\n')
 }
 
+function parseArgs(argv) {
+  const args = { drift: null, verdictOut: null, _: [] }
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i]
+    if (a === '--drift') args.drift = argv[++i]
+    else if (a === '--verdict-out') args.verdictOut = argv[++i]
+    else args._.push(a)
+  }
+  return args
+}
+
+function readJson(path) {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'))
+  } catch {
+    return null
+  }
+}
+
 function main() {
-  const [reportPath, runUrl = ''] = process.argv.slice(2)
+  const args = parseArgs(process.argv.slice(2))
+  const [reportPath, runUrl = ''] = args._
   if (!reportPath) {
-    console.error('usage: report-failure.mjs <vitest-json> <run-url>')
+    console.error('usage: report-failure.mjs <vitest-json> <run-url> [--drift <file>] [--verdict-out <file>]')
     process.exit(1)
   }
-  let report = null
-  try {
-    report = JSON.parse(readFileSync(reportPath, 'utf8'))
-  } catch {
-    // Leave report null; buildIssueBody emits the could-not-parse body.
-  }
-  process.stdout.write(buildIssueBody(report, runUrl) + '\n')
+  const report = readJson(reportPath)
+  const verdict = args.drift ? verdictFromDrift(readJson(args.drift)) : null
+  process.stdout.write(buildIssueBody(report, runUrl, verdict) + '\n')
+  if (args.verdictOut && verdict) writeFileSync(args.verdictOut, verdict.label + '\n')
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main()
