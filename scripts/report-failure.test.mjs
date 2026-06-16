@@ -40,6 +40,16 @@ describe('verdictFromDrift', () => {
     expect(v.label).toBe('aws-drift-confirmed')
     expect(v.probes).toEqual(['s_put_table_empty', 'b_put_dup_ss'])
   })
+
+  it('gives no verdict when the diff was not comparable (missing region block)', () => {
+    expect(verdictFromDrift({ comparable: false, clean: false, drift: { probes: [] } })).toBeNull()
+  })
+
+  it('names a round-trip-only drift so the issue is not left with an empty probe list', () => {
+    const v = verdictFromDrift({ clean: false, drift: { probes: [], nullRoundTrip: { changed: ['nullRoundTrip'] } } })
+    expect(v.label).toBe('aws-drift-confirmed')
+    expect(v.probes).toEqual(['{ NULL: false } round-trip'])
+  })
 })
 
 describe('buildIssueBody', () => {

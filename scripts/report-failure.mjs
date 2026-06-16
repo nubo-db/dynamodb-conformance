@@ -43,6 +43,9 @@ export function collectFailures(report) {
  */
 export function verdictFromDrift(driftResult) {
   if (!driftResult || typeof driftResult.clean !== 'boolean') return null
+  // A diff that compared nothing (a missing region block) yields no verdict -
+  // fall back to the generic triage note rather than guessing flake or drift.
+  if (driftResult.comparable === false) return null
   if (driftResult.clean) {
     return {
       label: 'likely-flake',
@@ -53,12 +56,16 @@ export function verdictFromDrift(driftResult) {
       probes: [],
     }
   }
+  const probes = (driftResult.drift?.probes ?? []).map((p) => p.id)
+  // A round-trip-only change carries no probe id, so name it explicitly or the
+  // issue would claim drift with nothing to act on.
+  if (driftResult.drift?.nullRoundTrip) probes.push('{ NULL: false } round-trip')
   return {
     label: 'aws-drift-confirmed',
     summary:
       "eu-west-2's wording has moved from the committed baseline, so this is real AWS drift. " +
       'Re-characterise the affected assertions against current AWS per the suite doctrine.',
-    probes: (driftResult.drift?.probes ?? []).map((p) => p.id),
+    probes,
   }
 }
 

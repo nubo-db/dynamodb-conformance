@@ -52,10 +52,17 @@ export function diffProbe(baseline, observed) {
   }
 }
 
+// Key-order-insensitive serialisation: DynamoDB does not guarantee the order of
+// attributes in a returned item map, so a reordered-but-identical round-trip
+// must not read as drift.
+function stableKey(v) {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v)
+  if (Array.isArray(v)) return '[' + v.map(stableKey).join(',') + ']'
+  return '{' + Object.keys(v).sort().map((k) => JSON.stringify(k) + ':' + stableKey(v[k])).join(',') + '}'
+}
+
 function diffNullRoundTrip(baseline, observed) {
-  const b = JSON.stringify(baseline ?? null)
-  const o = JSON.stringify(observed ?? null)
-  if (b === o) return null
+  if (stableKey(baseline ?? null) === stableKey(observed ?? null)) return null
   return { changed: ['nullRoundTrip'], baseline: baseline ?? null, observed: observed ?? null }
 }
 

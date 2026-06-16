@@ -45,9 +45,24 @@ function main() {
   let result
   if (args.baseline) {
     const baseline = JSON.parse(readFileSync(args.baseline, 'utf8'))
-    const drift = diffCaptures(baseline.regions?.[args.region], current.regions?.[args.region])
-    result = { mode: 'across-time', region: args.region, baseline: args.baseline, clean: isClean(drift), drift }
+    const baselineBlock = baseline.regions?.[args.region]
+    const currentBlock = current.regions?.[args.region]
+    // If either side lacks the region, the diff compared nothing - report it as
+    // not comparable rather than clean, so a missing block can't be read as "no
+    // drift" (which would mislabel a real failure as a flake).
+    const comparable = Boolean(baselineBlock && currentBlock)
+    const drift = diffCaptures(baselineBlock, currentBlock)
+    if (!comparable) {
+      console.error(`warning: region '${args.region}' missing from ${baselineBlock ? 'the capture' : 'the baseline'}; no verdict possible`)
+    }
+    result = { mode: 'across-time', region: args.region, baseline: args.baseline, comparable, clean: comparable && isClean(drift), drift }
   } else {
+    // Cross-region needs the baseline region present in the document, or every
+    // probe of every other region reads as "added" - fabricated total drift.
+    if (!current.regions?.[args.region]) {
+      console.error(`error: baseline region '${args.region}' is not in ${currentPath}; pass --region <r> or --baseline <file>`)
+      process.exit(2)
+    }
     const cross = diffRegions(current, args.region)
     result = { mode: 'cross-region', ...cross, clean: Object.values(cross.regions).every(isClean) }
   }

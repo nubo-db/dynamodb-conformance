@@ -75,6 +75,12 @@ describe('diffCaptures', () => {
     expect(d.nullRoundTrip).not.toBeNull()
     expect(d.nullRoundTrip.observed.put).toBe('rejected')
   })
+
+  it('does not flag a nullRoundTrip whose returned item only reordered its keys', () => {
+    const base = { probes: [], nullRoundTrip: { put: 'accepted', returnedItem: { pk: { S: 'a' }, attr1: { NULL: true } } } }
+    const obs = { probes: [], nullRoundTrip: { put: 'accepted', returnedItem: { attr1: { NULL: true }, pk: { S: 'a' } } } }
+    expect(isClean(diffCaptures(base, obs))).toBe(true)
+  })
 })
 
 describe('fixture regression: the June 2026 four-region snapshot', () => {

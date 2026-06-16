@@ -260,11 +260,16 @@ jobs:
             echo "Cross-region capture unchanged."
           else
             git commit -m "chore: update cross-region capture [skip ci]"
+            pushed=0
             for i in 1 2 3; do
-              git pull --rebase && git push && break
+              if git pull --rebase && git push; then pushed=1; break; fi
               echo "push attempt $i failed; retrying"
               sleep 5
             done
+            if [ "$pushed" -ne 1 ]; then
+              echo "::warning title=Cross-region capture::push failed after 3 attempts; this week's capture was not persisted"
+              exit 1
+            fi
           fi
 
   test-dynamodb-local:
