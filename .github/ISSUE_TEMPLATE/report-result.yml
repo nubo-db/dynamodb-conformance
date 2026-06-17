@@ -1,0 +1,66 @@
+name: Report an incorrect or divergent result
+description: A test result that diverges from real AWS DynamoDB, or a suspected wrong expectation in the suite.
+title: "Result: "
+labels: ["result-divergence"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Real AWS DynamoDB is the ground truth for this suite. If a test and real
+        DynamoDB disagree, the test is wrong, not AWS. The most useful thing you can
+        give us is evidence of what real AWS does, so please fill in the evidence field.
+  - type: input
+    id: test
+    attributes:
+      label: Test or behaviour
+      description: The test file, or the behaviour involved.
+      placeholder: e.g. tests/tier3/error-messages/conditionalCheck.test.ts, or "PutItem with an empty string key"
+    validations:
+      required: true
+  - type: input
+    id: operation
+    attributes:
+      label: DynamoDB operation
+      description: The operation the behaviour concerns.
+      placeholder: e.g. PutItem, Query, TransactWriteItems
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Target and version
+      description: Which target you ran against, and its version.
+      placeholder: e.g. DynamoDB Local d89f8fcc6b1a, LocalStack 2026.5.3, or real AWS in eu-west-2
+    validations:
+      required: true
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: Expected vs actual
+      description: What you expected, and what you saw.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Real-AWS evidence
+      description: A console or CLI transcript showing what real AWS DynamoDB does for this case. This is what lets a maintainer move the baseline.
+      placeholder: |
+        $ aws dynamodb put-item --table-name ... --region eu-west-2
+        (the response or error real AWS returned)
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Steps, or a minimal snippet, to reproduce.
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: The evidence above shows real AWS DynamoDB's behaviour, not another emulator's.
+          required: true
+        - label: I've checked this isn't already covered by an open issue.
+          required: true
