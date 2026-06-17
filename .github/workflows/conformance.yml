@@ -22,7 +22,10 @@ jobs:
   test-dynamodb:
     name: DynamoDB (ground truth)
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'schedule' || vars.HAS_AWS_CREDENTIALS == 'true'
+    # Runs on a merge to main, the weekly schedule, and a manual dispatch (on any
+    # ref) - never on a pull request, so PRs stay on the emulator jobs and never
+    # spend real-AWS time. Verify a branch on demand with a dispatch on its ref.
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     # Serialise AWS runs: the suite shares one account and cleanup deletes every
     # _conformance_ table by prefix, so overlapping runs delete each other's
     # tables. Queue rather than cancel — a cancelled run leaves orphan tables.
@@ -146,9 +149,7 @@ jobs:
     # gating job so the two don't race the by-prefix table cleanup; `always()`
     # keeps it running even when the gate is red.
     needs: test-dynamodb
-    # On a manual dispatch, only run when creds are declared - the same switch
-    # the ground-truth job uses - so a bare dispatch doesn't run a lopsided set.
-    if: always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && vars.HAS_AWS_CREDENTIALS == 'true'))
+    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     continue-on-error: true
     runs-on: ubuntu-latest
     concurrency:
@@ -214,8 +215,7 @@ jobs:
     # race that cleanup. The lens diffs these against the committed eu-west-2
     # baseline; the scheduled-run drift verdict flags when the baseline itself
     # needs refreshing.
-    # Dispatch only when creds are declared, matching the ground-truth job.
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && vars.HAS_AWS_CREDENTIALS == 'true')
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     continue-on-error: true
     runs-on: ubuntu-latest
     permissions:
