@@ -2,9 +2,31 @@
   "name": "dynamodb-conformance",
   "version": "1.3.0",
   "description": "Independent conformance test suite for DynamoDB-compatible endpoints",
+  "keywords": [
+    "dynamodb",
+    "conformance",
+    "aws",
+    "testing",
+    "vitest"
+  ],
+  "homepage": "https://paritysuite.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nubo-db/dynamodb-conformance.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nubo-db/dynamodb-conformance/issues"
+  },
+  "license": "Apache-2.0",
+  "author": "Martin Hicks <hello@martinhicks.dev>",
+  "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "test:quick": "vitest run --exclude 'tests/tier2/updateTable/gsi.test.ts'",
     "test:gating": "vitest run --exclude 'tests/tier2/updateTable/gsi.test.ts' --exclude 'tests/tier2/export/exportImport.test.ts' --exclude 'tests/tier2/kinesis/streamingDestination.test.ts'",
     "test:integrations": "vitest run tests/tier2/export/exportImport.test.ts tests/tier2/kinesis/streamingDestination.test.ts",
@@ -30,6 +52,5 @@
     "@types/node": "^22.0.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
-  },
-  "license": "Apache-2.0"
+  }
 }
