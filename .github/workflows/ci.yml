@@ -1,0 +1,41 @@
+name: CI
+
+# Suite-health gate: checks that the suite itself compiles and its own tooling
+# tests pass. Target-free and credential-free - it never runs the conformance
+# suite against a target, never needs AWS, and never writes to main. The
+# target-capture jobs live in conformance.yml and are expected to vary by
+# target, so they stay off this gate.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  suite-health:
+    name: Suite health (typecheck + tooling tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tooling unit tests
+        run: npm run test:tooling
+
+  dependency-review:
+    name: Dependency review
+    # Only meaningful on a PR diff; blocks a PR that introduces a newly
+    # vulnerable dependency. Requires the dependency graph (on by default for
+    # public repos).
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/dependency-review-action@v4
