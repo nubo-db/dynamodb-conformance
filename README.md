@@ -1,5 +1,9 @@
 # DynamoDB Conformance Suite
 
+[![CI](https://github.com/nubo-db/dynamodb-conformance/actions/workflows/ci.yml/badge.svg)](https://github.com/nubo-db/dynamodb-conformance/actions/workflows/ci.yml)
+[![Licence: Apache 2.0](https://img.shields.io/badge/licence-Apache%202.0-blue.svg)](LICENSE)
+[![Live results](https://img.shields.io/badge/live%20results-paritysuite.org-brightgreen)](https://paritysuite.org)
+
 An independent test suite that validates any DynamoDB-compatible endpoint against real DynamoDB behaviour. It works against DynamoDB, DynamoDB Local, Dynoxide, Dynalite, LocalStack, ExtendDB, Floci, Ministack, or anything else that implements the DynamoDB HTTP API.
 
 ## Why this exists
@@ -322,6 +326,13 @@ covered at all:
 - DynamoDB Accelerator (DAX)
 - Table Class (Standard/Standard-IA)
 - Contributor Insights
+
+## Community
+
+- [Contributing](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) - how to add tests and targets.
+- [Code of Conduct](CODE_OF_CONDUCT.md) - the Contributor Covenant.
+- [Security policy](SECURITY.md) - how to report a vulnerability or a leaked credential privately.
+- [Support](SUPPORT.md) - where to ask for help.
 
 ## Licence
 
