@@ -11,8 +11,6 @@ where direction was agreed. -->
 - [ ] New or modified tests run against real AWS DynamoDB and pass
 - [ ] New or modified tests run against at least one emulator target
   and behave as expected
-- [ ] If AI tools drafted or materially shaped this change, disclosed
-  in the description above
 - [ ] Linked issue or a short note explaining the motivation
 
 ## Tier and scope (delete if not applicable)
