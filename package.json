@@ -29,7 +29,7 @@
     "@aws-sdk/client-s3": "^3.1053.0",
     "@types/node": "^22.0.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.9"
   },
   "license": "Apache-2.0"
 }
