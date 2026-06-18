@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config'
+import { TAGS } from './src/tags.js'
 
 const resultTarget =
   process.env.CONFORMANCE_TARGET ??
@@ -27,6 +28,11 @@ export default defineConfig({
       forks: { singleFork: true },
     },
     setupFiles: ['./src/setup.ts'],
+    // Canonical feature/capability tag vocabulary, declared in src/tags.ts.
+    // strictTags stays on (the default), so applying a tag not declared here
+    // fails collection rather than silently mis-filtering. Tags are an axis
+    // orthogonal to the tier directories; see src/tags.ts.
+    tags: [...TAGS],
     reporters: ['verbose', 'json'],
     outputFile: `results/${resultTarget}.json`,
     include: ['tests/**/*.test.ts'],
