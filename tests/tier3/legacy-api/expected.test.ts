@@ -6,7 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems, expectDynamoError } from '../../../src/helpers.js'
 
-describe('Legacy API — Expected (legacy ConditionExpression)', () => {
+describe('Legacy API — Expected (legacy ConditionExpression)', { tags: ['put-item', 'delete-item', 'legacy', 'data-plane'] }, () => {
   const keys = [
     { pk: { S: 'expected-1' } },
     { pk: { S: 'expected-2' } },

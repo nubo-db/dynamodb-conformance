@@ -33,7 +33,7 @@ afterAll(async () => {
   await Promise.all([deleteTable(hashDef.name), deleteTable(compositeDef.name)])
 })
 
-describe('Response size limit (1MB)', () => {
+describe('Response size limit (1MB)', { tags: ['query', 'scan', 'data-plane'] }, () => {
   // Seed ~20 items of ~60KB each into the composite table under one partition key
   // so we can query them. Total ~1.2MB — should trigger pagination.
   const partitionKey = 'query-pk'

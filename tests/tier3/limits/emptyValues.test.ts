@@ -10,7 +10,7 @@ import {
   expectDynamoError,
 } from '../../../src/helpers.js'
 
-describe('Empty values — strings, binary, and sets', () => {
+describe('Empty values — strings, binary, and sets', { tags: ['put-item', 'get-item', 'data-plane'] }, () => {
   const hashKeys = [
     { pk: { S: 'ev-empty-str' } },
     { pk: { S: 'ev-empty-str-list' } },

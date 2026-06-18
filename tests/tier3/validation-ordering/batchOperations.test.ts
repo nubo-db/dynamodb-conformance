@@ -6,7 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef } from '../../../src/helpers.js'
 
-describe('Batch operations — validation ordering', () => {
+describe('Batch operations — validation ordering', { tags: ['batch', 'data-plane'] }, () => {
   it('BatchWriteItem rejects empty RequestItems', async () => {
     try {
       await ddb.send(

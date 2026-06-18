@@ -27,7 +27,7 @@ afterAll(async () => {
   await deleteTable(tableDef.name)
 })
 
-describe('TransactWriteItems limits', () => {
+describe('TransactWriteItems limits', { tags: ['transactions', 'data-plane'] }, () => {
   it('TransactWriteItems with exactly 100 Put actions succeeds', async () => {
     const items = Array.from({ length: 100 }, (_, i) => ({
       Put: {
@@ -100,7 +100,7 @@ describe('TransactWriteItems limits', () => {
   })
 })
 
-describe('TransactGetItems limits', () => {
+describe('TransactGetItems limits', { tags: ['transactions', 'data-plane'] }, () => {
   // Seed 101 items for TransactGetItems tests
   beforeAll(async () => {
     for (let batch = 0; batch < 5; batch++) {

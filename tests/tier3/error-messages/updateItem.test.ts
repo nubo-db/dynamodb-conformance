@@ -23,7 +23,7 @@ afterAll(async () => {
   await cleanupItems(compositeTableDef.name, compositeKeys)
 })
 
-describe('UpdateItem — exact error messages', () => {
+describe('UpdateItem — exact error messages', { tags: ['update-item', 'data-plane'] }, () => {
   it('cannot update hash key attribute', async () => {
     try {
       await ddb.send(

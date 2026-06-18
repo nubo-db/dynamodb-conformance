@@ -4,7 +4,7 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 
-describe('CreateTable — validation ordering', () => {
+describe('CreateTable — validation ordering', { tags: ['create-table', 'control-plane'] }, () => {
   it('empty TableName reports only tableName constraint', async () => {
     try {
       await ddb.send(

@@ -26,7 +26,7 @@ afterAll(async () => {
   await deleteTable(tableDef.name)
 })
 
-describe('BatchWriteItem limits', () => {
+describe('BatchWriteItem limits', { tags: ['batch', 'data-plane'] }, () => {
   it('BatchWriteItem with exactly 25 items succeeds', async () => {
     const requests = Array.from({ length: 25 }, (_, i) => ({
       PutRequest: {
@@ -85,7 +85,7 @@ describe('BatchWriteItem limits', () => {
   })
 })
 
-describe('BatchGetItem limits', () => {
+describe('BatchGetItem limits', { tags: ['batch', 'data-plane'] }, () => {
   // Seed 101 items for BatchGetItem tests
   beforeAll(async () => {
     for (let batch = 0; batch < 5; batch++) {

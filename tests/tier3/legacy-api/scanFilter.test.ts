@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems, expectDynamoError } from '../../../src/helpers.js'
 
-describe('Legacy API — ScanFilter (legacy FilterExpression)', () => {
+describe('Legacy API — ScanFilter (legacy FilterExpression)', { tags: ['scan', 'legacy', 'data-plane'] }, () => {
   const prefix = 'scanfilt'
   const items = [
     { pk: { S: `${prefix}-1` }, val: { N: '10' }, name: { S: 'alpha-one' } },

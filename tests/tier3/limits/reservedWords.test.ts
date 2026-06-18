@@ -12,7 +12,7 @@ import {
   expectDynamoError,
 } from '../../../src/helpers.js'
 
-describe('Reserved words — ExpressionAttributeNames handling', () => {
+describe('Reserved words — ExpressionAttributeNames handling', { tags: ['put-item', 'get-item', 'update-item', 'query', 'scan', 'data-plane'] }, () => {
   const keys = [
     { pk: { S: 'rw-status' } },
     { pk: { S: 'rw-name' } },

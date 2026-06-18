@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { compositeTableDef, cleanupItems, expectDynamoError } from '../../../src/helpers.js'
 
-describe('Legacy API — KeyConditions and QueryFilter', () => {
+describe('Legacy API — KeyConditions and QueryFilter', { tags: ['query', 'legacy', 'data-plane'] }, () => {
   const pk = 'legacy-query'
   const items = [
     { pk: { S: pk }, sk: { S: 'alpha' }, val: { N: '1' }, tag: { S: 'hello-world' } },

@@ -20,7 +20,7 @@ afterAll(async () => {
   await cleanupItems(hashTableDef.name, keysToCleanup)
 })
 
-describe('TransactWriteItems — exact error messages', () => {
+describe('TransactWriteItems — exact error messages', { tags: ['transactions', 'data-plane'] }, () => {
   it('empty TransactItems: full minimum-length error', async () => {
     try {
       await ddb.send(new TransactWriteItemsCommand({ TransactItems: [] }))

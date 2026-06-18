@@ -4,7 +4,7 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 
-describe('PutItem — validation ordering', () => {
+describe('PutItem — validation ordering', { tags: ['put-item', 'data-plane'] }, () => {
   it('empty TableName reports tableName constraint (stops early)', async () => {
     try {
       await ddb.send(

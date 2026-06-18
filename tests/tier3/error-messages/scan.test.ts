@@ -6,7 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef } from '../../../src/helpers.js'
 
-describe('Scan — exact error messages', () => {
+describe('Scan — exact error messages', { tags: ['scan', 'data-plane'] }, () => {
   it('Segment without TotalSegments: full required-parameter error', async () => {
     try {
       await ddb.send(

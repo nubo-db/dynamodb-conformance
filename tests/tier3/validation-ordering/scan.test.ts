@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef } from '../../../src/helpers.js'
 
-describe('Scan — validation ordering', () => {
+describe('Scan — validation ordering', { tags: ['scan', 'data-plane'] }, () => {
   it('rejects Segment without TotalSegments', async () => {
     try {
       await ddb.send(

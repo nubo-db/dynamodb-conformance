@@ -12,7 +12,7 @@ import {
   expectDynamoError,
 } from '../../../src/helpers.js'
 
-describe('Number precision — DynamoDB number limits and edge cases', () => {
+describe('Number precision — DynamoDB number limits and edge cases', { tags: ['put-item', 'get-item', 'update-item', 'query', 'data-plane'] }, () => {
   const hashKeys = [
     { pk: { S: 'np-38digits' } },
     { pk: { S: 'np-max-pos' } },

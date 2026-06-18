@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef } from '../../../src/helpers.js'
 
-describe('Query — validation ordering', () => {
+describe('Query — validation ordering', { tags: ['query', 'data-plane'] }, () => {
   it('reports invalid TableName pattern', async () => {
     try {
       await ddb.send(

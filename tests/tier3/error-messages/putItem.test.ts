@@ -17,7 +17,7 @@ afterAll(async () => {
   await cleanupItems(hashTableDef.name, keysToCleanup)
 })
 
-describe('PutItem — exact error messages', () => {
+describe('PutItem — exact error messages', { tags: ['put-item', 'data-plane'] }, () => {
   it('missing table name: full validation error string', async () => {
     try {
       await ddb.send(

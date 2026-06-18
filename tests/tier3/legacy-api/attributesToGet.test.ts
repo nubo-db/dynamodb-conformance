@@ -13,7 +13,7 @@ import {
   expectDynamoError,
 } from '../../../src/helpers.js'
 
-describe('Legacy API — AttributesToGet (legacy ProjectionExpression)', () => {
+describe('Legacy API — AttributesToGet (legacy ProjectionExpression)', { tags: ['get-item', 'query', 'scan', 'legacy', 'data-plane'] }, () => {
   const hashKeys = [
     { pk: { S: 'a2g-1' } },
     { pk: { S: 'a2g-2' } },

@@ -9,7 +9,7 @@ import { compositeTableDef } from '../../../src/helpers.js'
 // Conditional-check failures for DeleteItem live in conditionalCheck.test.ts —
 // that file owns the conditional-check error family across operations.
 
-describe('DeleteItem — exact error messages', () => {
+describe('DeleteItem — exact error messages', { tags: ['delete-item', 'data-plane'] }, () => {
   it('non-existent table: full ResourceNotFoundException message', async () => {
     try {
       await ddb.send(

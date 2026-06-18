@@ -9,7 +9,7 @@ import {
   compositeTableDef,
 } from '../../../src/helpers.js'
 
-describe('GetItem — exact error messages', () => {
+describe('GetItem — exact error messages', { tags: ['get-item', 'data-plane'] }, () => {
   it('non-existent table: full ResourceNotFoundException message', async () => {
     try {
       await ddb.send(

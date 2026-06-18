@@ -13,7 +13,7 @@ import { hashTableDef } from '../../../src/helpers.js'
 // ResourceNotFoundException. A too-lenient target that invents its own code or
 // silently succeeds fails these.
 
-describe('Non-existent index — error surface', () => {
+describe('Non-existent index — error surface', { tags: ['query', 'scan', 'data-plane'] }, () => {
   it('Query on a non-existent index reports ValidationException', async () => {
     try {
       await ddb.send(

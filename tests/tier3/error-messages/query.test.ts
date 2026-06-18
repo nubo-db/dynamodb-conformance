@@ -8,7 +8,7 @@ import {
   hashTableDef,
 } from '../../../src/helpers.js'
 
-describe('Query — exact error messages', () => {
+describe('Query — exact error messages', { tags: ['query', 'data-plane'] }, () => {
   it('missing hash key in KeyConditionExpression', async () => {
     try {
       await ddb.send(

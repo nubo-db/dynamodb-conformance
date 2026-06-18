@@ -22,7 +22,7 @@ function key(id: string) {
   return k
 }
 
-describe('Item size limit (400KB)', () => {
+describe('Item size limit (400KB)', { tags: ['put-item', 'data-plane'] }, () => {
   // DynamoDB item size limit is 400KB = 400 * 1024 = 409,600 bytes
 
   it('item just under 400KB succeeds', async () => {
@@ -218,7 +218,7 @@ describe('Item size limit (400KB)', () => {
 // 400KB boundary. With thousands of numbers, even a small per-number error
 // crosses the limit. Uses the on-demand table so writes are not throttled and
 // the only rejection cause is the size limit itself.
-describe('Item size limit — number sizing', () => {
+describe('Item size limit — number sizing', { tags: ['put-item', 'data-plane'] }, () => {
   const NUM = '9'.repeat(38) // 38 significant digits → ~20 bytes in DynamoDB.
 
   afterAll(async () => {

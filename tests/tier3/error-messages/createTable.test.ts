@@ -8,7 +8,7 @@ import {
   deleteTable,
 } from '../../../src/helpers.js'
 
-describe('CreateTable — exact error messages', () => {
+describe('CreateTable — exact error messages', { tags: ['create-table', 'control-plane'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {

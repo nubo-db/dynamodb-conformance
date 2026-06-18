@@ -14,7 +14,7 @@ afterAll(async () => {
   await cleanupItems(hashTableDef.name, keysToCleanup)
 })
 
-describe('BatchWriteItem — exact error messages', () => {
+describe('BatchWriteItem — exact error messages', { tags: ['batch', 'data-plane'] }, () => {
   it('empty RequestItems: full required-parameter error', async () => {
     try {
       await ddb.send(new BatchWriteItemCommand({ RequestItems: {} }))

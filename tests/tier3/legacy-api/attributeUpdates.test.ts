@@ -6,7 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems, expectDynamoError } from '../../../src/helpers.js'
 
-describe('Legacy API — AttributeUpdates (legacy UpdateExpression)', () => {
+describe('Legacy API — AttributeUpdates (legacy UpdateExpression)', { tags: ['update-item', 'legacy', 'data-plane'] }, () => {
   const keys = [
     { pk: { S: 'attrupd-1' } },
     { pk: { S: 'attrupd-2' } },
