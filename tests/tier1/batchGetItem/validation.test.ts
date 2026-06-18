@@ -2,7 +2,7 @@ import { BatchGetItemCommand } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, expectDynamoError } from '../../../src/helpers.js'
 
-describe('BatchGetItem — validation', () => {
+describe('BatchGetItem — validation', { tags: ['batch', 'data-plane'] }, () => {
   it('rejects more than 100 keys', async () => {
     const keys = Array.from({ length: 101 }, (_, i) => ({
       pk: { S: `bg-limit-${i}` },

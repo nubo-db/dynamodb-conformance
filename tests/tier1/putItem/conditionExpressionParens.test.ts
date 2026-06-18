@@ -8,7 +8,7 @@ import { hashTableDef, expectDynamoError, cleanupItems } from '../../../src/help
 // Exercises the ConditionExpression parser with parenthesised forms.
 // Emulator parsers are often not shared across expression contexts, so
 // parens working in KeyConditionExpression does not imply they work here.
-describe('PutItem — ConditionExpression parens', () => {
+describe('PutItem — ConditionExpression parens', { tags: ['put-item', 'data-plane'] }, () => {
   const seeded = 'put-cep-seed'
   const freshKeys = [
     'put-cep-fresh-percond',

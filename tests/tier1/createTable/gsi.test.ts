@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { uniqueTableName, waitUntilActive, deleteTable } from '../../../src/helpers.js'
 
-describe('CreateTable — GSI', () => {
+describe('CreateTable — GSI', { tags: ['create-table', 'control-plane', 'gsi'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {

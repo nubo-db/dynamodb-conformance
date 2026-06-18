@@ -8,7 +8,7 @@ import {
   cleanupItems,
 } from '../../../src/helpers.js'
 
-describe('Scan — LSI', () => {
+describe('Scan — LSI', { tags: ['scan', 'data-plane', 'lsi'] }, () => {
   const items = [
     {
       pk: { S: 'scan-lsi-1' },

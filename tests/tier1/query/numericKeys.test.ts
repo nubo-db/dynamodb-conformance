@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { compositeNTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('Query — numeric sort key', () => {
+describe('Query — numeric sort key', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'numq'
   const skValues = [1, 5, 10, 20, 50, 100]
   const items = skValues.map((n) => ({
@@ -133,7 +133,7 @@ describe('Query — numeric sort key', () => {
   })
 })
 
-describe('Query — numeric sort key with negatives and zero', () => {
+describe('Query — numeric sort key with negatives and zero', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'numq-neg'
   const skValues = [-100, -5, -1, 0, 1, 5, 10, 100]
   const items = skValues.map((n) => ({

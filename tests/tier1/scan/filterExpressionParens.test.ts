@@ -9,7 +9,7 @@ import { compositeTableDef, cleanupItems, waitForGsiConsistency } from '../../..
 // may also differ from Query's FilterExpression path in some emulators.
 // Items carry a unique `lsi1sk` marker so scans can isolate this test's
 // data from whatever else is in the shared compositeTableDef.
-describe('Scan — FilterExpression parens', () => {
+describe('Scan — FilterExpression parens', { tags: ['scan', 'data-plane'] }, () => {
   const marker = 'fes-parens-marker'
   const items = [
     { pk: { S: 'fes-parens-1' }, sk: { S: 'x' }, lsi1sk: { S: marker }, type: { S: 'alpha' }, status: { S: 'active' } },

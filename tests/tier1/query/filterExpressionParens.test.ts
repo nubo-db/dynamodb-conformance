@@ -7,7 +7,7 @@ import { compositeTableDef, cleanupItems } from '../../../src/helpers.js'
 
 // Query FilterExpression parser is distinct from KeyConditionExpression in
 // most emulators, so parens working there does not imply they work here.
-describe('Query — FilterExpression parens', () => {
+describe('Query — FilterExpression parens', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'feq-parens'
   const items = [
     { pk: { S: pk }, sk: { S: '1' }, type: { S: 'alpha' }, status: { S: 'active' }, name: { S: 'alice' } },

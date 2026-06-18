@@ -9,7 +9,7 @@ import {
   waitForGsiConsistency,
 } from '../../../src/helpers.js'
 
-describe('Scan — GSI', () => {
+describe('Scan — GSI', { tags: ['scan', 'data-plane', 'gsi'] }, () => {
   const items = [
     {
       pk: { S: 'scan-gsi-1' },

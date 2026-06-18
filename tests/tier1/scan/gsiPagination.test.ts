@@ -12,7 +12,7 @@ import {
 } from '../../../src/helpers.js'
 import type { TestTableDef } from '../../../src/types.js'
 
-describe('Scan — GSI pagination', () => {
+describe('Scan — GSI pagination', { tags: ['scan', 'data-plane', 'gsi'] }, () => {
   // Dedicated table: pk=ID(S), GSI on Type(S)+ID(S), ALL projection.
   // All items share the same GSI PK ("widget") to stress the cursor logic.
   const tableDef: TestTableDef = {
@@ -134,7 +134,7 @@ describe('Scan — GSI pagination', () => {
   })
 })
 
-describe('Scan — GSI pagination across tied sort keys', () => {
+describe('Scan — GSI pagination across tied sort keys', { tags: ['scan', 'data-plane', 'gsi'] }, () => {
   // GSI range key distinct from the base key, so the GSI sort key can tie while
   // base keys stay unique. Real AWS composes LastEvaluatedKey from the base key
   // AND the index keys; an emulator that omits the base key loops or drops rows.

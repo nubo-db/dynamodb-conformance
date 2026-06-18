@@ -2,7 +2,7 @@ import { ScanCommand } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { expectDynamoError } from '../../../src/helpers.js'
 
-describe('Scan — validation', () => {
+describe('Scan — validation', { tags: ['scan', 'data-plane'] }, () => {
   it('rejects scan on non-existent table', async () => {
     await expectDynamoError(
       () =>

@@ -11,7 +11,7 @@ import {
   waitForGsiConsistency,
 } from '../../../src/helpers.js'
 
-describe('Query — GSI', () => {
+describe('Query — GSI', { tags: ['query', 'data-plane', 'gsi'] }, () => {
   const items = [
     {
       pk: { S: 'gsi-q-1' },
@@ -135,7 +135,7 @@ describe('Query — GSI', () => {
   })
 })
 
-describe('Query — GSI pagination across tied sort keys', () => {
+describe('Query — GSI pagination across tied sort keys', { tags: ['query', 'data-plane', 'gsi'] }, () => {
   // All items share both GSI keys (lsi1sk + lsi2sk), so the GSI cursor is
   // ambiguous without the base-table key. Real AWS composes LastEvaluatedKey
   // from the base key (pk, sk) AND the index keys (lsi1sk, lsi2sk) — captured

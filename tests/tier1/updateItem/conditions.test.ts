@@ -7,7 +7,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems, expectDynamoError } from '../../../src/helpers.js'
 
-describe('UpdateItem — ConditionExpression', () => {
+describe('UpdateItem — ConditionExpression', { tags: ['update-item', 'data-plane'] }, () => {
   afterAll(async () => {
     await cleanupItems(hashTableDef.name, [
       { pk: { S: 'upd-cond-pass' } },
@@ -423,7 +423,7 @@ describe('UpdateItem — ConditionExpression', () => {
   })
 })
 
-describe('UpdateItem — ConditionExpression parens', () => {
+describe('UpdateItem — ConditionExpression parens', { tags: ['update-item', 'data-plane'] }, () => {
   const pk = 'upd-cep-seed'
 
   beforeAll(async () => {

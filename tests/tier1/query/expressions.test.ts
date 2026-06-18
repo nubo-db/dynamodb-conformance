@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { compositeTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('Query — FilterExpression functions and operators', () => {
+describe('Query — FilterExpression functions and operators', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'query-expr'
   const items = [
     {
@@ -400,7 +400,7 @@ describe('Query — FilterExpression functions and operators', () => {
 // size() on a string counts UTF-16 code units, not UTF-8 bytes. The operator
 // tests above use ASCII, where the two agree; this distinguishes them, and
 // also pins that size() of an absent attribute is undefined (no match), not 0.
-describe('Query — size() string encoding', () => {
+describe('Query — size() string encoding', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'size-enc'
   // "é" (U+00E9) is 1 UTF-16 code unit; "𝄞" (U+1D11E) is a surrogate pair, 2
   // code units. Total: 3 code units. UTF-8 byte length is 6.

@@ -7,7 +7,7 @@ import { ddb } from '../../../src/client.js'
 import { hashTableDef, expectDynamoError, cleanupItems } from '../../../src/helpers.js'
 
 // Exercises the DeleteItem ConditionExpression parser with parenthesised forms.
-describe('DeleteItem — ConditionExpression parens', () => {
+describe('DeleteItem — ConditionExpression parens', { tags: ['delete-item', 'data-plane'] }, () => {
   const seedKeys = [
     'del-cep-percond',
     'del-cep-fullwrap',

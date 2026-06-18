@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('Scan — Select COUNT', () => {
+describe('Scan — Select COUNT', { tags: ['scan', 'data-plane'] }, () => {
   const items = [
     { pk: { S: 'scan-select-0' }, category: { S: 'alpha' } },
     { pk: { S: 'scan-select-1' }, category: { S: 'beta' } },

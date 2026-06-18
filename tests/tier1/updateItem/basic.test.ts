@@ -6,7 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('UpdateItem — SET', () => {
+describe('UpdateItem — SET', { tags: ['update-item', 'data-plane'] }, () => {
   afterEach(async () => {
     await cleanupItems(hashTableDef.name, [{ pk: { S: 'upd-set' } }])
   })
@@ -211,7 +211,7 @@ describe('UpdateItem — SET', () => {
   })
 })
 
-describe('UpdateItem — REMOVE', () => {
+describe('UpdateItem — REMOVE', { tags: ['update-item', 'data-plane'] }, () => {
   it('removes an attribute from an item', async () => {
     await ddb.send(
       new PutItemCommand({
@@ -314,7 +314,7 @@ describe('UpdateItem — REMOVE', () => {
   })
 })
 
-describe('UpdateItem — ADD', () => {
+describe('UpdateItem — ADD', { tags: ['update-item', 'data-plane'] }, () => {
   it('adds a number to an existing numeric attribute', async () => {
     await ddb.send(
       new PutItemCommand({
@@ -398,7 +398,7 @@ describe('UpdateItem — ADD', () => {
   })
 })
 
-describe('UpdateItem — DELETE', () => {
+describe('UpdateItem — DELETE', { tags: ['update-item', 'data-plane'] }, () => {
   it('DELETE all elements from set removes the attribute entirely', async () => {
     await ddb.send(new PutItemCommand({
       TableName: hashTableDef.name,
@@ -474,7 +474,7 @@ describe('UpdateItem — DELETE', () => {
   })
 })
 
-describe('UpdateItem — return values', () => {
+describe('UpdateItem — return values', { tags: ['update-item', 'data-plane'] }, () => {
   it('returns ALL_NEW after update', async () => {
     await ddb.send(
       new PutItemCommand({
@@ -549,7 +549,7 @@ describe('UpdateItem — return values', () => {
   })
 })
 
-describe('UpdateItem — SET evaluation semantics', () => {
+describe('UpdateItem — SET evaluation semantics', { tags: ['update-item', 'data-plane'] }, () => {
   const keys: { pk: { S: string } }[] = []
   afterAll(async () => {
     await cleanupItems(hashTableDef.name, keys)
@@ -676,7 +676,7 @@ describe('UpdateItem — SET evaluation semantics', () => {
   })
 })
 
-describe('UpdateItem — ReturnValues granularity', () => {
+describe('UpdateItem — ReturnValues granularity', { tags: ['update-item', 'data-plane'] }, () => {
   const keys: { pk: { S: string } }[] = []
   afterAll(async () => {
     await cleanupItems(hashTableDef.name, keys)

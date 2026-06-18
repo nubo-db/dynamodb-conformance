@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, expectDynamoError, cleanupItems } from '../../../src/helpers.js'
 
-describe('PutItem — ConditionExpression functions and operators', () => {
+describe('PutItem — ConditionExpression functions and operators', { tags: ['put-item', 'data-plane'] }, () => {
   const pk = 'put-expr'
 
   beforeAll(async () => {

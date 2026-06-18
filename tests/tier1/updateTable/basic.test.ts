@@ -34,7 +34,7 @@ async function createSimpleTable(
   await waitUntilActive(name)
 }
 
-describe('UpdateTable — basic', () => {
+describe('UpdateTable — basic', { tags: ['update-table', 'control-plane'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {
@@ -194,7 +194,7 @@ describe('UpdateTable — basic', () => {
   })
 })
 
-describe('UpdateTable — validation', () => {
+describe('UpdateTable — validation', { tags: ['update-table', 'control-plane'] }, () => {
   it('rejects UpdateTable on a non-existent table', async () => {
     await expectDynamoError(
       () =>

@@ -6,7 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, compositeTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('BatchWriteItem — basic', () => {
+describe('BatchWriteItem — basic', { tags: ['batch', 'data-plane'] }, () => {
   afterAll(async () => {
     const keys = Array.from({ length: 10 }, (_, i) => ({ pk: { S: `bw-${i}` } }))
     await cleanupItems(hashTableDef.name, keys)
@@ -124,7 +124,7 @@ describe('BatchWriteItem — basic', () => {
   })
 })
 
-describe('BatchWriteItem — multiple tables', () => {
+describe('BatchWriteItem — multiple tables', { tags: ['batch', 'data-plane'] }, () => {
   const hashKeys = [
     { pk: { S: 'bw-multi-h1' } },
     { pk: { S: 'bw-multi-h2' } },

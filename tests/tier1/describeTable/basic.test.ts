@@ -6,7 +6,7 @@ import {
   expectDynamoError,
 } from '../../../src/helpers.js'
 
-describe('DescribeTable — basic', () => {
+describe('DescribeTable — basic', { tags: ['describe-table', 'control-plane'] }, () => {
   it('returns table metadata for a hash-only table', async () => {
     const result = await ddb.send(
       new DescribeTableCommand({ TableName: hashTableDef.name }),
@@ -54,7 +54,7 @@ describe('DescribeTable — basic', () => {
   })
 })
 
-describe('DescribeTable — TableId', () => {
+describe('DescribeTable — TableId', { tags: ['describe-table', 'control-plane'] }, () => {
   it('returns a stable TableId across repeated DescribeTable calls', async () => {
     const first = await ddb.send(
       new DescribeTableCommand({ TableName: hashTableDef.name }),
@@ -71,7 +71,7 @@ describe('DescribeTable — TableId', () => {
   })
 })
 
-describe('DescribeTable — validation', () => {
+describe('DescribeTable — validation', { tags: ['describe-table', 'control-plane'] }, () => {
   it('returns ResourceNotFoundException for non-existent table', async () => {
     await expectDynamoError(
       () => ddb.send(

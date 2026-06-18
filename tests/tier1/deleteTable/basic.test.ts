@@ -8,7 +8,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { uniqueTableName, waitUntilActive, expectDynamoError } from '../../../src/helpers.js'
 
-describe('DeleteTable — basic', () => {
+describe('DeleteTable — basic', { tags: ['delete-table', 'control-plane'] }, () => {
   it('deletes an existing table', async () => {
     const name = uniqueTableName('dt_basic')
 
@@ -81,7 +81,7 @@ describe('DeleteTable — basic', () => {
   })
 })
 
-describe('DeleteTable — validation', () => {
+describe('DeleteTable — validation', { tags: ['delete-table', 'control-plane'] }, () => {
   it('rejects deleting a non-existent table', async () => {
     await expectDynamoError(
       () => ddb.send(

@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, compositeTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('BatchGetItem — basic', () => {
+describe('BatchGetItem — basic', { tags: ['batch', 'data-plane'] }, () => {
   const items = Array.from({ length: 5 }, (_, i) => ({
     pk: { S: `bg-${i}` },
     val: { N: String(i * 10) },
@@ -81,7 +81,7 @@ describe('BatchGetItem — basic', () => {
   })
 })
 
-describe('BatchGetItem — ProjectionExpression', () => {
+describe('BatchGetItem — ProjectionExpression', { tags: ['batch', 'data-plane'] }, () => {
   beforeAll(async () => {
     await ddb.send(
       new PutItemCommand({
@@ -122,7 +122,7 @@ describe('BatchGetItem — ProjectionExpression', () => {
   })
 })
 
-describe('BatchGetItem — projection matching nothing', () => {
+describe('BatchGetItem — projection matching nothing', { tags: ['batch', 'data-plane'] }, () => {
   const pk = 'bg-emptyproj'
 
   beforeAll(async () => {
@@ -160,7 +160,7 @@ describe('BatchGetItem — projection matching nothing', () => {
   })
 })
 
-describe('BatchGetItem — multiple tables', () => {
+describe('BatchGetItem — multiple tables', { tags: ['batch', 'data-plane'] }, () => {
   const hashKey = { pk: { S: 'bg-multi-hash' } }
   const compositeKey = { pk: { S: 'bg-multi-comp' }, sk: { S: 'sk1' } }
 

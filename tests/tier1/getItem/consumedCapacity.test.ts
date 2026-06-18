@@ -10,7 +10,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, compositeTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('ConsumedCapacity across operations', () => {
+describe('ConsumedCapacity across operations', { tags: ['get-item', 'data-plane'] }, () => {
   const hashKeys = [
     { pk: { S: 'cc-get-1' } },
     { pk: { S: 'cc-del-1' } },

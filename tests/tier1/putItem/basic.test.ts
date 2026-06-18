@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, compositeTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('PutItem — basic', () => {
+describe('PutItem — basic', { tags: ['put-item', 'data-plane'] }, () => {
   afterAll(async () => {
     await cleanupItems(hashTableDef.name, [
       { pk: { S: 'put-basic-1' } },
@@ -90,7 +90,7 @@ describe('PutItem — basic', () => {
   })
 })
 
-describe('PutItem — all data types', () => {
+describe('PutItem — all data types', { tags: ['put-item', 'data-plane'] }, () => {
   const pk = 'put-types-1'
 
   afterAll(async () => {
@@ -147,7 +147,7 @@ describe('PutItem — all data types', () => {
   })
 })
 
-describe('PutItem — return values', () => {
+describe('PutItem — return values', { tags: ['put-item', 'data-plane'] }, () => {
   afterAll(async () => {
     await cleanupItems(hashTableDef.name, [
       { pk: { S: 'put-return-1' } },

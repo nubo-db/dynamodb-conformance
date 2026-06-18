@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { compositeTableDef, cleanupItems, waitForGsiConsistency, expectDynamoError } from '../../../src/helpers.js'
 
-describe('Query — Select COUNT', () => {
+describe('Query — Select COUNT', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'query-select-count'
   const items = [
     { pk: { S: pk }, sk: { S: 'a' }, status: { S: 'active' } },
@@ -68,7 +68,7 @@ describe('Query — Select COUNT', () => {
   })
 })
 
-describe('Query — Select modes on indexes', () => {
+describe('Query — Select modes on indexes', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'query-select-idx'
   const items = [
     {
@@ -164,7 +164,7 @@ describe('Query — Select modes on indexes', () => {
   })
 })
 
-describe('Query — Select SPECIFIC_ATTRIBUTES', () => {
+describe('Query — Select SPECIFIC_ATTRIBUTES', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'query-select-specific'
   const items = [
     { pk: { S: pk }, sk: { S: 'a' }, data: { S: 'hello' }, extra: { S: 'world' } },

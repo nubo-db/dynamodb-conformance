@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { uniqueTableName, waitUntilActive, deleteTable, expectDynamoError } from '../../../src/helpers.js'
 
-describe('CreateTable — LSI', () => {
+describe('CreateTable — LSI', { tags: ['create-table', 'control-plane', 'lsi'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {

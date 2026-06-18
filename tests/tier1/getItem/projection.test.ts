@@ -7,7 +7,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, compositeTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('Nested attribute projection', () => {
+describe('Nested attribute projection', { tags: ['get-item', 'data-plane'] }, () => {
   const hashPk = 'proj-nested'
   const compositePk = 'proj-nested-q'
 
@@ -153,7 +153,7 @@ describe('Nested attribute projection', () => {
   })
 })
 
-describe('GetItem — projection matching nothing', () => {
+describe('GetItem — projection matching nothing', { tags: ['get-item', 'data-plane'] }, () => {
   const pk = 'get-emptyproj'
 
   beforeAll(async () => {

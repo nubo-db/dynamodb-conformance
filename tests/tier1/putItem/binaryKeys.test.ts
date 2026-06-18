@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { compositeBTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('PutItem — binary sort key', () => {
+describe('PutItem — binary sort key', { tags: ['put-item', 'data-plane'] }, () => {
   const bin1 = new Uint8Array([0x01, 0x02, 0x03])
   const bin2 = new Uint8Array([0xDE, 0xAD, 0xBE, 0xEF])
   const bin3 = new Uint8Array([0xFF, 0x00, 0x7F, 0x80])

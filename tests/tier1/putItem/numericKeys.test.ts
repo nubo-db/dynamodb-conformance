@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashNTableDef, compositeNTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('PutItem — numeric hash key', () => {
+describe('PutItem — numeric hash key', { tags: ['put-item', 'data-plane'] }, () => {
   afterAll(async () => {
     await cleanupItems(hashNTableDef.name, [
       { pk: { N: '42' } },

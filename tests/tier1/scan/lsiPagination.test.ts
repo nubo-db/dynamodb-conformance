@@ -15,7 +15,7 @@ import type { TestTableDef } from '../../../src/types.js'
 // cursor advancement when many items share the same base-table partition and
 // the LSI sort key has duplicates across items — the 4-tuple cursor
 // (base_pk, lsi_sk, base_sk) must advance correctly across pages.
-describe('Scan — LSI pagination under duplicate cursor components', () => {
+describe('Scan — LSI pagination under duplicate cursor components', { tags: ['scan', 'data-plane', 'lsi'] }, () => {
   const tableDef: TestTableDef = {
     name: uniqueTableName('lsi-page'),
     hashKey: { name: 'ID', type: 'S' },

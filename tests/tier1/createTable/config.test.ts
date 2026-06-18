@@ -9,7 +9,7 @@ import { uniqueTableName, waitUntilActive, deleteTable } from '../../../src/help
 // Table-configuration parameters set at create time, asserted via a
 // DescribeTable round-trip. Characterised against real AWS in the U2 gap map.
 
-describe('CreateTable — configuration parameters', () => {
+describe('CreateTable — configuration parameters', { tags: ['create-table', 'control-plane'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {

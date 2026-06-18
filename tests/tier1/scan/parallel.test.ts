@@ -6,7 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('Scan — parallel', () => {
+describe('Scan — parallel', { tags: ['scan', 'data-plane'] }, () => {
   const TOTAL_SEGMENTS = 4
   const items = Array.from({ length: 20 }, (_, i) => ({
     pk: { S: `parallel-scan-${String(i).padStart(3, '0')}` },

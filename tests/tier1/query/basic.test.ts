@@ -12,7 +12,7 @@ import {
   expectDynamoError,
 } from '../../../src/helpers.js'
 
-describe('Query — basic', () => {
+describe('Query — basic', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'query-basic'
   const items = [
     { pk: { S: pk }, sk: { S: 'a' }, val: { N: '1' } },
@@ -98,7 +98,7 @@ describe('Query — basic', () => {
   })
 })
 
-describe('Query — key conditions', () => {
+describe('Query — key conditions', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'query-keycond'
   const items = [
     { pk: { S: pk }, sk: { S: 'alpha' } },
@@ -194,7 +194,7 @@ describe('Query — key conditions', () => {
   })
 })
 
-describe('Query — FilterExpression', () => {
+describe('Query — FilterExpression', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'query-filter'
   const items = [
     { pk: { S: pk }, sk: { S: '1' }, status: { S: 'active' } },
@@ -240,7 +240,7 @@ describe('Query — FilterExpression', () => {
   })
 })
 
-describe('Query — Limit and pagination', () => {
+describe('Query — Limit and pagination', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'query-page'
   const items = Array.from({ length: 10 }, (_, i) => ({
     pk: { S: pk },
@@ -316,7 +316,7 @@ describe('Query — Limit and pagination', () => {
   })
 })
 
-describe('Query — Limit + FilterExpression interaction', () => {
+describe('Query — Limit + FilterExpression interaction', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'query-limit-filter'
   const items = Array.from({ length: 10 }, (_, i) => ({
     pk: { S: pk },
@@ -429,7 +429,7 @@ describe('Query — Limit + FilterExpression interaction', () => {
   })
 })
 
-describe('Query — ExclusiveStartKey exclusivity', () => {
+describe('Query — ExclusiveStartKey exclusivity', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'esk-excl'
   const items = ['a', 'b', 'c', 'd', 'e'].map((s) => ({
     pk: { S: pk },

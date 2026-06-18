@@ -2,7 +2,7 @@ import { BatchWriteItemCommand } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, expectDynamoError } from '../../../src/helpers.js'
 
-describe('BatchWriteItem — validation', () => {
+describe('BatchWriteItem — validation', { tags: ['batch', 'data-plane'] }, () => {
   it('rejects more than 25 items', async () => {
     const items = Array.from({ length: 26 }, (_, i) => ({
       PutRequest: {

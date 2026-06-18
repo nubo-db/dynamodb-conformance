@@ -6,7 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems, expectDynamoError } from '../../../src/helpers.js'
 
-describe('UpdateItem — nested path semantics', () => {
+describe('UpdateItem — nested path semantics', { tags: ['update-item', 'data-plane'] }, () => {
   const keysToCleanup: { pk: { S: string } }[] = []
 
   afterAll(async () => {

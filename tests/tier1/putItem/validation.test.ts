@@ -2,7 +2,7 @@ import { PutItemCommand } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, expectDynamoError } from '../../../src/helpers.js'
 
-describe('PutItem — validation', () => {
+describe('PutItem — validation', { tags: ['put-item', 'data-plane'] }, () => {
   it('rejects PutItem to a non-existent table', async () => {
     await expectDynamoError(
       () => ddb.send(

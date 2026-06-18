@@ -10,7 +10,7 @@ import {
   cleanupItems,
 } from '../../../src/helpers.js'
 
-describe('GetItem — basic', () => {
+describe('GetItem — basic', { tags: ['get-item', 'data-plane'] }, () => {
   beforeAll(async () => {
     await Promise.all([
       ddb.send(
@@ -100,7 +100,7 @@ describe('GetItem — basic', () => {
   })
 })
 
-describe('GetItem — ProjectionExpression', () => {
+describe('GetItem — ProjectionExpression', { tags: ['get-item', 'data-plane'] }, () => {
   beforeAll(async () => {
     await ddb.send(
       new PutItemCommand({
@@ -155,7 +155,7 @@ describe('GetItem — ProjectionExpression', () => {
   })
 })
 
-describe('GetItem — ConsistentRead', () => {
+describe('GetItem — ConsistentRead', { tags: ['get-item', 'data-plane'] }, () => {
   it('accepts ConsistentRead: true', async () => {
     const result = await ddb.send(
       new GetItemCommand({

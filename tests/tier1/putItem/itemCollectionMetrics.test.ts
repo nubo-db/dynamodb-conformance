@@ -6,7 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { compositeTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('ReturnItemCollectionMetrics', () => {
+describe('ReturnItemCollectionMetrics', { tags: ['put-item', 'data-plane'] }, () => {
   const keys = [
     { pk: { S: 'icm-put-1' }, sk: { S: 'a' } },
     { pk: { S: 'icm-del-1' }, sk: { S: 'a' } },

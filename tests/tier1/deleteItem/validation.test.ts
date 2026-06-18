@@ -2,7 +2,7 @@ import { DeleteItemCommand } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { expectDynamoError } from '../../../src/helpers.js'
 
-describe('DeleteItem — validation', () => {
+describe('DeleteItem — validation', { tags: ['delete-item', 'data-plane'] }, () => {
   it('rejects DeleteItem on a non-existent table', async () => {
     await expectDynamoError(
       () => ddb.send(

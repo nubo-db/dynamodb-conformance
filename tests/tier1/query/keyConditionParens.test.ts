@@ -9,7 +9,7 @@ import {
   expectDynamoError,
 } from '../../../src/helpers.js'
 
-describe('Query — KeyConditionExpression with parentheses', () => {
+describe('Query — KeyConditionExpression with parentheses', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'kce-parens'
   const items = [
     { pk: { S: pk }, sk: { S: '1' }, data: { S: 'a' } },

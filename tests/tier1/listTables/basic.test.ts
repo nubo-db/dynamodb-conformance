@@ -2,7 +2,7 @@ import { ListTablesCommand } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { hashTableDef } from '../../../src/helpers.js'
 
-describe('ListTables — basic', () => {
+describe('ListTables — basic', { tags: ['list-tables', 'control-plane'] }, () => {
   it('returns an array of table names', async () => {
     const result = await ddb.send(new ListTablesCommand({}))
 

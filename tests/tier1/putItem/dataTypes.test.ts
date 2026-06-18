@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('PutItem — data types depth and edge cases', () => {
+describe('PutItem — data types depth and edge cases', { tags: ['put-item', 'data-plane'] }, () => {
   const keys = [
     { pk: { S: 'dt-nested-map' } },
     { pk: { S: 'dt-mixed-list' } },

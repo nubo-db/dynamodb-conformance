@@ -12,7 +12,7 @@ import {
   expectDynamoError,
 } from '../../../src/helpers.js'
 
-describe('Scan — basic', () => {
+describe('Scan — basic', { tags: ['scan', 'data-plane'] }, () => {
   const items = Array.from({ length: 5 }, (_, i) => ({
     pk: { S: `scan-basic-${i}` },
     val: { N: String(i) },
@@ -50,7 +50,7 @@ describe('Scan — basic', () => {
   })
 })
 
-describe('Scan — FilterExpression', () => {
+describe('Scan — FilterExpression', { tags: ['scan', 'data-plane'] }, () => {
   const items = [
     { pk: { S: 'scan-filter-0' }, status: { S: 'active' } },
     { pk: { S: 'scan-filter-1' }, status: { S: 'inactive' } },
@@ -109,7 +109,7 @@ describe('Scan — FilterExpression', () => {
   })
 })
 
-describe('Scan — Limit and pagination', () => {
+describe('Scan — Limit and pagination', { tags: ['scan', 'data-plane'] }, () => {
   const pageItems = Array.from({ length: 5 }, (_, i) => ({
     pk: { S: `scan-page-${i}` },
     val: { N: String(i) },
@@ -170,7 +170,7 @@ describe('Scan — Limit and pagination', () => {
   })
 })
 
-describe('Scan — ProjectionExpression', () => {
+describe('Scan — ProjectionExpression', { tags: ['scan', 'data-plane'] }, () => {
   beforeAll(async () => {
     await ddb.send(
       new PutItemCommand({
@@ -222,7 +222,7 @@ describe('Scan — ProjectionExpression', () => {
   })
 })
 
-describe('Scan — ExclusiveStartKey exclusivity and filtered Limit', () => {
+describe('Scan — ExclusiveStartKey exclusivity and filtered Limit', { tags: ['scan', 'data-plane'] }, () => {
   const items = Array.from({ length: 4 }, (_, i) => ({
     pk: { S: `sesk-${i}` },
     val: { N: String(i) },

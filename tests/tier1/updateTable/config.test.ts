@@ -17,7 +17,7 @@ import {
 // matters most: deletion protection actually blocks DeleteTable. Characterised
 // against real AWS in the U2 gap map.
 
-describe('UpdateTable — configuration parameters', () => {
+describe('UpdateTable — configuration parameters', { tags: ['update-table', 'control-plane'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {
@@ -82,7 +82,7 @@ describe('UpdateTable — configuration parameters', () => {
   })
 })
 
-describe('DeleteTable — deletion protection enforcement', () => {
+describe('DeleteTable — deletion protection enforcement', { tags: ['delete-table', 'control-plane'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {

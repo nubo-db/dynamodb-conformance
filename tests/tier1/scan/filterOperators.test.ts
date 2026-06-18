@@ -9,7 +9,7 @@ import {
   expectDynamoError,
 } from '../../../src/helpers.js'
 
-describe('Scan — filter operators on different types', () => {
+describe('Scan — filter operators on different types', { tags: ['scan', 'data-plane'] }, () => {
   const items = [
     {
       pk: { S: 'fo-1' },
@@ -165,7 +165,7 @@ describe('Scan — filter operators on different types', () => {
   })
 })
 
-describe('Scan — binary attribute comparisons', () => {
+describe('Scan — binary attribute comparisons', { tags: ['scan', 'data-plane'] }, () => {
   const items = [
     { pk: { S: 'fo-1' }, binVal: { B: new Uint8Array([1, 2]) } },
     { pk: { S: 'fo-2' }, binVal: { B: new Uint8Array([3, 4]) } },
@@ -251,7 +251,7 @@ describe('Scan — binary attribute comparisons', () => {
   })
 })
 
-describe('Scan — set equality', () => {
+describe('Scan — set equality', { tags: ['scan', 'data-plane'] }, () => {
   const items = [
     { pk: { S: 'fo-1' }, setVal: { SS: ['a', 'b'] } },
     { pk: { S: 'fo-2' }, setVal: { SS: ['b', 'c'] } },
@@ -318,7 +318,7 @@ describe('Scan — set equality', () => {
 
 // Structural validation of FilterExpression. The operator tests above only send
 // well-formed filters; these assert the rejection path a lenient target skips.
-describe('Scan — filter expression validation', () => {
+describe('Scan — filter expression validation', { tags: ['scan', 'data-plane'] }, () => {
   it('rejects begins_with with a non-string/binary operand', async () => {
     await expectDynamoError(
       () =>

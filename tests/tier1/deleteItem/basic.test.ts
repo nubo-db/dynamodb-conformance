@@ -11,7 +11,7 @@ import {
   cleanupItems,
 } from '../../../src/helpers.js'
 
-describe('DeleteItem — basic', () => {
+describe('DeleteItem — basic', { tags: ['delete-item', 'data-plane'] }, () => {
   it('deletes an existing item', async () => {
     await ddb.send(
       new PutItemCommand({
@@ -74,7 +74,7 @@ describe('DeleteItem — basic', () => {
   })
 })
 
-describe('DeleteItem — return values', () => {
+describe('DeleteItem — return values', { tags: ['delete-item', 'data-plane'] }, () => {
   it('returns ALL_OLD when deleting an existing item', async () => {
     await ddb.send(
       new PutItemCommand({
@@ -108,7 +108,7 @@ describe('DeleteItem — return values', () => {
   })
 })
 
-describe('DeleteItem — ConditionExpression', () => {
+describe('DeleteItem — ConditionExpression', { tags: ['delete-item', 'data-plane'] }, () => {
   it('deletes when condition is met', async () => {
     await ddb.send(
       new PutItemCommand({

@@ -12,7 +12,7 @@ import {
   hashTableDef,
 } from '../../../src/helpers.js'
 
-describe('CreateTable — basic', () => {
+describe('CreateTable — basic', { tags: ['create-table', 'control-plane'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {
@@ -119,7 +119,7 @@ describe('CreateTable — basic', () => {
   })
 })
 
-describe('CreateTable — TableId', () => {
+describe('CreateTable — TableId', { tags: ['create-table', 'control-plane'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {
@@ -151,7 +151,7 @@ describe('CreateTable — TableId', () => {
   })
 })
 
-describe('CreateTable — validation', () => {
+describe('CreateTable — validation', { tags: ['create-table', 'control-plane'] }, () => {
   it('rejects a table name shorter than 3 characters', async () => {
     await expectDynamoError(
       () => ddb.send(

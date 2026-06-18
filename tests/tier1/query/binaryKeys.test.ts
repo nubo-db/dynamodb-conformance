@@ -5,7 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { compositeBTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('Query — binary sort key', () => {
+describe('Query — binary sort key', { tags: ['query', 'data-plane'] }, () => {
   const pk = 'binq'
   const sk1 = new Uint8Array([0x01])
   const sk2 = new Uint8Array([0x01, 0x02])

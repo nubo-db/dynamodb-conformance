@@ -7,7 +7,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, compositeTableDef, cleanupItems } from '../../../src/helpers.js'
 
-describe('ReturnConsumedCapacity', () => {
+describe('ReturnConsumedCapacity', { tags: ['put-item', 'data-plane'] }, () => {
   const hashKeys = [
     { pk: { S: 'cc-total-1' } },
     { pk: { S: 'cc-none-1' } },
