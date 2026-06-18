@@ -24,7 +24,7 @@ async function createSimpleTable(name: string): Promise<void> {
   await waitUntilActive(name)
 }
 
-describe('TTL — basic', () => {
+describe('TTL — basic', { tags: ['ttl', 'control-plane'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {
@@ -115,7 +115,7 @@ describe('TTL — basic', () => {
   })
 })
 
-describe('TTL — validation', () => {
+describe('TTL — validation', { tags: ['ttl', 'control-plane'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {

@@ -62,7 +62,7 @@ afterAll(async () => {
   await cleanupItems(compositeTableDef.name, compositeKeys)
 })
 
-describe('TransactWriteItems - basic functionality', () => {
+describe('TransactWriteItems - basic functionality', { tags: ['transactions', 'data-plane'] }, () => {
   it('executes Put + Update + Delete atomically', async () => {
     // Seed items for update and delete
     await ddb.send(
@@ -523,7 +523,7 @@ describe('TransactWriteItems - basic functionality', () => {
   })
 })
 
-describe('TransactWriteItems - multiple items', () => {
+describe('TransactWriteItems - multiple items', { tags: ['transactions', 'data-plane'] }, () => {
   it('puts multiple items in one transaction', async () => {
     await ddb.send(
       new TransactWriteItemsCommand({
@@ -634,7 +634,7 @@ describe('TransactWriteItems - multiple items', () => {
   })
 })
 
-describe('TransactWriteItems - validation', () => {
+describe('TransactWriteItems - validation', { tags: ['transactions', 'data-plane'] }, () => {
   it('rejects duplicate target items in same transaction', async () => {
     await expectDynamoError(
       () =>
@@ -921,7 +921,7 @@ describe('TransactWriteItems - validation', () => {
   })
 })
 
-describe('TransactWriteItems - ConditionExpression parens', () => {
+describe('TransactWriteItems - ConditionExpression parens', { tags: ['transactions', 'data-plane'] }, () => {
   // Each action type (Put, Update, Delete, ConditionCheck) is exercised
   // through the transactional code path with a parenthesised ConditionExpression.
   // Seeds existing items for the Update, Delete, and ConditionCheck cases.
@@ -1113,7 +1113,7 @@ describe('TransactWriteItems - ConditionExpression parens', () => {
   })
 })
 
-describe('TransactWriteItems — ConsumedCapacity', () => {
+describe('TransactWriteItems — ConsumedCapacity', { tags: ['transactions', 'data-plane'] }, () => {
   const keys = [{ pk: { S: 'tw-cap-1' } }, { pk: { S: 'tw-cap-2' } }]
 
   afterAll(async () => {

@@ -28,7 +28,7 @@ afterAll(async () => {
   await cleanupItems(compositeTableDef.name, compositeKeys)
 })
 
-describe('TransactGetItems - basic', () => {
+describe('TransactGetItems - basic', { tags: ['transactions', 'data-plane'] }, () => {
   it('gets multiple items atomically', async () => {
     // Seed items
     for (const i of [1, 2, 3]) {
@@ -193,7 +193,7 @@ describe('TransactGetItems - basic', () => {
   })
 })
 
-describe('TransactGetItems - validation', () => {
+describe('TransactGetItems - validation', { tags: ['transactions', 'data-plane'] }, () => {
   it('rejects empty TransactItems', async () => {
     await expectDynamoError(
       () =>
@@ -251,7 +251,7 @@ describe('TransactGetItems - validation', () => {
   })
 })
 
-describe('TransactGetItems — ConsumedCapacity', () => {
+describe('TransactGetItems — ConsumedCapacity', { tags: ['transactions', 'data-plane'] }, () => {
   const present = { pk: { S: 'tg-cap-present' } }
 
   beforeAll(async () => {
@@ -303,7 +303,7 @@ describe('TransactGetItems — ConsumedCapacity', () => {
   })
 })
 
-describe('TransactGetItems — projection matching nothing', () => {
+describe('TransactGetItems — projection matching nothing', { tags: ['transactions', 'data-plane'] }, () => {
   const present = { pk: { S: 'tg-proj-present' } }
 
   beforeAll(async () => {

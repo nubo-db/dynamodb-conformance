@@ -22,7 +22,7 @@ import { isUnsupportedFault } from '../../../src/infra.js'
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
-describe('On-demand backups — lifecycle and restore', () => {
+describe('On-demand backups — lifecycle and restore', { tags: ['backups', 'control-plane', 'cloud-only'] }, () => {
   const source = uniqueTableName('bk_src')
   const backups: string[] = []
   const tables: string[] = [source]

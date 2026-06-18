@@ -7,7 +7,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, cleanupItems, expectDynamoError } from '../../../src/helpers.js'
 
-describe('ExecuteTransaction — PartiQL', () => {
+describe('ExecuteTransaction — PartiQL', { tags: ['partiql', 'data-plane'] }, () => {
   let supported = true
 
   const keysToCleanup: Record<string, { S: string }>[] = []

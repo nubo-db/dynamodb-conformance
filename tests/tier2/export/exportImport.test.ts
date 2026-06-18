@@ -27,7 +27,7 @@ import { isUnsupportedFault, withS3Bucket } from '../../../src/infra.js'
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
-describe('Export and import — S3', () => {
+describe('Export and import — S3', { tags: ['export-import', 'control-plane', 'cloud-only', 'slow'] }, () => {
   const source = uniqueTableName('exp_src')
   const importTargets: string[] = []
   let arn = ''

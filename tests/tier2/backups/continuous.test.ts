@@ -18,7 +18,7 @@ import { isUnsupportedFault } from '../../../src/infra.js'
 // restorable time lags table creation by minutes, so it cannot be exercised
 // within a test run (recorded in the gap map).
 
-describe('Continuous backups — PITR', () => {
+describe('Continuous backups — PITR', { tags: ['backups', 'control-plane', 'cloud-only'] }, () => {
   const table = uniqueTableName('cb')
   let supported = true
 

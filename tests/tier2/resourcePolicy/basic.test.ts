@@ -14,7 +14,7 @@ import { isUnsupportedFault } from '../../../src/infra.js'
 // the table ARN at runtime (never hardcoded); the widened account-ID guard
 // sanitises any ARN/principal that reaches a result file.
 
-describe('Resource policies — Put/Get/Delete', () => {
+describe('Resource policies — Put/Get/Delete', { tags: ['resource-policy', 'control-plane', 'cloud-only'] }, () => {
   const table = uniqueTableName('respolicy')
   let arn = ''
   let supported = true

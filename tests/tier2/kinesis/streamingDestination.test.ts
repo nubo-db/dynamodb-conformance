@@ -12,7 +12,7 @@ import { isUnsupportedFault, withKinesisStream } from '../../../src/infra.js'
 // is registered against the stream rather than waiting for ACTIVE. The stream
 // is torn down by the harness and the destination by deleting the table.
 
-describe('Kinesis streaming destination', () => {
+describe('Kinesis streaming destination', { tags: ['kinesis', 'control-plane', 'cloud-only', 'slow'] }, () => {
   const table = uniqueTableName('kds')
   let supported = true
 

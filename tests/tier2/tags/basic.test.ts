@@ -33,7 +33,7 @@ async function waitForTagCount(arn: string, expectedCount: number, timeoutMs = 1
   throw new Error(`Timeout waiting for exactly ${expectedCount} tags`)
 }
 
-describe('Tags — basic', () => {
+describe('Tags — basic', { tags: ['resource-tags', 'control-plane'] }, () => {
   const tableName = uniqueTableName('tags')
   let tableArn: string
 
@@ -164,7 +164,7 @@ describe('Tags — basic', () => {
   })
 })
 
-describe('Tags — validation', () => {
+describe('Tags — validation', { tags: ['resource-tags', 'control-plane'] }, () => {
   it('rejects TagResource with an invalid ARN format', async () => {
     await expectDynamoError(
       () =>

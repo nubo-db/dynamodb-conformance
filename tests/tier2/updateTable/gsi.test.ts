@@ -61,7 +61,7 @@ async function createTableWithGsi(name: string): Promise<void> {
   await waitUntilActive(name)
 }
 
-describe('UpdateTable — add GSI', () => {
+describe('UpdateTable — add GSI', { tags: ['update-table', 'control-plane', 'slow', 'gsi'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {
@@ -353,7 +353,7 @@ describe('UpdateTable — add GSI', () => {
   })
 })
 
-describe('UpdateTable — remove GSI', () => {
+describe('UpdateTable — remove GSI', { tags: ['update-table', 'control-plane', 'slow', 'gsi'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {
@@ -448,7 +448,7 @@ describe('UpdateTable — remove GSI', () => {
   })
 })
 
-describe('UpdateTable — GSI validation', () => {
+describe('UpdateTable — GSI validation', { tags: ['update-table', 'control-plane', 'slow', 'gsi'] }, () => {
   const tablesToCleanup: string[] = []
 
   afterAll(async () => {

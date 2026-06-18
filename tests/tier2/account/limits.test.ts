@@ -12,7 +12,7 @@ import { isUnsupportedFault } from '../../../src/infra.js'
 // skip on targets that do not implement the operation. Limit values are
 // account-specific, so assert presence and positivity, not exact numbers.
 
-describe('Account reads — DescribeLimits, DescribeEndpoints', () => {
+describe('Account reads — DescribeLimits, DescribeEndpoints', { tags: ['account', 'control-plane', 'cloud-only'] }, () => {
   let limits: DescribeLimitsCommandOutput | null = null
   let endpoints: DescribeEndpointsCommandOutput | null = null
   let limitsSupported = true

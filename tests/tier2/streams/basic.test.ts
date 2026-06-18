@@ -51,7 +51,7 @@ async function waitForStreamEnabled(streamArn: string, timeoutMs = 30_000): Prom
   }
 }
 
-describe('DynamoDB Streams — basic', () => {
+describe('DynamoDB Streams — basic', { tags: ['streams', 'control-plane'] }, () => {
   let supported = true
   let streamTableName: string
   let streamArn: string

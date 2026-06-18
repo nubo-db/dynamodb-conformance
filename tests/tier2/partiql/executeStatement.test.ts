@@ -8,7 +8,7 @@ import { ddb } from '../../../src/client.js'
 import { hashTableDef, compositeTableDef, cleanupItems, expectDynamoError } from '../../../src/helpers.js'
 import type { AttributeValue } from '@aws-sdk/client-dynamodb'
 
-describe('ExecuteStatement — PartiQL', () => {
+describe('ExecuteStatement — PartiQL', { tags: ['partiql', 'data-plane'] }, () => {
   let supported = true
 
   const keysToCleanup: Record<string, { S: string }>[] = []

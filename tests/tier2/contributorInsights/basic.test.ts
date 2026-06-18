@@ -11,7 +11,7 @@ import { isUnsupportedFault } from '../../../src/infra.js'
 // CloudWatch Contributor Insights for a table. Enable/describe/list; disabling
 // happens implicitly when the table is deleted in teardown.
 
-describe('Contributor insights — enable/describe/list', () => {
+describe('Contributor insights — enable/describe/list', { tags: ['contributor-insights', 'control-plane', 'cloud-only'] }, () => {
   const table = uniqueTableName('ci')
   let supported = true
 
