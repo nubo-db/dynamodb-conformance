@@ -1,0 +1,896 @@
+{
+  "schema": 1,
+  "describes": {
+    "tests/tier1/batchGetItem/basic.test.ts": {
+      "BatchGetItem — basic": [
+        "batch",
+        "data-plane"
+      ],
+      "BatchGetItem — ProjectionExpression": [
+        "batch",
+        "data-plane"
+      ],
+      "BatchGetItem — projection matching nothing": [
+        "batch",
+        "data-plane"
+      ],
+      "BatchGetItem — multiple tables": [
+        "batch",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/batchGetItem/validation.test.ts": {
+      "BatchGetItem — validation": [
+        "batch",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/batchWriteItem/basic.test.ts": {
+      "BatchWriteItem — basic": [
+        "batch",
+        "data-plane"
+      ],
+      "BatchWriteItem — multiple tables": [
+        "batch",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/batchWriteItem/validation.test.ts": {
+      "BatchWriteItem — validation": [
+        "batch",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/createTable/basic.test.ts": {
+      "CreateTable — basic": [
+        "create-table",
+        "control-plane"
+      ],
+      "CreateTable — TableId": [
+        "create-table",
+        "control-plane"
+      ],
+      "CreateTable — validation": [
+        "create-table",
+        "control-plane"
+      ]
+    },
+    "tests/tier1/createTable/config.test.ts": {
+      "CreateTable — configuration parameters": [
+        "create-table",
+        "control-plane"
+      ]
+    },
+    "tests/tier1/createTable/gsi.test.ts": {
+      "CreateTable — GSI": [
+        "create-table",
+        "control-plane",
+        "gsi"
+      ]
+    },
+    "tests/tier1/createTable/lsi.test.ts": {
+      "CreateTable — LSI": [
+        "create-table",
+        "control-plane",
+        "lsi"
+      ]
+    },
+    "tests/tier1/deleteItem/basic.test.ts": {
+      "DeleteItem — basic": [
+        "delete-item",
+        "data-plane"
+      ],
+      "DeleteItem — return values": [
+        "delete-item",
+        "data-plane"
+      ],
+      "DeleteItem — ConditionExpression": [
+        "delete-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/deleteItem/conditionExpressionParens.test.ts": {
+      "DeleteItem — ConditionExpression parens": [
+        "delete-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/deleteItem/validation.test.ts": {
+      "DeleteItem — validation": [
+        "delete-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/deleteTable/basic.test.ts": {
+      "DeleteTable — basic": [
+        "delete-table",
+        "control-plane"
+      ],
+      "DeleteTable — validation": [
+        "delete-table",
+        "control-plane"
+      ]
+    },
+    "tests/tier1/describeTable/basic.test.ts": {
+      "DescribeTable — basic": [
+        "describe-table",
+        "control-plane"
+      ],
+      "DescribeTable — TableId": [
+        "describe-table",
+        "control-plane"
+      ],
+      "DescribeTable — validation": [
+        "describe-table",
+        "control-plane"
+      ]
+    },
+    "tests/tier1/getItem/basic.test.ts": {
+      "GetItem — basic": [
+        "get-item",
+        "data-plane"
+      ],
+      "GetItem — ProjectionExpression": [
+        "get-item",
+        "data-plane"
+      ],
+      "GetItem — ConsistentRead": [
+        "get-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/getItem/consumedCapacity.test.ts": {
+      "ConsumedCapacity across operations": [
+        "get-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/getItem/projection.test.ts": {
+      "Nested attribute projection": [
+        "get-item",
+        "data-plane"
+      ],
+      "GetItem — projection matching nothing": [
+        "get-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/getItem/validation.test.ts": {
+      "GetItem — validation": [
+        "get-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/listTables/basic.test.ts": {
+      "ListTables — basic": [
+        "list-tables",
+        "control-plane"
+      ]
+    },
+    "tests/tier1/putItem/basic.test.ts": {
+      "PutItem — basic": [
+        "put-item",
+        "data-plane"
+      ],
+      "PutItem — all data types": [
+        "put-item",
+        "data-plane"
+      ],
+      "PutItem — return values": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/putItem/binaryKeys.test.ts": {
+      "PutItem — binary sort key": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/putItem/conditionExpressionParens.test.ts": {
+      "PutItem — ConditionExpression parens": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/putItem/conditions.test.ts": {
+      "PutItem — ConditionExpression": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/putItem/consumedCapacity.test.ts": {
+      "ReturnConsumedCapacity": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/putItem/dataTypes.test.ts": {
+      "PutItem — data types depth and edge cases": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/putItem/expressions.test.ts": {
+      "PutItem — ConditionExpression functions and operators": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/putItem/itemCollectionMetrics.test.ts": {
+      "ReturnItemCollectionMetrics": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/putItem/numericKeys.test.ts": {
+      "PutItem — numeric hash key": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/putItem/validation.test.ts": {
+      "PutItem — validation": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/query/basic.test.ts": {
+      "Query — basic": [
+        "query",
+        "data-plane"
+      ],
+      "Query — key conditions": [
+        "query",
+        "data-plane"
+      ],
+      "Query — FilterExpression": [
+        "query",
+        "data-plane"
+      ],
+      "Query — Limit and pagination": [
+        "query",
+        "data-plane"
+      ],
+      "Query — Limit + FilterExpression interaction": [
+        "query",
+        "data-plane"
+      ],
+      "Query — ExclusiveStartKey exclusivity": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/query/binaryKeys.test.ts": {
+      "Query — binary sort key": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/query/expressions.test.ts": {
+      "Query — FilterExpression functions and operators": [
+        "query",
+        "data-plane"
+      ],
+      "Query — size() string encoding": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/query/filterExpressionParens.test.ts": {
+      "Query — FilterExpression parens": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/query/gsi.test.ts": {
+      "Query — GSI": [
+        "query",
+        "data-plane",
+        "gsi"
+      ],
+      "Query — GSI pagination across tied sort keys": [
+        "query",
+        "data-plane",
+        "gsi"
+      ]
+    },
+    "tests/tier1/query/keyConditionParens.test.ts": {
+      "Query — KeyConditionExpression with parentheses": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/query/lsi.test.ts": {
+      "Query — LSI": [
+        "query",
+        "data-plane",
+        "lsi"
+      ],
+      "Query — LSI pagination across tied sort keys": [
+        "query",
+        "data-plane",
+        "lsi"
+      ]
+    },
+    "tests/tier1/query/numericKeys.test.ts": {
+      "Query — numeric sort key": [
+        "query",
+        "data-plane"
+      ],
+      "Query — numeric sort key with negatives and zero": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/query/select.test.ts": {
+      "Query — Select COUNT": [
+        "query",
+        "data-plane"
+      ],
+      "Query — Select modes on indexes": [
+        "query",
+        "data-plane"
+      ],
+      "Query — Select SPECIFIC_ATTRIBUTES": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/query/validation.test.ts": {
+      "Query — validation": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/scan/basic.test.ts": {
+      "Scan — basic": [
+        "scan",
+        "data-plane"
+      ],
+      "Scan — FilterExpression": [
+        "scan",
+        "data-plane"
+      ],
+      "Scan — Limit and pagination": [
+        "scan",
+        "data-plane"
+      ],
+      "Scan — ProjectionExpression": [
+        "scan",
+        "data-plane"
+      ],
+      "Scan — ExclusiveStartKey exclusivity and filtered Limit": [
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/scan/filterExpressionParens.test.ts": {
+      "Scan — FilterExpression parens": [
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/scan/filterOperators.test.ts": {
+      "Scan — filter operators on different types": [
+        "scan",
+        "data-plane"
+      ],
+      "Scan — binary attribute comparisons": [
+        "scan",
+        "data-plane"
+      ],
+      "Scan — set equality": [
+        "scan",
+        "data-plane"
+      ],
+      "Scan — filter expression validation": [
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/scan/gsi.test.ts": {
+      "Scan — GSI": [
+        "scan",
+        "data-plane",
+        "gsi"
+      ]
+    },
+    "tests/tier1/scan/gsiPagination.test.ts": {
+      "Scan — GSI pagination": [
+        "scan",
+        "data-plane",
+        "gsi"
+      ],
+      "Scan — GSI pagination across tied sort keys": [
+        "scan",
+        "data-plane",
+        "gsi"
+      ]
+    },
+    "tests/tier1/scan/lsi.test.ts": {
+      "Scan — LSI": [
+        "scan",
+        "data-plane",
+        "lsi"
+      ]
+    },
+    "tests/tier1/scan/lsiPagination.test.ts": {
+      "Scan — LSI pagination under duplicate cursor components": [
+        "scan",
+        "data-plane",
+        "lsi"
+      ]
+    },
+    "tests/tier1/scan/parallel.test.ts": {
+      "Scan — parallel": [
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/scan/select.test.ts": {
+      "Scan — Select COUNT": [
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/scan/validation.test.ts": {
+      "Scan — validation": [
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/updateItem/basic.test.ts": {
+      "UpdateItem — SET": [
+        "update-item",
+        "data-plane"
+      ],
+      "UpdateItem — REMOVE": [
+        "update-item",
+        "data-plane"
+      ],
+      "UpdateItem — ADD": [
+        "update-item",
+        "data-plane"
+      ],
+      "UpdateItem — DELETE": [
+        "update-item",
+        "data-plane"
+      ],
+      "UpdateItem — return values": [
+        "update-item",
+        "data-plane"
+      ],
+      "UpdateItem — SET evaluation semantics": [
+        "update-item",
+        "data-plane"
+      ],
+      "UpdateItem — ReturnValues granularity": [
+        "update-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/updateItem/conditions.test.ts": {
+      "UpdateItem — ConditionExpression": [
+        "update-item",
+        "data-plane"
+      ],
+      "UpdateItem — ConditionExpression parens": [
+        "update-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/updateItem/paths.test.ts": {
+      "UpdateItem — nested path semantics": [
+        "update-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/updateItem/validation.test.ts": {
+      "UpdateItem — validation": [
+        "update-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/updateTable/basic.test.ts": {
+      "UpdateTable — basic": [
+        "update-table",
+        "control-plane"
+      ],
+      "UpdateTable — validation": [
+        "update-table",
+        "control-plane"
+      ]
+    },
+    "tests/tier1/updateTable/config.test.ts": {
+      "UpdateTable — configuration parameters": [
+        "update-table",
+        "control-plane"
+      ],
+      "DeleteTable — deletion protection enforcement": [
+        "delete-table",
+        "control-plane"
+      ]
+    },
+    "tests/tier2/account/limits.test.ts": {
+      "Account reads — DescribeLimits, DescribeEndpoints": [
+        "account",
+        "control-plane",
+        "cloud-only"
+      ]
+    },
+    "tests/tier2/backups/continuous.test.ts": {
+      "Continuous backups — PITR": [
+        "backups",
+        "control-plane",
+        "cloud-only"
+      ]
+    },
+    "tests/tier2/backups/onDemand.test.ts": {
+      "On-demand backups — lifecycle and restore": [
+        "backups",
+        "control-plane",
+        "cloud-only"
+      ]
+    },
+    "tests/tier2/contributorInsights/basic.test.ts": {
+      "Contributor insights — enable/describe/list": [
+        "contributor-insights",
+        "control-plane",
+        "cloud-only"
+      ]
+    },
+    "tests/tier2/export/exportImport.test.ts": {
+      "Export and import — S3": [
+        "export-import",
+        "control-plane",
+        "cloud-only",
+        "slow"
+      ]
+    },
+    "tests/tier2/kinesis/streamingDestination.test.ts": {
+      "Kinesis streaming destination": [
+        "kinesis",
+        "control-plane",
+        "cloud-only",
+        "slow"
+      ]
+    },
+    "tests/tier2/partiql/batchExecuteStatement.test.ts": {
+      "BatchExecuteStatement — PartiQL": [
+        "partiql",
+        "data-plane"
+      ]
+    },
+    "tests/tier2/partiql/executeStatement.test.ts": {
+      "ExecuteStatement — PartiQL": [
+        "partiql",
+        "data-plane"
+      ]
+    },
+    "tests/tier2/partiql/executeTransaction.test.ts": {
+      "ExecuteTransaction — PartiQL": [
+        "partiql",
+        "data-plane"
+      ]
+    },
+    "tests/tier2/resourcePolicy/basic.test.ts": {
+      "Resource policies — Put/Get/Delete": [
+        "resource-policy",
+        "control-plane",
+        "cloud-only"
+      ]
+    },
+    "tests/tier2/streams/basic.test.ts": {
+      "DynamoDB Streams — basic": [
+        "streams",
+        "control-plane"
+      ]
+    },
+    "tests/tier2/tags/basic.test.ts": {
+      "Tags — basic": [
+        "resource-tags",
+        "control-plane"
+      ],
+      "Tags — validation": [
+        "resource-tags",
+        "control-plane"
+      ]
+    },
+    "tests/tier2/transactions/transactGet.test.ts": {
+      "TransactGetItems - basic": [
+        "transactions",
+        "data-plane"
+      ],
+      "TransactGetItems - validation": [
+        "transactions",
+        "data-plane"
+      ],
+      "TransactGetItems — ConsumedCapacity": [
+        "transactions",
+        "data-plane"
+      ],
+      "TransactGetItems — projection matching nothing": [
+        "transactions",
+        "data-plane"
+      ]
+    },
+    "tests/tier2/transactions/transactWrite.test.ts": {
+      "TransactWriteItems - basic functionality": [
+        "transactions",
+        "data-plane"
+      ],
+      "TransactWriteItems - multiple items": [
+        "transactions",
+        "data-plane"
+      ],
+      "TransactWriteItems - validation": [
+        "transactions",
+        "data-plane"
+      ],
+      "TransactWriteItems - ConditionExpression parens": [
+        "transactions",
+        "data-plane"
+      ],
+      "TransactWriteItems — ConsumedCapacity": [
+        "transactions",
+        "data-plane"
+      ]
+    },
+    "tests/tier2/ttl/basic.test.ts": {
+      "TTL — basic": [
+        "ttl",
+        "control-plane"
+      ],
+      "TTL — validation": [
+        "ttl",
+        "control-plane"
+      ]
+    },
+    "tests/tier2/updateTable/gsi.test.ts": {
+      "UpdateTable — add GSI": [
+        "update-table",
+        "control-plane",
+        "slow",
+        "gsi"
+      ],
+      "UpdateTable — remove GSI": [
+        "update-table",
+        "control-plane",
+        "slow",
+        "gsi"
+      ],
+      "UpdateTable — GSI validation": [
+        "update-table",
+        "control-plane",
+        "slow",
+        "gsi"
+      ]
+    },
+    "tests/tier3/error-messages/batchGetItem.test.ts": {
+      "BatchGetItem — exact error messages": [
+        "batch",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/batchWriteItem.test.ts": {
+      "BatchWriteItem — exact error messages": [
+        "batch",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/conditionalCheck.test.ts": {
+      "Conditional check — exact error messages": [
+        "put-item",
+        "update-item",
+        "delete-item",
+        "transactions",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/createTable.test.ts": {
+      "CreateTable — exact error messages": [
+        "create-table",
+        "control-plane"
+      ]
+    },
+    "tests/tier3/error-messages/deleteItem.test.ts": {
+      "DeleteItem — exact error messages": [
+        "delete-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/getItem.test.ts": {
+      "GetItem — exact error messages": [
+        "get-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/putItem.test.ts": {
+      "PutItem — exact error messages": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/query.test.ts": {
+      "Query — exact error messages": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/scan.test.ts": {
+      "Scan — exact error messages": [
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/transactGetItems.test.ts": {
+      "TransactGetItems — exact error messages": [
+        "transactions",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/transactWriteItems.test.ts": {
+      "TransactWriteItems — exact error messages": [
+        "transactions",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/error-messages/updateItem.test.ts": {
+      "UpdateItem — exact error messages": [
+        "update-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/legacy-api/attributeUpdates.test.ts": {
+      "Legacy API — AttributeUpdates (legacy UpdateExpression)": [
+        "update-item",
+        "legacy",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/legacy-api/attributesToGet.test.ts": {
+      "Legacy API — AttributesToGet (legacy ProjectionExpression)": [
+        "get-item",
+        "query",
+        "scan",
+        "legacy",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/legacy-api/expected.test.ts": {
+      "Legacy API — Expected (legacy ConditionExpression)": [
+        "put-item",
+        "delete-item",
+        "legacy",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/legacy-api/queryFilter.test.ts": {
+      "Legacy API — KeyConditions and QueryFilter": [
+        "query",
+        "legacy",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/legacy-api/scanFilter.test.ts": {
+      "Legacy API — ScanFilter (legacy FilterExpression)": [
+        "scan",
+        "legacy",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/batchLimits.test.ts": {
+      "BatchWriteItem limits": [
+        "batch",
+        "data-plane"
+      ],
+      "BatchGetItem limits": [
+        "batch",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/emptyValues.test.ts": {
+      "Empty values — strings, binary, and sets": [
+        "put-item",
+        "get-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/itemSize.test.ts": {
+      "Item size limit (400KB)": [
+        "put-item",
+        "data-plane"
+      ],
+      "Item size limit — number sizing": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/numberPrecision.test.ts": {
+      "Number precision — DynamoDB number limits and edge cases": [
+        "put-item",
+        "get-item",
+        "update-item",
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/reservedWords.test.ts": {
+      "Reserved words — ExpressionAttributeNames handling": [
+        "put-item",
+        "get-item",
+        "update-item",
+        "query",
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/responseSize.test.ts": {
+      "Response size limit (1MB)": [
+        "query",
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/transactionLimits.test.ts": {
+      "TransactWriteItems limits": [
+        "transactions",
+        "data-plane"
+      ],
+      "TransactGetItems limits": [
+        "transactions",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/validation-ordering/batchOperations.test.ts": {
+      "Batch operations — validation ordering": [
+        "batch",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/validation-ordering/createTable.test.ts": {
+      "CreateTable — validation ordering": [
+        "create-table",
+        "control-plane"
+      ]
+    },
+    "tests/tier3/validation-ordering/deleteItem.test.ts": {
+      "DeleteItem — validation ordering": [
+        "delete-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/validation-ordering/index.test.ts": {
+      "Non-existent index — error surface": [
+        "query",
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/validation-ordering/putItem.test.ts": {
+      "PutItem — validation ordering": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/validation-ordering/query.test.ts": {
+      "Query — validation ordering": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/validation-ordering/scan.test.ts": {
+      "Scan — validation ordering": [
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/validation-ordering/updateItem.test.ts": {
+      "UpdateItem — validation ordering": [
+        "update-item",
+        "data-plane"
+      ]
+    }
+  }
+}

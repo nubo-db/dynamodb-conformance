@@ -38,6 +38,7 @@
     "test:capture-ground-truth": "DYNAMODB_ENDPOINT= vitest run --reporter=json --outputFile=ground-truth/latest.json",
     "test:capture-ddb-local": "DYNAMODB_ENDPOINT=http://localhost:8000 vitest run --reporter=json --outputFile=results/dynamodb-local.json",
     "results:table": "node scripts/summarise.mjs",
+    "results:tags": "node scripts/tag-manifest.mjs",
     "test:ui": "vitest --ui"
   },
   "dependencies": {

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { TAG_NAMES, PLANE_TAGS } from '../src/tags.js'
+import { buildManifest } from './tag-manifest.mjs'
 
 // Guards that the feature/capability tags stay trustworthy as the suite grows.
 // A `--tags-filter` is only honest if every test that belongs to an axis is
@@ -93,5 +94,13 @@ describe('tag coverage guard', () => {
       { missingFromReadme, staleInReadme },
       'README tag table drifted from src/tags.ts',
     ).toEqual({ missingFromReadme: [], staleInReadme: [] })
+  })
+
+  it('the published results/tag-manifest.json is up to date with the test sources', () => {
+    const committed = JSON.parse(readFileSync('results/tag-manifest.json', 'utf8'))
+    // The manifest is consumed by paritysuite.org; a stale committed copy would
+    // silently mis-group the published per-capability results. Regenerate with
+    // `npm run results:tags`.
+    expect(committed, 'results/tag-manifest.json is stale — run `npm run results:tags`').toEqual(buildManifest())
   })
 })
