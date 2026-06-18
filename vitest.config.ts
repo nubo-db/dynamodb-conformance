@@ -20,13 +20,17 @@ export default defineConfig({
     // singleFork worker against the shared tables, which is safe because each
     // test cleans up after itself; don't raise the bound blindly.
     retry: Number(process.env.CONFORMANCE_RETRY ?? 0),
-    // singleFork is a CORRECTNESS requirement, not just performance.
-    // Table definitions are resolved at module load time and shared by reference
-    // across test files. Parallel execution would cause table contention.
+    // CORRECTNESS requirement, not just performance. Table definitions are
+    // resolved at module load time and shared by reference across test files, so
+    // the suite must run as a single, non-isolated worker: parallel or
+    // module-isolated execution re-evaluates the table names per file and causes
+    // table contention and ResourceNotFoundException. vitest 4 removed
+    // `poolOptions` and replaced `forks.singleFork: true` with the top-level
+    // `maxWorkers: 1` + `isolate: false` below (see the v4 pool-rework migration);
+    // the old nested form was silently ignored, which reintroduced exactly that.
     pool: 'forks',
-    poolOptions: {
-      forks: { singleFork: true },
-    },
+    maxWorkers: 1,
+    isolate: false,
     setupFiles: ['./src/setup.ts'],
     // Canonical feature/capability tag vocabulary, declared in src/tags.ts.
     // strictTags stays on (the default), so applying a tag not declared here
