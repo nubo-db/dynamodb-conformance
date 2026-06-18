@@ -83,6 +83,75 @@ Tier 3 splits into four sub-directories by what each test asserts:
 
 A new test goes in whichever sub-directory matches what it asserts. If you care about the message the service returns, that's `error-messages/`. If you only care which error fires, that's `validation-ordering/`.
 
+## Filtering by feature
+
+Tiers tell you how strict a target is. Tags tell you which capabilities it implements, and they're an independent axis: a test lives in one tier but carries a tag for the operation it covers, a `data-plane` or `control-plane` tag, and any cross-cutting trait that applies. That lets you ask a narrower question than the tier score - "how does this target do on just the features I actually use?"
+
+Filter with vitest's `--tags-filter`:
+
+```bash
+# Ignore PartiQL
+DYNAMODB_ENDPOINT=http://localhost:8000 npx vitest run --tags-filter='!partiql'
+
+# Ignore the legacy request parameters (AttributeUpdates, QueryFilter, ...)
+DYNAMODB_ENDPOINT=http://localhost:8000 npx vitest run --tags-filter='!legacy'
+
+# Only item reads and writes, no table management
+DYNAMODB_ENDPOINT=http://localhost:8000 npx vitest run --tags-filter='data-plane'
+
+# Drop the operations no emulator implements
+DYNAMODB_ENDPOINT=http://localhost:8000 npx vitest run --tags-filter='!cloud-only'
+
+# Compose them, and with tiers: transactions only, excluding cloud-only async
+DYNAMODB_ENDPOINT=http://localhost:8000 npx vitest run tests/tier2 --tags-filter='transactions and !cloud-only'
+```
+
+The grammar takes `and` / `&&`, `not` / `!`, `or`, parentheses, and `prefix/*` wildcards, and it composes with the tier scripts and directory paths.
+
+The vocabulary lives in one place, `src/tags.ts`, and stays honest two ways: `strictTags` rejects an undeclared tag the moment the suite runs, and a coverage guard (`npm run test:tooling`) fails if any test is left untagged. So an exclusion like `!partiql` can't silently miss a test that someone forgot to tag.
+
+<!-- tags:start -->
+**Operation tags** - one per test, matching the operation it exercises.
+
+| Tag | Plane | Operation |
+|-----|-------|-----------|
+| `put-item` | data-plane | PutItem |
+| `get-item` | data-plane | GetItem |
+| `update-item` | data-plane | UpdateItem |
+| `delete-item` | data-plane | DeleteItem |
+| `query` | data-plane | Query |
+| `scan` | data-plane | Scan |
+| `batch` | data-plane | BatchGetItem, BatchWriteItem |
+| `transactions` | data-plane | TransactWriteItems, TransactGetItems |
+| `partiql` | data-plane | ExecuteStatement, BatchExecuteStatement, ExecuteTransaction |
+| `create-table` | control-plane | CreateTable |
+| `update-table` | control-plane | UpdateTable |
+| `delete-table` | control-plane | DeleteTable |
+| `describe-table` | control-plane | DescribeTable |
+| `list-tables` | control-plane | ListTables |
+| `ttl` | control-plane | UpdateTimeToLive, DescribeTimeToLive |
+| `streams` | control-plane | DynamoDB Streams |
+| `resource-tags` | control-plane | TagResource, UntagResource, ListTagsOfResource |
+| `backups` | control-plane | On-demand backups, point-in-time recovery |
+| `export-import` | control-plane | ExportTableToPointInTime, ImportTable |
+| `kinesis` | control-plane | Kinesis streaming destinations |
+| `contributor-insights` | control-plane | UpdateContributorInsights |
+| `resource-policy` | control-plane | PutResourcePolicy, GetResourcePolicy, DeleteResourcePolicy |
+| `account` | control-plane | DescribeLimits, DescribeEndpoints |
+
+**Cross-cutting tags** - applied wherever they fit.
+
+| Tag | Meaning |
+|-----|---------|
+| `data-plane` | Reads or writes items |
+| `control-plane` | Manages tables, indexes, or table-level features |
+| `cloud-only` | No emulator implements it; needs real AWS infrastructure, another AWS service, or account/region context |
+| `gsi` | Exercises Global Secondary Indexes |
+| `lsi` | Exercises Local Secondary Indexes |
+| `legacy` | Deprecated request parameters (AttributeUpdates, QueryFilter, ScanFilter, Expected, AttributesToGet) |
+| `slow` | Long-running against real AWS; the set `test:gating` excludes |
+<!-- tags:end -->
+
 ## Running against targets
 
 ### DynamoDB Local
@@ -306,26 +375,36 @@ All test data must be synthetic. Don't use real names, emails, addresses, or any
 | DescribeTimeToLive | | describe | |
 | TagResource | | add, list, remove, validation | |
 | DynamoDB Streams | | ListStreams, DescribeStream, GetRecords, view types | |
+| Backups | | on-demand, continuous (PITR) | |
+| ExportTableToPointInTime / ImportTable | | S3 export and import | |
+| Kinesis streaming destination | | enable, describe, disable | |
+| UpdateContributorInsights | | enable, describe, list | |
+| Resource policies | | put, get, delete | |
+| DescribeLimits / DescribeEndpoints | | account reads | |
 
-### Operations no emulator implements
+### Operations every emulator skips
 
-Some operations only exist on real AWS, so they can't sit in the comparison
-table - every emulator just skips them. Two are integrations with other AWS
-services, exercised against real DynamoDB anyway (in a separate non-gating CI
-job) because characterising AWS's own behaviour still has value:
+A handful of operations only exist on real AWS or reach into another AWS
+service, so no emulator implements them and each one skips on every target. The
+suite still exercises them against real DynamoDB - characterising AWS's own
+behaviour has value - and they all carry the `cloud-only` tag, so
+`--tags-filter='!cloud-only'` drops the lot:
 
 - Import/Export to S3
 - Kinesis Data Streams integration (streaming destinations)
+- On-demand backups and Point-in-Time Recovery
+- Contributor Insights
+- Resource-based policies
+- Account reads (DescribeLimits, DescribeEndpoints)
 
-These run via `npm run test:integrations` and never gate the build - they lean
-on slow async control-plane calls that make poor gate material. The rest aren't
-covered at all:
+Import/Export and Kinesis lean on slow async control-plane calls that make poor
+gate material, so they run in a separate non-gating job via
+`npm run test:integrations` rather than on the gating run.
+
+Genuinely not covered, with no tests yet:
 
 - Global Tables
-- Backups and Point-in-Time Recovery
 - DynamoDB Accelerator (DAX)
-- Table Class (Standard/Standard-IA)
-- Contributor Insights
 
 ## Community
 

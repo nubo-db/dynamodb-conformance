@@ -64,6 +64,25 @@ is a maintainer task and does not block your PR.
   grouped by the definition of each tier in the `README.md`.
 - Prefer the existing wait/retry helpers over `setTimeout` sleeps.
 
+### Tag your test
+
+Every top-level `describe` takes a `tags` array as its second argument: the
+operation it covers, exactly one plane (`data-plane` or `control-plane`), and
+any cross-cutting tag that applies (`cloud-only`, `gsi`, `lsi`, `legacy`,
+`slow`).
+
+```ts
+describe('Query — GSI', { tags: ['query', 'data-plane', 'gsi'] }, () => {
+  // ...
+})
+```
+
+The vocabulary lives in `src/tags.ts` - add a tag there before using it, or
+`strictTags` rejects the run. The coverage guard (`npm run test:tooling`) fails
+if a top-level describe is left untagged, so feature filters like
+`--tags-filter='!partiql'` never silently miss a test. See "Filtering by
+feature" in the `README.md` for the full vocabulary.
+
 ### Tier 3 sub-directory choice
 
 If a new Tier 3 test cares about the exact error message string, put

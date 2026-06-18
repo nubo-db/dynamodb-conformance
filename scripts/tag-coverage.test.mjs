@@ -80,4 +80,18 @@ describe('tag coverage guard', () => {
     }
     expect(offenders, `top-level tests outside any describe:\n${offenders.join('\n')}`).toEqual([])
   })
+
+  it('the README tag table matches the declared vocabulary', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    const block = readme.split('<!-- tags:start -->')[1]?.split('<!-- tags:end -->')[0]
+    expect(block, 'README tag block (<!-- tags:start --> / <!-- tags:end -->) not found').toBeTruthy()
+    // First-column backtick token of each table row is the tag name.
+    const documented = new Set([...block.matchAll(/^\|\s*`([a-z-]+)`\s*\|/gm)].map((m) => m[1]))
+    const missingFromReadme = [...TAG_NAMES].filter((t) => !documented.has(t))
+    const staleInReadme = [...documented].filter((t) => !TAG_NAMES.has(t))
+    expect(
+      { missingFromReadme, staleInReadme },
+      'README tag table drifted from src/tags.ts',
+    ).toEqual({ missingFromReadme: [], staleInReadme: [] })
+  })
 })
