@@ -224,10 +224,19 @@ jobs:
     environment: conformance-testing
 
     steps:
+      - name: Mint a token for the capture bot
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.RESULTS_BOT_APP_ID }}
+          private-key: ${{ secrets.RESULTS_BOT_PRIVATE_KEY }}
+          permission-contents: write
+
       - uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
       - uses: actions/setup-node@v6
         with:
           node-version: 24
