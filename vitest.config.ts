@@ -32,6 +32,9 @@ export default defineConfig({
     maxWorkers: 1,
     isolate: false,
     setupFiles: ['./src/setup.ts'],
+    // Removes the shared tables once after the whole run; src/setup.ts now
+    // provisions them once per run (guarded), not once per file.
+    globalSetup: ['./src/global-teardown.ts'],
     // Canonical feature/capability tag vocabulary, declared in src/tags.ts.
     // strictTags stays on (the default), so applying a tag not declared here
     // fails collection rather than silently mis-filtering. Tags are an axis
