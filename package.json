@@ -43,9 +43,9 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.1071.0",
-    "@aws-sdk/client-dynamodb-streams": "^3.1071.0",
-    "@aws-sdk/lib-dynamodb": "^3.1071.0"
+    "@aws-sdk/client-dynamodb": "^3.1074.0",
+    "@aws-sdk/client-dynamodb-streams": "^3.1074.0",
+    "@aws-sdk/lib-dynamodb": "^3.1074.0"
   },
   "devDependencies": {
     "@aws-sdk/client-application-auto-scaling": "^3.1071.0",
