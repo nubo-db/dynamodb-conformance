@@ -228,3 +228,78 @@ describe('Query — Select SPECIFIC_ATTRIBUTES', { tags: ['query', 'data-plane']
     )
   })
 })
+
+// ProjectionExpression requires SPECIFIC_ATTRIBUTES; ALL_PROJECTED_ATTRIBUTES requires an IndexName.
+describe('Query — Select / ProjectionExpression rejections', { tags: ['query', 'data-plane'] }, () => {
+  it('Select ALL_ATTRIBUTES with ProjectionExpression is rejected', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new QueryCommand({
+            TableName: compositeTableDef.name,
+            KeyConditionExpression: '#pk = :pk',
+            ExpressionAttributeNames: { '#pk': 'pk' },
+            ExpressionAttributeValues: { ':pk': { S: 'x' } },
+            Select: 'ALL_ATTRIBUTES',
+            ProjectionExpression: 'sk',
+          }),
+        ),
+      'ValidationException',
+      'Cannot specify the ProjectionExpression when choosing to get ALL_ATTRIBUTES',
+    )
+  })
+
+  it('Select ALL_PROJECTED_ATTRIBUTES without an IndexName is rejected', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new QueryCommand({
+            TableName: compositeTableDef.name,
+            KeyConditionExpression: '#pk = :pk',
+            ExpressionAttributeNames: { '#pk': 'pk' },
+            ExpressionAttributeValues: { ':pk': { S: 'x' } },
+            Select: 'ALL_PROJECTED_ATTRIBUTES',
+          }),
+        ),
+      'ValidationException',
+      'ALL_PROJECTED_ATTRIBUTES can be used only when Querying using an IndexName',
+    )
+  })
+
+  it('Select COUNT with ProjectionExpression is rejected', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new QueryCommand({
+            TableName: compositeTableDef.name,
+            KeyConditionExpression: '#pk = :pk',
+            ExpressionAttributeNames: { '#pk': 'pk' },
+            ExpressionAttributeValues: { ':pk': { S: 'x' } },
+            Select: 'COUNT',
+            ProjectionExpression: 'sk',
+          }),
+        ),
+      'ValidationException',
+      'Cannot specify the ProjectionExpression when choosing to get only the Count',
+    )
+  })
+
+  // Both rules broken at once; AWS reports the ProjectionExpression one.
+  it('Select ALL_PROJECTED_ATTRIBUTES with ProjectionExpression and no IndexName is rejected', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new QueryCommand({
+            TableName: compositeTableDef.name,
+            KeyConditionExpression: '#pk = :pk',
+            ExpressionAttributeNames: { '#pk': 'pk' },
+            ExpressionAttributeValues: { ':pk': { S: 'x' } },
+            Select: 'ALL_PROJECTED_ATTRIBUTES',
+            ProjectionExpression: 'sk',
+          }),
+        ),
+      'ValidationException',
+      'Cannot specify the ProjectionExpression when choosing to get ALL_PROJECTED_ATTRIBUTES',
+    )
+  })
+})
