@@ -42,7 +42,7 @@ jobs:
           private-key: ${{ secrets.RESULTS_BOT_PRIVATE_KEY }}
           permission-contents: write
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
