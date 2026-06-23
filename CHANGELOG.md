@@ -3,6 +3,15 @@
 A dated log of how the conformance test suite has grown: tests added, tiers
 broadened, and targets brought into the run. Newest first.
 
+## 2026-06-23
+
+Grew to 740 tests, up 4, pinning the Select / ProjectionExpression rules on Query
+and Scan. A ProjectionExpression is only valid with Select SPECIFIC_ATTRIBUTES, and
+ALL_PROJECTED_ATTRIBUTES is only valid with an IndexName; real DynamoDB rejects both
+with a ValidationException before reading anything. The tests assert the contractual
+phrase, so they hold whether or not the engine carries the wrapper AWS adds on Query
+but not Scan.
+
 ## 2026-06-22
 
 Grew to 736 tests, up 30, covering what TransactWriteItems and BatchWriteItem do
