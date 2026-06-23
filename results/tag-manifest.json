@@ -335,6 +335,10 @@
       "Query — Select SPECIFIC_ATTRIBUTES": [
         "query",
         "data-plane"
+      ],
+      "Query — Select / ProjectionExpression rejections": [
+        "query",
+        "data-plane"
       ]
     },
     "tests/tier1/query/validation.test.ts": {
@@ -430,6 +434,10 @@
     },
     "tests/tier1/scan/select.test.ts": {
       "Scan — Select COUNT": [
+        "scan",
+        "data-plane"
+      ],
+      "Scan — Select / ProjectionExpression rejections": [
         "scan",
         "data-plane"
       ]
