@@ -94,4 +94,35 @@ describe('Scan — Select / ProjectionExpression rejections', { tags: ['scan', '
       'ALL_PROJECTED_ATTRIBUTES can be used only when Querying using an IndexName',
     )
   })
+
+  it('Select COUNT with ProjectionExpression is rejected', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new ScanCommand({
+            TableName: hashTableDef.name,
+            Select: 'COUNT',
+            ProjectionExpression: 'pk',
+          }),
+        ),
+      'ValidationException',
+      'Cannot specify the ProjectionExpression when choosing to get only the Count',
+    )
+  })
+
+  // Both rules broken at once; AWS reports the ProjectionExpression one.
+  it('Select ALL_PROJECTED_ATTRIBUTES with ProjectionExpression and no IndexName is rejected', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new ScanCommand({
+            TableName: hashTableDef.name,
+            Select: 'ALL_PROJECTED_ATTRIBUTES',
+            ProjectionExpression: 'pk',
+          }),
+        ),
+      'ValidationException',
+      'Cannot specify the ProjectionExpression when choosing to get ALL_PROJECTED_ATTRIBUTES',
+    )
+  })
 })

@@ -5,10 +5,12 @@ broadened, and targets brought into the run. Newest first.
 
 ## 2026-06-23
 
-Grew to 740 tests, up 4, pinning the Select / ProjectionExpression rules on Query
+Grew to 744 tests, up 8, pinning the Select / ProjectionExpression rules on Query
 and Scan. A ProjectionExpression is only valid with Select SPECIFIC_ATTRIBUTES, and
 ALL_PROJECTED_ATTRIBUTES is only valid with an IndexName; real DynamoDB rejects both
-with a ValidationException before reading anything. The tests assert the contractual
+with a ValidationException before reading anything. The cases span ALL_ATTRIBUTES,
+COUNT, and ALL_PROJECTED_ATTRIBUTES, including the request that breaks both rules at
+once, where AWS reports the ProjectionExpression one. They assert the contractual
 phrase, so they hold whether or not the engine carries the wrapper AWS adds on Query
 but not Scan.
 
