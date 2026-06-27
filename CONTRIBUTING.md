@@ -133,5 +133,5 @@ The conformance suite is licensed under the Apache License 2.0. By submitting a 
 ## Where to ask
 
 GitHub Issues:
-<https://github.com/nubo-db/dynamodb-conformance/issues>. Discussions
+<https://github.com/paritysuite/dynamodb-conformance/issues>. Discussions
 are not currently enabled.

@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Report a security vulnerability
-    url: https://github.com/nubo-db/dynamodb-conformance/security/advisories/new
+    url: https://github.com/paritysuite/dynamodb-conformance/security/advisories/new
     about: Please report vulnerabilities (including a credential accidentally committed) privately through GitHub's security advisories, not as a public issue.

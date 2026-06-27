@@ -1,6 +1,6 @@
 # DynamoDB Conformance Suite
 
-[![CI](https://github.com/nubo-db/dynamodb-conformance/actions/workflows/ci.yml/badge.svg)](https://github.com/nubo-db/dynamodb-conformance/actions/workflows/ci.yml)
+[![CI](https://github.com/paritysuite/dynamodb-conformance/actions/workflows/ci.yml/badge.svg)](https://github.com/paritysuite/dynamodb-conformance/actions/workflows/ci.yml)
 [![Licence: Apache 2.0](https://img.shields.io/badge/licence-Apache%202.0-blue.svg)](LICENSE)
 [![Live results](https://img.shields.io/badge/live%20results-paritysuite.org-brightgreen)](https://paritysuite.org)
 

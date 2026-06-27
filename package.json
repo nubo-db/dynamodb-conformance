@@ -12,10 +12,10 @@
   "homepage": "https://paritysuite.org",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nubo-db/dynamodb-conformance.git"
+    "url": "git+https://github.com/paritysuite/dynamodb-conformance.git"
   },
   "bugs": {
-    "url": "https://github.com/nubo-db/dynamodb-conformance/issues"
+    "url": "https://github.com/paritysuite/dynamodb-conformance/issues"
   },
   "license": "Apache-2.0",
   "author": "Martin Hicks <hello@martinhicks.dev>",

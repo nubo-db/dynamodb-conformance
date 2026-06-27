@@ -4,7 +4,7 @@ Need a hand with the conformance suite? Here's where things go.
 
 - **A bug, a wrong test result, or a question about how the suite behaves** -
   open a GitHub issue:
-  <https://github.com/nubo-db/dynamodb-conformance/issues>. If a target's result
+  <https://github.com/paritysuite/dynamodb-conformance/issues>. If a target's result
   looks wrong, the "Report an incorrect or divergent result" template walks you
   through what to include. The key thing is evidence of what real AWS does.
 - **A new target to add** - use the "Suggest a target" issue template.

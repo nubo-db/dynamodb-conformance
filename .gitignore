@@ -12,3 +12,6 @@ dist/
 ground-truth/
 .claude/settings.local.json
 .claude/*.lock
+
+# Knowledge-os link: local only, not for the public repo
+.kos

@@ -107,6 +107,6 @@ welcome for anything non-obvious.
 ## Where to discuss
 
 - GitHub Issues:
-  <https://github.com/nubo-db/dynamodb-conformance/issues>
+  <https://github.com/paritysuite/dynamodb-conformance/issues>
 
 Discussions are not currently enabled.

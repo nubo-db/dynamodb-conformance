@@ -10,7 +10,7 @@ current `main`.
 
 Report anything security-sensitive privately, not in a public issue. Use
 GitHub's private vulnerability reporting:
-<https://github.com/nubo-db/dynamodb-conformance/security/advisories/new>.
+<https://github.com/paritysuite/dynamodb-conformance/security/advisories/new>.
 
 I aim to acknowledge a report within a few days and will keep you posted on a
 fix or mitigation from there.
