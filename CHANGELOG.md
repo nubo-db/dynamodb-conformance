@@ -5,8 +5,9 @@ broadened, and targets brought into the run. Newest first.
 
 ## 2026-06-30
 
-Grew to 820 tests, up 3, completing two sibling-parity gaps where one half of a
-rule was pinned and the other was not. Both were characterised against real
+Grew to 824 tests, up 7, in two parts: two sibling-parity gaps where one half of
+a rule was pinned and the other was not, and the capacity accounting of
+conditional and idempotent transactional writes. All characterised against real
 DynamoDB in eu-west-2.
 
 The first covers the LSI side of the INCLUDE-projection-without-NonKeyAttributes
@@ -18,6 +19,14 @@ The second pins the Query message for Select SPECIFIC_ATTRIBUTES with no
 ProjectionExpression, which Scan already had. Query and Scan enforce the same rule
 but word it differently: Query wraps the phrase in the "1 validation error
 detected:" envelope, Scan returns it bare.
+
+The transaction cases settle what a conditional TransactWriteItems actually costs.
+A passing condition adds no read capacity: a conditional write bills the same 2 WCU
+per sub-1KB item as an unconditional one, and a standalone ConditionCheck costs 2
+WCU, billed as write not read. Idempotent replay splits the accounting - the first
+call reports 2 write capacity units, a same-token replay within the window reports
+2 read capacity units for re-reading the stored result. A failing condition cancels
+the transaction, and the response carries no ConsumedCapacity at all. Answers #27.
 
 ## 2026-06-26
 
