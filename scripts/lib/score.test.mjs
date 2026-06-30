@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { GROUND_TRUTH_SLUG, passRate, scoreResults, tierOf } from './score.mjs'
+import { GROUND_TRUTH_SLUG, isPublishedTarget, passRate, scoreResults, tierOf } from './score.mjs'
 
 // Build a minimal Vitest-shaped result: one test file per named tier directory,
 // each carrying the given passed/failed/skipped assertion counts.
@@ -64,5 +64,19 @@ describe('passRate', () => {
 describe('GROUND_TRUTH_SLUG', () => {
   it('is dynamodb', () => {
     expect(GROUND_TRUTH_SLUG).toBe('dynamodb')
+  })
+})
+
+describe('isPublishedTarget', () => {
+  it('excludes the reserved local scratch slug', () => {
+    expect(isPublishedTarget('local')).toBe(false)
+  })
+
+  it('keeps real targets, matching the slug exactly rather than by prefix', () => {
+    // dynamodb-local contains "local" but is a real target; an exact-match
+    // reservation must not catch it.
+    expect(isPublishedTarget('dynamodb-local')).toBe(true)
+    expect(isPublishedTarget('dynoxide')).toBe(true)
+    expect(isPublishedTarget(GROUND_TRUTH_SLUG)).toBe(true)
   })
 })

@@ -46,6 +46,11 @@ describe('rateFor', () => {
     expect(rateFor('tag-manifest', { schema: 1 })).toBeNull()
   })
 
+  it('returns null for the reserved local scratch slug', () => {
+    // A real, well-formed run output - excluded by slug, not by structure.
+    expect(rateFor('local', result(5, 0))).toBeNull()
+  })
+
   it('scores a real target as passed / (passed + failed)', () => {
     expect(rateFor('dynoxide', result(2, 1))).toBeCloseTo(66.6667, 3)
   })
@@ -54,6 +59,10 @@ describe('rateFor', () => {
 describe('buildBadge', () => {
   it('returns null when there is nothing to show', () => {
     expect(buildBadge('tag-manifest', { schema: 1 })).toBeNull()
+  })
+
+  it('returns null for the reserved local scratch slug', () => {
+    expect(buildBadge('local', result(5, 0))).toBeNull()
   })
 
   it('emits the shields endpoint shape for the ground truth', () => {

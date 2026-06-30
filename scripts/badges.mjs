@@ -17,7 +17,7 @@
 
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
-import { GROUND_TRUTH_SLUG, passRate, scoreResults } from './lib/score.mjs'
+import { GROUND_TRUTH_SLUG, isPublishedTarget, passRate, scoreResults } from './lib/score.mjs'
 
 const RESULTS_DIR = 'results'
 
@@ -32,9 +32,11 @@ export function colour(pct) {
 }
 
 // A target's conformance pass rate, or null when there is nothing to show: the
-// file is not a target result (e.g. tag-manifest.json) or the target ran no
-// scored tests. Real DynamoDB is the ground truth, pinned to 100%.
+// slug is a reserved scratch slug (e.g. local), the file is not a target result
+// (e.g. tag-manifest.json), or the target ran no scored tests. Real DynamoDB is
+// the ground truth, pinned to 100%.
 export function rateFor(slug, raw) {
+  if (!isPublishedTarget(slug)) return null
   if (slug === GROUND_TRUTH_SLUG) return 100
   const scored = scoreResults(raw)
   return scored ? passRate(scored.passed, scored.failed) : null

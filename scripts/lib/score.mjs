@@ -10,6 +10,19 @@
 // results table and the badges so the two can't disagree on which slug it is.
 export const GROUND_TRUTH_SLUG = 'dynamodb'
 
+// Result-file slugs that are never a published target. `local` is the default
+// output of an ad-hoc local run (DYNAMODB_ENDPOINT set with no
+// CONFORMANCE_TARGET - see vitest.config.ts), a scratch file that must not be
+// scored, badged, or listed in the results table. Kept here so the table and
+// the badges agree on what to skip, the same way they share GROUND_TRUTH_SLUG.
+export const RESERVED_SLUGS = new Set(['local'])
+
+// Whether a result-file slug is a published conformance target. False for the
+// reserved scratch slugs above.
+export function isPublishedTarget(slug) {
+  return !RESERVED_SLUGS.has(slug)
+}
+
 export function tierOf(filePath) {
   if (filePath.includes('/tier1/')) return 'tier1'
   if (filePath.includes('/tier2/')) return 'tier2'

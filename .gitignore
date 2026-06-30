@@ -15,3 +15,9 @@ ground-truth/
 
 # Knowledge-os link: local only, not for the public repo
 .kos
+
+# Local scratch run output (DYNAMODB_ENDPOINT set, no CONFORMANCE_TARGET - see
+# vitest.config.ts). A reserved non-target slug, never committed; see
+# scripts/lib/score.mjs RESERVED_SLUGS.
+/results/local.json
+/results/local.badge.json

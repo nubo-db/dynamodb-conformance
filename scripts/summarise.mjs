@@ -25,7 +25,7 @@
 
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
-import { GROUND_TRUTH_SLUG, passRate, scoreResults } from './lib/score.mjs'
+import { GROUND_TRUTH_SLUG, isPublishedTarget, passRate, scoreResults } from './lib/score.mjs'
 
 const argv = process.argv.slice(2)
 const write = argv.includes('--write')
@@ -83,6 +83,9 @@ let groundTruthDate = '-'
 
 for (const file of files) {
   const slug = basename(file, '.json')
+  // Reserved scratch slugs (e.g. a local dev run's results/local.json) are not
+  // published targets; skip before reading so they never reach the table.
+  if (!isPublishedTarget(slug)) continue
   const raw = JSON.parse(readFileSync(file, 'utf8'))
 
   const runDate = raw.startTime
