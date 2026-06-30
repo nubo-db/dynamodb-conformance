@@ -666,6 +666,10 @@
       "TransactWriteItems — ConsumedCapacity": [
         "transactions",
         "data-plane"
+      ],
+      "TransactWriteItems — ConsumedCapacity: conditional, check, replay, cancel": [
+        "transactions",
+        "data-plane"
       ]
     },
     "tests/tier2/ttl/basic.test.ts": {
