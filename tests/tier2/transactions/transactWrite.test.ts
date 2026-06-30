@@ -1343,3 +1343,137 @@ describe('TransactWriteItems — ConsumedCapacity', { tags: ['transactions', 'da
     expect(total).toBe(4)
   })
 })
+
+// Capacity for the cases the unconditional test above does not cover: a conditional
+// write, a standalone ConditionCheck, an idempotent replay, and a cancelled
+// transaction. All values characterised against real DynamoDB (eu-west-2). See #27.
+describe('TransactWriteItems — ConsumedCapacity: conditional, check, replay, cancel', { tags: ['transactions', 'data-plane'] }, () => {
+  const hashKeys = [
+    { pk: { S: 'tw-cap-uncond' } },
+    { pk: { S: 'tw-cap-cond' } },
+    { pk: { S: 'tw-cap-cc' } },
+    { pk: { S: 'tw-cap-replay' } },
+  ]
+  // The ConditionCheck below needs an item that already exists, on a different table
+  // from the write so the INDEXES breakdown can isolate the check's cost.
+  const ccPresent = { pk: { S: 'tw-cap-cc-present' }, sk: { S: 'x' } }
+
+  const totalCap = (cc?: { CapacityUnits?: number }[]) =>
+    (cc ?? []).reduce((sum, c) => sum + (c.CapacityUnits ?? 0), 0)
+
+  beforeAll(async () => {
+    await ddb.send(
+      new PutItemCommand({ TableName: compositeTableDef.name, Item: ccPresent }),
+    )
+  })
+
+  afterAll(async () => {
+    await cleanupItems(hashTableDef.name, hashKeys)
+    await cleanupItems(compositeTableDef.name, [{ pk: ccPresent.pk, sk: ccPresent.sk }])
+  })
+
+  // A passing condition adds no read capacity: a conditional write costs the same
+  // 2 WCU/item as an unconditional one.
+  it('a passing conditional write costs the same 2 WCU/item as an unconditional one', async () => {
+    const uncond = await ddb.send(
+      new TransactWriteItemsCommand({
+        ReturnConsumedCapacity: 'TOTAL',
+        TransactItems: [
+          { Put: { TableName: hashTableDef.name, Item: { pk: { S: 'tw-cap-uncond' }, v: { N: '1' } } } },
+        ],
+      }),
+    )
+    const cond = await ddb.send(
+      new TransactWriteItemsCommand({
+        ReturnConsumedCapacity: 'TOTAL',
+        TransactItems: [
+          {
+            Put: {
+              TableName: hashTableDef.name,
+              Item: { pk: { S: 'tw-cap-cond' }, v: { N: '1' } },
+              ConditionExpression: 'attribute_not_exists(pk)',
+            },
+          },
+        ],
+      }),
+    )
+    expect(totalCap(cond.ConsumedCapacity)).toBe(totalCap(uncond.ConsumedCapacity))
+    expect(totalCap(cond.ConsumedCapacity)).toBe(2)
+  })
+
+  // A standalone ConditionCheck costs 2 write capacity units - the same as a write,
+  // and billed as write, not read. The check sits on a separate table from the write
+  // so the INDEXES per-table breakdown isolates its cost (a same-table check and write
+  // collapse into one capacity line).
+  it('a standalone ConditionCheck action costs 2 write capacity units', async () => {
+    const res = await ddb.send(
+      new TransactWriteItemsCommand({
+        ReturnConsumedCapacity: 'INDEXES',
+        TransactItems: [
+          { Put: { TableName: hashTableDef.name, Item: { pk: { S: 'tw-cap-cc' }, v: { N: '1' } } } },
+          {
+            ConditionCheck: {
+              TableName: compositeTableDef.name,
+              Key: { pk: { S: 'tw-cap-cc-present' }, sk: { S: 'x' } },
+              ConditionExpression: 'attribute_exists(pk)',
+            },
+          },
+        ],
+      }),
+    )
+    const checkEntry = (res.ConsumedCapacity ?? []).find(
+      (c) => c.TableName === compositeTableDef.name,
+    )
+    expect(checkEntry?.CapacityUnits).toBe(2)
+    expect(checkEntry?.WriteCapacityUnits).toBe(2)
+  })
+
+  // Idempotent replay accounting: the first call reports write capacity; a same-token
+  // replay (in-window) reports read capacity for re-reading the stored result.
+  it('reports write capacity on the first call and read capacity on a same-token replay', async () => {
+    const token = `tw-cap-replay-${Date.now()}`
+    const item = {
+      Put: { TableName: hashTableDef.name, Item: { pk: { S: 'tw-cap-replay' }, v: { N: '1' } } },
+    }
+    const first = await ddb.send(
+      new TransactWriteItemsCommand({ ClientRequestToken: token, ReturnConsumedCapacity: 'INDEXES', TransactItems: [item] }),
+    )
+    const replay = await ddb.send(
+      new TransactWriteItemsCommand({ ClientRequestToken: token, ReturnConsumedCapacity: 'INDEXES', TransactItems: [item] }),
+    )
+    const firstEntry = (first.ConsumedCapacity ?? [])[0]
+    const replayEntry = (replay.ConsumedCapacity ?? [])[0]
+    // First: a transactional write - 2 WCU, no read capacity.
+    expect(firstEntry?.WriteCapacityUnits).toBe(2)
+    expect(firstEntry?.ReadCapacityUnits).toBeUndefined()
+    // Replay: a transactional read of the stored result - 2 RCU, no write capacity.
+    expect(replayEntry?.ReadCapacityUnits).toBe(2)
+    expect(replayEntry?.WriteCapacityUnits).toBeUndefined()
+  })
+
+  // A cancelled conditional transaction surfaces no consumed capacity: the
+  // TransactionCanceledException carries CancellationReasons but no ConsumedCapacity.
+  // (AWS still bills the prepare phase; this pins what the response reports, not billing.)
+  it('a cancelled conditional transaction reports no consumed capacity', async () => {
+    try {
+      await ddb.send(
+        new TransactWriteItemsCommand({
+          ReturnConsumedCapacity: 'TOTAL',
+          TransactItems: [
+            {
+              Put: {
+                TableName: hashTableDef.name,
+                Item: { pk: { S: 'tw-cap-cancel' }, v: { N: '1' } },
+                ConditionExpression: 'attribute_exists(pk)', // fails on a fresh key
+              },
+            },
+          ],
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(TransactionCanceledException)
+      expect('ConsumedCapacity' in (err as object)).toBe(false)
+    }
+  })
+})
