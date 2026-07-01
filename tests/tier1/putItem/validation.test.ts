@@ -183,4 +183,19 @@ describe('PutItem — validation', { tags: ['put-item', 'data-plane', 'negative-
       /empty string/i,
     )
   })
+
+  it('rejects a number with a leading space', async () => {
+    await expectDynamoError(
+      () => ddb.send(new PutItemCommand({ TableName: hashTableDef.name, Item: { pk: { S: 'num-lead-ws' }, n: { N: ' 5' } } })),
+      'ValidationException',
+    )
+  })
+
+  it('rejects a number with a trailing space', async () => {
+    await expectDynamoError(
+      () => ddb.send(new PutItemCommand({ TableName: hashTableDef.name, Item: { pk: { S: 'num-trail-ws' }, n: { N: '5 ' } } })),
+      'ValidationException',
+    )
+  })
+
 })
