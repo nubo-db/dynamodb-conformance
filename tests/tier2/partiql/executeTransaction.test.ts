@@ -135,6 +135,55 @@ describe('ExecuteTransaction — PartiQL', { tags: ['partiql', 'data-plane'] }, 
     }
   })
 
+  // ExecuteTransaction takes a ClientRequestToken, like TransactWriteItems. A
+  // same-token replay inside the idempotency window returns the stored result
+  // rather than re-running the statements, so the write applies exactly once.
+  // Capacity accounting mirrors TransactWriteItems: the first call reports the
+  // transactional write, the replay a transactional read of the stored result.
+  // Values characterised against real DynamoDB (eu-west-2). See #70.
+  it('idempotent replay under the same ClientRequestToken does not double-apply', async () => {
+    const pk = `txn-idem-${Date.now()}`
+    keysToCleanup.push({ pk: { S: pk } })
+
+    // Seed a counter at 0, then increment it by 1 inside a tokenised transaction.
+    await ddb.send(new ExecuteStatementCommand({
+      Statement: `INSERT INTO "${hashTableDef.name}" VALUE {'pk': '${pk}', 'n': 0}`,
+    }))
+    const token = `et-idem-token-${Date.now()}`
+    const statements = [
+      { Statement: `UPDATE "${hashTableDef.name}" SET n = n + 1 WHERE pk = '${pk}'` },
+    ]
+
+    const first = await ddb.send(new ExecuteTransactionCommand({
+      ClientRequestToken: token,
+      ReturnConsumedCapacity: 'INDEXES',
+      TransactStatements: statements,
+    }))
+    const replay = await ddb.send(new ExecuteTransactionCommand({
+      ClientRequestToken: token,
+      ReturnConsumedCapacity: 'INDEXES',
+      TransactStatements: statements,
+    }))
+
+    // The increment applied exactly once — a replay, not a second execution.
+    const after = await ddb.send(new GetItemCommand({
+      TableName: hashTableDef.name,
+      Key: { pk: { S: pk } },
+      ConsistentRead: true,
+    }))
+    expect(after.Item!.n.N).toBe('1')
+
+    // ExecuteTransaction reports ConsumedCapacity as a per-table array. The first
+    // call is a transactional write (2 WCU, no read); the replay is a
+    // transactional read of the stored result (2 RCU, no write).
+    const firstEntry = (first.ConsumedCapacity ?? [])[0]
+    const replayEntry = (replay.ConsumedCapacity ?? [])[0]
+    expect(firstEntry?.WriteCapacityUnits).toBe(2)
+    expect(firstEntry?.ReadCapacityUnits).toBeUndefined()
+    expect(replayEntry?.ReadCapacityUnits).toBe(2)
+    expect(replayEntry?.WriteCapacityUnits).toBeUndefined()
+  })
+
   it('rejects empty TransactStatements', async () => {
     await expectDynamoError(
       () => ddb.send(new ExecuteTransactionCommand({
