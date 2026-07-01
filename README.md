@@ -34,7 +34,7 @@ _Scored against real DynamoDB in `eu-west-2`; behaviour varies by region and ove
 
 | Target | Tier 1 | Tier 2 | Tier 3 | Total | Pass | Fail | Skip | Version | Date |
 |--------|--------|--------|--------|-------|------|------|------|---------|------|
-| [DynamoDB](https://aws.amazon.com/dynamodb/) | 100% | 100% | 100% | 100% | 824 | 0 | 0 | live (AWS) | 2026-06-30 |
+| [DynamoDB](https://aws.amazon.com/dynamodb/) | 100% | 100% | 100% | 100% | 824 | 0 | 0 | live (AWS) | 2026-07-01 |
 | [Dynoxide](https://github.com/nubo-db/dynoxide) | 99.3% | 98.6% | 97.2% | 98.5% | 798 | 12 | 14 | 0.11.1 | 2026-06-30 |
 | [Ministack](https://github.com/ministackorg/ministack) | 92.6% | 82.5% | 86.9% | 89.0% | 733 | 91 | 0 | 65f91ff15e63 | 2026-06-30 |
 | [ExtendDB](https://github.com/ExtendDB/extenddb) | 88.0% | 89.3% | 89.3% | 88.6% | 693 | 89 | 42 | v0.1.1 | 2026-06-30 |
