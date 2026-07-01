@@ -745,3 +745,29 @@ describe('UpdateItem — ReturnValues granularity', { tags: ['update-item', 'dat
     expect(res.Attributes).toBeUndefined()
   })
 })
+
+describe('UpdateItem — no-op upsert', { tags: ['update-item', 'data-plane'] }, () => {
+  afterEach(async () => {
+    await cleanupItems(hashTableDef.name, [{ pk: { S: 'upd-noop' } }])
+  })
+
+  it('with only Key and no update actions creates the item', async () => {
+    // Real AWS treats an UpdateItem carrying only TableName and Key (no
+    // UpdateExpression, no AttributeUpdates) as a no-op upsert: it succeeds and
+    // the item exists afterwards with just its key.
+    const key = { pk: { S: 'upd-noop' } }
+    const res = await ddb.send(
+      new UpdateItemCommand({ TableName: hashTableDef.name, Key: key }),
+    )
+    expect(res.Attributes).toBeUndefined()
+
+    const got = await ddb.send(
+      new GetItemCommand({
+        TableName: hashTableDef.name,
+        Key: key,
+        ConsistentRead: true,
+      }),
+    )
+    expect(got.Item).toEqual(key)
+  })
+})
