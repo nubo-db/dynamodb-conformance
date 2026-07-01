@@ -3,6 +3,34 @@
 A dated log of how the conformance test suite has grown: tests added, tiers
 broadened, and targets brought into the run. Newest first.
 
+## 2026-07-01
+
+Grew to 832 tests, up 8, sharpening how the suite pins ConsumedCapacity capacity
+units on transactional and single-item operations. All characterised against real
+DynamoDB in eu-west-2.
+
+The same-token replay case for TransactWriteItems now uses a ~1.5KB item instead
+of a sub-1KB one. Below 1KB a transactional write (2 * ceil(size / 1KB)) and a
+transactional read (2 * ceil(size / 4KB)) both round to 2, so the old item could
+not tell them apart. At ~1.5KB they separate: the first call reports 4 write
+capacity units, the replay 2 read. That settles what the replay bills - a
+transactional read recomputed against the item size, not the stored write
+magnitude relabelled as read. Answers #68.
+
+ExecuteTransaction gains the ClientRequestToken idempotent-replay coverage
+TransactWriteItems already had. The same statements sent twice under one token
+apply exactly once - a counter incremented inside the transaction reads back 1,
+not 2 - and the accounting splits the same way, 2 write capacity units on the
+first call and 2 read on the replay. Answers #70.
+
+The single-item read/write split turned out to be the opposite of what #69
+assumed. Real DynamoDB returns no top-level ReadCapacityUnits or WriteCapacityUnits
+on GetItem, PutItem, UpdateItem, DeleteItem, Query or Scan; it reports the aggregate
+CapacityUnits alone, under both TOTAL and INDEXES. The split is transactional-only.
+So the pinned claim is the inverse: single-item operations report the aggregate and
+omit the split, with a strongly-consistent read at 1 unit, an eventually-consistent
+read at 0.5, and a small write at 1. Answers #69.
+
 ## 2026-06-30
 
 Grew to 824 tests, up 7, in two parts: two sibling-parity gaps where one half of
