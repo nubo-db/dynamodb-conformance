@@ -6,6 +6,7 @@ import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
   hashBTableDef,
+  gsiBTableDef,
   compositeTableDef,
   cleanupItems,
 } from '../../../src/helpers.js'
@@ -208,6 +209,28 @@ describe('UpdateItem — exact error messages', { tags: ['update-item', 'data-pl
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
         'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty binary value. Key: pk',
+      )
+    }
+  })
+
+  it('empty-binary index key value: full secondary-index-key message', async () => {
+    // Real AWS rejects a SET of a zero-length binary value on a secondary index
+    // key with the update-form message (no IndexName/IndexKey suffix).
+    try {
+      await ddb.send(
+        new UpdateItemCommand({
+          TableName: gsiBTableDef.name,
+          Key: { pk: { S: 'eb-idx-upd' } },
+          UpdateExpression: 'SET bidx = :v',
+          ExpressionAttributeValues: { ':v': { B: new Uint8Array([]) } },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values are not valid. The update expression attempted to update a secondary index key to a value that is not supported. The AttributeValue for a key attribute cannot contain an empty binary value.',
       )
     }
   })

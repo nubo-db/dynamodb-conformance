@@ -398,6 +398,23 @@ export const hashBTableDef: TestTableDef = {
   billingMode: 'PAY_PER_REQUEST',
 }
 
+// Binary-typed GSI key. Used by the empty-binary secondary-index-key cases,
+// which need a table whose index key attribute is declared type B so an empty
+// binary value reaches the secondary-index-key validator rather than a
+// type-mismatch check.
+export const gsiBTableDef: TestTableDef = {
+  name: uniqueTableName('gsiB'),
+  hashKey: { name: 'pk', type: 'S' },
+  gsis: [
+    {
+      indexName: 'gsib',
+      hashKey: { name: 'bidx', type: 'B' },
+      projectionType: 'ALL',
+    },
+  ],
+  billingMode: 'PAY_PER_REQUEST',
+}
+
 export const compositeTableDef: TestTableDef = {
   name: uniqueTableName('composite'),
   hashKey: { name: 'pk', type: 'S' },

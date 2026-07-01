@@ -5,14 +5,16 @@ broadened, and targets brought into the run. Newest first.
 
 ## 2026-07-01
 
-Grew to 843 tests, up 11, adding empty-binary key-value coverage. A zero-length
+Grew to 848 tests, up 16, adding empty-binary key-value coverage. A zero-length
 binary value used as a key is rejected by real DynamoDB with a top-level
 ValidationException, the binary analogue of the empty-string key rejection the
 suite already pins. The new cases span the single-action lookup and item keys
 (Get, Delete, Update, Put), the batch paths (BatchGetItem keys, BatchWriteItem
-put and delete requests), and the transact paths, where the rejection hoists out
-of the transaction rather than surfacing as a cancellation reason. Characterised
-against real DynamoDB in eu-west-2.
+put and delete requests), the transact paths, where the rejection hoists out of
+the transaction rather than surfacing as a cancellation reason, and secondary-
+index keys, which carry the put-form message naming the index and key and the
+distinct update-form message without it. Characterised against real DynamoDB in
+eu-west-2.
 
 Grew to 832 tests, up 8, sharpening how the suite pins ConsumedCapacity capacity
 units on transactional and single-item operations. All characterised against real

@@ -7,6 +7,7 @@ import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
   hashBTableDef,
+  gsiBTableDef,
   compositeTableDef,
   cleanupItems,
 } from '../../../src/helpers.js'
@@ -220,6 +221,19 @@ describe('BatchWriteItem — exact error messages', { tags: ['batch', 'data-plan
         },
       }),
       'One or more parameter values are not valid. A value specified for a secondary index key is not supported. The AttributeValue for a key attribute cannot contain an empty string value. IndexName: gsi1, IndexKey: lsi1sk',
+    )
+  })
+
+  it('empty-binary index key: full secondary-index-key message', async () => {
+    await expectExactValidation(
+      new BatchWriteItemCommand({
+        RequestItems: {
+          [gsiBTableDef.name]: [
+            { PutRequest: { Item: { pk: { S: 'eb-bw-idx' }, bidx: { B: new Uint8Array([]) } } } },
+          ],
+        },
+      }),
+      'One or more parameter values are not valid. A value specified for a secondary index key is not supported. The AttributeValue for a key attribute cannot contain an empty binary value. IndexName: gsib, IndexKey: bidx',
     )
   })
 })

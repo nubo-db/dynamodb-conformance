@@ -9,6 +9,7 @@ import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
   hashBTableDef,
+  gsiBTableDef,
   compositeTableDef,
   cleanupItems,
 } from '../../../src/helpers.js'
@@ -460,4 +461,33 @@ describe('TransactWriteItems — exact error messages', { tags: ['transactions',
     expectTopLevelValidation(cmd(delKeyB(emptyBin)), emptyBinKeyMsg))
   it('ConditionCheck empty-binary Key: top-level empty-value message', () =>
     expectTopLevelValidation(cmd(ccKeyB(emptyBin)), emptyBinKeyMsg))
+
+  it('Put empty-binary index key: top-level ValidationException', async () => {
+    await expectTopLevelValidation(
+      new TransactWriteItemsCommand({
+        TransactItems: [
+          { Put: { TableName: gsiBTableDef.name, Item: { pk: { S: 'eb-twi-idx' }, bidx: { B: new Uint8Array([]) } } } },
+        ],
+      }),
+      'One or more parameter values are not valid. A value specified for a secondary index key is not supported. The AttributeValue for a key attribute cannot contain an empty binary value. IndexName: gsib, IndexKey: bidx',
+    )
+  })
+
+  it('Update empty-binary index key: top-level ValidationException', async () => {
+    await expectTopLevelValidation(
+      new TransactWriteItemsCommand({
+        TransactItems: [
+          {
+            Update: {
+              TableName: gsiBTableDef.name,
+              Key: { pk: { S: 'eb-twi-idx-upd' } },
+              UpdateExpression: 'SET bidx = :v',
+              ExpressionAttributeValues: { ':v': { B: new Uint8Array([]) } },
+            },
+          },
+        ],
+      }),
+      'One or more parameter values are not valid. The update expression attempted to update a secondary index key to a value that is not supported. The AttributeValue for a key attribute cannot contain an empty binary value.',
+    )
+  })
 })
