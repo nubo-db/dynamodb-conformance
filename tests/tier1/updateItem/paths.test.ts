@@ -404,4 +404,29 @@ describe('UpdateItem — nested path semantics', { tags: ['update-item', 'data-p
     expect(result.Item!.parent.M!.keep.S).toBe('k')
     expect(result.Item!['parent.child']).toBeUndefined()
   })
+
+  it('returns every subpath under UPDATED_NEW when one SET writes several', async () => {
+    // Real AWS returns all changed subpaths in UPDATED_NEW, not only the last,
+    // when a single SET writes multiple children of the same map.
+    const k = 'paths-multi-sub'
+    keysToCleanup.push({ pk: { S: k } })
+    await ddb.send(
+      new PutItemCommand({
+        TableName: hashTableDef.name,
+        Item: { pk: { S: k }, a: { M: { existing: { S: 'e' } } } },
+      }),
+    )
+    const res = await ddb.send(
+      new UpdateItemCommand({
+        TableName: hashTableDef.name,
+        Key: { pk: { S: k } },
+        UpdateExpression: 'SET #a.#b = :x, #a.#c = :y',
+        ExpressionAttributeNames: { '#a': 'a', '#b': 'b', '#c': 'c' },
+        ExpressionAttributeValues: { ':x': { S: 'x' }, ':y': { S: 'y' } },
+        ReturnValues: 'UPDATED_NEW',
+      }),
+    )
+    expect(res.Attributes!.a.M!.b.S).toBe('x')
+    expect(res.Attributes!.a.M!.c.S).toBe('y')
+  })
 })

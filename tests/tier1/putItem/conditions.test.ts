@@ -2,6 +2,7 @@ import {
   PutItemCommand,
   GetItemCommand,
   ConditionalCheckFailedException,
+  DynamoDBServiceException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { hashTableDef, expectDynamoError, cleanupItems } from '../../../src/helpers.js'
@@ -226,5 +227,26 @@ describe('PutItem — ConditionExpression', { tags: ['put-item', 'data-plane'] }
     }
 
     await cleanupItems(hashTableDef.name, [{ pk: { S: k } }])
+  })
+
+  it('rejects a BETWEEN with reversed bounds at parse time', async () => {
+    // Real AWS rejects a BETWEEN whose lower bound exceeds its upper bound with
+    // a ValidationException, rather than parsing it and failing the condition
+    // at evaluation time (a ConditionalCheckFailedException).
+    try {
+      await ddb.send(
+        new PutItemCommand({
+          TableName: hashTableDef.name,
+          Item: { pk: { S: pk } },
+          ConditionExpression: '#n BETWEEN :hi AND :lo',
+          ExpressionAttributeNames: { '#n': 'n' },
+          ExpressionAttributeValues: { ':hi': { N: '10' }, ':lo': { N: '1' } },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+    }
   })
 })
