@@ -78,6 +78,13 @@
         "lsi"
       ]
     },
+    "tests/tier1/createTable/specValidation.test.ts": {
+      "CreateTable — index and stream spec validation": [
+        "create-table",
+        "control-plane",
+        "negative-path"
+      ]
+    },
     "tests/tier1/deleteItem/basic.test.ts": {
       "DeleteItem — basic": [
         "delete-item",
@@ -161,6 +168,12 @@
         "data-plane"
       ],
       "GetItem — projection matching nothing": [
+        "get-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/getItem/projectionValidation.test.ts": {
+      "GetItem — projection validation and fidelity": [
         "get-item",
         "data-plane"
       ]
@@ -317,8 +330,21 @@
         "gsi"
       ]
     },
+    "tests/tier1/query/gsiHashOnlyPagination.test.ts": {
+      "Query — hash-only GSI pagination on a composite base table": [
+        "query",
+        "data-plane",
+        "gsi"
+      ]
+    },
     "tests/tier1/query/keyConditionParens.test.ts": {
       "Query — KeyConditionExpression with parentheses": [
+        "query",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/query/keyConditionSemantics.test.ts": {
+      "Query — KeyConditionExpression semantics": [
         "query",
         "data-plane"
       ]
@@ -397,6 +423,13 @@
       "Scan — FilterExpression parens": [
         "scan",
         "data-plane"
+      ]
+    },
+    "tests/tier1/scan/filterOperandOrder.test.ts": {
+      "Scan — FilterExpression operand validation order": [
+        "scan",
+        "data-plane",
+        "negative-path"
       ]
     },
     "tests/tier1/scan/filterOperators.test.ts": {
@@ -503,6 +536,10 @@
       "UpdateItem — ReturnValues granularity": [
         "update-item",
         "data-plane"
+      ],
+      "UpdateItem — no-op upsert": [
+        "update-item",
+        "data-plane"
       ]
     },
     "tests/tier1/updateItem/conditions.test.ts": {
@@ -513,6 +550,13 @@
       "UpdateItem — ConditionExpression parens": [
         "update-item",
         "data-plane"
+      ]
+    },
+    "tests/tier1/updateItem/expressionHygiene.test.ts": {
+      "UpdateItem — expression attribute hygiene": [
+        "update-item",
+        "data-plane",
+        "negative-path"
       ]
     },
     "tests/tier1/updateItem/paths.test.ts": {
@@ -860,6 +904,13 @@
       ],
       "Item size limit — number sizing": [
         "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/keyLength.test.ts": {
+      "Key-value length limits": [
+        "put-item",
+        "get-item",
         "data-plane"
       ]
     },

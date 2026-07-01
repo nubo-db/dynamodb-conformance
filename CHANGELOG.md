@@ -5,42 +5,22 @@ broadened, and targets brought into the run. Newest first.
 
 ## 2026-07-01
 
-Grew to 848 tests, up 16, adding empty-binary key-value coverage. A zero-length
-binary value used as a key is rejected by real DynamoDB with a top-level
-ValidationException, the binary analogue of the empty-string key rejection the
-suite already pins. The new cases span the single-action lookup and item keys
-(Get, Delete, Update, Put), the batch paths (BatchGetItem keys, BatchWriteItem
-put and delete requests), the transact paths, where the rejection hoists out of
-the transaction rather than surfacing as a cancellation reason, and secondary-
-index keys, which carry the put-form message naming the index and key and the
-distinct update-form message without it. Characterised against real DynamoDB in
-eu-west-2.
+Grew to 875 tests, up 51, all characterised against real DynamoDB in eu-west-2.
+New coverage in three areas:
 
-Grew to 832 tests, up 8, sharpening how the suite pins ConsumedCapacity capacity
-units on transactional and single-item operations. All characterised against real
-DynamoDB in eu-west-2.
-
-The same-token replay case for TransactWriteItems now uses a ~1.5KB item instead
-of a sub-1KB one. Below 1KB a transactional write (2 * ceil(size / 1KB)) and a
-transactional read (2 * ceil(size / 4KB)) both round to 2, so the old item could
-not tell them apart. At ~1.5KB they separate: the first call reports 4 write
-capacity units, the replay 2 read. That settles what the replay bills - a
-transactional read recomputed against the item size, not the stored write
-magnitude relabelled as read. Answers #68.
-
-ExecuteTransaction gains the ClientRequestToken idempotent-replay coverage
-TransactWriteItems already had. The same statements sent twice under one token
-apply exactly once - a counter incremented inside the transaction reads back 1,
-not 2 - and the accounting splits the same way, 2 write capacity units on the
-first call and 2 read on the replay. Answers #70.
-
-The single-item read/write split turned out to be the opposite of what #69
-assumed. Real DynamoDB returns no top-level ReadCapacityUnits or WriteCapacityUnits
-on GetItem, PutItem, UpdateItem, DeleteItem, Query or Scan; it reports the aggregate
-CapacityUnits alone, under both TOTAL and INDEXES. The split is transactional-only.
-So the pinned claim is the inverse: single-item operations report the aggregate and
-omit the split, with a strongly-consistent read at 1 unit, an eventually-consistent
-read at 0.5, and a small write at 1. Answers #69.
+- ConsumedCapacity: the transactional read/write split on a same-token replay and
+  on ExecuteTransaction, and a correction that single-item operations report the
+  aggregate CapacityUnits and omit the split, which is transactional-only.
+- Empty-binary key values: rejected as a top-level ValidationException on every
+  path, including secondary-index keys and inside transactions, mirroring the
+  empty-string rejection.
+- Expression, limit and response-shape parity: KeyConditionExpression operand and
+  nested-path rules, ExpressionAttributeNames/Values hygiene, projection
+  validation and list-index fidelity, reversed-bounds BETWEEN, read-path
+  key-length and segment caps, whitespace numbers, batch unprocessed fields and
+  cross-table projection mixing, the bare no-op upsert, multi-subpath
+  UPDATED_NEW, filter operand ordering, hash-only-GSI pagination, and CreateTable
+  spec validation.
 
 ## 2026-06-30
 
