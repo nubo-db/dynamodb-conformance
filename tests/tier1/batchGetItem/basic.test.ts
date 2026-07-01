@@ -228,4 +228,17 @@ describe('BatchGetItem — multiple tables', { tags: ['batch', 'data-plane'] }, 
     const compositeItems = result.Responses![compositeTableDef.name]
     expect(compositeItems).toHaveLength(0)
   })
+
+  it('returns UnprocessedKeys as an empty object on full success', async () => {
+    // Real AWS always includes UnprocessedKeys; on a fully-successful batch it
+    // is an empty object, not omitted.
+    const result = await ddb.send(
+      new BatchGetItemCommand({
+        RequestItems: {
+          [hashTableDef.name]: { Keys: [{ pk: { S: 'bg-0' } }], ConsistentRead: true },
+        },
+      }),
+    )
+    expect(result.UnprocessedKeys).toEqual({})
+  })
 })

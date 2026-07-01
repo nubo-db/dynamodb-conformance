@@ -4,7 +4,7 @@ import {
   ResourceNotFoundException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
-import { hashTableDef, hashBTableDef } from '../../../src/helpers.js'
+import { hashTableDef, hashBTableDef, compositeTableDef } from '../../../src/helpers.js'
 
 describe('BatchGetItem — exact error messages', { tags: ['batch', 'data-plane', 'negative-path'] }, () => {
   it('empty RequestItems: full required-parameter error', async () => {
@@ -131,6 +131,29 @@ describe('BatchGetItem — exact error messages', { tags: ['batch', 'data-plane'
       expect((err as DynamoDBServiceException).message).toBe(
         'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty binary value. Key: pk',
       )
+    }
+  })
+
+  it('mixing ProjectionExpression on one table and AttributesToGet on another is rejected', async () => {
+    // Each table's block is internally consistent, but real AWS rejects the
+    // request as a whole for mixing expression and non-expression projection
+    // across tables.
+    try {
+      await ddb.send(
+        new BatchGetItemCommand({
+          RequestItems: {
+            [hashTableDef.name]: { Keys: [{ pk: { S: 'bg-mix-a' } }], ProjectionExpression: 'pk' },
+            [compositeTableDef.name]: {
+              Keys: [{ pk: { S: 'bg-mix-b' }, sk: { S: 'z' } }],
+              AttributesToGet: ['pk'],
+            },
+          },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
     }
   })
 })

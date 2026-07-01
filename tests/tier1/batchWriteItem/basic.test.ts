@@ -240,4 +240,18 @@ describe('BatchWriteItem — multiple tables', { tags: ['batch', 'data-plane'] }
       expect(get.Item).toBeUndefined()
     }
   })
+
+  it('returns UnprocessedItems as an empty object on full success', async () => {
+    // Real AWS always includes UnprocessedItems; on a fully-successful batch it
+    // is an empty object, not omitted.
+    const result = await ddb.send(
+      new BatchWriteItemCommand({
+        RequestItems: {
+          [hashTableDef.name]: [{ PutRequest: { Item: { pk: { S: 'bw-unproc' } } } }],
+        },
+      }),
+    )
+    expect(result.UnprocessedItems).toEqual({})
+    await cleanupItems(hashTableDef.name, [{ pk: { S: 'bw-unproc' } }])
+  })
 })
