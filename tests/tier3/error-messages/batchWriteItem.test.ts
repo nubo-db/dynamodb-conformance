@@ -6,6 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
+  hashBTableDef,
   compositeTableDef,
   cleanupItems,
 } from '../../../src/helpers.js'
@@ -162,6 +163,24 @@ describe('BatchWriteItem — exact error messages', { tags: ['batch', 'data-plan
         RequestItems: { [hashTableDef.name]: [{ PutRequest: { Item: { pk: { S: '' } } } }] },
       }),
       'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty string value. Key: pk',
+    )
+  })
+
+  it('empty-binary put-request key: full empty-value message', async () => {
+    await expectExactValidation(
+      new BatchWriteItemCommand({
+        RequestItems: { [hashBTableDef.name]: [{ PutRequest: { Item: { pk: { B: new Uint8Array([]) } } } }] },
+      }),
+      'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty binary value. Key: pk',
+    )
+  })
+
+  it('empty-binary delete-request key: full empty-value message', async () => {
+    await expectExactValidation(
+      new BatchWriteItemCommand({
+        RequestItems: { [hashBTableDef.name]: [{ DeleteRequest: { Key: { pk: { B: new Uint8Array([]) } } } }] },
+      }),
+      'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty binary value. Key: pk',
     )
   })
 

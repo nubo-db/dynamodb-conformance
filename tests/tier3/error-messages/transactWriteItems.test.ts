@@ -8,6 +8,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
+  hashBTableDef,
   compositeTableDef,
   cleanupItems,
 } from '../../../src/helpers.js'
@@ -441,4 +442,22 @@ describe('TransactWriteItems — exact error messages', { tags: ['transactions',
     expectCancelledReason(cmd(ccKey({ N: '5' })), schemaMismatchMsg))
   it('ConditionCheck non-scalar Key: cancelled with schema-mismatch reason', () =>
     expectCancelledReason(cmd(ccKey({ L: [{ S: 'x' }] })), schemaMismatchMsg))
+
+  // Empty-binary key values mirror the empty-string cases: a top-level
+  // ValidationException that hoists out of the transaction, never a cancellation
+  // reason. Real AWS names the same message with 'binary' for 'string'.
+  const emptyBinKeyMsg = 'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty binary value. Key: pk'
+  const emptyBin = { B: new Uint8Array([]) }
+  const updKeyB = (key: unknown) => ({ Update: { TableName: hashBTableDef.name, Key: { pk: key }, UpdateExpression: 'SET attr1 = :v', ExpressionAttributeValues: { ':v': { S: 'x' } } } })
+  const delKeyB = (key: unknown) => ({ Delete: { TableName: hashBTableDef.name, Key: { pk: key } } })
+  const ccKeyB = (key: unknown) => ({ ConditionCheck: { TableName: hashBTableDef.name, Key: { pk: key }, ConditionExpression: 'attribute_not_exists(pk)' } })
+
+  it('Put empty-binary item key: top-level empty-value message', () =>
+    expectTopLevelValidation(cmd({ Put: { TableName: hashBTableDef.name, Item: { pk: emptyBin } } }), emptyBinKeyMsg))
+  it('Update empty-binary Key: top-level empty-value message', () =>
+    expectTopLevelValidation(cmd(updKeyB(emptyBin)), emptyBinKeyMsg))
+  it('Delete empty-binary Key: top-level empty-value message', () =>
+    expectTopLevelValidation(cmd(delKeyB(emptyBin)), emptyBinKeyMsg))
+  it('ConditionCheck empty-binary Key: top-level empty-value message', () =>
+    expectTopLevelValidation(cmd(ccKeyB(emptyBin)), emptyBinKeyMsg))
 })

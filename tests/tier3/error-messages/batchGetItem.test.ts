@@ -4,7 +4,7 @@ import {
   ResourceNotFoundException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
-import { hashTableDef } from '../../../src/helpers.js'
+import { hashTableDef, hashBTableDef } from '../../../src/helpers.js'
 
 describe('BatchGetItem — exact error messages', { tags: ['batch', 'data-plane', 'negative-path'] }, () => {
   it('empty RequestItems: full required-parameter error', async () => {
@@ -109,6 +109,27 @@ describe('BatchGetItem — exact error messages', { tags: ['batch', 'data-plane'
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toContain(
         'Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributesToGet} Expression parameters: {ProjectionExpression}',
+      )
+    }
+  })
+
+  it('empty-binary lookup key: full empty-value message', async () => {
+    // Real AWS rejects a zero-length binary key value with a top-level
+    // ValidationException, the binary analogue of the empty-string key rejection.
+    try {
+      await ddb.send(
+        new BatchGetItemCommand({
+          RequestItems: {
+            [hashBTableDef.name]: { Keys: [{ pk: { B: new Uint8Array([]) } }] },
+          },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty binary value. Key: pk',
       )
     }
   })
