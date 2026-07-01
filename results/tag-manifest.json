@@ -149,6 +149,10 @@
       "ConsumedCapacity across operations": [
         "get-item",
         "data-plane"
+      ],
+      "ConsumedCapacity — single-item ops report only the aggregate, no read/write split": [
+        "get-item",
+        "data-plane"
       ]
     },
     "tests/tier1/getItem/projection.test.ts": {
@@ -208,6 +212,10 @@
     },
     "tests/tier1/putItem/consumedCapacity.test.ts": {
       "ReturnConsumedCapacity": [
+        "put-item",
+        "data-plane"
+      ],
+      "ReturnConsumedCapacity — PutItem reports only the aggregate, no write-capacity split": [
         "put-item",
         "data-plane"
       ]
