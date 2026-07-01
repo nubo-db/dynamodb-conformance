@@ -1430,10 +1430,20 @@ describe('TransactWriteItems — ConsumedCapacity: conditional, check, replay, c
 
   // Idempotent replay accounting: the first call reports write capacity; a same-token
   // replay (in-window) reports read capacity for re-reading the stored result.
+  //
+  // The item is deliberately >1KB. A sub-1KB item cannot tell the two magnitudes
+  // apart: a transactional write costs 2*ceil(size/1KB) and a transactional read
+  // costs 2*ceil(size/4KB), and both are 2 below 1KB. At ~1.5KB they diverge —
+  // write 2*ceil(1.5KB/1KB) = 4, read 2*ceil(1.5KB/4KB) = 2 — so the replay
+  // reporting 2 proves it recomputes a transactional READ against the item size,
+  // rather than relabelling the stored write magnitude (which would be 4) as read.
+  // Values characterised against real DynamoDB (eu-west-2). See #68.
   it('reports write capacity on the first call and read capacity on a same-token replay', async () => {
     const token = `tw-cap-replay-${Date.now()}`
+    // ~1.5KB value keeps the item in the (1KB, 2KB) band: write rounds to 2 units,
+    // read to 1, so their transactional doublings (4 vs 2) are distinct.
     const item = {
-      Put: { TableName: hashTableDef.name, Item: { pk: { S: 'tw-cap-replay' }, v: { N: '1' } } },
+      Put: { TableName: hashTableDef.name, Item: { pk: { S: 'tw-cap-replay' }, big: { S: 'x'.repeat(1536) } } },
     }
     const first = await ddb.send(
       new TransactWriteItemsCommand({ ClientRequestToken: token, ReturnConsumedCapacity: 'INDEXES', TransactItems: [item] }),
@@ -1443,10 +1453,11 @@ describe('TransactWriteItems — ConsumedCapacity: conditional, check, replay, c
     )
     const firstEntry = (first.ConsumedCapacity ?? [])[0]
     const replayEntry = (replay.ConsumedCapacity ?? [])[0]
-    // First: a transactional write - 2 WCU, no read capacity.
-    expect(firstEntry?.WriteCapacityUnits).toBe(2)
+    // First: a transactional write of a ~1.5KB item - 4 WCU, no read capacity.
+    expect(firstEntry?.WriteCapacityUnits).toBe(4)
     expect(firstEntry?.ReadCapacityUnits).toBeUndefined()
-    // Replay: a transactional read of the stored result - 2 RCU, no write capacity.
+    // Replay: a transactional read of the stored result, recomputed against the
+    // item size - 2 RCU, not the write magnitude of 4, and no write capacity.
     expect(replayEntry?.ReadCapacityUnits).toBe(2)
     expect(replayEntry?.WriteCapacityUnits).toBeUndefined()
   })
