@@ -6,6 +6,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
+  hashBTableDef,
   compositeTableDef,
 } from '../../../src/helpers.js'
 
@@ -63,6 +64,26 @@ describe('GetItem — exact error messages', { tags: ['get-item', 'data-plane', 
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
         'Invalid ProjectionExpression: Syntax error; token: "!", near: "!!"',
+      )
+    }
+  })
+
+  it('empty-binary key value: full ValidationException message', async () => {
+    // Real AWS rejects a zero-length binary key value with a top-level
+    // ValidationException, the binary analogue of the empty-string key rejection.
+    try {
+      await ddb.send(
+        new GetItemCommand({
+          TableName: hashBTableDef.name,
+          Key: { pk: { B: new Uint8Array([]) } },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty binary value. Key: pk',
       )
     }
   })

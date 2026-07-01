@@ -388,6 +388,16 @@ export const hashNTableDef: TestTableDef = {
   billingMode: 'PAY_PER_REQUEST',
 }
 
+// Binary partition key. The other shared defs are string- or number-keyed, so an
+// empty-binary key value only reaches the binary key validator on a table whose
+// key attribute is declared type B. Used by the empty-binary key-value cases,
+// which pin the `Key: pk` message real AWS returns for a zero-length binary key.
+export const hashBTableDef: TestTableDef = {
+  name: uniqueTableName('hashB'),
+  hashKey: { name: 'pk', type: 'B' },
+  billingMode: 'PAY_PER_REQUEST',
+}
+
 export const compositeTableDef: TestTableDef = {
   name: uniqueTableName('composite'),
   hashKey: { name: 'pk', type: 'S' },

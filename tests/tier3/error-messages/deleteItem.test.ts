@@ -4,7 +4,7 @@ import {
   ResourceNotFoundException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
-import { compositeTableDef, hashTableDef } from '../../../src/helpers.js'
+import { compositeTableDef, hashTableDef, hashBTableDef } from '../../../src/helpers.js'
 
 // Conditional-check failures for DeleteItem live in conditionalCheck.test.ts —
 // that file owns the conditional-check error family across operations.
@@ -67,6 +67,26 @@ describe('DeleteItem — exact error messages', { tags: ['delete-item', 'data-pl
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toContain(
         'Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}',
+      )
+    }
+  })
+
+  it('empty-binary key value: full ValidationException message', async () => {
+    // Real AWS rejects a zero-length binary key value with a top-level
+    // ValidationException, the binary analogue of the empty-string key rejection.
+    try {
+      await ddb.send(
+        new DeleteItemCommand({
+          TableName: hashBTableDef.name,
+          Key: { pk: { B: new Uint8Array([]) } },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty binary value. Key: pk',
       )
     }
   })

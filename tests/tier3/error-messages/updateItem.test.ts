@@ -5,6 +5,7 @@ import {
 import { ddb } from '../../../src/client.js'
 import {
   hashTableDef,
+  hashBTableDef,
   compositeTableDef,
   cleanupItems,
 } from '../../../src/helpers.js'
@@ -185,6 +186,28 @@ describe('UpdateItem — exact error messages', { tags: ['update-item', 'data-pl
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
         'One or more parameter values were invalid: Cannot update attribute sk. This attribute is part of the key',
+      )
+    }
+  })
+
+  it('empty-binary key value: full ValidationException message', async () => {
+    // Real AWS rejects a zero-length binary key value with a top-level
+    // ValidationException, the binary analogue of the empty-string key rejection.
+    try {
+      await ddb.send(
+        new UpdateItemCommand({
+          TableName: hashBTableDef.name,
+          Key: { pk: { B: new Uint8Array([]) } },
+          UpdateExpression: 'SET attr1 = :v',
+          ExpressionAttributeValues: { ':v': { S: 'x' } },
+        }),
+      )
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'One or more parameter values are not valid. The AttributeValue for a key attribute cannot contain an empty binary value. Key: pk',
       )
     }
   })
