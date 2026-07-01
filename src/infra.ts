@@ -9,9 +9,10 @@
 // same posture as `deleteTable` in helpers.ts.
 //
 // NOTE: these helpers are typed against the SDK but their behaviour against real
-// AWS is verified by the U2 characterisation unit, which is the first thing to
-// exercise them. Until then treat the AWS-specific details (S3 bucket location
-// constraint, Kinesis wait timing, the probe fault classifier) as provisional.
+// AWS is verified by the control-plane characterisation tests, which are the
+// first thing to exercise them. Until those run, treat the AWS-specific details
+// (S3 bucket location constraint, Kinesis wait timing, the probe fault
+// classifier) as provisional.
 
 import {
   DynamoDBClient,
@@ -53,8 +54,8 @@ function sleep(ms: number): Promise<void> {
 /**
  * Classify an error as "the target does not implement this operation". A real
  * error (validation, not-found, access-denied) means the operation *is*
- * implemented and the test should assert, not skip. U2 refines the exact fault
- * shapes each target uses.
+ * implemented and the test should assert, not skip. The characterisation tests
+ * refine the exact fault shapes each target uses.
  */
 export function isUnsupportedFault(err: unknown): boolean {
   const e = err as { name?: string; message?: string; $metadata?: { httpStatusCode?: number } }
