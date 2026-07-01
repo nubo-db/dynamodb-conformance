@@ -147,3 +147,40 @@ describe('ReturnConsumedCapacity', { tags: ['put-item', 'data-plane'] }, () => {
     expect(typeof result.ConsumedCapacity!.Table!.CapacityUnits).toBe('number')
   })
 })
+
+// The write-capacity counterpart to the read/update/delete coverage in
+// tests/tier1/getItem/consumedCapacity.test.ts: real DynamoDB reports the
+// ReadCapacityUnits / WriteCapacityUnits split only on transactional operations, so a
+// plain PutItem reports the aggregate CapacityUnits alone — no WriteCapacityUnits — under
+// both TOTAL and INDEXES, at the top level and on Table. Magnitude characterised against
+// real DynamoDB (eu-west-2). See #69.
+describe('ReturnConsumedCapacity — PutItem reports only the aggregate, no write-capacity split', { tags: ['put-item', 'data-plane'] }, () => {
+  const keys = [{ pk: { S: 'cc-split-put' } }]
+
+  afterAll(async () => {
+    await cleanupItems(hashTableDef.name, keys)
+  })
+
+  it('PutItem with TOTAL reports 1 CapacityUnit and no read/write split', async () => {
+    const res = await ddb.send(new PutItemCommand({
+      TableName: hashTableDef.name,
+      Item: { pk: { S: 'cc-split-put' }, data: { S: 'x' } },
+      ReturnConsumedCapacity: 'TOTAL',
+    }))
+    expect(res.ConsumedCapacity!.CapacityUnits).toBe(1)
+    expect(res.ConsumedCapacity!.WriteCapacityUnits).toBeUndefined()
+    expect(res.ConsumedCapacity!.ReadCapacityUnits).toBeUndefined()
+  })
+
+  it('PutItem with INDEXES omits the split at the top level and on Table', async () => {
+    const res = await ddb.send(new PutItemCommand({
+      TableName: hashTableDef.name,
+      Item: { pk: { S: 'cc-split-put' }, data: { S: 'x' } },
+      ReturnConsumedCapacity: 'INDEXES',
+    }))
+    expect(res.ConsumedCapacity!.CapacityUnits).toBe(1)
+    expect(res.ConsumedCapacity!.WriteCapacityUnits).toBeUndefined()
+    expect(res.ConsumedCapacity!.Table!.CapacityUnits).toBe(1)
+    expect(res.ConsumedCapacity!.Table!.WriteCapacityUnits).toBeUndefined()
+  })
+})
