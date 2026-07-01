@@ -8,7 +8,7 @@ import { hashTableDef } from '../../../src/helpers.js'
 
 describe('UpdateItem — expression attribute hygiene', { tags: ['update-item', 'data-plane', 'negative-path'] }, () => {
   const key = { pk: { S: 'expr-hygiene' } }
-  const expectRejected = async (extra: Partial<UpdateItemCommandInput>) => {
+  const expectRejected = async (extra: Omit<UpdateItemCommandInput, 'TableName' | 'Key'>) => {
     try {
       await ddb.send(new UpdateItemCommand({ TableName: hashTableDef.name, Key: key, ...extra }))
       expect.unreachable('should have thrown')

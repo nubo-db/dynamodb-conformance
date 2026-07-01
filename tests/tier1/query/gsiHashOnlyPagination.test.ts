@@ -20,6 +20,7 @@ const tableDef: TestTableDef = {
   hashKey: { name: 'pk', type: 'S' },
   rangeKey: { name: 'sk', type: 'S' },
   gsis: [{ indexName: 'gho', hashKey: { name: 'gh', type: 'S' }, projectionType: 'ALL' }],
+  billingMode: 'PAY_PER_REQUEST',
 }
 
 describe('Query — hash-only GSI pagination on a composite base table', { tags: ['query', 'data-plane', 'gsi'] }, () => {
@@ -52,6 +53,7 @@ describe('Query — hash-only GSI pagination on a composite base table', { tags:
     // Real AWS returns every item exactly once across pages; the LastEvaluatedKey
     // carries the base sort key as the tie-breaker.
     const seen = new Set<string>()
+    let total = 0
     let lastKey: Record<string, AttributeValue> | undefined
     let pages = 0
     do {
@@ -66,11 +68,21 @@ describe('Query — hash-only GSI pagination on a composite base table', { tags:
           ExclusiveStartKey: lastKey,
         }),
       )
-      for (const it of res.Items ?? []) seen.add(it.sk.S!)
+      for (const it of res.Items ?? []) {
+        seen.add(it.sk.S!)
+        total++
+      }
       lastKey = res.LastEvaluatedKey
       pages++
     } while (lastKey && pages < 10)
 
     expect(seen.size).toBe(N)
+    // total === seen.size confirms every item was delivered exactly once: a Set
+    // alone would hide an item returned twice across the page boundary.
+    expect(total).toBe(N)
+    // Limit: 2 over N: 5 must force real pagination, and the walk must end
+    // because the continuation was exhausted, not because the page cap was hit.
+    expect(pages).toBeGreaterThan(1)
+    expect(lastKey).toBeUndefined()
   })
 })

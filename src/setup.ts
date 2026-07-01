@@ -13,9 +13,8 @@ import {
 // Provision the shared tables once per run.
 //
 // vitest 4 runs setupFiles' beforeAll for every test file (vitest 3's singleFork
-// ran it once), so without this guard the suite deletes and recreates the five
+// ran it once), so without this guard the suite deletes and recreates the
 // shared tables ~once per file - ~100 times a run. That is slow, and on real AWS
-// (six shared tables now, since the binary-partition-key table was added).
 // the churn of just-created tables surfaces as InternalServerException on the
 // data operations that hit them. The single fork (maxWorkers: 1) means every
 // file shares one process, so a process.env flag set after the first successful

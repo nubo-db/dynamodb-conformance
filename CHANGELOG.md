@@ -5,7 +5,7 @@ broadened, and targets brought into the run. Newest first.
 
 ## 2026-07-01
 
-Grew to 875 tests, up 51, all characterised against real DynamoDB in eu-west-2.
+Grew to 873 tests, up 49, all characterised against real DynamoDB in eu-west-2.
 New coverage in three areas:
 
 - ConsumedCapacity: the transactional read/write split on a same-token replay and
