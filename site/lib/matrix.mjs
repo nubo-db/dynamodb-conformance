@@ -155,10 +155,15 @@ export function renderSupportCards(matrix) {
 }
 
 // A single target's per-operation scorecard: every operation area it touches,
-// grouped by tier, each with its support state and pass rate. This is the
-// per-operation map the tier headline rolls up, so a reader can see exactly
+// grouped by tier, each with its support state, divergence and coverage. This is
+// the per-operation map the tier headline rolls up, so a reader can see exactly
 // which operations a target is weak on, not just which tier. Built here (not in
 // a template) for the same WebC nesting reason as the support cards.
+//
+// The figures are divergence over each area's whole size, the same axis as the
+// tier above and the headline above that. They were a pass rate over what the
+// area attempted, which on a page whose every other percentage had inverted
+// left the most detailed table on it reading in the opposite direction.
 export function renderTargetOperations(areas) {
   if (!areas || areas.length === 0) return "";
   const byTier = { tier1: [], tier2: [], tier3: [] };
@@ -172,9 +177,13 @@ export function renderTargetOperations(areas) {
         .map((a) => {
           const s = STATE[a.state] || STATE_FALLBACK;
           const impl = a.passed + a.failed;
-          const rate = impl === 0 ? "n/a" : `${((a.passed / impl) * 100).toFixed(1)}%`;
+          const rate = impl === 0 || !a.total ? "n/a" : `${((a.failed / a.total) * 100).toFixed(1)}%`;
+          const cover = !a.total ? "n/a" : `${((impl / a.total) * 100).toFixed(1)}%`;
           const counts = cellCounts(a);
-          const describe = `${a.group}: ${s.label}${counts ? ` (${counts})` : ""}`;
+          // An area a target implements none of has no divergence to read out,
+          // so the description says that rather than "diverges on n/a".
+          const figures = rate === "n/a" ? `implements none of it` : `diverges on ${rate} of it, covers ${cover}`;
+          const describe = `${a.group}: ${s.label}, ${figures}${counts ? ` (${counts})` : ""}`;
           return `
           <li class="flex items-center justify-between gap-3 py-1.5">
             <span class="flex items-center gap-2 min-w-0">
@@ -182,16 +191,25 @@ export function renderTargetOperations(areas) {
               <span class="font-mono text-sm text-zinc-700 dark:text-zinc-200 truncate">${esc(a.group)}</span>
             </span>
             <span class="flex items-center gap-3 shrink-0 text-xs tnum" title="${esc(describe)}">
-              <span class="text-zinc-500 dark:text-zinc-400">${a.passed}/${impl}${a.skipped ? ` · ${a.skipped} skip` : ""}</span>
+              <span class="text-zinc-500 dark:text-zinc-400">${a.failed}/${a.total}${a.skipped ? ` · ${a.skipped} skip` : ""}</span>
               <span class="w-14 text-right font-mono font-medium text-zinc-700 dark:text-zinc-200">${rate}</span>
+              <span class="w-14 text-right font-mono text-zinc-500 dark:text-zinc-400">${cover}</span>
               <span class="sr-only">${esc(describe)}</span>
             </span>
           </li>`;
         })
         .join("");
+      // Two adjacent percentages need naming: the same pair of figures read
+      // either way round without a label, and they are not interchangeable.
+      // Right-anchored to the same fixed widths as the rows, so the heads sit
+      // over their own columns.
       return `
       <section>
         <h3 class="text-xs uppercase tracking-wide font-semibold text-zinc-500 dark:text-zinc-400 mb-1">${esc(TIER_LABEL[t] || t)}</h3>
+        <div class="flex items-center justify-end gap-3 pb-1 text-[0.6rem] uppercase tracking-wide text-zinc-400 dark:text-zinc-500" aria-hidden="true">
+          <span class="w-14 text-right">diverges</span>
+          <span class="w-14 text-right">covered</span>
+        </div>
         <ul class="divide-y divide-zinc-100 dark:divide-white/5">${rows}</ul>
       </section>`;
     })

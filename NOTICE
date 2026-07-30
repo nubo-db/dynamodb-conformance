@@ -12,6 +12,14 @@ License 2.0 does not cover. Inter and JetBrains Mono are licensed under the
 SIL Open Font License 1.1; their copyright notices and the full licence text
 are in site/src/fonts/OFL.txt.
 
+The site workspace also inlines brand marks from Simple Icons, dedicated to
+the public domain under CC0 1.0, in site/lib/channel-icons.mjs. They identify
+how a target is distributed - Docker, npm, Rust and so on. Each mark remains
+the trademark of its owner and is used to name that channel, nothing more; no
+affiliation or endorsement is claimed or implied. The marks for a hosted
+service, a downloadable archive, an in-process library and a Windows package
+manager have no brand behind them and were drawn for this project.
+
 DynamoDB is a trademark of Amazon.com, Inc. or its affiliates. This software
 is an independent project and is not affiliated with, endorsed by, or
 sponsored by Amazon. The license does not grant permission to use those

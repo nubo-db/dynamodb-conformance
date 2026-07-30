@@ -10,20 +10,72 @@
 // the same day supersedes the earlier result), and a target not re-tested in a
 // run is carried forward at its last measured value.
 
-import { dynamodbRow, label, display, repoUrl, sortRows, suiteSizeOf, CAPABILITIES } from "./scoring.mjs";
+import { dynamodbRow, gradeOf, label, display, repoUrl, sortRows, suiteSizeOf, CAPABILITIES } from "./scoring.mjs";
 
+// Movement in divergence, where lower is better - the opposite sense to the
+// correctness figure this replaced. So the state says what happened rather than
+// which way the number went: "up" was green while higher meant better, and
+// reusing it here would have painted a target getting worse in the colour for
+// improvement. The delta stays signed as published, so a row showing +0.2pp
+// diverged more.
 function deltaMovement(cur, prev) {
   if (cur == null || prev == null) {
     return { state: "flat", arrow: "–", delta: null, deltaLabel: "–", label: "unchanged" };
   }
   const r = Math.round((cur - prev) * 10) / 10;
-  if (r > 0) {
-    return { state: "up", arrow: "▲", delta: r, deltaLabel: `+${r.toFixed(1)}pp`, label: `rose ${r.toFixed(1)} percentage points` };
-  }
   if (r < 0) {
-    return { state: "down", arrow: "▼", delta: r, deltaLabel: `${r.toFixed(1)}pp`, label: `fell ${Math.abs(r).toFixed(1)} percentage points` };
+    return {
+      state: "improved",
+      arrow: "▼",
+      delta: r,
+      deltaLabel: `${r.toFixed(1)}pp`,
+      label: `diverged ${Math.abs(r).toFixed(1)} percentage points less`,
+    };
+  }
+  if (r > 0) {
+    return {
+      state: "regressed",
+      arrow: "▲",
+      delta: r,
+      deltaLabel: `+${r.toFixed(1)}pp`,
+      label: `diverged ${r.toFixed(1)} percentage points more`,
+    };
   }
   return { state: "flat", arrow: "–", delta: 0, deltaLabel: "0.0pp", label: "unchanged" };
+}
+
+// The grade shift behind a movement, attached only when the letter changed.
+// Near a band boundary a small pp move flips a letter, and the flip should be
+// stated where the delta is rather than left for a reader to rederive from
+// the criteria. Both figures feed the grade, so the previous run's coverage
+// matters too: a cap can lift or land without divergence moving at all.
+function withGradeShift(mv, cur, prev) {
+  const to = gradeOf(cur.divergenceValue, cur.coverageValue).letter;
+  const from = gradeOf(prev.divergenceValue, prev.coverageValue).letter;
+  if (!from || !to || from === to) return mv;
+  return { ...mv, grade: { from, to, label: `grade ${from} to ${to}` } };
+}
+
+/**
+ * Divergence and coverage for a snapshot.
+ *
+ * Derived from its raw counts, except where the region overlay has already
+ * resolved divergence to the target's best-matching region: recomputing then
+ * would quietly drop back to the eu-west-2 port's numbers, and a row's movement
+ * would disagree with the figure printed beside it.
+ */
+function figuresOf(s) {
+  const implemented = (s.passed ?? 0) + (s.failed ?? 0);
+  const count = s.count ?? 0;
+  const derived = count === 0 || implemented === 0 ? null : (s.failed / count) * 100;
+  const divergenceValue = typeof s.divergenceValue === "number" ? s.divergenceValue : derived;
+  const coverageValue = count === 0 ? null : (implemented / count) * 100;
+  return {
+    divergenceValue,
+    divergence: divergenceValue == null ? "-" : `${divergenceValue.toFixed(1)}%`,
+    coverageValue,
+    coverage: coverageValue == null ? "-" : `${coverageValue.toFixed(1)}%`,
+  };
 }
 
 const newMovement = () => ({ state: "new", arrow: "–", delta: null, deltaLabel: "new", label: "first run for this target" });
@@ -32,23 +84,128 @@ const baselineMovement = () => ({ state: "baseline", arrow: "–", delta: null, 
 
 const fmtRate = (r) => (r == null ? "-" : `${r.toFixed(1)}%`);
 
-// Overlay a snapshot's headline with the best-matching region from the summary,
-// where one exists for that run and target. The port's eu-west-2 score is kept
-// as portTotalValue for the parity check; the summary's rate becomes the
-// displayed total, so sort, movement, movers and the chart all follow the
-// best-match number from the point the summary begins. Runs with no summary keep
-// the eu-west-2 score exactly as before, which is what makes the pre-2.0.0
-// timeline (and any build without the overlay) unchanged.
+// The baseline's cohort label. Real DynamoDB agrees with itself in every
+// region, so its cohort is the observed set - carried as the actual regions
+// rather than an empty list, or the count beside its headline would read as
+// unknown on the one row where it is certain.
+function baselineRegionLabel(overlay, date = null) {
+  // That run's own observed set, not today's. The overlay is the summary
+  // *history*, so the set lives per run date; falling back to `latest` for every
+  // run credited the baseline with 33 of 33 on runs scored against one region.
+  const forDate = date ? overlay?.byRunDate?.[date]?.regions?.observed : null;
+  const observed = forDate ?? overlay?.latest?.regions?.observed ?? [];
+  return { kind: "all", regions: [...observed], rate: 100, others: Math.max(0, observed.length - 1), observed: observed.length };
+}
+
+// The region a target's headline was earned in: the suite's own pick when the
+// summary records it, otherwise the least-diverging observed region, which is
+// the same choice (see the note on region invariance below). What the overlay
+// does with the pick is enrichSnapshot's story, documented there.
+function headlineRegionOf(sm) {
+  const named = sm.regions?.find((r) => r.region === sm.suiteHeadlineRegion);
+  if (named) return named;
+  const scored = (sm.regions ?? []).filter((r) => r.divergenceValue != null);
+  if (!scored.length) return null;
+  return scored.reduce((a, b) => (b.divergenceValue < a.divergenceValue ? b : a));
+}
+
+/**
+ * Overlay a snapshot with the region its headline was earned in.
+ *
+ * Two things this used to get wrong, both of which published a figure no run
+ * measured.
+ *
+ * The join. `byRunDate` is keyed on the AWS sweep date, while each target entry
+ * inside carries its own run date, and they are not always the same: a summary
+ * committed after a later target run holds that later run's numbers under the
+ * earlier sweep's key. Overlaying on the key alone put 24 July's figures on the
+ * 22 July run for all eight targets, so a row published 12.3% beside its own
+ * count of 213 fails in 998. The entry now has to agree with the snapshot about
+ * which run it describes, or it is not applied at all.
+ *
+ * The scope. Only the headline scalars were overlaid, leaving `tiers` and the
+ * raw counts on the port's own basis. Under correctness that was invisible,
+ * because tier figures had their own denominators and nothing had to reconcile.
+ * Divergence is additive, so it does reconcile - or fails to in public: the
+ * tiers no longer decomposed the headline, `failed / count` no longer equalled
+ * the published divergence, and the README (which takes every column from the
+ * headline region) disagreed with the board. The whole region entry is applied
+ * now, so a row is one region's measurement throughout.
+ *
+ * Coverage is the same in every region either way. `verdictsForRegion` only ever
+ * swaps a pass for a fail and passes skips and indeterminates through untouched,
+ * so implemented and total are region-invariant by construction - verified
+ * across every committed sweep. Divergence is a property of a target measured
+ * against a region; coverage is a property of the target.
+ */
+// The overlay entry describing exactly this snapshot's run, or null. The
+// guard is run-date agreement: an entry that describes a different run is
+// never applied. Filing is a separate question - byRunDate is keyed on the
+// sweep date, and a target last tested *between* sweeps has its entry filed
+// only under later sweeps' keys (the live case: a build tested on the 24th
+// carried by sweeps keyed 26th, 28th, 29th, with no sweep keyed the 24th).
+// So when the same-key lookup misses, the search widens to any sweep whose
+// entry names this exact run, newest sweep first so the freshest statement
+// of the same run wins.
+function overlayEntryFor(s, summary) {
+  // Run-date agreement is required on both sides, with no escape for an
+  // undated entry: every committed sweep stamps runDate, so an entry without
+  // one is not a legacy shape to accommodate but a malformed record, and
+  // accepting it would re-admit the exact cross-run graft this join removes.
+  if (!s.runDate) return null;
+  const keyed = summary?.byRunDate?.[s.runDate]?.targets?.[s.slug];
+  if (keyed?.runDate === s.runDate) return keyed;
+  for (const date of Object.keys(summary?.byRunDate ?? {}).sort().reverse()) {
+    const entry = summary.byRunDate[date]?.targets?.[s.slug];
+    if (entry?.runDate === s.runDate) return entry;
+  }
+  return null;
+}
+
 function enrichSnapshot(s, summary) {
-  const sm = summary?.byRunDate?.[s.runDate]?.targets?.[s.slug];
+  const sm = overlayEntryFor(s, summary);
   if (!sm) return s;
+
+  const best = headlineRegionOf(sm);
+  // A region entry without counts cannot be applied wholly, and applying it
+  // partly is the defect this rewrite exists to remove. Leave the snapshot on
+  // its own basis instead, where every figure at least agrees with every other.
+  if (!best || !best.count) return s;
+
+  const implemented = best.passed + best.failed;
+  const divergenceValue = best.count === 0 || implemented === 0 ? null : (best.failed / best.count) * 100;
+  const coverageValue = best.count === 0 ? null : (implemented / best.count) * 100;
+  const correctness = implemented === 0 ? null : (best.passed / implemented) * 100;
+
   return {
     ...s,
+    // The port's own eu-west-2 figures, kept for the parity check that holds the
+    // site to the suite's published summary.
     portTotalValue: s.totalValue,
     portTotal: s.total,
-    totalValue: sm.rate,
-    total: fmtRate(sm.rate),
+    headlineRegion: best.region,
     regionLabel: sm.label,
+    tiers: best.tiers ?? s.tiers,
+    passed: best.passed,
+    failed: best.failed,
+    skipped: best.skipped,
+    count: best.count,
+    implemented,
+    unsupported: best.skipped,
+    divergenceValue,
+    divergence: divergenceValue == null ? "-" : `${divergenceValue.toFixed(1)}%`,
+    coverageValue,
+    coverage: coverageValue == null ? "-" : `${coverageValue.toFixed(1)}%`,
+    totalValue: correctness,
+    total: fmtRate(correctness),
+    // The worst region, for the target page to state its headline's range. A
+    // bare best-of-33 reads as unconditional, and on the rows where that matters
+    // most it is this board's author making the claim about his own engine.
+    divergenceWorst: sm.divergenceWorst ?? null,
+    divergenceWorstLabel:
+      sm.divergenceWorst == null || sm.divergenceWorst === (divergenceValue ?? 0)
+        ? null
+        : `${sm.divergenceWorst.toFixed(1)}%`,
     hasRegions: true,
   };
 }
@@ -94,7 +251,11 @@ export const targetRunsOf = (model) =>
 // The digest is taken from the full model before this runs, so it still moves
 // when only findings change.
 export function leanForFallback(model) {
-  const drop = ({ findings, ...rest }) => rest;
+  // Recurses into nested variants: a variant row is the same shape as its
+  // parent and carries its own findings, so stopping at the top level would let
+  // the whole set back in through the nesting the moment a variant fails a test.
+  const drop = ({ findings, variants, ...rest }) =>
+    variants ? { ...rest, variants: variants.map(drop) } : rest;
   return {
     ...model,
     runs: (model.runs ?? []).map((r) => ({ ...r, standings: r.standings.map(drop) })),
@@ -152,7 +313,13 @@ export function buildModel(snapshots, summary = null) {
     if (idx <= 0) return newMovement();
     const cur = byTarget.get(slug).get(date);
     const prev = byTarget.get(slug).get(ds[idx - 1]);
-    return deltaMovement(cur.totalValue, prev.totalValue);
+    // On divergence, like the series below. Two movement computations exist -
+    // one for a run's standings, one for a target's own timeline - and they
+    // have to agree, or a row and its history would disagree about whether the
+    // same run got better.
+    const f = figuresOf(cur);
+    const p = figuresOf(prev);
+    return withGradeShift(deltaMovement(f.divergenceValue, p.divergenceValue), f, p);
   };
 
   // Build runs oldest -> newest.
@@ -181,7 +348,7 @@ export function buildModel(snapshots, summary = null) {
       reTested: true,
       carried: false,
       movement: baselineMovement(),
-      ...(overlay ? { regionLabel: { kind: "all", regions: [], rate: 100 }, hasRegions: false } : {}),
+      ...(overlay ? { regionLabel: baselineRegionLabel(overlay, date), hasRegions: false } : {}),
     };
     const standings = [dynamodb, ...sorted];
     const top = sorted[0];
@@ -196,7 +363,16 @@ export function buildModel(snapshots, summary = null) {
       headline: {
         topSlug: top?.slug ?? "dynamodb",
         topDisplay: top?.display ?? display("dynamodb"),
-        topTotal: top?.total ?? "100%",
+        // The top target's letter, for the feed: every other surface the
+        // grade shipped to leads with it, and the feed should not be the one
+        // place a reader still meets a bare percentage pair.
+        topGrade: top ? (gradeOf(top.divergenceValue, top.coverageValue).letter ?? "-") : "A+",
+        topTotal: top?.total ?? "100.0%",
+        // The two published figures, so the feed doesn't have to quote the
+        // legacy correctness percentage as a bare "%" on a board where every
+        // percentage is divergence and 0.0% is the best result.
+        topDivergence: top?.divergence ?? "0.0%",
+        topCoverage: top?.coverage ?? "100.0%",
         emulatorCount: emulatorRows.length,
       },
     };
@@ -227,7 +403,7 @@ export function buildModel(snapshots, summary = null) {
   // ordered by the size of the change.
   const movers = latest
     ? latest.standings
-        .filter((r) => r.movement.state === "up" || r.movement.state === "down")
+        .filter((r) => r.movement.state === "improved" || r.movement.state === "regressed")
         .sort((a, b) => Math.abs(b.movement.delta) - Math.abs(a.movement.delta))
         .slice(0, 3)
         .map((r) => ({
@@ -248,13 +424,22 @@ export function buildModel(snapshots, summary = null) {
     const ds = targetDates.get(slug);
     const series = ds.map((date, i) => {
       const s = m.get(date);
-      const mv = i === 0 ? newMovement() : deltaMovement(s.totalValue, m.get(ds[i - 1]).totalValue);
+      const f = figuresOf(s);
+      const mv =
+        i === 0
+          ? newMovement()
+          : withGradeShift(
+              deltaMovement(f.divergenceValue, figuresOf(m.get(ds[i - 1])).divergenceValue),
+              f,
+              figuresOf(m.get(ds[i - 1])),
+            );
       return {
         runId: idByDate.get(date),
         date,
         startTime: s.startTime,
         totalValue: s.totalValue,
         total: s.total,
+        ...f,
         tiers: s.tiers,
         version: s.version,
         passed: s.passed,
@@ -270,9 +455,14 @@ export function buildModel(snapshots, summary = null) {
     });
     const current = latest ? latest.standings.find((r) => r.slug === slug) : null;
     const latestSnap = m.get(ds[ds.length - 1]);
-    // The per-region breakdown for the drilldown, from the target's latest
-    // tested run (falling back to the overall latest summary).
-    const smTarget = overlay ? overlay.byRunDate[ds[ds.length - 1]]?.targets?.[slug] ?? overlay.latest?.targets?.[slug] ?? null : null;
+    // The per-region breakdown for the drilldown, through the same guarded
+    // join the headline uses: only an entry describing the target's last
+    // tested run. The old unguarded `?? overlay.latest` fallback could put a
+    // different run's regions under a headline enriched from the right one -
+    // the exact mismatch overlayEntryFor exists to prevent.
+    const smTarget = overlay
+      ? overlayEntryFor({ slug, runDate: ds[ds.length - 1] }, overlay)
+      : null;
     perTarget[slug] = {
       slug,
       display: display(slug),
@@ -326,7 +516,14 @@ export function buildModel(snapshots, summary = null) {
         date: r.date,
         startTime: r.startTime,
         totalValue: 100,
-        total: "100%",
+        total: "100.0%",
+        // The baseline renders a note instead of a chart, but its run-history
+        // table is the same component every target's is, so it needs the two
+        // published figures rather than correctness alone.
+        divergenceValue: 0,
+        divergence: "0.0%",
+        coverageValue: 100,
+        coverage: "100.0%",
         tiers: ddb.tiers,
         version: "live (AWS)",
         passed: r.suiteSize,
@@ -355,7 +552,7 @@ export function buildModel(snapshots, summary = null) {
       // The baseline agrees with itself everywhere, so it has no per-region
       // drilldown, only the "all regions" label.
       regions: [],
-      regionLabel: overlay ? { kind: "all", regions: [], rate: 100 } : null,
+      regionLabel: overlay ? baselineRegionLabel(overlay) : null,
       hasRegions: false,
       runsPresent: runs.map((r) => r.id),
     };

@@ -38,6 +38,12 @@ try {
   });
 
   for await (const f of glob("**/*.html", { cwd: out })) pages.push(f);
+  // The text outputs too: llms.txt and llms-full.txt are built for machine
+  // consumption, which made them the one surface exempt from the retired-
+  // wording and NaN scans - and the one place a stale phrase survived a
+  // conversion. The structural checks below filter by path, so text files
+  // pass through them untouched.
+  for await (const f of glob("**/*.txt", { cwd: out })) pages.push(f);
   const read = async (f) => ({ path: `/${f}`, html: await readFile(join(out, f), "utf8") });
   const docs = await Promise.all(pages.map(read));
 
@@ -101,6 +107,81 @@ try {
   // matching every blob link flagged that as a failure.
   const unpinned = itemised.filter((d) => /\/blob\/(?:main|master)\/tests\//.test(d.html));
   check(unpinned.length === 0, "test-source links pin to a commit rather than a branch", unpinned.slice(0, 3).map((d) => d.path).join(", "));
+
+  // Two plots per target page, and they must not be the same plot twice. The
+  // filter was registered as `(series) => fn(series)`, which silently dropped
+  // the options object, so the coverage call fell back to the divergence default
+  // and the page rendered one metric under two headings. Every unit test passed,
+  // because the library was right and the wiring was wrong. Geometry is compared
+  // rather than headings: identical polylines is the symptom that matters.
+  const targetPages = [];
+  for (const path of pages) {
+    if (!/^targets\/[^/]+\/index\.html$/.test(path)) continue;
+    const html = await readFile(join(out, path), "utf8");
+    const polylines = [...html.matchAll(/<polyline[^>]*points="([^"]+)"/g)].map((m) => m[1]);
+    const axes = [...html.matchAll(/rotate\(-90\)[^>]*>([^<]+)<\/text>/g)].map((m) => m[1]);
+    // A target with one run renders a note instead of plots, and the baseline
+    // never renders them, so only pages that drew any are candidates.
+    if (polylines.length === 0) continue;
+    targetPages.push({ path, polylines, axes });
+  }
+  check(targetPages.length > 0, "target pages render history plots");
+  const singlePlot = targetPages.filter((p) => p.polylines.length !== 2);
+  check(singlePlot.length === 0, "every plotted target page draws exactly two plots", singlePlot.slice(0, 3).map((p) => `${p.path} drew ${p.polylines.length}`).join(", "));
+  const duplicated = targetPages.filter((p) => p.polylines.length === 2 && p.polylines[0] === p.polylines[1]);
+  check(duplicated.length === 0, "the two plots are different metrics, not the same one twice", duplicated.slice(0, 3).map((p) => p.path).join(", "));
+  const mislabelled = targetPages.filter((p) => new Set(p.axes).size !== p.axes.length || p.axes.length !== 2);
+  check(mislabelled.length === 0, "each plot names its own axis sense", mislabelled.slice(0, 3).map((p) => `${p.path}: ${p.axes.join(" / ")}`).join(", "));
+
+  // Wording the conversion retired. A page still claiming a target can't lower
+  // its divergence by attempting less, or framing the baseline as a flat 100%,
+  // is the defect two review passes found by reading prose rather than code.
+  const RETIRED = [
+    "can't lower it by attempting less",
+    "cannot lower it by attempting less",
+    "at a flat 100%",
+    "correctness over implemented operations, split into three tiers",
+    // The grade introduction retired the bare-percentage headline and the
+    // dual-encoded bar it needed a paragraph to explain.
+    "the bar shows coverage coloured by divergence",
+    "a short green bar is a target that is right about a narrow surface",
+    // The baseline is framed by its divergence now, not the retired
+    // correctness percentage.
+    "the baseline, 100% by definition",
+  ];
+  const stale = [];
+  for (const path of pages) {
+    const html = await readFile(join(out, path), "utf8");
+    for (const phrase of RETIRED) if (html.includes(phrase)) stale.push(`${path}: "${phrase}"`);
+  }
+  check(stale.length === 0, "no built page carries wording the conversion retired", stale.slice(0, 3).join(", "));
+
+  // Every grade chip must show a letter from the published set (or the
+  // unscored dash). A chip showing anything else - "NaN", "undefined", an
+  // empty string - means the derivation broke inside a template, which no
+  // unit test sees.
+  const badChips = [];
+  let chipCount = 0;
+  for (const path of pages) {
+    if (!path.endsWith(".html")) continue;
+    const html = await readFile(join(out, path), "utf8");
+    for (const m of html.matchAll(/class="grade-chip[^"]*"[^>]*>\s*<span aria-hidden="true">([^<]*)<\/span>/g)) {
+      chipCount++;
+      const letter = m[1].trim();
+      if (!["A+", "A", "B", "C", "D", "F", "–"].includes(letter)) badChips.push(`${path}: "${letter}"`);
+    }
+  }
+  check(chipCount > 0, "grade chips render on the built pages", `found ${chipCount}`);
+  check(badChips.length === 0, "every grade chip shows a letter from the published set", badChips.slice(0, 3).join(", "));
+
+  // A figure that renders as NaN% or undefined is the shape of a zero-vs-null
+  // slip, which is the recurring defect class of this conversion.
+  const broken = [];
+  for (const path of pages) {
+    const html = await readFile(join(out, path), "utf8");
+    if (/NaN%|>undefined<|undefined%/.test(html)) broken.push(path);
+  }
+  check(broken.length === 0, "no built page renders NaN or undefined as a figure", broken.slice(0, 3).join(", "));
 } finally {
   await rm(out, { recursive: true, force: true });
 }

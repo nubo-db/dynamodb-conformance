@@ -15,6 +15,15 @@ export default {
     lastmod: (data) => data.pair.date,
     target: (data) => data.conformance.perTarget[data.pair.slug],
     point: (data) => data.conformance.perTarget[data.pair.slug]?.series.find((p) => p.runId === data.pair.runId),
+    // The target's history up to and including this run, so the page can plot how
+    // it got here rather than only stating where it landed. Truncated rather than
+    // the full series: a page dated 1 July must not draw a line through August,
+    // which would show a reader runs that hadn't happened when this one did.
+    seriesTo: (data) => {
+      const series = data.conformance.perTarget[data.pair.slug]?.series ?? [];
+      const i = series.findIndex((p) => p.runId === data.pair.runId);
+      return i < 0 ? series : series.slice(0, i + 1);
+    },
     // Prev/next across the dates this target was actually measured, so navigation
     // only lands on pages that exist. The series is oldest-first, so the newer
     // run is the next index up.

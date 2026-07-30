@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { buildSummaryModel, cohortOf, regionLabel, groupRegionsByRate, renderRegionGroups } from "./summary.mjs";
+import { buildSummaryModel, cohortOf, regionLabel, regionCount, groupRegionsByDivergence, renderRegionGroups } from "./summary.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const raw = JSON.parse(readFileSync(join(here, "..", "test", "fixtures", "regions", "summary.json"), "utf8"));
@@ -114,32 +114,100 @@ test("a missing or wrong-schema payload degrades to unavailable rather than thro
   assert.equal(buildSummaryModel(undefined).targets && Object.keys(buildSummaryModel(undefined).targets).length, 0);
 });
 
-test("groupRegionsByRate clusters regions into rate bands, highest first", () => {
+// Best first now means lowest first: the drilldown is on divergence, so a
+// descending sort would have put a target's worst regions at the top of the
+// list under a heading that reads as its best.
+test("groupRegionsByDivergence clusters regions into bands, lowest first", () => {
   const regions = [
-    { region: "eu-west-2", rate: 99.4, pinned: true, inCohort: true },
-    { region: "eu-central-1", rate: 99.4, inCohort: true },
-    { region: "af-south-1", rate: 99.0 },
-    { region: "ap-east-1", rate: 99.0 },
+    { region: "eu-west-2", divergenceValue: 0.6, pinned: true, inCohort: true },
+    { region: "eu-central-1", divergenceValue: 0.6, inCohort: true },
+    { region: "af-south-1", divergenceValue: 1.0 },
+    { region: "ap-east-1", divergenceValue: 1.0 },
   ];
-  const groups = groupRegionsByRate(regions);
+  const groups = groupRegionsByDivergence(regions);
   assert.equal(groups.length, 2);
-  assert.deepEqual([groups[0].rate, groups[1].rate], [99.4, 99.0]);
+  assert.deepEqual([groups[0].divergenceValue, groups[1].divergenceValue], [0.6, 1.0]);
+  assert.deepEqual([groups[0].divergence, groups[1].divergence], ["0.6%", "1.0%"]);
   assert.equal(groups[0].count, 2);
   assert.equal(groups[1].count, 2);
 });
 
-test("renderRegionGroups marks the baseline and indeterminate regions", () => {
+test("renderRegionGroups shows divergence, and marks the baseline and indeterminate regions", () => {
   const html = renderRegionGroups([
-    { region: "eu-west-2", rate: 90, pinned: true, inCohort: true, indeterminate: 0, indeterminatePresent: false },
-    { region: "ap-east-1", rate: 88, pinned: false, inCohort: false, indeterminate: 3, indeterminatePresent: true },
+    { region: "eu-west-2", divergenceValue: 10, divergence: "10.0%", pinned: true, inCohort: true, indeterminate: 0, indeterminatePresent: false },
+    { region: "ap-east-1", divergenceValue: 12, divergence: "12.0%", pinned: false, inCohort: false, indeterminate: 3, indeterminatePresent: true },
   ]);
   assert.match(html, /eu-west-2/);
   assert.match(html, /baseline/);
   assert.match(html, /3 indeterminate/);
-  assert.match(html, /90%/);
-  assert.match(html, /88%/);
+  assert.match(html, /10\.0%/);
+  assert.match(html, /12\.0%/);
+});
+
+test("a region's divergence is failures over that region's whole count", () => {
+  const m = buildSummaryModel(raw);
+  const eu = m.targets.dynalite.regions.find((r) => r.region === "eu-west-2");
+  assert.equal(eu.divergenceValue, (eu.failed / eu.count) * 100);
+  assert.equal(eu.divergence, `${eu.divergenceValue.toFixed(1)}%`);
+});
+
+// The cohort label alone can't say how broad the cohort is,
+// because "all regions" over six observed and over thirty-three read the same.
+test("regionCount states the cohort size against the observed total", () => {
+  assert.equal(regionCount(cohortOf([{ region: "eu-west-2", rate: 90 }, { region: "us-east-1", rate: 92 }])), "1 of 2");
+  assert.equal(regionCount(cohortOf([{ region: "eu-west-2", rate: 90 }, { region: "us-east-1", rate: 90 }])), "2 of 2");
+  assert.equal(regionCount(null), null);
+  assert.equal(regionCount(cohortOf([])), null);
 });
 
 test("renderRegionGroups is empty for a target with no regions", () => {
   assert.equal(renderRegionGroups([]), "");
+});
+
+// The guard every other divergence figure carries. Without it this row reported
+// 0.0% - reading as flawless - for a target that implemented nothing, while the
+// tier directly beneath it in the same drilldown correctly reported "-".
+test("a region where a target implements nothing has no divergence, not zero", () => {
+  const m = buildSummaryModel({
+    schemaVersion: 1,
+    groundTruth: { slug: "dynamodb", rate: 100, runDate: "2026-07-29" },
+    regions: { observed: ["eu-west-2"], unresolved: [], dropped: [], detail: {} },
+    targets: {
+      nothing: {
+        headline: { region: "eu-west-2", rate: null },
+        regions: {
+          "eu-west-2": {
+            rate: null, passed: 0, failed: 0, skipped: 10, indeterminate: 0, count: 10,
+            tiers: { tier1: { p: 0, f: 0, s: 10, i: 0 }, tier2: { p: 0, f: 0, s: 0, i: 0 }, tier3: { p: 0, f: 0, s: 0, i: 0 } },
+          },
+        },
+      },
+    },
+  });
+  const r = m.targets.nothing.regions[0];
+  assert.equal(r.divergenceValue, null);
+  assert.equal(r.divergence, "-");
+  // And it agrees with the tier beneath it rather than contradicting it.
+  assert.equal(r.tiers.tier1.divergence, "-");
+});
+
+// The methodology page now states that coverage is a property of the target
+// while divergence is a property of the target measured against a region. That
+// rests on verdictsForRegion only ever swapping a pass for a fail: skips and
+// indeterminates pass through untouched, so implemented and total are the same in
+// every region. If that ever stops holding, the page is wrong and the row's
+// counts stop reproducing its published divergence.
+test("coverage is region-invariant, so a row's counts reproduce its divergence", () => {
+  const m = buildSummaryModel(raw);
+  for (const [slug, t] of Object.entries(m.targets)) {
+    const implemented = new Set(t.regions.map((r) => r.passed + r.failed));
+    const total = new Set(t.regions.map((r) => r.count));
+    assert.equal(implemented.size, 1, `${slug}: implemented varies by region`);
+    assert.equal(total.size, 1, `${slug}: suite size varies by region`);
+    // And divergence does vary, which is the asymmetry the page describes.
+    for (const r of t.regions) {
+      if (r.divergenceValue == null) continue;
+      assert.ok(Math.abs(r.failed / r.count * 100 - r.divergenceValue) < 1e-9, `${slug}/${r.region}`);
+    }
+  }
 });

@@ -5,19 +5,20 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import {
-  tierOf,
-  areaOf,
-  breakdownOf,
-  areaTallies,
-  areaState,
-  pct,
-  display,
-  label,
   DISPLAY,
   REPO,
-  scoreEmulator,
+  areaOf,
+  areaState,
+  areaTallies,
+  breakdownOf,
+  display,
   dynamodbRow,
   isSelfMaintained,
+  label,
+  pct,
+  scoreEmulator,
+  tierFigures,
+  tierOf,
 } from "./scoring.mjs";
 import * as suite from "dynamodb-conformance/scripts/summarise.mjs";
 import * as suiteScore from "dynamodb-conformance/scripts/lib/score.mjs";
@@ -64,9 +65,16 @@ test("scoreEmulator buckets tiers, counts statuses, derives date + version", () 
   assert.equal(r.failed, 1);
   assert.equal(r.skipped, 1);
   assert.equal(r.count, 5); // count still includes the skip
-  assert.equal(r.tiers.tier1.pct, "50.0%"); // 1 passed, 1 failed
-  assert.equal(r.tiers.tier2.pct, "100.0%"); // 1 passed, 0 failed, 1 skip excluded
-  assert.equal(r.tiers.tier3.pct, "100.0%");
+  // Tiers report divergence over the whole tier, the same axis as the headline.
+  assert.equal(r.tiers.tier1.divergence, "50.0%"); // 1 of 2 failed
+  assert.equal(r.tiers.tier2.divergence, "0.0%"); // nothing failed; the skip is coverage, not divergence
+  assert.equal(r.tiers.tier3.divergence, "0.0%");
+  // Coverage sits beside it, and is what shows tier 2's skip.
+  assert.equal(r.tiers.tier1.coverage, "100.0%");
+  assert.equal(r.tiers.tier2.coverage, "50.0%");
+  // Correctness is still available, under its own name.
+  assert.equal(r.tiers.tier1.correctness, "50.0%");
+  assert.equal(r.tiers.tier2.correctness, "100.0%");
   assert.equal(r.total, "75.0%"); // 3 passed / (3 + 1 failed); skip excluded
   assert.equal(r.totalValue, 75);
   assert.equal(r.version, "0.9.13");
@@ -206,7 +214,7 @@ test("areaTallies keeps every area with counts + state, sorted by tier then grou
 // gone.
 test("the DynamoDB row is synthesised at 100% across the suite size", () => {
   const row = dynamodbRow(526, "-");
-  assert.equal(row.total, "100%");
+  assert.equal(row.total, "100.0%");
   assert.equal(row.totalValue, 100);
   assert.equal(row.passed, 526);
   assert.equal(row.failed, 0);
@@ -216,7 +224,8 @@ test("the DynamoDB row is synthesised at 100% across the suite size", () => {
   assert.equal(row.runDate, "-");
   assert.equal(row.baseline, true);
   for (const t of ["tier1", "tier2", "tier3"]) {
-    assert.equal(row.tiers[t].pct, "100%", `${t} must read 100%`);
+    assert.equal(row.tiers[t].divergence, "0.0%", `${t} must diverge nowhere`);
+    assert.equal(row.tiers[t].coverage, "100.0%", `${t} must cover the whole tier`);
   }
 });
 
@@ -244,6 +253,9 @@ test("parity: the port's score equals summary.json's eu-west-2 rate for every ta
 
 test("isSelfMaintained flags the board author's own engine for the disclosure", () => {
   assert.equal(isSelfMaintained("dynoxide"), true);
+  // A build of the engine carries the same conflict of interest: the
+  // disclosure must travel to the wasm page and its maintainedByAuthor field.
+  assert.equal(isSelfMaintained("dynoxide-wasm"), true);
   assert.equal(isSelfMaintained("dynalite"), false);
 });
 
@@ -268,4 +280,65 @@ test("every scored target is nameable and linkable from the shared maps", () => 
     assert.ok(REPO[slug], `${slug} has a display name but no project URL`);
   }
   assert.deepEqual(Object.keys(REPO).sort(), Object.keys(DISPLAY).sort());
+});
+
+// The identity the methodology page now states, asserted from the arithmetic
+// rather than from a fixture, and through the real code path.
+//
+// Two non-gameability claims have been published and both were false. What is
+// true is narrower and checkable: because the denominator is the whole suite
+// either way, a test moving from failing to skipped leaves the divergence
+// numerator and the coverage numerator together, so both figures fall by exactly
+// the same amount. If that ever stops holding, the page is wrong again.
+test("moving a fail to a skip moves divergence and coverage by identical deltas", () => {
+  const cases = [];
+  for (const p of [0, 1, 7, 130, 673]) {
+    for (const f of [1, 2, 41, 213]) {
+      for (const s of [0, 3, 112]) {
+        for (const i of [0, 5]) cases.push({ p, f, s, i });
+      }
+    }
+  }
+
+  for (const t of cases) {
+    const before = tierFigures(t);
+    // One fail becomes a skip. Nothing is fixed; the tally size is unchanged.
+    const after = tierFigures({ ...t, f: t.f - 1, s: t.s + 1 });
+    const total = t.p + t.f + t.s + t.i;
+
+    assert.equal(before.total, after.total, "the denominator must not move");
+
+    const dDiv = after.divergenceValue - before.divergenceValue;
+    const dCov = after.coverageValue - before.coverageValue;
+
+    // Both fall, by the same amount, and that amount is one test's worth.
+    assert.ok(Math.abs(dDiv - dCov) < 1e-9, `deltas differ for ${JSON.stringify(t)}: ${dDiv} vs ${dCov}`);
+    assert.ok(Math.abs(dDiv - -100 / total) < 1e-9, `delta is not -1/total for ${JSON.stringify(t)}`);
+    assert.ok(dDiv < 0 && dCov < 0, "withdrawal lowers both, never raises either");
+  }
+});
+
+// The contrast the page draws, on the same tallies: the figure this replaced
+// moved the other way, because those tests left its denominator too.
+test("the correctness figure this replaced rises on the same withdrawal", () => {
+  for (const t of [{ p: 673, f: 213, s: 112, i: 0 }, { p: 7, f: 41, s: 3, i: 5 }, { p: 130, f: 2, s: 0, i: 0 }]) {
+    const before = tierFigures(t);
+    const after = tierFigures({ ...t, f: t.f - 1, s: t.s + 1 });
+    assert.ok(
+      after.correctnessValue > before.correctnessValue,
+      `correctness should rise on withdrawal for ${JSON.stringify(t)}`,
+    );
+    // Which is the whole problem: it rose while divergence fell, so neither
+    // figure alone could tell a withdrawal from a fix.
+    assert.ok(after.divergenceValue < before.divergenceValue);
+  }
+});
+
+// A target that withdraws its last remaining fail has no divergence left to
+// report, so the identity's endpoint is null rather than a spurious zero.
+test("withdrawing the last fail leaves no divergence, not zero", () => {
+  const after = tierFigures({ p: 0, f: 0, s: 10, i: 0 });
+  assert.equal(after.divergenceValue, null);
+  assert.equal(after.divergence, "-");
+  assert.equal(after.coverage, "0.0%");
 });

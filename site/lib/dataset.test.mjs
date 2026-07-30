@@ -43,8 +43,19 @@ test("latest exposes every target on an identical schema, baseline included", ()
     assert.deepEqual(sortedKeys(t), shape, `target ${t.slug} diverges from the shared schema`);
     assert.deepEqual(Object.keys(t.tiers).sort(), ["tier1", "tier2", "tier3"]);
     assert.equal(t.capabilities.length, CAPABILITIES.length);
-    // Correctness and coverage always travel together.
-    assert.ok("total" in t && "coverage" in t);
+    // The two published axes always travel together, and the legacy
+    // correctness percentage sits beside them under its own name rather than
+    // sharing "total" with the raw count in `counts`.
+    assert.ok("divergence" in t && "coverage" in t);
+    assert.ok("correctness" in t && !("total" in t));
+    assert.equal(typeof t.counts.total, "number");
+    // Every tier reports on the same axes as the headline, so a tier figure
+    // and the figure above it can't run in opposite directions.
+    for (const tier of Object.values(t.tiers)) {
+      if (!tier) continue;
+      assert.ok("divergence" in tier && "coverage" in tier && "correctness" in tier);
+      assert.ok(!("pct" in tier) && !("value" in tier));
+    }
   }
 
   const baselines = latest.targets.filter((t) => t.baseline);
@@ -81,8 +92,86 @@ test("index documents the tier and capability vocabularies and the endpoints", (
   assert.ok(urls.includes(site.url + "/feed.xml"));
 });
 
-test("schema version 2 reflects the per-region addition", () => {
-  assert.equal(DATA_SCHEMA_VERSION, 2);
+// 3 is the tier conversion plus the `total` -> `correctness` rename. Both
+// change what a field means rather than adding one, so a consumer pinned to 2
+// has to be told rather than left to read an inverted figure. 4 adds the
+// letter grade and its criteria, additively.
+test("schema version 4 reflects the grade addition", () => {
+  assert.equal(DATA_SCHEMA_VERSION, 4);
+});
+
+// The grade travels with the two values it reads, and the criteria travel in
+// the envelope, so a consumer can regrade and check the letter it was handed.
+// This is the methodology's testability claim made literal: every published
+// letter is recomputed here from the envelope's own criteria - a separate
+// implementation from gradeOf - and must match, for every target including
+// the baseline. No target is graded by different rules.
+test("every published letter is reproducible from the envelope's criteria alone", () => {
+  const latest = buildLatest(model, site);
+  const criteria = latest.metrics.grade;
+  assert.ok(criteria.bands.length > 0);
+  assert.equal(criteria.gradingVersion, 1);
+  const ORDER = ["A+", "A", "B", "C", "D", "F"];
+  const regrade = (d, c) => {
+    if (d == null || c == null) return null;
+    // Bands and caps read the figures at the published one-decimal
+    // precision; only the A+ test reads the raw value (zero means zero
+    // failing tests, not a rounded 0.0%). Mirrors metrics.grade.description.
+    const d1 = Number(d.toFixed(1));
+    const c1 = Number(c.toFixed(1));
+    let letter =
+      d === criteria.aPlus.divergence
+        ? "A+"
+        : (criteria.bands.find((b) => d1 < b.under)?.letter ?? "F");
+    const cap = criteria.coverageCaps.find((x) => c1 < x.under)?.cap ?? null;
+    if (cap && ORDER.indexOf(cap) > ORDER.indexOf(letter)) letter = cap;
+    return letter;
+  };
+  for (const t of latest.targets) {
+    assert.ok("grade" in t, `${t.slug} missing grade`);
+    assert.equal(
+      t.grade.letter,
+      regrade(t.divergence.value, t.coverage.value),
+      `${t.slug}'s published letter must equal one rederived from its own figures`,
+    );
+  }
+});
+
+// Every level of this schema pre-computes the published pair. Leaving one level
+// as raw counts made a consumer reimplement the one formula the schema otherwise
+// hands them, and a consumer computing it themselves can silently desync.
+test("every level publishes the same divergence/coverage pair, not just some", () => {
+  const latest = buildLatest(model, site);
+  for (const t of latest.targets) {
+    for (const tier of Object.values(t.tiers)) {
+      if (!tier) continue;
+      assert.ok("value" in tier.correctness, "a tier's correctness carries a value");
+    }
+    for (const a of t.areas) {
+      assert.ok(a.divergence && a.coverage, `area ${a.key} carries both figures`);
+      if (a.total && a.passed + a.failed > 0) {
+        assert.ok(Math.abs(a.divergence.value - (a.failed / a.total) * 100) < 0.001);
+        assert.ok(Math.abs(a.coverage.value - ((a.passed + a.failed) / a.total) * 100) < 0.001);
+      } else {
+        assert.equal(a.divergence.value, null, `area ${a.key} implements nothing, so has no divergence`);
+      }
+    }
+    for (const r of t.regions) {
+      assert.ok(r.divergence && r.coverage, `region ${r.region} carries both figures`);
+      for (const tier of Object.values(r.tiers)) {
+        if (tier) assert.ok("value" in tier.correctness, "a region tier's correctness carries a value");
+      }
+    }
+  }
+});
+
+test("a target's region summary says how wide the cohort behind its headline is", () => {
+  const latest = buildLatest(model, site);
+  for (const t of latest.targets) {
+    if (!t.region) continue;
+    assert.equal(t.region.cohortSize, t.region.cohort.length);
+    assert.ok(t.region.observed === null || t.region.cohortSize <= t.region.observed);
+  }
 });
 
 test("every target carries a uniform region summary; baseline is 'all'", () => {

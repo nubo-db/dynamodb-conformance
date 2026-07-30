@@ -3,9 +3,10 @@ import syntaxHighlight from "@11ty/eleventy-plugin-syntaxhighlight";
 import { chartGeometry } from "./lib/chart.mjs";
 import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/matrix.mjs";
 import { renderCapabilities, renderCapabilityCards } from "./lib/capabilities.mjs";
-import { regionLabel, renderRegionGroups } from "./lib/summary.mjs";
+import { regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
 import { renderSplitEvidence } from "./lib/splits.mjs";
-import { isSelfMaintained } from "./lib/scoring.mjs";
+import { TARGETS, configurationOf, distributionOf, fallsShort, gradeLineOf, gradeOf, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
+import { channelIcon } from "./lib/channel-icons.mjs";
 import { targetLinks, targetRunHref } from "./lib/links.mjs";
 import { areaFailures, sourceUrl } from "./lib/findings.mjs";
 
@@ -59,7 +60,11 @@ export default function (eleventyConfig) {
   });
 
   // Inline-SVG chart geometry for a target's percentage history.
-  eleventyConfig.addFilter("chartGeometry", (series) => chartGeometry(series));
+  // Forwards every argument, not just the series. Written as `(series) => ...`
+  // it silently dropped the options object, so the target page's two plots -
+  // divergence and coverage - both fell back to the divergence default and
+  // rendered as the same chart twice, with no error anywhere.
+  eleventyConfig.addFilter("chartGeometry", (...args) => chartGeometry(...args));
 
   // Area-by-target support grid for the /support page. The wide grid is the
   // desktop view; supportCards is the phone view, one card per operation.
@@ -85,11 +90,30 @@ export default function (eleventyConfig) {
   // "eu-west-2 + 5 regions"). Delegates to the same helper the model uses so the
   // phrasing is identical everywhere.
   eleventyConfig.addFilter("regionLabel", (label) => regionLabel(label));
+  eleventyConfig.addFilter("regionCount", (label) => regionCount(label));
 
   // Whether a target is maintained by the board's own author (a static fact, not
   // a per-run figure), so the conflict-of-interest disclosure renders from the
   // slug at build time and never depends on the data being freshly fetched.
   eleventyConfig.addFilter("isSelfMaintained", (slug) => isSelfMaintained(slug));
+  // The letter grade for a row's two published values, derived at render time
+  // so a letter can never disagree with the figures printed beside it. The
+  // two copy helpers keep the phrasing identical on every surface that
+  // prints it (standings, variant rows, other-builds cards).
+  eleventyConfig.addFilter("gradeOf", (divergenceValue, coverageValue) => gradeOf(divergenceValue, coverageValue));
+  eleventyConfig.addFilter("gradeLine", (row) => gradeLineOf(row));
+  eleventyConfig.addFilter("regionClause", (row) => regionClauseOf(row));
+  eleventyConfig.addFilter("configurationOf", (slug) => configurationOf(slug));
+  eleventyConfig.addFilter("isVariant", (slug) => isVariant(slug));
+  // Every way a target can be run, as marks. Uncapped: seeing all of them at a
+  // glance is the point, and an icon costs a fraction of the room a label does.
+  eleventyConfig.addFilter("channels", (slug) =>
+    distributionOf(slug)
+      .map((d) => ({ ...d, ...channelIcon(d.channel) }))
+      .filter((d) => d.path));
+  // What a target needs before it will run, and any caveat about running it.
+  eleventyConfig.addFilter("requires", (slug) => TARGETS[slug]?.requires ?? null);
+  eleventyConfig.addFilter("runNote", (slug) => TARGETS[slug]?.note ?? null);
 
   // A target's project site and source, split out of the single URL the suite
   // carries. Static per target, like the disclosure above.
@@ -112,6 +136,13 @@ export default function (eleventyConfig) {
   // commit that measured it.
   eleventyConfig.addFilter("targetRunHref", (row, runId) => targetRunHref(row, runId));
   eleventyConfig.addFilter("areaFailures", (area, findings) => areaFailures(area, findings));
+
+  // A target's gaps, split by kind: what it gets wrong, and what it never tries.
+  eleventyConfig.addFilter("fallsShort", (breakdown) => fallsShort(breakdown));
+  eleventyConfig.addFilter("notAttempted", (breakdown) => notAttempted(breakdown));
+
+  // Whether a run predates the metric change, so its page can say so.
+  eleventyConfig.addFilter("scoredOnCorrectness", (date) => scoredOnCorrectness(date));
   eleventyConfig.addFilter("findingSource", (finding, repoBase) => sourceUrl(finding, repoBase));
 
   // Serialise structured data for a <script type="application/ld+json"> block,
@@ -169,7 +200,7 @@ export default function (eleventyConfig) {
       "@id": data.site.url + "/#dataset",
       name: "DynamoDB emulator conformance results",
       description:
-        "Tier-level conformance scores for DynamoDB-compatible emulators, measured against live AWS DynamoDB and recorded run over run.",
+        "Divergence and coverage per tier and over the whole suite for DynamoDB-compatible emulators, measured against live AWS DynamoDB and recorded run over run.",
       url: data.site.url,
       license: data.site.dataLicense,
       isAccessibleForFree: true,
@@ -178,10 +209,10 @@ export default function (eleventyConfig) {
       keywords: ["DynamoDB", "conformance", "emulator", "AWS", "DynamoDB Local", "testing"],
       measurementTechnique: "AWS SDK behavioural tests against each target, baselined on live AWS DynamoDB",
       variableMeasured: [
-        "Tier 1 (Core) conformance %",
-        "Tier 2 (Complete) conformance %",
-        "Tier 3 (Strict) conformance %",
-        "Total conformance %",
+        "Tier 1 (Core) divergence % and coverage %",
+        "Tier 2 (Complete) divergence % and coverage %",
+        "Tier 3 (Strict) divergence % and coverage %",
+        "Whole-suite divergence % and coverage %",
       ],
       ...(latestRun ? { dateModified: latestRun } : {}),
       ...(firstRun ? { temporalCoverage: `${firstRun}/${latestRun || ".."}` } : {}),
