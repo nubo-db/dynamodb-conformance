@@ -1,7 +1,7 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-07-29"
+lastmod: "2026-07-30"
 meta:
   title: About
   description: "Why an independent DynamoDB conformance suite exists, how it scores emulators against live AWS, and what the tiers mean."
@@ -21,7 +21,7 @@ So the suite tests observable behaviour and nothing else. It drives the standard
 
 ## Three tiers, because one number hides too much
 
-A single "92%" tells you almost nothing. Ninety-two percent of *what*? Miss 8% of the core operations and you'll feel it constantly; miss 8% of the strictest edge cases and it's likely still fine for local development. Those are very different situations behind the same number, so the suite splits its tests into three tiers.
+A target that gets 8% of the suite wrong tells you almost nothing on its own. Eight percent of *what*? Get 8% of the core operations wrong and you'll feel it constantly; get 8% of the strictest edge cases wrong and it's likely still fine for local development. Those are very different situations behind the same number, so the suite splits its tests into three tiers and reports divergence within each.
 
 **Tier 1 - Core.** The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable. The more an emulator diverges here, the more often everyday code will hit a difference.
 
@@ -29,7 +29,7 @@ A single "92%" tells you almost nothing. Ninety-two percent of *what*? Miss 8% o
 
 **Tier 3 - Strict.** Validation ordering, error behaviour at a range of strictness - exact where DynamoDB's wording is stable, structural (the type, field and constraint) where its rendering is non-deterministic - limits, and legacy API shapes. Missing some of this is usually fine when you're developing locally, where the exact error string rarely matters. It matters far more in CI: if your own test suite runs against an emulator and asserts on error messages or validation behaviour, a Tier 3 gap is exactly the kind of thing that lets a bug through a green build and only shows up against real DynamoDB in production.
 
-"0.0% Tier 1, 5.0% Tier 2, 20.0% Tier 3" tells you far more than one figure over the whole suite ever could.
+So a target diverging 8% over the whole suite might be right about every core operation and wrong about a fifth of Tier 3, or the other way round. The tier columns say which, and only one of those two is a problem for most people.
 
 ## Skips are scope, fails are bugs
 
@@ -48,3 +48,5 @@ Every figure here is derived from the suite's own results at build time. None of
 ## On independence
 
 The suite and this site are built and maintained by [Martin Hicks](https://martinhicks.dev), who also maintains Dynoxide - one of the targets scored here. That's why the no-figure-by-hand rule matters for more than drift: it's what keeps the scoring honest. Every number is derived from the suite's own results at build time, and the [scoring logic is shared with the suite](/methodology) rather than restated here. A target's score can't be tuned without changing the suite's published results first, in the open, and the code that turns those results into the numbers on this page is in the same public repository as the tests that produced them. Clone it and run the build, and you get what you see here. Real DynamoDB is the baseline, every figure carries the region and date it was measured, and [anyone can suggest a target](https://github.com/paritysuite/dynamodb-conformance/issues). There's more for programmatic consumers, and the raw data, on the [agent guide](/for-agents).
+
+The letter grades need a second answer, because that argument only covers the figures. Where the bands and the caps sit was a choice, and moving one regrades targets whose results never changed - no run required, nothing to notice. So the [criteria are versioned and dated](/methodology#grading): they are grading criteria version 1, in effect from 30 July 2026, and any change to a band, a cap or the A+ gate bumps the version and is dated on that page. Both figures stay printed beside every letter, so you can recompute a grade yourself and check it, and a retune leaves a record rather than a quietly different board.
