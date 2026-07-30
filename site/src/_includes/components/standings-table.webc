@@ -103,7 +103,7 @@
            statements rather than a paragraph wrapping mid-clause; on narrow
            screens the spans flow naturally. -->
       <p>
-        <span class="sm:block">Letters follow divergence over the whole suite; A+ means zero failing tests, not a rounded 0.0%.</span>
+        <span class="sm:block">Letters follow divergence over the whole suite, in each target's closest region; A+ means zero failing tests there, not a rounded 0.0%.</span>
         <span class="sm:block">Coverage only caps them: under 90% covered grades at best B, under 70% at best C, under 50% at best D, and coverage alone never grades F.</span>
       </p>
     </div>

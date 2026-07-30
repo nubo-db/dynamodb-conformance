@@ -7,7 +7,8 @@ broadened, and targets brought into the run. Newest first.
 
 Every target now wears a letter grade, read from the two published figures and
 never blended from them. Divergence sets the letter - A+ for exactly zero
-failing tests, A under 5%, B under 15%, C under 25%, D under 35%, F beyond -
+failing tests against the target's best-matching region, A under 5%, B under
+15%, C under 25%, D under 35%, F beyond -
 and low coverage can only cap it: under 90% caps at B, under 70% at C, under
 50% at D, and coverage alone never grades F. No measurement changed and
 no row moved; the grade restates the colour bands the board has always

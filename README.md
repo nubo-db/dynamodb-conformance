@@ -55,9 +55,10 @@ operation a target declines is something you find in minutes and plan around;
 one it gets quietly wrong is something you find in production.
 
 The **Grade** is a reading of the pair, never a blend of it. Divergence sets
-the letter (A+ exactly zero failing tests, A under 5%, B under 15%, C under
-25%, D under 35%, F beyond) and low coverage can only cap it (under 90% caps
-at B, under 70% at C, under 50% at D; coverage alone never grades F). Both
+the letter (A+ exactly zero failing tests against the target's best-matching
+region, A under 5%, B under 15%, C under 25%, D under 35%, F beyond) and low
+coverage can only cap it (under 90% caps at B, under 70% at C, under 50% at
+D; coverage alone never grades F). Both
 figures stay printed beside every letter, so the grade is always
 recomputable; the criteria are versioned and dated in the
 [methodology](https://paritysuite.org/methodology#grading). A grade is an
