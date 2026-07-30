@@ -1,6 +1,6 @@
 {
   "name": "dynamodb-conformance",
-  "version": "2.1.0",
+  "version": "3.1.0",
   "description": "Independent conformance test suite for DynamoDB-compatible endpoints",
   "keywords": [
     "dynamodb",
@@ -49,7 +49,8 @@
     "site:build": "npm run build --workspace site",
     "site:test": "npm test --workspace site",
     "site:check-build": "npm run check:build --workspace site",
-    "site:snapshot": "npm run snapshot --workspace site"
+    "site:snapshot": "npm run snapshot --workspace site",
+    "results:lineage": "node scripts/lineage.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1077.0",

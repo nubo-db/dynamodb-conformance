@@ -4,7 +4,10 @@ import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { buildBadge } from './badges.mjs'
-import { GROUND_TRUTH_SLUG, loadScoringContext, scoreTarget } from './lib/score.mjs'
+import { GROUND_TRUTH_SLUG, axesOf, loadScoringContext, scoreTarget, verdictsForRegion } from './lib/score.mjs'
+import { classifyResults } from './lib/classify.mjs'
+import { splitFor } from './lib/registry.mjs'
+import { gradeOf } from './lib/grade.mjs'
 import {
   DISPLAY,
   REPO,
@@ -210,8 +213,10 @@ describe('tableRows / renderTable', () => {
     // recorded behaviour, so the max over any observed set is 100%.
     expect(rows[0]).toMatchObject({
       target: label(GROUND_TRUTH_SLUG),
-      total: '100%',
-      region: 'all regions',
+      grade: 'A+',
+      total: '100.0%',
+      divergence: '0.0%',
+      coverage: '100.0%',
       failed: 0,
       passed: 3, // the suite size: the largest count seen in a full run
     })
@@ -224,34 +229,72 @@ describe('tableRows / renderTable', () => {
       'beta',
       'empty',
     ])
-    expect(rows.at(-1)).toMatchObject({ total: '-', region: '-' })
+    // A target that implemented nothing has no divergence to grade, so its
+    // grade is the same "-" as its figures rather than an invented letter.
+    expect(rows.at(-1)).toMatchObject({ total: '-', divergence: '-', grade: '-' })
   })
 
-  it('names the matched cohort, not the alphabetical tie-break winner', () => {
-    // alpha matches us-east-1 alone (it beats the eu-west-2 baseline), so its
-    // cohort is a single named region.
+  it('publishes the best-matching region\'s divergence, with the cohort kept for the drilldown', () => {
+    // Regional variation is not published beside the figure. A count of
+    // matching regions is not a quality measure and was read as one: a target
+    // equally wrong in every region counted higher than one perfect in a few
+    // and near-perfect in the rest - even where the first diverges less in its
+    // worst region than the second does in its best. What the README publishes
+    // is the count - "N of M observed" - with the naming label kept alongside
+    // for surfaces that name the regions.
+    //
+    // alpha matches us-east-1 alone (it beats the eu-west-2 baseline).
     const alpha = rows.find((r) => r.target === 'alpha')
-    expect(alpha).toMatchObject({ total: '100.0%', region: 'us-east-1', passed: 3, failed: 0 })
+    expect(alpha).toMatchObject({
+      grade: 'A+',
+      total: '100.0%',
+      divergence: '0.0%',
+      coverage: '100.0%',
+      cohort: '1 of 2',
+      cohortLabel: 'us-east-1',
+      passed: 3,
+      failed: 0,
+    })
     // beta fails the split test everywhere (a fail without an observation is
     // evidence of nothing beyond "not the pinned answer"), so it ties across
-    // every region and reads "all regions" rather than crowning eu-west-2.
+    // every region: a full count, earned by being indistinguishable rather
+    // than by being right.
+    // Diverging on a third of the suite lands in the D band however much of
+    // it the target covers - the grade restates divergence, coverage can only
+    // cap it further.
     const beta = rows.find((r) => r.target === 'beta')
-    expect(beta).toMatchObject({ total: '66.7%', region: 'all regions', passed: 2, failed: 1 })
+    expect(beta).toMatchObject({
+      grade: 'D',
+      total: '66.7%',
+      divergence: '33.3%',
+      cohort: '2 of 2',
+      cohortLabel: 'all regions',
+      passed: 2,
+      failed: 1,
+    })
+  })
+
+  it('orders by divergence ascending, so a narrow but correct target is not ranked below a broad wrong one', () => {
+    // beta diverges on a third of the suite; alpha on none of it. Coverage
+    // breaks ties, and neither figure is folded into the other.
+    const order = rows.map((r) => r.target)
+    expect(order.indexOf('alpha')).toBeLessThan(order.indexOf('beta'))
   })
 
   it('names the observed regions in the caption', () => {
     expect(tableCaption(summary.regions)).toContain('`eu-west-2`, `us-east-1`')
   })
 
-  it('badge and table cannot disagree: every total equals the badge percentage', () => {
+  it('badge and table cannot disagree: every grade equals the badge letter', () => {
     // Both surfaces are rendered from the one shared headline (scoreTarget),
-    // so the invariant is structural; this pins it against a future caller
+    // the shared axes (axesOf) and the shared grading (gradeOf), so the
+    // invariant is structural; this pins it against a future caller
     // reintroducing its own scoring.
     const context = { registry: REGISTRY, observed: summary.regions.observed }
     for (const slug of Object.keys(summary.targets)) {
       const badge = buildBadge(slug, docs[slug], context)
       const row = rows.find((r) => r.target === label(slug))
-      expect(row.total).toBe(badge === null ? '-' : badge.message)
+      expect(row.grade).toBe(badge === null ? '-' : badge.message)
     }
   })
 })
@@ -282,23 +325,89 @@ describe('tableRows tie-break', () => {
     runDate: '2026-07-24',
   })
 
-  it('sorts a base engine above its parenthetical variant on an equal total', () => {
+  // The tier columns sit beside a headline that is divergence and a sort that
+  // runs on divergence. Left as correctness they read in the opposite
+  // direction, so a target improving down the Divergence column climbs up the
+  // tier ones.
+  it('reports each tier as divergence over the whole tier, not correctness', () => {
     const summary = {
       groundTruth: { slug: GROUND_TRUTH_SLUG, runDate: '-' },
-      // wasm listed first, so a broken tie-break (or none) would leave it first.
+      targets: {
+        alpha: {
+          headline: { region: 'eu-west-2', rate: 90 },
+          regions: {
+            'eu-west-2': {
+              rate: 90,
+              passed: 9,
+              failed: 1,
+              skipped: 2,
+              indeterminate: 0,
+              count: 12,
+              tiers: {
+                // 1 of 4 fails: 25% divergence, where correctness over the two
+                // attempted would have been 50%.
+                tier1: { p: 1, f: 1, s: 2, i: 0 },
+                tier2: { p: 4, f: 0, s: 0, i: 0 },
+                tier3: { p: 4, f: 0, s: 0, i: 0 },
+              },
+            },
+          },
+          version: '-',
+          runDate: '2026-07-29',
+        },
+      },
+    }
+    const alpha = tableRows(summary).find((r) => r.slug === 'alpha')
+    expect(alpha.tier1).toBe('25.0%')
+    expect(alpha.tier2).toBe('0.0%')
+    expect(alpha.tier3).toBe('0.0%')
+  })
+
+  // The baseline diverges from itself nowhere, so its tier columns read 0.0%
+  // rather than the 100% they read while the columns were correctness.
+  it('renders the ground truth row as diverging nowhere in every tier', () => {
+    const summary = {
+      groundTruth: { slug: GROUND_TRUTH_SLUG, runDate: '2026-07-29' },
+      targets: {},
+    }
+    const gt = tableRows(summary).find((r) => r.slug === GROUND_TRUTH_SLUG)
+    expect([gt.tier1, gt.tier2, gt.tier3]).toEqual(['0.0%', '0.0%', '0.0%'])
+    expect(gt.divergence).toBe('0.0%')
+  })
+
+  it('nests a variant under its project instead of seating it as a rival', () => {
+    const summary = {
+      groundTruth: { slug: GROUND_TRUTH_SLUG, runDate: '-' },
+      // wasm listed first, so a build that competed for its own place would
+      // take the higher slot.
       targets: { 'dynoxide-wasm': tied(100), dynoxide: tied(100) },
     }
     const rows = tableRows(summary)
-    const order = rows.map((r) => r.target)
-    expect(order.indexOf(label('dynoxide'))).toBeLessThan(order.indexOf(label('dynoxide-wasm')))
+    // One row for the project, not two. A reader chooses between projects; the
+    // build follows from where their code runs.
+    expect(rows.map((r) => r.slug)).toEqual([GROUND_TRUTH_SLUG, 'dynoxide'])
+    const dynoxide = rows.find((r) => r.slug === 'dynoxide')
+    expect(dynoxide.variants.map((v) => v.slug)).toEqual(['dynoxide-wasm'])
+  })
+
+  it('keeps a variant scored, not merely mentioned', () => {
+    const summary = {
+      groundTruth: { slug: GROUND_TRUTH_SLUG, runDate: '-' },
+      targets: { dynoxide: tied(100), 'dynoxide-wasm': tied(100) },
+    }
+    // Nesting must not cost a variant its own figures: a build that implements
+    // less has to say so where it is read.
+    const wasm = tableRows(summary).find((r) => r.slug === 'dynoxide').variants[0]
+    expect(wasm.divergence).toBe('0.0%')
+    expect(wasm.coverage).toBe('98.7%')
   })
 })
 
-describe('renderTable preview footnote', () => {
-  // A parenthetical-variant row (a partial-coverage preview) can post a high
-  // percentage over a small implemented surface, so the table marks it and
-  // explains the caveat. Generated, not hand-maintained, so it survives every
-  // regeneration.
+describe('renderTable variant nesting', () => {
+  // A build of a project is rendered beneath it, labelled by what makes it
+  // distinct. Markdown has no nested tables, so the indent carries the
+  // relationship - and it is derived from declared metadata rather than from a
+  // bracket in the display name, which is what used to stand in for it.
   const one = (rate) => ({
     headline: { region: 'eu-west-2', rate },
     regions: {
@@ -320,18 +429,23 @@ describe('renderTable preview footnote', () => {
     runDate: '2026-07-24',
   })
 
-  it('marks the parenthetical-variant row and appends a caveat footnote', () => {
+  it('indents a variant under its project and labels it by configuration', () => {
     const summary = {
       groundTruth: { slug: GROUND_TRUTH_SLUG, runDate: '-' },
       regions: { observed: ['eu-west-2'], unresolved: [], dropped: [] },
       targets: { 'dynoxide-wasm': one(100), dynoxide: one(96.3) },
     }
     const table = renderTable(summary)
-    // The variant row carries the marker; the base engine row does not.
-    expect(table).toMatch(/\[Dynoxide \(wasm\)\]\([^)]+\) †/)
-    expect(table).not.toMatch(/\[Dynoxide\]\([^)]+\) †/)
-    // The caveat is present and names the row.
-    expect(table).toContain('_† Dynoxide (wasm) is a browser/OPFS preview')
+    // Named by what distinguishes it, not by repeating the project name.
+    expect(table).toContain('| ↳ WebAssembly / OPFS |')
+    expect(table).not.toMatch(/\[Dynoxide \(wasm\)\]/)
+    // The parent names the configuration its own figures were measured on, so
+    // the row does not go ambiguous the moment a second one ships.
+    expect(table).toMatch(/\[Dynoxide\]\([^)]+\) · native/)
+    // Directly beneath its project, not sorted away from it.
+    const lines = table.split('\n').filter((l) => l.startsWith('|'))
+    const parent = lines.findIndex((l) => l.includes('[Dynoxide]'))
+    expect(lines[parent + 1]).toContain('↳ WebAssembly / OPFS')
   })
 
   it('adds no footnote when no variant row is present', () => {
@@ -363,17 +477,86 @@ describe('committed results pipeline', () => {
     )
   })
 
-  it('badge %% equals the summary headline for every target (the no-drift invariant)', () => {
+  it('badge letter equals the summary headline grade for every target (the no-drift invariant)', () => {
     for (const [slug, t] of Object.entries(fresh.targets)) {
       const badge = JSON.parse(readFileSync(join('results', `${slug}.badge.json`), 'utf8'))
-      const expected = t.headline.rate === null ? null : `${t.headline.rate.toFixed(1)}%`
+      const { divergence, coverage } = axesOf(t.regions[t.headline.region])
+      const expected = gradeOf(divergence, coverage).letter
       expect(badge.message, `${slug} badge disagrees with the summary headline`).toBe(expected)
     }
     // And the table's Total column is rendered from the same headline.
-    const rows = tableRows(fresh)
+    // Variants nest, so flatten before asserting: the invariant covers every
+    // scored target, including the ones that are not their own row.
+    const rows = tableRows(fresh).flatMap((r) => [r, ...(r.variants ?? [])])
     for (const [slug, t] of Object.entries(fresh.targets)) {
-      const row = rows.find((r) => r.target === label(slug))
+      const row = rows.find((r) => r.slug === slug)
       expect(row.total).toBe(t.headline.rate === null ? '-' : `${t.headline.rate.toFixed(1)}%`)
+    }
+  })
+
+  it('every published results file covers the full suite - one denominator under every figure', () => {
+    // Divergence, coverage, the caps and the A+ tripwire all divide by the
+    // whole-suite count, and "the denominator never moves" is a published
+    // claim. A partial run (a file-level crash, or a filtered capture) would
+    // shrink one target's denominator, inflate its coverage past the caps and
+    // sail through the tripwire vacuously - so full-suite coverage is
+    // asserted, not assumed.
+    const size = Math.max(
+      0,
+      ...Object.values(fresh.targets).map((t) => t.regions[t.headline.region]?.count ?? 0),
+    )
+    for (const [slug, t] of Object.entries(fresh.targets)) {
+      const count = t.regions[t.headline.region]?.count ?? 0
+      if (count === 0) continue // a target that scored nothing publishes "-", not a shrunken figure
+      expect(count, `${slug} scored ${count} of the ${size}-test suite`).toBe(size)
+    }
+  })
+
+  it('a zero-divergence headline stays honest across regions (the A+ tripwire)', () => {
+    // Two facts hold today and the top grade leans on both, so they are
+    // asserted rather than assumed.
+    //
+    // First, the identity: a target with zero fails in its headline region
+    // may fail elsewhere only on the registry's confirmed splits - and that
+    // is checked by name, not by count. A count match would hold just as
+    // well for a target failing three unrelated tests while passing the
+    // three splits; asserting the failing tests ARE the split tests turns
+    // the target page's "only where real DynamoDB itself disagrees between
+    // regions" from an inference into a checked fact. A breach here means a
+    // non-split behaviour is varying by region - the scoring model changed
+    // underneath the claim the methodology makes.
+    //
+    // Second, the tripwire: every such target's worst region stays within the
+    // A band. Real DynamoDB's regions currently disagree on three behaviours
+    // in about a thousand; if they ever drift far enough apart that a target
+    // can be perfect somewhere while diverging past 5% somewhere else, an
+    // unconditional A+ stops being honest. This failing is the signal to
+    // revisit the criteria in the open, under a bumped GRADING_VERSION - not
+    // to loosen the assertion.
+    for (const [slug, t] of Object.entries(fresh.targets)) {
+      const headline = t.regions[t.headline.region];
+      if (!headline || headline.count === 0) continue;
+      if (axesOf(headline).divergence !== 0) continue;
+
+      const target = targets.find((x) => x.slug === slug);
+      const verdicts = classifyResults(target.raw, target.sidecar ?? null);
+      for (const [region, r] of Object.entries(t.regions)) {
+        const fails = verdictsForRegion(verdicts, context.registry, region).filter(
+          (v) => v.verdict === 'fail',
+        );
+        expect(fails.length, `${slug}'s scored fail count in ${region}`).toBe(r.failed);
+        for (const f of fails) {
+          expect(
+            splitFor(context.registry, f),
+            `${slug} fails "${f.fullName}" in ${region}, and it is not one of the registry's confirmed splits - a non-split behaviour is varying by region`,
+          ).toBeTruthy();
+        }
+        const divergence = axesOf(r).divergence ?? 0;
+        expect(
+          divergence,
+          `${slug} is perfect in ${t.headline.region} but leaves the A band in ${region} - revisit the A+ criteria before publishing`,
+        ).toBeLessThan(5);
+      }
     }
   })
 

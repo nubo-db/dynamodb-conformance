@@ -41,6 +41,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import {
   GROUND_TRUTH_SLUG,
+  axesOf,
   cohortOf,
   isPublishedTarget,
   loadScoringContext,
@@ -49,6 +50,14 @@ import {
   scoreTarget,
 } from './lib/score.mjs'
 import { isObserved, observedRegions } from './lib/observed.mjs'
+import { gradeOf } from './lib/grade.mjs'
+import {
+  configurationOf,
+  display,
+  isVariant,
+  label,
+  projectOf,
+} from './lib/targets.mjs'
 
 /** Version of the results/summary.json contract the site consumes. */
 export const SUMMARY_SCHEMA_VERSION = 1
@@ -56,42 +65,23 @@ export const SUMMARY_SCHEMA_VERSION = 1
 /** Where the versioned summary artefact lives. */
 export const SUMMARY_PATH = 'results/summary.json'
 
-// Display names for the published table. Unlisted slugs fall back to a
-// hyphen-stripped form. Exported because the site workspace renders the same
-// targets and must name them identically; adding a target here is the single
-// edit that puts it on both the README table and paritysuite.org.
-export const DISPLAY = {
-  dynamodb: 'DynamoDB',
-  'dynamodb-local': 'DynamoDB Local',
-  dynoxide: 'Dynoxide',
-  'dynoxide-wasm': 'Dynoxide (wasm)',
-  dynalite: 'Dynalite',
-  localstack: 'LocalStack',
-  ministack: 'Ministack',
-  floci: 'Floci',
-  extenddb: 'ExtendDB',
-}
-export const display = (slug) => DISPLAY[slug] ?? slug.replace(/-/g, ' ')
-
-// Project home for each target, linked from its name in the table. The two AWS
-// targets have no source repo, so they point at their AWS pages. The two
-// Dynoxide rows are separate engines shipped from one project, so they share a
-// home; the display name is what tells them apart.
-export const REPO = {
-  dynamodb: 'https://aws.amazon.com/dynamodb/',
-  'dynamodb-local':
-    'https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html',
-  dynoxide: 'https://github.com/nubo-db/dynoxide',
-  'dynoxide-wasm': 'https://github.com/nubo-db/dynoxide',
-  dynalite: 'https://github.com/architect/dynalite',
-  localstack: 'https://github.com/localstack/localstack',
-  ministack: 'https://github.com/ministackorg/ministack',
-  floci: 'https://github.com/floci-io/floci',
-  extenddb: 'https://github.com/ExtendDB/extenddb',
-}
-export const repoUrl = (slug) => REPO[slug] ?? null
-export const label = (slug) =>
-  REPO[slug] ? `[${display(slug)}](${REPO[slug]})` : display(slug)
+// The target registry - who is on the board, how they relate, and how you run
+// them - lives in ./lib/targets.mjs. Re-exported here because the site and the
+// tooling tests import these names from this module.
+export {
+  CHANNELS,
+  CHANNELS_SHOWN,
+  DISPLAY,
+  REPO,
+  TARGETS,
+  configurationOf,
+  display,
+  distributionOf,
+  isVariant,
+  label,
+  projectOf,
+  repoUrl,
+} from './lib/targets.mjs'
 
 // ── Reading the target namespace ─────────────────────────────────────────────
 
@@ -162,6 +152,15 @@ export function regionStanding(health) {
 // summary), so the three surfaces show one number. Raw counts are carried
 // alongside for anyone recomputing at full precision.
 const round1 = (rate) => (rate === null ? null : Number(rate.toFixed(1)))
+
+// The cohort a headline was measured against, as "N of M". Null-safe on both
+// sides: a summary with no observed set (a minimal fixture, or a payload from
+// before per-region scoring) has no cohort to state, and neither does a target
+// that scored nothing. "0 of 0" would read as a measurement.
+const cohortCount = (matched, summary, rate) => {
+  const observed = observedCount(summary)
+  return rate === null || observed === 0 ? '-' : `${matched} of ${observed}`
+}
 
 /**
  * Build the versioned summary object from read targets and the scoring
@@ -238,12 +237,35 @@ export function writeSummaryFile(summary, path = SUMMARY_PATH) {
 
 const pct = (rate) => (rate === null ? '-' : `${rate.toFixed(1)}%`)
 
+// A tier's divergence: its fails over its whole size, the same shape as the
+// headline. The tier columns used to be correctness over what the tier
+// attempted, so on a row sorted by divergence a rising tier figure was the
+// target getting better and the two columns read in opposite directions.
+const tierDivergence = (t) => {
+  const total = t.p + t.f + t.s + t.i
+  const implemented = t.p + t.f
+  return total === 0 || implemented === 0 ? null : (t.f / total) * 100
+}
+
 /**
  * The table's rows, structured: the ground-truth row first, then targets by
  * headline rate descending (dateless "-" rates last), name breaking ties.
  * Tier and count columns show the headline region's scoring - the region the
- * target's Total was earned in, named in its Region column.
+ * target's divergence was earned in, whose size the Regions column states.
  */
+/** How many regions the run scored against, 0 when none were recorded. Read by
+ *  cohortCount to publish the "N of M" cohort the README's Regions column shows. */
+const observedCount = (summary) => summary.regions?.observed?.length ?? 0
+
+// Regional variation is deliberately not rendered here. Real DynamoDB differs
+// between regions on three of ~1000 behaviours, which moves a target's figure
+// by at most 0.3 points - far less than the cost of explaining regional
+// divergence to a reader who does not know it exists. Worse, the earlier
+// per-region label actively misled: a target matching 6 regions exactly read as
+// narrower than one matching 33 equally badly, even when the first diverges
+// less in its worst region than the second does in its best. The caveat is
+// stated in the caption and the per-region breakdown is a click away.
+
 export function tableRows(summary) {
   const rows = Object.entries(summary.targets).map(([slug, t]) => {
     const best = t.regions[t.headline.region]
@@ -253,13 +275,32 @@ export function tableRows(summary) {
     const cohort = cohortOf(
       Object.entries(t.regions).map(([region, r]) => ({ region, rate: r.rate })),
     )
+    // The two published axes, both over the whole suite so neither can hide
+    // behind the other. Divergence is what a target gets wrong; coverage is how
+    // much it attempts. A fail and a skip are deliberately not interchangeable:
+    // an operation a target declines is discoverable in minutes, one it gets
+    // quietly wrong is discovered in production, so they are never summed into
+    // a single figure. The maths lives in axesOf, shared with the badges.
+    const { divergence: divergenceRate, coverage: coverageRate } = axesOf(best)
+
+    // The regional range lives on the site's target page, beside that target's
+    // headline, where there is room to say what it means. The README carries the
+    // cohort count instead: it answers "how many regions is this measured
+    // against" in one column, without a second percentage to misread.
     return {
+      slug,
       target: label(slug),
-      tier1: pct(passRate(best.tiers.tier1.p, best.tiers.tier1.f)),
-      tier2: pct(passRate(best.tiers.tier2.p, best.tiers.tier2.f)),
-      tier3: pct(passRate(best.tiers.tier3.p, best.tiers.tier3.f)),
+      grade: gradeOf(divergenceRate, coverageRate).letter ?? '-',
+      tier1: pct(tierDivergence(best.tiers.tier1)),
+      tier2: pct(tierDivergence(best.tiers.tier2)),
+      tier3: pct(tierDivergence(best.tiers.tier3)),
+      divergence: pct(divergenceRate),
+      coverage: pct(coverageRate),
+      divergenceValue: divergenceRate,
+      coverageValue: coverageRate,
       total: pct(t.headline.rate),
-      region: t.headline.rate === null ? '-' : regionLabel(cohort),
+      cohort: cohortCount(cohort.regions.length, summary, t.headline.rate),
+      cohortLabel: t.headline.rate === null ? '-' : regionLabel(cohort),
       passed: best.passed,
       failed: best.failed,
       skipped: best.skipped,
@@ -269,7 +310,6 @@ export function tableRows(summary) {
     }
   })
 
-  const num = (t) => (t === '-' ? -1 : parseFloat(t))
   // Tie-break on the display name, not the `[name](url)` label. Comparing the
   // label sorts on the first character after the name - a `]` for a bare name,
   // a space for a parenthetical one - so `[Dynoxide (wasm)]` would sort above
@@ -280,19 +320,62 @@ export function tableRows(summary) {
     const m = row.target.match(/^\[([^\]]+)\]/)
     return m ? m[1] : row.target
   }
-  rows.sort((a, b) => num(b.total) - num(a.total) || sortName(a).localeCompare(sortName(b)))
+  // Ordered by what a target gets wrong, ascending, then by how much it
+  // attempts. The sort key is a risk measure rather than a verdict on which
+  // engine is better: a target with no divergences over a narrow surface is
+  // described accurately by its own two figures, so the order needs no
+  // coverage floor to stay honest. Nulls (nothing scored) sort last.
+  const asc = (v) => (v == null ? Number.POSITIVE_INFINITY : v)
+  const desc = (v) => (v == null ? Number.NEGATIVE_INFINITY : v)
+  const byRisk = (a, b) =>
+    asc(a.divergenceValue) - asc(b.divergenceValue) ||
+    desc(b.coverageValue) - desc(a.coverageValue) ||
+    sortName(a).localeCompare(sortName(b))
 
-  // Suite size: the largest test count seen, i.e. a full-suite run.
-  const suiteSize = Math.max(0, ...rows.map((r) => r.count))
+  // Only projects compete for a place in the order; a variant travels with its
+  // parent. Sorting variants into the same list would seat builds of one engine
+  // in consecutive top slots, which reads as a project occupying the board
+  // rather than as one engine with two shapes.
+  const byProject = new Map()
+  for (const row of rows) {
+    const project = projectOf(row.slug)
+    if (!byProject.has(project)) byProject.set(project, [])
+    byProject.get(project).push(row)
+  }
+  const parents = []
+  for (const group of byProject.values()) {
+    const parent = group.find((r) => !isVariant(r.slug)) ?? group[0]
+    parent.variants = group.filter((r) => r !== parent).sort(byRisk)
+    parents.push(parent)
+  }
+  parents.sort(byRisk)
+  rows.length = 0
+  rows.push(...parents)
+
+  // Suite size: the largest test count seen, i.e. a full-suite run. Over
+  // parents and their nested variants both - by this point `rows` holds only
+  // parents, and a build can carry the newest (largest) run when its project
+  // was not re-tested.
+  const suiteSize = Math.max(
+    0,
+    ...rows.flatMap((r) => [r.count, ...(r.variants ?? []).map((v) => v.count)]),
+  )
   const groundTruth = {
+    slug: summary.groundTruth.slug,
     target: label(summary.groundTruth.slug),
-    tier1: '100%',
-    tier2: '100%',
-    tier3: '100%',
-    total: '100%',
+    grade: gradeOf(0, 100).letter,
+    tier1: '0.0%',
+    tier2: '0.0%',
+    tier3: '0.0%',
+    total: '100.0%',
+    divergence: '0.0%',
+    coverage: '100.0%',
+    divergenceValue: 0,
+    coverageValue: 100,
     // Real DynamoDB is every region's own behaviour, so its row is not pinned
     // to one region the way a target's headline is.
-    region: 'all regions',
+    cohort: cohortCount(observedCount(summary), summary, 100),
+    cohortLabel: 'all regions',
     passed: suiteSize,
     failed: 0,
     skipped: 0,
@@ -314,10 +397,23 @@ export function tableCaption(regions) {
   const list = (rs) => rs.map((r) => `\`${r}\``).join(', ')
   const sentences = [
     `Scored against real DynamoDB's recorded behaviour in each observed region ` +
-      `(${list(regions.observed)}); a target's Total is its best-matching region, and ` +
-      `the Region column names the cohort tied at that rate - all regions, the ` +
-      `\`eu-west-2\` baseline plus a count, or a single region it matches that ` +
-      `eu-west-2 disagrees with. Behaviour varies by region and over time, so these ` +
+      `(${list(regions.observed)}), at each target's best-matching region. ` +
+      `**Divergence** is the share of the whole suite a target answers differently ` +
+      `from real DynamoDB - the operations it implements and gets wrong. ` +
+      `**Coverage** is the share it implements at all. They are reported apart ` +
+      `because they carry opposite risks: a declined operation is discoverable in ` +
+      `minutes, a wrong one in production. **Grade** is a reading of the pair, ` +
+      `never a blend of it: divergence sets the letter and low coverage can only ` +
+      `cap it, under the versioned criteria in the ` +
+      `[methodology](https://paritysuite.org/methodology). Sorted by divergence, so the order ranks ` +
+      `risk rather than declaring a winner - a target with no divergences over a ` +
+      `narrow surface is exactly what its two figures say it is. Regions is how many ` +
+      `of the observed regions the headline was measured against. The tier columns ` +
+      `are divergence too, within each tier, so lower is better in every column ` +
+      `but Coverage. Real DynamoDB does ` +
+      `not behave identically in every region, so each target is measured in every ` +
+      `region above and scored against its best match; the per-region detail is in ` +
+      `\`results/summary.json\`. Behaviour varies by region and over time, so these ` +
       `are point-in-time figures.`,
   ]
   if (regions.unresolved.length > 0) {
@@ -338,39 +434,36 @@ export function tableCaption(regions) {
 }
 
 /** Render the full table block: caption plus Markdown table. */
-// A row whose display name carries a parenthetical is a partial-coverage
-// variant of another engine (currently only "Dynoxide (wasm)"): it can post a
-// high percentage over a small implemented surface while skipping the rest, so
-// the raw number invites a false like-for-like read against a full engine. A
-// generated footnote marks such rows and explains the caveat, so it survives
-// every table regeneration rather than being hand-maintained.
-const PREVIEW_FOOTNOTE_MARK = ' †'
-const isPreviewVariant = (row) => / \(/.test(displayNameOf(row.target))
-const displayNameOf = (target) => {
-  const m = target.match(/^\[([^\]]+)\]/)
-  return m ? m[1] : target
-}
-const previewFootnote = (name) =>
-  `_† ${name} is a browser/OPFS preview, scored over the operations it ` +
-  `implements. Its Skip count is unimplemented surface (PartiQL, transactions, ` +
-  `tags, TTL), not passing behaviour, so read its percentage as correctness on ` +
-  `what it implements - not a like-for-like comparison with an engine that ` +
-  `implements everything._`
+// A variant is rendered as an indented row directly beneath its project,
+// labelled with what makes it distinct rather than repeating the project name.
+// Markdown has no nested tables, so the indent is the relationship: the reader
+// sees one entry per project, and a build of one reads as a build rather than
+// as a rival. This replaces a footnote keyed off a bracket in the display name.
+const VARIANT_PREFIX = '↳ '
 
 export function renderTable(summary) {
   const rows = tableRows(summary)
-  const previews = rows.filter(isPreviewVariant)
-  const fmt = (r) =>
-    `| ${r.target}${isPreviewVariant(r) ? PREVIEW_FOOTNOTE_MARK : ''} | ${r.tier1} | ${r.tier2} | ${r.tier3} | ${r.total} | ${r.region} | ${r.passed} | ${r.failed} | ${r.skipped} | ${r.version} | ${r.runDate} |`
+  const fmt = (r, name) =>
+    `| ${name} | ${r.grade} | ${r.divergence} | ${r.coverage} | ${r.cohort ?? '-'} | ${r.tier1} | ${r.tier2} | ${r.tier3} | ${r.failed} | ${r.skipped} | ${r.version} | ${r.runDate} |`
   const body = [
-    '| Target | Tier 1 | Tier 2 | Tier 3 | Total | Region | Pass | Fail | Skip | Version | Date |',
-    '|--------|--------|--------|--------|-------|--------|------|------|------|---------|------|',
-    ...rows.map(fmt),
+    // Regions is the cohort the headline was measured against, as a count. The
+    // Region column this replaces named the cohort, which read as breadth: a
+    // target equally wrong in all 33 showed "all regions" while one perfect in 6
+    // showed "6 regions". A count out of the observed total cannot.
+    '| Target | Grade | Divergence | Coverage | Regions | Tier 1 | Tier 2 | Tier 3 | Fail | Skip | Version | Date |',
+    '|--------|-------|-----------|----------|---------|--------|--------|--------|------|------|---------|------|',
+    ...rows.flatMap((r) => [
+      // The parent's figures are its reference configuration's, so name that
+      // configuration inline when the project has more than one shape. Without
+      // it a reader cannot tell which storage engine or build was measured, and
+      // the row silently becomes ambiguous the moment a second one ships.
+      fmt(r, configurationOf(r.slug) ? `${r.target} · ${configurationOf(r.slug)}` : r.target),
+      ...(r.variants ?? []).map((v) =>
+        fmt(v, `${VARIANT_PREFIX}${configurationOf(v.slug) ?? display(v.slug)}`),
+      ),
+    ]),
   ].join('\n')
-  const footnotes = previews
-    .map((r) => `\n\n${previewFootnote(displayNameOf(r.target))}`)
-    .join('')
-  return `${tableCaption(summary.regions)}\n\n${body}${footnotes}`
+  return `${tableCaption(summary.regions)}\n\n${body}`
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────

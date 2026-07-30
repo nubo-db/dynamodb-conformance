@@ -97,6 +97,21 @@ export function passRate(passed, failed) {
   return passed + failed === 0 ? null : (passed / (passed + failed)) * 100
 }
 
+// The two published axes over one set of counts, both against the whole
+// suite so neither can hide behind the other. Divergence is null when the
+// target implemented nothing: diverging nowhere because you attempted
+// nothing is the absence of a score, not a good one, and a zero would rank
+// an empty target above every real engine. One definition, shared by the
+// results table, the badges and the site, so the axes behind a published
+// grade cannot drift between surfaces.
+export function axesOf({ passed, failed, count }) {
+  const implemented = passed + failed
+  return {
+    divergence: count === 0 || implemented === 0 ? null : (failed / count) * 100,
+    coverage: count === 0 ? null : (implemented / count) * 100,
+  }
+}
+
 // ── Per-region scoring ───────────────────────────────────────────────────────
 //
 // A target has no region; scoring it "against us-east-1" means asserting
