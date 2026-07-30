@@ -3,6 +3,45 @@
 A dated log of how the conformance test suite has grown: tests added, tiers
 broadened, and targets brought into the run. Newest first.
 
+## 2026-07-21 (2.1.0)
+
+Grew to 995 tests, up 41, all characterised against real DynamoDB across the
+per-region ground truth 2.0.0 put in place. New coverage is PartiQL's
+RETURNING clause; the GSI lifecycle also joins the ground truth, and the
+sweep's drift classifier gains a converged case.
+
+- PartiQL RETURNING (#103, #105): the clause pinned across every PartiQL
+  surface. DELETE accepts only `RETURNING ALL OLD *` and rejects the other
+  three variants with a 400, the message pinned; UPDATE accepts all four
+  ALL/MODIFIED x OLD/NEW forms, where MODIFIED returns just the changed
+  attribute and drops the key. The empty-projection edges are pinned too: a
+  MODIFIED projection that resolves to nothing - a nested leaf, a list index,
+  a batch statement - returns `Items: []` rather than a keyed row.
+  BatchExecuteStatement honours RETURNING; ExecuteTransaction rejects it. The
+  non-upsert paths round it out: INSERT on an existing item, and UPDATE or
+  DELETE behind a false predicate, fail ConditionalCheckFailed and leave the
+  item untouched.
+- PartiQL RETURNING over list indices (#102): the MODIFIED projection shapes
+  for a list-index `SET` or `REMOVE`, pinned against real AWS. The projection
+  reads the literal index against the resulting list (`MODIFIED NEW *`) or the
+  prior list (`MODIFIED OLD *`): an in-range index returns its element, an
+  out-of-range one returns nothing, and multiple changed indices pack into a
+  dense list in ascending index order. So a non-zero index collapses to one
+  element, an append projects only when the index lands inside the new list,
+  and removing the last index yields nothing under NEW while a middle REMOVE
+  returns the shifted element. Setting an index on an absent attribute is
+  rejected, not auto-created. In BatchExecuteStatement a member that fails to
+  parse surfaces per-statement with the short `Code: ValidationError`, the same
+  Code as an execution failure, and does not fail the batch.
+- GSI lifecycle in the ground truth (#100): the 14 UpdateTable GSI lifecycle
+  tests are now observed by the weekly sweep and recorded as per-region ground
+  truth. They are the one slice the gating run drops for runtime, so they were
+  the one slice without a real-AWS answer; the sweep records them without
+  slowing the gate.
+- Drift classification (#104): a drift where every region moves off the pinned
+  answer at once is now classified as converged rather than moved, with the
+  converged path covered end to end.
+
 ## 2026-07-17 (2.0.0)
 
 Per-region scoring lands complete. 2.0.0-pre put the scoring logic in place,
