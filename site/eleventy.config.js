@@ -5,7 +5,7 @@ import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/m
 import { renderCapabilities, renderCapabilityCards } from "./lib/capabilities.mjs";
 import { regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
 import { renderSplitEvidence } from "./lib/splits.mjs";
-import { TARGETS, configurationOf, distributionOf, fallsShort, gradeLineOf, gradeOf, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
+import { TARGETS, capClauseOf, configurationOf, distributionOf, fallsShort, gradeLineOf, gradeOf, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
 import { channelIcon } from "./lib/channel-icons.mjs";
 import { targetLinks, targetRunHref } from "./lib/links.mjs";
 import { areaFailures, sourceUrl } from "./lib/findings.mjs";
@@ -103,6 +103,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("gradeOf", (divergenceValue, coverageValue) => gradeOf(divergenceValue, coverageValue));
   eleventyConfig.addFilter("gradeLine", (row) => gradeLineOf(row));
   eleventyConfig.addFilter("regionClause", (row) => regionClauseOf(row));
+  eleventyConfig.addFilter("capClause", (row) => capClauseOf(row));
   eleventyConfig.addFilter("configurationOf", (slug) => configurationOf(slug));
   eleventyConfig.addFilter("isVariant", (slug) => isVariant(slug));
   // Every way a target can be run, as marks. Uncapped: seeing all of them at a

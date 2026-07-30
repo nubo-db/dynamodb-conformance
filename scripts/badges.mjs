@@ -12,11 +12,18 @@
  * table exactly: both read the target's headline - its best-matching observed
  * region - from the shared scorer (scoreTarget in lib/score.mjs), take the
  * two axes from the shared axesOf, and grade them with the shared gradeOf.
- * Real DynamoDB is the ground truth: each real region agrees with its own
- * recorded behaviour by construction, so its badge is A+ without scoring a
- * file. The badge carried the retired correctness percentage until the board
- * moved to divergence and coverage; a letter cannot be mistaken for either
- * axis, where a bare percentage read as whichever one the reader expected.
+ * Real DynamoDB reads `baseline` rather than a letter, on the same grounds the
+ * table and the site use it (BASELINE_LABEL in lib/grade.mjs): the yardstick is
+ * what a grade measures distance from. The badge carried the retired
+ * correctness percentage until the board moved to divergence and coverage; a
+ * letter cannot be mistaken for either axis, where a bare percentage read as
+ * whichever one the reader expected.
+ *
+ * The endpoint URL is a published contract - a target's README points at it and
+ * a rename breaks that README silently - so the path is documented on the site's
+ * agent guide alongside the JSON endpoints, and stays stable across a relabel.
+ * shields pins its own `schemaVersion` to 1, so the path is the only version
+ * channel a badge has.
  *
  * Run: `npm run results:badges` (regenerates the committed badges). The badge
  * freshness test fails if a committed file drifts from a fresh build.
@@ -31,13 +38,13 @@ import {
   loadScoringContext,
   scoreTarget,
 } from './lib/score.mjs'
-import { gradeOf } from './lib/grade.mjs'
+import { BASELINE_GRADE, gradeOf } from './lib/grade.mjs'
 
 const RESULTS_DIR = 'results'
 
 // shields.io named colours per letter, brightest at the top of the scale. The
-// steps track the grade bands, which restate the board's published colour
-// boundaries, so a badge and the site row it mirrors read the same way.
+// steps track the grade bands, so a badge and the site row it mirrors read the
+// same way. A letterless row (the baseline) falls through to the neutral grey.
 const COLOURS = {
   'A+': 'brightgreen',
   A: 'green',
@@ -58,7 +65,7 @@ export function colour(letter) {
 // indeterminate sidecar, when it wrote one.
 export function gradeFor(slug, raw, context) {
   if (!isPublishedTarget(slug)) return null
-  if (slug === GROUND_TRUTH_SLUG) return gradeOf(0, 100)
+  if (slug === GROUND_TRUTH_SLUG) return BASELINE_GRADE
   const scored = scoreTarget(raw, context.sidecar ?? null, context)
   if (!scored) return null
   const { divergence, coverage } = axesOf(scored.regions[scored.headline.region])
@@ -72,10 +79,15 @@ export function gradeFor(slug, raw, context) {
 export function buildBadge(slug, raw, context) {
   const grade = gradeFor(slug, raw, context)
   if (grade === null) return null
+  // Every graded target has a letter; the baseline has a qualifier instead, and
+  // no letter to colour, so it renders in the neutral fallback. gradeFor returns
+  // null rather than a letterless grade for anything else, so this is the one
+  // case that takes the second branch.
+  const message = grade.letter ?? grade.qualifier
   return {
     schemaVersion: 1,
     label: 'parity',
-    message: grade.letter,
+    message,
     color: colour(grade.letter),
   }
 }

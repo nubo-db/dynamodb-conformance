@@ -41,7 +41,7 @@
         <span class="sr-only" @text="'Grade ' + (gradeOf($data.target.current.divergenceValue, $data.target.current.coverageValue).letter ?? 'not scored')"></span>
       </div>
       <div class="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
-        <span @text="gradeOf($data.target.current.divergenceValue, $data.target.current.coverageValue).qualifier"></span><span webc:if="gradeOf($data.target.current.divergenceValue, $data.target.current.coverageValue).capped" class="font-normal text-zinc-500 dark:text-zinc-400"> · capped by coverage</span>
+        <span @text="gradeOf($data.target.current.divergenceValue, $data.target.current.coverageValue).qualifier"></span><span webc:if="capClause($data.target.current)" class="font-normal text-zinc-500 dark:text-zinc-400" @text="' · ' + capClause($data.target.current)"></span>
       </div>
       <div class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
         answers <span class="font-mono tnum" @text="$data.target.current.divergence"></span> of the suite differently from real DynamoDB
@@ -117,7 +117,7 @@
             <span class="block text-sm font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-brand-700 dark:group-hover:text-brand-300"
               @text="configurationOf(v.slug) || v.display"></span>
             <span class="block text-xs leading-snug text-zinc-500 dark:text-zinc-400">
-              <span class="font-medium text-zinc-600 dark:text-zinc-300" @text="gradeLine(v)"></span><span webc:if="regionClause(v)" @text="' ' + regionClause(v)"></span> · covers <span class="tnum" @text="v.coverage"></span><span webc:if="gradeOf(v.divergenceValue, v.coverageValue).capped"> · capped by coverage</span>
+              <span class="font-medium text-zinc-600 dark:text-zinc-300" @text="gradeLine(v)"></span><span webc:if="regionClause(v)" @text="' ' + regionClause(v)"></span> · covers <span class="tnum" @text="v.coverage"></span><span webc:if="capClause(v)" @text="' · ' + capClause(v)"></span>
             </span>
           </span>
         </a>

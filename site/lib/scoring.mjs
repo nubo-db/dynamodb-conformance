@@ -23,6 +23,8 @@ import {
 } from "dynamodb-conformance/scripts/summarise.mjs";
 import { passRate, scoreResults, tierOf } from "dynamodb-conformance/scripts/lib/score.mjs";
 import {
+  BASELINE_GRADE,
+  BASELINE_LABEL,
   COVERAGE_CAPS,
   GRADE_BANDS,
   GRADING_VERSION,
@@ -36,7 +38,7 @@ export { DISPLAY, REPO, TARGETS, CHANNELS_SHOWN, configurationOf, display, distr
 // grade is derived from a row's two published values at the point of use -
 // never stored on the row - so every surface that shows a letter shows the
 // one implied by the figures beside it.
-export { COVERAGE_CAPS, GRADE_BANDS, GRADING_VERSION, gradeOf };
+export { BASELINE_GRADE, BASELINE_LABEL, COVERAGE_CAPS, GRADE_BANDS, GRADING_VERSION, gradeOf };
 
 // The one-line reading beside a grade chip: the qualifier in words, the
 // exact figure after it. The percentage stays for anyone who wants the
@@ -48,6 +50,19 @@ export function gradeLineOf(row) {
   const grade = gradeOf(row.divergenceValue, row.coverageValue);
   const div = grade.letter === null || row.divergenceValue === 0 ? "" : ` (${row.divergence})`;
   return grade.qualifier + div;
+}
+
+// What coverage is doing to a row's letter, or "" when it is doing nothing.
+// Shown wherever a letter is read, because a cap in force is part of what the
+// letter means and the coverage figure alone does not say so: Dynalite diverges
+// 12.3% (band B) over 80.0% coverage (cap B), so B is its ceiling as well as its
+// band, and the row used to look identical to one that had earned B outright.
+// The clause names the ceiling in both cases - whether the cap lowered the
+// letter or merely held it - because "this cannot read better than B" is the
+// fact a reader is comparing rows on.
+export function capClauseOf(row) {
+  const { capAt } = gradeOf(row.divergenceValue, row.coverageValue);
+  return capAt ? `coverage caps this row at ${capAt}` : "";
 }
 
 // The regional distribution, always with the figures attached: "in all 33

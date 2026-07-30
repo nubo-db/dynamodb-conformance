@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { COVERAGE_CAPS, GRADE_BANDS, GRADING_VERSION, gradeOf } from './grade.mjs'
+import {
+  BASELINE_GRADE,
+  BASELINE_LABEL,
+  COVERAGE_CAPS,
+  GRADE_BANDS,
+  GRADING_VERSION,
+  gradeOf,
+} from './grade.mjs'
 
 describe('gradeOf', () => {
   it('grades exactly zero divergence A+, with the caps doing the coverage work', () => {
@@ -8,6 +15,7 @@ describe('gradeOf', () => {
       qualifier: 'no divergence',
       band: 'pass',
       capped: false,
+      capAt: null,
     })
     expect(gradeOf(0, 90)).toMatchObject({ letter: 'A+' })
     // A+ needs exactly zero, not a figure that would display as 0.0%: one
@@ -45,6 +53,7 @@ describe('gradeOf', () => {
       qualifier: 'no divergence',
       band: 'partial',
       capped: true,
+      capAt: 'B',
     })
     expect(gradeOf(1, 65)).toMatchObject({ letter: 'C', capped: true })
     expect(gradeOf(1, 45)).toMatchObject({ letter: 'D', capped: true })
@@ -66,6 +75,64 @@ describe('gradeOf', () => {
     expect(gradeOf(40, 45)).toMatchObject({ letter: 'F', capped: false })
   })
 
+  it('capAt names the ceiling a letter sits at, in all three cap states', () => {
+    // The three states a cap can be in, and only the first of them used to be
+    // visible on a row. `capped` answers "did reaching the ceiling move the
+    // letter"; `capAt` answers "is this letter sitting on a ceiling at all",
+    // which is the question a reader comparing two rows is actually asking.
+
+    // 1. The cap bit: Dynoxide's wasm build, perfect over 78.7% of the suite.
+    expect(gradeOf(0, 78.7)).toMatchObject({ letter: 'B', capped: true, capAt: 'B' })
+
+    // 2. The cap is holding without ever having bitten: Dynalite's live row.
+    // Divergence alone gives B and coverage caps at B, so the letter is at its
+    // ceiling and `capped` is false. This is the case the row went silent on -
+    // it read identically to a target that earned B with room above it.
+    expect(gradeOf(12.3, 80)).toMatchObject({ letter: 'B', capped: false, capAt: 'B' })
+
+    // 3. The cap is irrelevant: divergence alone already put the row below it,
+    // so naming B as the ceiling would imply a constraint doing no work.
+    expect(gradeOf(30, 80)).toMatchObject({ letter: 'D', capped: false, capAt: null })
+
+    // No cap in force at all.
+    expect(gradeOf(12.3, 100)).toMatchObject({ letter: 'B', capped: false, capAt: null })
+  })
+
+  it('LocalStack and Dynalite are separated by the cap, not just the letter', () => {
+    // The pair that made the ceiling worth publishing. Dynalite reads B and
+    // LocalStack C, so the letters put Dynalite ahead - and it implements 19
+    // points less of the suite. Both facts are true and the board reports them
+    // apart on purpose, but a reader scanning letters needs the row to say that
+    // Dynalite's B cannot go higher while LocalStack's C can.
+    const dynalite = gradeOf(12.3, 80)
+    const localstack = gradeOf(15.6, 99.2)
+    expect(dynalite.letter).toBe('B')
+    expect(localstack.letter).toBe('C')
+    expect(dynalite.capAt).toBe('B')
+    expect(localstack.capAt).toBe(null)
+  })
+
+  it('the baseline carries no letter, on every surface that reads one', () => {
+    // Real DynamoDB is what a grade measures distance from, so it is not graded
+    // against itself. The constant is shared rather than restated per surface:
+    // the results table, the badges, the endpoints and the agent corpus each
+    // used to derive their own, and the table was still publishing A+ after the
+    // site had stopped.
+    expect(BASELINE_LABEL).toBe('baseline')
+    expect(BASELINE_GRADE).toEqual({
+      letter: null,
+      qualifier: 'baseline',
+      band: 'none',
+      capped: false,
+      capAt: null,
+    })
+    // It reuses the null-letter shape a consumer already handles for a target
+    // that scored nothing, distinguished by the qualifier rather than by a
+    // letter they would have to special-case.
+    expect(BASELINE_GRADE.letter).toBe(gradeOf(null, null).letter)
+    expect(BASELINE_GRADE.qualifier).not.toBe(gradeOf(null, null).qualifier)
+  })
+
   it('qualifiers name the divergence band in plain language', () => {
     expect(gradeOf(1.8, 100).qualifier).toBe('low divergence')
     expect(gradeOf(12.3, 100).qualifier).toBe('moderate divergence')
@@ -80,6 +147,7 @@ describe('gradeOf', () => {
       qualifier: 'not scored',
       band: 'none',
       capped: false,
+      capAt: null,
     })
     expect(gradeOf(null, 100).letter).toBe(null)
     expect(gradeOf(0, null).letter).toBe(null)

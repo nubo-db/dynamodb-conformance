@@ -7,7 +7,7 @@ import { buildBadge } from './badges.mjs'
 import { GROUND_TRUTH_SLUG, axesOf, loadScoringContext, scoreTarget, verdictsForRegion } from './lib/score.mjs'
 import { classifyResults } from './lib/classify.mjs'
 import { splitFor } from './lib/registry.mjs'
-import { gradeOf } from './lib/grade.mjs'
+import { BASELINE_LABEL, gradeOf } from './lib/grade.mjs'
 import {
   DISPLAY,
   REPO,
@@ -208,12 +208,16 @@ describe('tableRows / renderTable', () => {
   )
   const rows = tableRows(summary)
 
-  it('renders the ground-truth row first, at an earned 100% across all regions', () => {
+  it('renders the ground-truth row first, ungraded, at an earned 100% across all regions', () => {
     // 100% by self-agreement: each real region scores 100% against its own
-    // recorded behaviour, so the max over any observed set is 100%.
+    // recorded behaviour, so the max over any observed set is 100%. Its figures
+    // publish and its grade does not: a letter measures distance from real
+    // DynamoDB, so the yardstick has none to wear. The table had kept grading it
+    // A+ after the site moved it out of the board, which put a letter nothing
+    // could beat on the first row a reader meets.
     expect(rows[0]).toMatchObject({
       target: label(GROUND_TRUTH_SLUG),
-      grade: 'A+',
+      grade: BASELINE_LABEL,
       total: '100.0%',
       divergence: '0.0%',
       coverage: '100.0%',

@@ -8,6 +8,7 @@
 // suite's own results at build time, so they can't drift from what's on screen.
 
 import {
+  BASELINE_GRADE,
   CAPABILITIES,
   COVERAGE_CAPS,
   GRADE_BANDS,
@@ -118,11 +119,12 @@ function regionSummary(row) {
 // endpoint shares. Divergence and coverage travel together by design, so a
 // target that is right about a narrow surface cannot read as broad conformance.
 function targetRow(row) {
+  const baseline = row.slug === "dynamodb";
   return {
     slug: row.slug,
     display: row.display,
     version: row.version,
-    baseline: row.slug === "dynamodb",
+    baseline,
     // Conflict-of-interest disclosure: maintained by the board's author. A
     // static fact, derived from the slug, so it can't go stale.
     maintainedByAuthor: isSelfMaintained(row.slug),
@@ -141,7 +143,10 @@ function targetRow(row) {
     correctness: { pct: row.total, value: row.totalValue },
     // The letter grade, derived here from the two values above so it cannot
     // disagree with them. The criteria are in the envelope's metrics.grade.
-    grade: gradeOf(row.divergenceValue, row.coverageValue),
+    // The baseline carries no letter: it is what a grade measures distance
+    // from, and the pages, the results table and the badges all decline to
+    // grade it, so the endpoints would be the one surface that did.
+    grade: baseline ? BASELINE_GRADE : gradeOf(row.divergenceValue, row.coverageValue),
     // Which project this target belongs to, and which configuration it is.
     // Without it a consumer has to infer from the display name that
     // "Dynoxide (wasm)" is a build of "Dynoxide" rather than a rival.

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { buildBadge, colour, gradeFor } from './badges.mjs'
+import { BASELINE_GRADE } from './lib/grade.mjs'
 import { loadScoringContext } from './lib/score.mjs'
 
 const RESULTS_DIR = 'results'
@@ -44,8 +45,13 @@ describe('colour', () => {
 })
 
 describe('gradeFor', () => {
-  it('pins the ground-truth target to A+', () => {
-    expect(gradeFor('dynamodb', {}, CONTEXT)).toMatchObject({ letter: 'A+' })
+  it('gives the ground truth the baseline label, not a letter', () => {
+    // The yardstick is not graded against itself. It reads the shared
+    // BASELINE_GRADE rather than a locally-derived gradeOf(0, 100), so the
+    // badge cannot say A+ while the results table and the site decline to
+    // grade the same row - which is exactly what it was doing.
+    expect(gradeFor('dynamodb', {}, CONTEXT)).toEqual(BASELINE_GRADE)
+    expect(gradeFor('dynamodb', {}, CONTEXT).letter).toBeNull()
   })
 
   it('returns null for a non-result file', () => {
@@ -143,11 +149,15 @@ describe('buildBadge', () => {
   })
 
   it('emits the shields endpoint shape for the ground truth', () => {
+    // A letterless row still emits a badge - the endpoint URL is a published
+    // contract and dropping the file would 404 anything pointing at it - but it
+    // says what the row is rather than inventing a grade for it, and takes the
+    // neutral colour because there is no band to colour by.
     expect(buildBadge('dynamodb', {}, CONTEXT)).toEqual({
       schemaVersion: 1,
       label: 'parity',
-      message: 'A+',
-      color: 'brightgreen',
+      message: 'baseline',
+      color: 'lightgrey',
     })
   })
 

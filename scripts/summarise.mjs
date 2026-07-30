@@ -50,7 +50,7 @@ import {
   scoreTarget,
 } from './lib/score.mjs'
 import { isObserved, observedRegions } from './lib/observed.mjs'
-import { gradeOf } from './lib/grade.mjs'
+import { BASELINE_LABEL, gradeOf } from './lib/grade.mjs'
 import {
   configurationOf,
   display,
@@ -363,7 +363,11 @@ export function tableRows(summary) {
   const groundTruth = {
     slug: summary.groundTruth.slug,
     target: label(summary.groundTruth.slug),
-    grade: gradeOf(0, 100).letter,
+    // The yardstick does not wear a grade (see BASELINE_LABEL). The site made
+    // this call when it moved the baseline into a control strip above the board;
+    // the table had been left grading it A+, which is the row a reader meets
+    // first.
+    grade: BASELINE_LABEL,
     tier1: '0.0%',
     tier2: '0.0%',
     tier3: '0.0%',

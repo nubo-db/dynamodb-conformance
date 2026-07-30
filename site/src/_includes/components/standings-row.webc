@@ -1,7 +1,8 @@
 <script webc:setup>
   // The grade chip's class, from the grade's own band so the tint can never
-  // disagree with the letter. The band boundaries restate the board's
-  // published colour bands; see the methodology's grading criteria.
+  // disagree with the letter. The 5% and 25% boundaries carry over the numbers
+  // of the board's published colour bands, on a different denominator; see the
+  // methodology's grading criteria.
   function chipClass(grade, size) {
     return "grade-chip grade-" + grade.band + " " + (size === "sm" ? "text-xs" : "text-xl");
   }
@@ -90,10 +91,12 @@
              rest. -->
         <p class="text-sm leading-snug text-zinc-700 dark:text-zinc-200 mb-1.5">
           <span class="font-medium" @text="gradeLine(row)"></span><span webc:if="regionClause(row)" class="text-zinc-500 dark:text-zinc-400" @text="' ' + regionClause(row)"></span><span class="text-zinc-500 dark:text-zinc-400"> · covers <span class="tnum" @text="row.coverage"></span> of the suite</span>
-          <!-- A capped letter says so where it is read. "B" over "no
-               divergence" is the coverage cap doing its job, and it should
-               not take the methodology page to see that. -->
-          <span webc:if="gradeOf(row.divergenceValue, row.coverageValue).capped" class="text-xs text-zinc-500 dark:text-zinc-400">· capped by coverage</span>
+          <!-- A cap in force says so where the letter is read, whether or not
+               it lowered it. "B" over "no divergence" is the cap doing its job;
+               "B" over 12.3% divergence and 80.0% coverage is the cap holding a
+               ceiling the letter happens to sit on already, and that row used to
+               be indistinguishable from one that earned its B outright. -->
+          <span webc:if="capClause(row)" class="text-xs text-zinc-500 dark:text-zinc-400" @text="'· ' + capClause(row)"></span>
         </p>
         <!-- The bar draws coverage alone; the judgement lives in the chip.
              Its old fill was coloured by divergence, which made a broad,
@@ -169,7 +172,7 @@
         <div class="flex-1 min-w-0">
           <p class="text-xs leading-snug text-zinc-600 dark:text-zinc-300 mb-1">
             <span class="font-medium" @text="gradeLine(v)"></span><span webc:if="regionClause(v)" class="text-zinc-500 dark:text-zinc-400" @text="' ' + regionClause(v)"></span><span class="text-zinc-500 dark:text-zinc-400"> · covers <span class="tnum" @text="v.coverage"></span></span>
-            <span webc:if="gradeOf(v.divergenceValue, v.coverageValue).capped" class="text-[0.7rem] text-zinc-500 dark:text-zinc-400">· capped by coverage</span>
+            <span webc:if="capClause(v)" class="text-[0.7rem] text-zinc-500 dark:text-zinc-400" @text="'· ' + capClause(v)"></span>
             <!-- A build not re-tested this run says so where its figures are,
                  like the parent's movement column does: a dated figure
                  presented undated reads as this run's measurement. -->

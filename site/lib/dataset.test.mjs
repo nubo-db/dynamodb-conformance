@@ -104,8 +104,10 @@ test("schema version 4 reflects the grade addition", () => {
 // the envelope, so a consumer can regrade and check the letter it was handed.
 // This is the methodology's testability claim made literal: every published
 // letter is recomputed here from the envelope's own criteria - a separate
-// implementation from gradeOf - and must match, for every target including
-// the baseline. No target is graded by different rules.
+// implementation from gradeOf - and must match. No graded target is graded by
+// different rules. The baseline is the one row with no letter to reproduce, and
+// it is asserted to be that rather than skipped, so an ungraded row can only
+// ever be the yardstick and never a target that quietly lost its grade.
 test("every published letter is reproducible from the envelope's criteria alone", () => {
   const latest = buildLatest(model, site);
   const criteria = latest.metrics.grade;
@@ -113,7 +115,7 @@ test("every published letter is reproducible from the envelope's criteria alone"
   assert.equal(criteria.gradingVersion, 1);
   const ORDER = ["A+", "A", "B", "C", "D", "F"];
   const regrade = (d, c) => {
-    if (d == null || c == null) return null;
+    if (d == null || c == null) return { letter: null, capAt: null };
     // Bands and caps read the figures at the published one-decimal
     // precision; only the A+ test reads the raw value (zero means zero
     // failing tests, not a rounded 0.0%). Mirrors metrics.grade.description.
@@ -125,16 +127,35 @@ test("every published letter is reproducible from the envelope's criteria alone"
         : (criteria.bands.find((b) => d1 < b.under)?.letter ?? "F");
     const cap = criteria.coverageCaps.find((x) => c1 < x.under)?.cap ?? null;
     if (cap && ORDER.indexOf(cap) > ORDER.indexOf(letter)) letter = cap;
-    return letter;
+    // The ceiling is published only where it is doing work: a row that
+    // diverged past its own cap unaided is held by nothing.
+    return { letter, capAt: cap && letter === cap ? cap : null };
   };
+
+  let baselines = 0;
   for (const t of latest.targets) {
     assert.ok("grade" in t, `${t.slug} missing grade`);
+    if (t.baseline) {
+      baselines++;
+      assert.equal(t.grade.letter, null, "the baseline must carry no letter");
+      assert.equal(t.grade.qualifier, "baseline");
+      assert.ok(t.divergence.value != null && t.coverage.value != null,
+        "the baseline's figures still publish - they are what every other row is read against");
+      continue;
+    }
+    const expected = regrade(t.divergence.value, t.coverage.value);
     assert.equal(
       t.grade.letter,
-      regrade(t.divergence.value, t.coverage.value),
+      expected.letter,
       `${t.slug}'s published letter must equal one rederived from its own figures`,
     );
+    assert.equal(
+      t.grade.capAt,
+      expected.capAt,
+      `${t.slug}'s published ceiling must equal one rederived from its own coverage`,
+    );
   }
+  assert.equal(baselines, 1, "exactly one row is the baseline");
 });
 
 // Every level of this schema pre-computes the published pair. Leaving one level

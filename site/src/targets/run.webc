@@ -38,7 +38,7 @@
         <span class="sr-only" @text="'Grade ' + (gradeOf($data.point.divergenceValue, $data.point.coverageValue).letter ?? 'not scored')"></span>
       </div>
       <div class="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
-        <span @text="gradeOf($data.point.divergenceValue, $data.point.coverageValue).qualifier"></span><span webc:if="gradeOf($data.point.divergenceValue, $data.point.coverageValue).capped" class="font-normal text-zinc-500 dark:text-zinc-400"> · capped by coverage</span>
+        <span @text="gradeOf($data.point.divergenceValue, $data.point.coverageValue).qualifier"></span><span webc:if="capClause($data.point)" class="font-normal text-zinc-500 dark:text-zinc-400" @text="' · ' + capClause($data.point)"></span>
       </div>
       <div class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
         answers <span class="font-mono tnum" @text="$data.point.divergence"></span> of the suite differently from real DynamoDB
