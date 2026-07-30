@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { gradeOf } from "../lib/scoring.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -24,14 +25,15 @@ function latestResults(conformance) {
   if (!latest) return "";
   const lines = latest.standings.map((r) => {
     const t = r.tiers || {};
-    const tiers = `Tier 1 ${t.tier1?.pct ?? "-"}, Tier 2 ${t.tier2?.pct ?? "-"}, Tier 3 ${t.tier3?.pct ?? "-"}`;
+    const tiers = `Tier 1 ${t.tier1?.divergence ?? "-"}, Tier 2 ${t.tier2?.divergence ?? "-"}, Tier 3 ${t.tier3?.divergence ?? "-"}`;
     const baseline = r.slug === "dynamodb" ? " (baseline)" : "";
-    return `- ${r.display}${baseline} - total ${r.total}; ${tiers}; coverage ${r.coverage}; version ${r.version}`;
+    const grade = gradeOf(r.divergenceValue, r.coverageValue);
+    return `- ${r.display}${baseline} - grade ${grade.letter ?? "-"}${grade.capped ? " (capped by coverage)" : ""}; diverges ${r.divergence} of the suite; covers ${r.coverage}; diverges per tier ${tiers}; version ${r.version}`;
   });
   return [
     `# Latest results`,
     "",
-    `Run ${latest.id} (${latest.date}), ${latest.suiteSize} tests. Correctness is passed / (passed + failed); coverage is implemented / total. DynamoDB is the baseline at 100% by definition.`,
+    `Run ${latest.id} (${latest.date}), ${latest.suiteSize} tests. Divergence is failed / total and coverage is implemented / total, over the whole suite and again within each tier; lower divergence is better and the two are never added together. The grade is a reading of the pair, never a blend: divergence sets the letter and low coverage can only cap it. DynamoDB is the baseline, diverging nowhere by definition.`,
     "",
     ...lines,
   ].join("\n");

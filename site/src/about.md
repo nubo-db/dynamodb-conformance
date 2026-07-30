@@ -1,7 +1,7 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-07-17"
+lastmod: "2026-07-29"
 meta:
   title: About
   description: "Why an independent DynamoDB conformance suite exists, how it scores emulators against live AWS, and what the tiers mean."
@@ -11,7 +11,7 @@ meta:
 
 There's no official conformance suite for DynamoDB. AWS doesn't publish one, so every emulator author ends up guessing at how the real thing behaves and testing against their own assumptions. The closest the community had was Dynalite's test suite, and by the start of 2026 over half of its tests had drifted out of step with current DynamoDB. DynamoDB Local ships with no test suite at all.
 
-That's the gap the [conformance suite](https://github.com/paritysuite/dynamodb-conformance) fills. It runs every test against real DynamoDB on AWS first, records what passes, and treats that as the baseline. An emulator only passes a test if it gives the same answer DynamoDB does. Real DynamoDB is the ground truth, which is why it sits at the top of every table at a flat 100% - not because it scored well, but because it's the thing everything else is measured against. DynamoDB doesn't always behave the same way in every region, so the suite records the answer in each region and scores a target against all of them; the [methodology](/methodology) has the detail.
+That's the gap the [conformance suite](https://github.com/paritysuite/dynamodb-conformance) fills. It runs every test against real DynamoDB on AWS first, records what passes, and treats that as the baseline. An emulator only passes a test if it gives the same answer DynamoDB does. Real DynamoDB is the ground truth, which is why it sits at the top of every table diverging from itself nowhere - not because it scored well, but because it's the thing everything else is measured against. DynamoDB doesn't always behave the same way in every region, so the suite records the answer in each region and scores a target against all of them; the [methodology](/methodology) has the detail.
 
 ## "Works with the SDK" isn't the same as "behaves like DynamoDB"
 
@@ -23,19 +23,19 @@ So the suite tests observable behaviour and nothing else. It drives the standard
 
 A single "92%" tells you almost nothing. Ninety-two percent of *what*? Miss 8% of the core operations and you'll feel it constantly; miss 8% of the strictest edge cases and it's likely still fine for local development. Those are very different situations behind the same number, so the suite splits its tests into three tiers.
 
-**Tier 1 - Core.** The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable. The lower an emulator scores here, the more often everyday code will hit a difference.
+**Tier 1 - Core.** The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable. The more an emulator diverges here, the more often everyday code will hit a difference.
 
 **Tier 2 - Complete.** Documented but less common features: transactions, PartiQL, LSIs, TTL, streams, tags. A gap here only matters if you actually use that feature.
 
 **Tier 3 - Strict.** Validation ordering, error behaviour at a range of strictness - exact where DynamoDB's wording is stable, structural (the type, field and constraint) where its rendering is non-deterministic - limits, and legacy API shapes. Missing some of this is usually fine when you're developing locally, where the exact error string rarely matters. It matters far more in CI: if your own test suite runs against an emulator and asserts on error messages or validation behaviour, a Tier 3 gap is exactly the kind of thing that lets a bug through a green build and only shows up against real DynamoDB in production.
 
-"100% Tier 1, 95% Tier 2, 80% Tier 3" tells you far more than "92%" ever could.
+"0.0% Tier 1, 5.0% Tier 2, 20.0% Tier 3" tells you far more than one figure over the whole suite ever could.
 
 ## Skips are scope, fails are bugs
 
-Skips here are deliberate, not flakiness. Each test file probes for feature support up front and skips itself if the target doesn't implement that operation at all. That is a different thing from a failure, and the score treats it differently. A skip says "I don't do this"; a fail says "I do this, but I get it wrong". So the percentage is correctness over the operations a target actually implements - passed divided by passed plus failed - and skips are left out of it, reported separately as scope rather than held against the score.
+Skips here are deliberate. Each test file probes for feature support up front and skips itself if the target doesn't implement that operation at all. A skip says "I don't do this"; a fail says "I do this, but I get it wrong". Those are different problems for whoever is relying on the thing: an operation a target declines is something you find in minutes and plan around, and one it quietly gets wrong is something you find in production.
 
-That keeps an unimplemented operation honest as a boundary, not a black mark. It does mean a target that implements a narrow slice and gets it right can score highly, so every score on this site is shown next to how much of the suite the target attempts. Correctness tells you whether what it does is right; coverage tells you how much it does. You need both, and a high percentage on a thin surface reads as exactly that.
+So the board reports them apart. **Divergence** counts the fails against the whole suite. **Coverage** says how much of the suite the target implements. A target with a narrow surface that gets it right shows a low divergence and a low coverage, and both are true at once. Because the denominator is the whole suite either way, a fail that turns into a skip leaves both figures together: divergence and coverage fall by exactly the same amount, so a target that stops attempting something it got wrong cannot improve one without paying for it in the other. The letter grade on each row is a reading of the pair, never a sum of it: divergence sets the letter and low coverage can only cap it, under [criteria the methodology publishes in full](/methodology#grading). The [methodology](/methodology) works the rest through.
 
 ## Why a whole site for it
 

@@ -1,11 +1,13 @@
 <script webc:setup>
-  function band(v) {
-    if (v == null) return "none";
-    if (v >= 95) return "pass";
-    if (v >= 75) return "partial";
-    return "fail";
+  // The grade chip's class, from the grade's own band so the tint can never
+  // disagree with the letter. The band boundaries restate the board's
+  // published colour bands; see the methodology's grading criteria.
+  function chipClass(grade, size) {
+    return "grade-chip grade-" + grade.band + " " + (size === "sm" ? "text-xs" : "text-xl");
   }
-  function barClass(v) { return "bar-" + band(v); }
+  // The grade line and region clause render through the shared gradeLine /
+  // regionClause filters (lib/scoring.mjs), so this row, the variant rows
+  // and the target page's other-builds cards phrase a grade identically.
   function widthPct(v) { return (v == null ? 0 : v) + "%"; }
 </script>
 <li :class="'rounded-xl border p-4 sm:p-5 ' + (row.synthesised ? 'bg-brand-50 dark:bg-brand-500/10 border-brand-200 dark:border-brand-500/30' : 'bg-zinc-50/70 dark:bg-white/[0.03] border-zinc-200 dark:border-white/10')">
@@ -24,9 +26,10 @@
       </div>
       <div class="mt-0.5 flex items-center gap-2 min-w-0">
         <span class="font-mono tnum text-xs text-zinc-500 dark:text-zinc-400 truncate" :title="row.version" @text="row.version"></span>
-        <!-- Scope: a high score is correctness over what a target implements, so an
-             unsupported count is surfaced here as a caveat, not buried. A dotted link
-             through to the operation matrix shows which operations are missing. -->
+        <!-- Scope: the grade is capped by coverage, so an unsupported count is
+             surfaced here as the caveat behind that cap, not buried. A dotted
+             link through to the operation matrix shows which operations are
+             missing. -->
         <a webc:if="row.unsupported > 0"
           href="/support"
           class="shrink-0 text-xs text-zinc-500 dark:text-zinc-400 underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300 transition-colors"
@@ -34,61 +37,158 @@
           <span @text="row.unsupported + ' unsupported'"></span>
           <span class="sr-only">; covers <span @text="row.coverage"></span> of the suite</span>
         </a>
-        <span webc:else class="shrink-0 text-xs text-zinc-400 dark:text-zinc-500">full coverage</span>
+        <!-- No "full coverage" counterpart: the coverage figure beside the
+             grade already says 100%, and repeating it crowded the name column. -->
       </div>
-      <!-- Conflict-of-interest disclosure, at the score: this engine is
+      <!-- Every way this target can be run, as marks: a reader sees the shape
+           of its distribution at a glance rather than reading a list. These are
+           asserted rather than measured - nothing in the suite can observe that
+           a project ships a Docker image - so the target page carries the same
+           list with the page documenting each one. -->
+      <p webc:if="channels(row.slug).length" class="basis-full mt-1.5 flex flex-wrap items-center gap-1.5">
+        <span class="sr-only" @text="'Runs via: ' + channels(row.slug).map((c) => c.label).join(', ')"></span>
+        <a webc:for="c of channels(row.slug)" :href="'/targets/' + row.slug"
+          class="text-zinc-400 dark:text-zinc-500 hover:text-brand-600 dark:hover:text-brand-300 transition-colors"
+          :title="c.label" :aria-label="c.label">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+            <path :d="c.path" />
+          </svg>
+        </a>
+      </p>
+
+      <!-- Conflict-of-interest disclosure, welded to the grade: this engine is
            maintained by the person who runs the board. Shown here so a reader
-           sees it with the number, not only on a page they might not open. -->
+           sees it with the letter, not only on a page they might not open. -->
       <p webc:if="isSelfMaintained(row.slug)" class="basis-full mt-1 text-[0.7rem] leading-snug text-zinc-500 dark:text-zinc-400">
         Disclosure: <a :href="'/targets/' + row.slug" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300">maintained by this board's author</a>
       </p>
     </div>
 
-    <!-- Total bar + percentage + movement -->
-    <div class="flex-1 flex items-center gap-3">
-      <div
-        class="flex-1 h-3 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden"
-        role="meter"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        :aria-valuenow="row.totalValue == null ? 0 : row.totalValue"
-        :aria-label="row.display + ' total conformance: ' + row.total">
-        <div class="h-full rounded-full transition-[width]" :class="barClass(row.totalValue)" :style="'width:' + widthPct(row.totalValue)"></div>
+    <!-- Grade first, then the figures it reads from, then the coverage bar.
+         The letter is derived from the row's own two values at render time
+         (gradeOf), so it can never disagree with the figures beside it. The
+         two are still never blended: divergence sets the letter, coverage can
+         only cap it, and both stay printed on the line. -->
+    <div class="flex-1 flex items-center gap-3 sm:gap-4">
+      <span :class="chipClass(gradeOf(row.divergenceValue, row.coverageValue), 'lg')">
+        <span aria-hidden="true" @text="gradeOf(row.divergenceValue, row.coverageValue).letter ?? '–'"></span>
+        <span class="sr-only" @text="'Grade ' + (gradeOf(row.divergenceValue, row.coverageValue).letter ?? 'not scored')"></span>
+      </span>
+      <div class="flex-1 min-w-0">
+        <!-- No per-region count here. "6 of 33" is the cohort a headline was
+             earned in, and the naive reading inverts it: a target failing
+             identically everywhere shows "33 of 33" while one that matches
+             six regions exactly - and only differs where real DynamoDB
+             differs from itself - shows "6 of 33". A scanning reader takes
+             the bigger number as the better target every time, and no
+             card-sized label survives that. The method is stated above the
+             board, and each target's page carries the per-region story. -->
+        <!-- The headline is a regional measurement, so the row states its
+             distribution rather than leaving a figure to read as universal:
+             a bare "no divergence" claimed more than the measurement does
+             for a target that is perfect in six regions and 0.3% out in the
+             rest. -->
+        <p class="text-sm leading-snug text-zinc-700 dark:text-zinc-200 mb-1.5">
+          <span class="font-medium" @text="gradeLine(row)"></span><span webc:if="regionClause(row)" class="text-zinc-500 dark:text-zinc-400" @text="' ' + regionClause(row)"></span><span class="text-zinc-500 dark:text-zinc-400"> · covers <span class="tnum" @text="row.coverage"></span> of the suite</span>
+          <!-- A capped letter says so where it is read. "B" over "no
+               divergence" is the coverage cap doing its job, and it should
+               not take the methodology page to see that. -->
+          <span webc:if="gradeOf(row.divergenceValue, row.coverageValue).capped" class="text-xs text-zinc-500 dark:text-zinc-400">· capped by coverage</span>
+        </p>
+        <!-- The bar draws coverage alone; the judgement lives in the chip.
+             Its old fill was coloured by divergence, which made a broad,
+             badly-diverging target read as a full bar of warning - length
+             and colour answering different questions in one mark. -->
+        <div
+          class="h-2 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden"
+          role="meter"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          :aria-valuenow="row.coverageValue == null ? 0 : row.coverageValue"
+          :aria-label="row.display + ' implements ' + row.coverage + ' of the suite and diverges on ' + row.divergence">
+          <div class="h-full rounded-full transition-[width] bg-zinc-400 dark:bg-zinc-400/80" :style="'width:' + widthPct(row.coverageValue)"></div>
+        </div>
       </div>
-      <span class="w-14 text-right font-mono font-bold tnum text-zinc-900 dark:text-zinc-100" @text="row.total"></span>
 
       <!-- Movement -->
-      <span webc:if="row.synthesised" class="w-20 text-right text-xs text-brand-700 dark:text-brand-300 font-medium">ground truth</span>
-      <span webc:elseif="row.movement.state === 'new'" class="w-20 text-right">
+      <span webc:if="row.synthesised" class="w-20 shrink-0 text-right text-xs text-brand-700 dark:text-brand-300 font-medium">ground truth</span>
+      <span webc:elseif="row.movement.state === 'new'" class="w-20 shrink-0 text-right">
         <span class="inline-flex items-center rounded-full bg-brand-100 dark:bg-brand-500/20 px-2 py-0.5 text-xs font-medium text-brand-700 dark:text-brand-200">new</span>
       </span>
-      <span webc:elseif="row.movement.state === 'carried'" class="w-20 text-right text-xs italic text-zinc-500 dark:text-zinc-400" :title="'Not re-tested this run; last tested ' + dateLabel(row.runDate)">
+      <span webc:elseif="row.movement.state === 'carried'" class="w-20 shrink-0 text-right text-xs italic text-zinc-500 dark:text-zinc-400" :title="'Not re-tested this run; last tested ' + dateLabel(row.runDate)">
         carried
         <span class="sr-only" @text="'not re-tested this run, last tested ' + dateLabel(row.runDate)"></span>
       </span>
-      <span webc:else :class="'w-20 text-right inline-flex items-center justify-end gap-1 text-xs font-medium tnum move-' + row.movement.state">
-        <span aria-hidden="true" @text="row.movement.arrow"></span>
-        <span @text="row.movement.deltaLabel"></span>
-        <span class="sr-only" @text="row.movement.label"></span>
+      <span webc:else :class="'w-20 shrink-0 text-right text-xs font-medium tnum move-' + row.movement.state">
+        <span class="inline-flex items-center justify-end gap-1">
+          <span aria-hidden="true" @text="row.movement.arrow"></span>
+          <span @text="row.movement.deltaLabel"></span>
+        </span>
+        <!-- A letter change is stated beside the delta that caused it: near a
+             band boundary a 0.3pp move flips a grade, and the flip should not
+             have to be rederived from the criteria. -->
+        <span webc:if="row.movement.grade" class="block mt-0.5 text-[0.7rem] font-normal" @text="row.movement.grade.from + ' → ' + row.movement.grade.to"></span>
+        <span class="sr-only" @text="row.movement.label + (row.movement.grade ? ', ' + row.movement.grade.label : '')"></span>
       </span>
     </div>
   </div>
 
-  <!-- The region(s) the headline matched, following the honest-cohort rule:
-       "all regions" when it ties everywhere, "eu-west-2 + N" when eu-west-2 is
-       in the best cohort, a named region when it beats eu-west-2 there. Hidden
-       when the per-region overlay isn't available. -->
-  <div webc:if="row.regionLabel" class="mt-2 sm:pl-56 flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-    <span class="text-zinc-400 dark:text-zinc-500">region</span>
-    <span class="font-medium text-zinc-600 dark:text-zinc-300" @text="regionLabel(row.regionLabel)"></span>
-    <span webc:if="row.regionLabel.kind === 'beats-pinned'" class="move-up font-medium" aria-hidden="true">▲ vs eu-west-2</span>
-    <span webc:if="row.regionLabel.kind === 'beats-pinned'" class="sr-only">scores higher here than in eu-west-2</span>
-  </div>
+  <!-- Tier breakdown, closed by default. The three bars and their twelve
+       figures are what made a row a wall of numbers; the headline answers the
+       first question and this answers the second, one click away rather than
+       always on. The full breakdown stays on the target page. -->
+  <details class="mt-3 sm:pl-56 group">
+    <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-brand-700 dark:hover:text-brand-300 transition-colors rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:focus-visible:outline-brand-400">
+      <svg class="w-3 h-3 transition-transform group-open:rotate-90 motion-reduce:transition-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+      Tier breakdown
+    </summary>
+    <div class="mt-3 grid grid-cols-3 gap-3 sm:gap-4">
+      <tier-bar :name="'Tier 1'" :display="row.display" :tier="row.tiers.tier1"></tier-bar>
+      <tier-bar :name="'Tier 2'" :display="row.display" :tier="row.tiers.tier2"></tier-bar>
+      <tier-bar :name="'Tier 3'" :display="row.display" :tier="row.tiers.tier3"></tier-bar>
+    </div>
+  </details>
 
-  <!-- Tier breakdown -->
-  <div class="mt-3 grid grid-cols-3 gap-3 sm:gap-4 sm:pl-56">
-    <tier-bar :name="'Tier 1'" :display="row.display" :tier="row.tiers.tier1"></tier-bar>
-    <tier-bar :name="'Tier 2'" :display="row.display" :tier="row.tiers.tier2"></tier-bar>
-    <tier-bar :name="'Tier 3'" :display="row.display" :tier="row.tiers.tier3"></tier-bar>
-  </div>
+  <!-- Builds of this project, nested rather than seated as rivals: a reader
+       chooses between projects, and which build they want follows from where
+       their code runs. The columns mirror the row above so the two sets of
+       figures can be compared down the page rather than across it. -->
+  <ul webc:if="row.variants && row.variants.length" class="mt-4 pt-3 border-t border-zinc-200 dark:border-white/10 space-y-2">
+    <li webc:for="v of row.variants" class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+      <div class="sm:w-52 sm:shrink-0 flex items-baseline gap-1.5 min-w-0">
+        <span class="text-zinc-400 dark:text-zinc-500 shrink-0" aria-hidden="true">↳</span>
+        <a :href="'/targets/' + v.slug"
+          class="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200 hover:text-brand-700 dark:hover:text-brand-300 transition-colors"
+          @text="configurationOf(v.slug) || v.display"></a>
+      </div>
+      <div class="flex-1 flex items-center gap-3 sm:gap-4">
+        <span :class="chipClass(gradeOf(v.divergenceValue, v.coverageValue), 'sm')">
+          <span aria-hidden="true" @text="gradeOf(v.divergenceValue, v.coverageValue).letter ?? '–'"></span>
+          <span class="sr-only" @text="'Grade ' + (gradeOf(v.divergenceValue, v.coverageValue).letter ?? 'not scored')"></span>
+        </span>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs leading-snug text-zinc-600 dark:text-zinc-300 mb-1">
+            <span class="font-medium" @text="gradeLine(v)"></span><span webc:if="regionClause(v)" class="text-zinc-500 dark:text-zinc-400" @text="' ' + regionClause(v)"></span><span class="text-zinc-500 dark:text-zinc-400"> · covers <span class="tnum" @text="v.coverage"></span></span>
+            <span webc:if="gradeOf(v.divergenceValue, v.coverageValue).capped" class="text-[0.7rem] text-zinc-500 dark:text-zinc-400">· capped by coverage</span>
+            <!-- A build not re-tested this run says so where its figures are,
+                 like the parent's movement column does: a dated figure
+                 presented undated reads as this run's measurement. -->
+            <span webc:if="v.carried" class="text-[0.7rem] italic text-zinc-500 dark:text-zinc-400">· last measured <time :datetime="v.runDate" @text="dateLabel(v.runDate)"></time></span>
+          </p>
+          <div
+            class="h-1.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden"
+            role="meter"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            :aria-valuenow="v.coverageValue == null ? 0 : v.coverageValue"
+            :aria-label="row.display + ', ' + (configurationOf(v.slug) || v.display) + ': implements ' + v.coverage + ' of the suite and diverges on ' + v.divergence">
+            <div class="h-full rounded-full bg-zinc-400 dark:bg-zinc-400/80" :style="'width:' + widthPct(v.coverageValue)"></div>
+          </div>
+        </div>
+        <!-- Keeps the variant's figures under the parent's, not under its
+             movement column. Builds carry no movement of their own. -->
+        <span class="hidden sm:block w-20 shrink-0" aria-hidden="true"></span>
+      </div>
+    </li>
+  </ul>
 </li>

@@ -1,17 +1,30 @@
 <figure class="mt-2">
+  <h3 webc:if="geo.heading" class="text-sm font-medium text-zinc-700 dark:text-zinc-200" @text="geo.heading"></h3>
   <svg
     :viewBox="'0 0 ' + geo.W + ' ' + geo.H"
     class="w-full h-auto"
     role="img"
     :aria-label="charttitle"
     preserveAspectRatio="xMidYMid meet">
-    <title id="history-chart-title" @text="charttitle"></title>
+    <title @text="charttitle"></title>
 
     <!-- gridlines + y-axis labels -->
     <g webc:for="g of geo.grid">
       <line :x1="geo.x0" :x2="geo.x1" :y1="g.y" :y2="g.y" stroke="currentColor" stroke-width="1" class="text-zinc-200 dark:text-white/10" />
       <text :x="geo.x0 - 6" :y="g.y + 3" text-anchor="end" class="fill-zinc-400 dark:fill-zinc-500 text-[10px] font-mono" @text="g.v + '%'"></text>
     </g>
+
+    <!-- What the axis measures, and which way is good. Both plots use the
+         conventional orientation - a regression moves away from the pinned edge -
+         but neither metric is one a reader can assume the sense of, so each plot
+         names its own. -->
+    <text
+      :x="-(geo.y0 + geo.y1) / 2"
+      :y="12"
+      transform="rotate(-90)"
+      text-anchor="middle"
+      class="fill-zinc-400 dark:fill-zinc-500 text-[10px]"
+      @text="geo.axisLabel"></text>
 
     <!-- trend line -->
     <polyline :points="geo.polyline" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" class="text-brand-500 dark:text-brand-400" />
@@ -35,11 +48,16 @@
   </svg>
 
   <!-- Stated in HTML rather than inside the SVG: it renders at real text size
-       on a phone, and role="img" would otherwise hide it from screen readers. -->
+       on a phone, and role="img" would otherwise hide it from screen readers.
+       The wording comes from the metric, so the coverage plot doesn't get
+       captioned in the vocabulary of the divergence one. -->
   <figcaption webc:if="geo.latest" class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-    Now <span class="tnum font-medium text-zinc-700 dark:text-zinc-200" @text="geo.latest.label"></span>
-    on <span @text="geo.latest.dateShort"></span><span webc:if="!geo.low">.</span><span webc:if="geo.low">,
-    lowest <span class="tnum font-medium text-zinc-700 dark:text-zinc-200" @text="geo.low.label"></span>
-    on <span @text="geo.low.dateShort"></span>.</span>
+    <span @text="geo.nowPrefix"></span>
+    <span class="tnum font-medium text-zinc-700 dark:text-zinc-200" @text="geo.latest.label"></span>
+    <span @text="geo.nowSuffix"></span> as of <span @text="geo.latest.dateShort"></span><span webc:if="geo.worst">,
+    <span @text="geo.worstPrefix"></span>
+    <span class="tnum font-medium text-zinc-700 dark:text-zinc-200" @text="geo.worst.label"></span>
+    on <span @text="geo.worst.dateShort"></span></span>.
+    <span @text="geo.sense"></span>
   </figcaption>
 </figure>

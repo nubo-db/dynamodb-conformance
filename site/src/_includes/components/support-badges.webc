@@ -2,7 +2,7 @@
   <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Fully supports</h2>
   <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4 max-w-2xl">
     Operation areas this target implements completely - every test passes, nothing skipped. Areas it only partly
-    implements, or gets wrong, are in &ldquo;Where it falls short&rdquo; below.
+    gets wrong are in &ldquo;Where it falls short&rdquo; below; the ones it only partly attempts are in &ldquo;What it doesn&rsquo;t attempt&rdquo;.
   </p>
   <ul class="flex flex-wrap gap-2">
     <li

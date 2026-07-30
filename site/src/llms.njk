@@ -6,7 +6,7 @@ eleventyExcludeFromCollections: true
 
 > {{ site.description }}
 
-Parity Suite runs one conformance suite against live AWS DynamoDB (the baseline, 100% by definition) and against each DynamoDB-compatible emulator, then scores how closely each one matches. Scores are correctness over implemented operations, split into three tiers, with coverage reported alongside. Every figure is derived at build time from the suite's own results, so the pages and the data below never disagree.
+Parity Suite runs one conformance suite against live AWS DynamoDB (the baseline, diverging nowhere over full coverage by definition) and against each DynamoDB-compatible emulator, then scores how closely each one matches. Each target carries two figures, reported apart and never summed: divergence, the share of the whole suite it answers differently from real DynamoDB, where lower is better; and coverage, the share it implements at all. Both are also reported per tier, across three tiers. Each target also wears a letter grade (A+ to F), a reading of the pair rather than a blend: divergence sets the letter and low coverage can only cap it, under versioned criteria on the methodology page. Every figure is derived at build time from the suite's own results, so the pages and the data below never disagree.
 
 ## Pages
 - [Results]({{ site.url }}/): the latest run's standings, with run-over-run movement.
@@ -25,7 +25,7 @@ Parity Suite runs one conformance suite against live AWS DynamoDB (the baseline,
 {%- endfor %}
 
 ## Data
-- [Latest run (JSON)]({{ site.url }}/data/latest.json): per target, per tier, coverage, capabilities and operation areas.
+- [Latest run (JSON)]({{ site.url }}/data/latest.json): per target, divergence and coverage overall and per tier, capabilities and operation areas.
 - [All runs (JSON)]({{ site.url }}/data/runs.json): the full history, newest first.
 - [Data index (JSON)]({{ site.url }}/data/index.json): the tier and capability vocabularies, the endpoints and the licence.
 - [Runs feed (Atom)]({{ site.url }}/feed.xml): one entry per run.

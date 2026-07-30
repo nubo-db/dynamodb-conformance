@@ -1,25 +1,63 @@
 <script webc:setup>
+  // One encoding per mark, the same split as the headline row: the bar draws
+  // the tier's coverage in neutral grey, and the divergence figure carries the
+  // band colour. The bar used to carry both at once - length as coverage,
+  // colour as divergence - which is the dual encoding the board retired.
+  // Banded on the published boundaries (green under 5%, amber to 25%).
   function band(v) {
     if (v == null) return "none";
-    if (v >= 95) return "pass";
-    if (v >= 75) return "partial";
+    if (v < 5) return "pass";
+    if (v < 25) return "partial";
     return "fail";
   }
-  function barClass(v) { return "bar-" + band(v); }
+  function figClass(v) { return "fig-" + band(v); }
   function widthPct(v) { return (v == null ? 0 : v) + "%"; }
+  // The tier's product name and one-line meaning, so "Tier 2" is not a bare
+  // ordinal on the one surface where a reader meets it first. Mirrors the
+  // TIERS vocabulary the data endpoints publish.
+  const TIER_META = {
+    "Tier 1": { label: "Core", description: "The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable." },
+    "Tier 2": { label: "Complete", description: "Documented but less common features: transactions, PartiQL, LSIs, TTL, streams, tags." },
+    "Tier 3": { label: "Strict", description: "Validation ordering, error behaviour, limits, and legacy API shapes." },
+  };
+  function tierTitle(name) { return TIER_META[name]?.description ?? ""; }
+  function tierLabel(name) { return TIER_META[name] ? name + " · " + TIER_META[name].label : name; }
 </script>
 <div>
-  <div class="flex items-center justify-between mb-1">
-    <span class="text-[0.7rem] uppercase tracking-wide text-zinc-500 dark:text-zinc-400" @text="name"></span>
-    <span class="text-[0.7rem] font-mono tnum text-zinc-600 dark:text-zinc-400" @text="tier.pct"></span>
+  <div class="flex items-center justify-between gap-2 mb-1">
+    <span class="text-[0.7rem] uppercase tracking-wide text-zinc-500 dark:text-zinc-400 cursor-help" :title="tierTitle(name)" @text="tierLabel(name)"></span>
+    <!-- The figure is named and coloured by its band; a bare right-aligned
+         percentage read as anything the reader expected it to be. -->
+    <span class="text-[0.7rem] font-mono tnum whitespace-nowrap" :class="figClass(tier.divergenceValue)">
+      <span @text="tier.divergence"></span><span class="font-sans text-zinc-500 dark:text-zinc-400"> diverges</span>
+    </span>
   </div>
+  <!-- The tier's coverage as a figure, not only as the bar's length. Divergence
+       is paired with a number everywhere else it is published, and a tier whose
+       coverage lives solely in a bar is the one place a thin surface stops being
+       stated: Dynalite's Tier 2 diverges on 14.1%, which reads unremarkable
+       until you know it attempts a fifth of the tier. -->
+  <div class="mb-1 flex items-baseline justify-between gap-2 text-[0.65rem] text-zinc-400 dark:text-zinc-500">
+    <span class="font-mono tnum"><span @text="tier.coverage"></span> covered</span>
+    <span webc:if="tier.skipped" class="tnum" @text="tier.skipped + ' unsupported'"></span>
+  </div>
+  <!-- Fails over what the tier actually attempts, on the detail pages only. A
+       tier divergence is over the whole tier, so a thinly-attempted tier reads
+       mild: Dynalite's Tier 2 shows 14.1% while getting 28 of the 40 tests it
+       attempts wrong. -->
+  <div webc:if="detail && tier.failed" class="mb-1 text-[0.65rem] text-zinc-400 dark:text-zinc-500 tnum"
+    @text="tier.failed + ' of ' + (tier.passed + tier.failed) + ' attempted'"></div>
+  <!-- The value this meter DRAWS is coverage, so that is what it reports.
+       Reporting divergence here while rendering coverage as the width left
+       assistive tech a number that contradicted the bar beside it, and
+       disagreed with the two sibling meters. The label states both. -->
   <div
     class="h-1.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden"
     role="meter"
     aria-valuemin="0"
     aria-valuemax="100"
-    :aria-valuenow="tier.value == null ? 0 : tier.value"
-    :aria-label="display + ' ' + name + ': ' + tier.pct">
-    <div class="h-full rounded-full" :class="barClass(tier.value)" :style="'width:' + widthPct(tier.value)"></div>
+    :aria-valuenow="tier.coverageValue == null ? 0 : tier.coverageValue"
+    :aria-label="display + ' ' + name + ': diverges on ' + tier.divergence + ', covers ' + tier.coverage">
+    <div class="h-full rounded-full bg-zinc-400 dark:bg-zinc-400/80" :style="'width:' + widthPct(tier.coverageValue)"></div>
   </div>
 </div>

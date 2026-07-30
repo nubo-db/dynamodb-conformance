@@ -1,39 +1,112 @@
+<script webc:setup>
+  // The synthesised baseline row, for the control strip: its figures are the
+  // harness's own health check rather than a competitor's score.
+  function baselineOf(standings) { return standings.find((r) => r.baseline) ?? null; }
+</script>
 <section class="max-w-6xl mx-auto px-6 py-12 sm:py-16">
   <div class="mb-8">
-    <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-      <h1 class="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Latest results</h1>
-      <p class="text-sm text-zinc-500 dark:text-zinc-400">
-        Run <a :href="'/runs/' + $data.conformance.latest.id" class="text-brand-700 dark:text-brand-300 hover:underline"><time :datetime="$data.conformance.latest.date" @text="dateLabel($data.conformance.latest.date)"></time></a>
-        <span aria-hidden="true">·</span>
-        <span @text="$data.conformance.latest.suiteSize + ' tests'"></span>
-      </p>
-    </div>
+    <h1 class="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Latest results</h1>
+    <!-- One paragraph, not a methodology lecture: the grade carries the
+         verdict, the two figures beside it carry the detail, and the full
+         reasoning lives one click away. The old two-paragraph intro existed
+         to explain a bar encoding that no longer needs explaining. -->
     <p class="mt-3 text-zinc-600 dark:text-zinc-300 max-w-2xl leading-relaxed">
-      Every emulator runs the same suite as live AWS DynamoDB, the 100% ground truth at the top. Real DynamoDB
-      doesn't behave identically in every region, so the suite scores each target against every region it can reach and
-      takes its best-matching region as the headline, named beside the score. DynamoDB is 100% because each region agrees
-      with itself. The percentage is correctness over the operations a target implements; the scope tag by its version (its
-      unsupported count, or &ldquo;full coverage&rdquo;) shows how much of the suite it attempts, so a high score on a
-      narrow surface reads as narrow. The arrow shows movement since the previous run a target was tested in.
+      Every emulator runs the same suite as live AWS DynamoDB, the ground truth, measured in every region
+      and scored against its closest match. Each grade reads from two figures that are never blended:
+      <strong>divergence</strong>, the share of the whole suite a target gets wrong, sets the letter, and low
+      <strong>coverage</strong>, the share it implements at all, can only cap it.
+      <a href="/methodology#grading" class="underline hover:text-brand-700 dark:hover:text-brand-300">How grades are worked out</a>.
     </p>
   </div>
 
-  <!-- Legend and region health share a wrapper so they read as one
-       how-to-read-this block: a tight gap between the two lines, and the
-       wrapper's margin keeps the standings clear of them whether or not the
-       per-region overlay is available. -->
-  <div class="mb-6 space-y-3">
-    <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-zinc-500 dark:text-zinc-400">
-      <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-full swatch-pass"></span>95%+</span>
-      <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-full swatch-partial"></span>75–95%</span>
-      <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-full swatch-fail"></span>under 75%</span>
-      <span class="hidden sm:inline text-zinc-300 dark:text-zinc-700" aria-hidden="true">|</span>
-      <span class="inline-flex items-center gap-x-5">
-        <span class="inline-flex items-center gap-1"><span class="move-up font-medium">▲</span> rose</span>
-        <span class="inline-flex items-center gap-1"><span class="move-down font-medium">▼</span> fell</span>
-      </span>
+  <!-- The baseline as a status strip, not a graded card. Real DynamoDB scored
+       against its own recorded answers must come out at exactly zero, and a
+       broken harness could not produce that - so the zero is a live control
+       on the pipeline and the anchor for what a clean run looks like. It is
+       not a competitor: a grade reads how far a target sits from DynamoDB,
+       and grading the yardstick A+ seats it in the band an engine had to
+       earn its way into. The strip also carries the run's vitals (suite
+       size, date, region health), so the standings below hold only the
+       things actually being measured. -->
+  <div class="mb-6 grid gap-3 sm:grid-cols-3" webc:if="baselineOf($data.conformance.latest.standings)">
+    <div class="rounded-xl border border-brand-200 dark:border-brand-500/30 bg-brand-50 dark:bg-brand-500/10 px-4 py-3">
+      <!-- The suite is the subject, not DynamoDB: 0.0% against itself is a
+           tautology dressed as a score, and a tautology invites "so what".
+           What the control demonstrates is that the harness recorded,
+           replayed and compared every answer without losing any, so the
+           figure is a measurement of the suite. One label, one job: ground
+           truth (where the expected answers come from) is carried by the
+           intro and the nav; this panel is only the check that the
+           machinery works. -->
+      <div class="text-[0.7rem] uppercase tracking-wide font-medium text-brand-700 dark:text-brand-300 mb-1">Control</div>
+      <div class="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+        <span class="tnum" @text="baselineOf($data.conformance.latest.standings).passed"></span> of <span class="tnum" @text="baselineOf($data.conformance.latest.standings).count"></span> reproduced
+      </div>
+      <div class="mt-0.5 text-xs leading-snug text-zinc-600 dark:text-zinc-400">
+        live <a href="/targets/dynamodb" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300">AWS DynamoDB</a> replayed against its own recorded answers<span webc:if="baselineOf($data.conformance.latest.standings).regionLabel?.observed">, in all <span class="tnum" @text="baselineOf($data.conformance.latest.standings).regionLabel.observed"></span> regions</span>
+      </div>
     </div>
-    <region-health webc:if="$data.summary.available" :@health="$data.summary.latest.regions"></region-health>
+    <div class="rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3">
+      <div class="text-[0.7rem] uppercase tracking-wide font-medium text-zinc-500 dark:text-zinc-400 mb-1">Suite</div>
+      <div class="text-sm font-medium text-zinc-800 dark:text-zinc-100"><span class="tnum" @text="$data.conformance.latest.suiteSize"></span> tests · three tiers</div>
+      <div class="mt-0.5 text-xs leading-snug text-zinc-600 dark:text-zinc-400">
+        latest run <a :href="'/runs/' + $data.conformance.latest.id" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300"><time :datetime="$data.conformance.latest.date" @text="dateLabel($data.conformance.latest.date)"></time></a>
+      </div>
+    </div>
+    <!-- Region health, panel-shaped: a dropped or unresolved region is named,
+         never silently omitted, so an absent region can't read as one that
+         agreed. Colour is backed by a word in every case. -->
+    <div class="rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3">
+      <div class="text-[0.7rem] uppercase tracking-wide font-medium text-zinc-500 dark:text-zinc-400 mb-1">Regions</div>
+      <div class="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+        <span webc:if="$data.summary.available"><span class="tnum" @text="$data.summary.latest.regions.observed.length"></span> real regions scored</span>
+        <span webc:else><span class="tnum" @text="baselineOf($data.conformance.latest.standings).regionLabel?.observed ?? '–'"></span> real regions scored</span>
+      </div>
+      <div webc:if="$data.summary.available" class="mt-0.5 text-xs leading-snug text-zinc-600 dark:text-zinc-400 space-y-0.5">
+        <div webc:if="$data.summary.latest.regions.unresolved.length" class="flex items-center gap-1.5">
+          <span class="h-1.5 w-1.5 rounded-full bg-partial-500 dark:bg-partial-400 shrink-0" aria-hidden="true"></span>
+          <span><span class="tnum" @text="$data.summary.latest.regions.unresolved.length"></span> unresolved, still trusted: <span class="font-mono" @text="$data.summary.latest.regions.unresolved.join(', ')"></span></span>
+        </div>
+        <div webc:if="$data.summary.latest.regions.dropped.length" class="flex items-center gap-1.5">
+          <span class="h-1.5 w-1.5 rounded-full bg-fail-500 dark:bg-fail-400 shrink-0" aria-hidden="true"></span>
+          <span><span class="tnum" @text="$data.summary.latest.regions.dropped.length"></span> dropped until it returns: <span class="font-mono" @text="$data.summary.latest.regions.dropped.join(', ')"></span></span>
+        </div>
+        <div webc:if="!$data.summary.latest.regions.unresolved.length && !$data.summary.latest.regions.dropped.length">every observed region resolved this sweep</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Region health lives in the status strip above; this block is purely
+       how to read a grade. -->
+  <div class="mb-6 space-y-3">
+    <!-- The legend carries the complete criteria, because a letter a reader
+         cannot reproduce is a verdict asked to be taken on trust: every
+         boundary, the A+ gate and the coverage caps are here, so any letter
+         on the board can be rederived from the two figures beside it. The
+         5% and 25% boundaries are the board's long-published colour bands,
+         restated rather than redrawn. -->
+    <div class="space-y-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-pass text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">A+</span>exactly 0%</span>
+        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-pass text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">A</span>&lt;5%</span>
+        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-partial text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">B</span>&lt;15%</span>
+        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-partial text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">C</span>&lt;25%</span>
+        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-fail text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">D</span>&lt;35%</span>
+        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-fail text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">F</span>beyond</span>
+        <span class="hidden sm:inline text-zinc-300 dark:text-zinc-700" aria-hidden="true">|</span>
+        <span class="inline-flex items-center gap-x-5">
+          <span class="inline-flex items-center gap-1"><span class="move-improved font-medium">▼</span> diverged less</span>
+          <span class="inline-flex items-center gap-1"><span class="move-regressed font-medium">▲</span> diverged more</span>
+        </span>
+      </div>
+      <!-- One sentence per line on desktop, so the rule reads as two clean
+           statements rather than a paragraph wrapping mid-clause; on narrow
+           screens the spans flow naturally. -->
+      <p>
+        <span class="sm:block">Letters follow divergence over the whole suite; A+ means zero failing tests, not a rounded 0.0%.</span>
+        <span class="sm:block">Coverage only caps them: under 90% covered grades at best B, under 70% at best C, under 50% at best D, and coverage alone never grades F.</span>
+      </p>
+    </div>
   </div>
 
   <!-- Biggest movers since the previous run -->
@@ -58,6 +131,14 @@
   </p>
 
   <ol class="space-y-3">
-    <standings-row webc:for="row of $data.conformance.latest.standings" :row="row"></standings-row>
+    <!-- Builds of a project render inside their parent's row, so skip them
+         here. They stay in `standings` because every other surface - the target
+         index, the per-target pages, the JSON endpoints - needs the full list.
+         The baseline is skipped too: it renders as the control strip above,
+         because the yardstick is not a competitor and does not wear a grade.
+         The visible consequence is deliberate - the top card is now the
+         highest-graded engine, which today is the board author's own, with
+         the disclosure sitting on the card. -->
+    <standings-row webc:for="row of $data.conformance.latest.standings" webc:if="!isVariant(row.slug) && !row.baseline" :row="row"></standings-row>
   </ol>
 </section>

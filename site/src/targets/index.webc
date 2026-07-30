@@ -18,8 +18,12 @@
     Every target the suite tracks, with its score from the latest run. Open one to see its tier breakdown and how its conformance has moved over time.
   </p>
   <div class="grid sm:grid-cols-2 gap-4">
+    <!-- One card per project. A build of one is named on its parent's card
+         instead of taking a card beside it, so the page does not read as though
+         a project shipping two builds is two engines. -->
     <target-card
       webc:for="slug of $data.conformance.targets"
+      webc:if="!isVariant(slug) && $data.conformance.perTarget[slug].current"
       :row="$data.conformance.perTarget[slug].current"></target-card>
   </div>
 
