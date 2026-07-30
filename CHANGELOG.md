@@ -3,27 +3,59 @@
 A dated log of how the conformance test suite has grown: tests added, tiers
 broadened, and targets brought into the run. Newest first.
 
-## 2026-07-30 (3.1.0)
+## 2026-07-30 (3.0.0)
+
+**Read this first if you consume the JSON.** The data endpoints go from schema
+2 to schema 4 in this one release. Schema 3 was never published on its own, so
+there is no intermediate version to have been running: everything on 2 crosses
+both steps at once. Schema 3 is breaking in three ways and they are listed under
+"Everything else that was a percentage follows the headline down" below. Schema
+4 is additive on top of it. The one that fails silently is `movement.state`,
+whose values changed from `up`/`down` to `improved`/`regressed` - the old names
+still parse and now mean the opposite direction.
 
 Every target now wears a letter grade, read from the two published figures and
 never blended from them. Divergence sets the letter - A+ for exactly zero
 failing tests against the target's best-matching region, A under 5%, B under
 15%, C under 25%, D under 35%, F beyond -
 and low coverage can only cap it: under 90% caps at B, under 70% at C, under
-50% at D, and coverage alone never grades F. No measurement changed and
-no row moved; the grade restates the colour bands the board has always
-published, with the criteria versioned (v1) and dated in the methodology so a
-future retuning cannot move grades silently.
+50% at D, and coverage alone never grades F. No measurement changed. The 5% and
+25% boundaries carry over the numbers of the colour bands the board has always
+published, though those sat on correctness and these sit on divergence, so the
+same numbers cut a different line at anything below full coverage; 15%, 35% and
+the caps are new. The criteria are versioned (v1) and dated in the methodology,
+because where a threshold sits is the one hand-picked input to a letter and
+moving one regrades targets whose results never changed.
 
 - Dynoxide reads `A+` where it read `0.0% diverges, 98.6% covered` - both
   figures stay printed beside the letter. Its WebAssembly build reads `B` on
   the same zero divergence, capped by its 78.7% coverage: the cap applies to
   the board author's own engine like any other.
+- Real DynamoDB reads `baseline`, not a letter. A grade measures how far a
+  target sits from real DynamoDB, so grading the yardstick against itself would
+  seat it in a band an engine had to earn its way into. Its two figures still
+  publish.
+- A row says "coverage caps this row at B" wherever a cap is holding its letter,
+  whether or not the cap had to lower it. Dynalite diverges 12.3%, which is the
+  B band on its own, over 80.0% coverage, which caps at B: nothing was lowered
+  and B is still the best that row can read. Without the clause it looked
+  identical to a target with room above it, and a reader comparing Dynalite's
+  **B** with LocalStack's **C** could not see that only one of the two is
+  boxed in.
 - The per-target badges show the grade under a `parity` label. They had still
   been publishing the correctness percentage the board retired, under a
-  `conformance` label, so a badge could disagree with the table it cited.
+  `conformance` label, so a badge could disagree with the table it cited. The
+  endpoint URL is unchanged and is now documented on the agent guide, which is
+  where a badge's only version channel lives: shields pins its own
+  `schemaVersion` to 1, so the path is all there is.
 - The README table gains a Grade column, and the data endpoints (schema 4)
-  carry each target's grade plus the full criteria in `metrics.grade`.
+  carry each target's grade plus the full criteria in `metrics.grade`. Each
+  grade carries `capAt`, the ceiling a letter is sitting at, alongside the
+  `capped` flag that says whether reaching it moved the letter.
+- The board leads with the highest-graded engine, because the baseline moved
+  out of the standings and into a control strip above them. Today that puts the
+  board author's own engine in the top card, with the conflict-of-interest
+  disclosure on the card itself.
 
 The board publishes two figures now instead of one, and the index exclusions
 started meaning what they said. No target was re-run for this and no
@@ -117,7 +149,8 @@ correctness chart, with nothing saying they were different measurements.
   the counts as fails over each operation's whole size. It was a pass rate over
   what the operation attempted, which left the most detailed table on the page
   running opposite to every figure above it.
-- **The data schema is at 3, and three changes in it are breaking.** A tier no
+- **These are schema 3's three breaking changes, and every consumer was on
+  schema 2, so all three land at once.** A tier no
   longer carries `pct` and `value`; it carries `divergence`, `coverage` and
   `correctness`, each with a `pct` and a `value` of its own. The whole-suite
   correctness percentage is `correctness`, not `total`: `total` also names the
@@ -126,7 +159,8 @@ correctness chart, with nothing saying they were different measurements.
   percentage, has to be updated - read as-is, both now invert or vanish. The
   third is `movement.state`, whose values are named above; it is listed here too
   so a consumer counting the breaks against the version gets all of them in one
-  place.
+  place. It is the dangerous one, because `up` and `down` still parse and now
+  mean the opposite thing.
 
 **A headline says how many regions it came from.** Each target is scored
 against every observed region and headlines its best-matching cohort, and the
