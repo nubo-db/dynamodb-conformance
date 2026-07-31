@@ -2,24 +2,28 @@
 // the badges and the site so the three can never disagree.
 //
 // The grade is a reading aid, not a third metric. Divergence sets the letter
-// and coverage can only cap it: the two figures are never summed, averaged or
-// otherwise traded against each other, so the board's rule that a missing
-// operation and a wrong one carry different risks survives the letter intact.
-// Both figures stay published beside every grade, and the grade is
-// recomputable from them with the thresholds below.
+// and coverage can only lower it, never raise it. Both figures stay published
+// beside every grade, and the grade is recomputable from them with the criteria
+// below.
 //
 // The 5% and 25% boundaries carry over the numbers the board has published as
 // its colour bands since it began. The numbers carry over; the denominator does
-// not, and that is worth stating rather than eliding. Those bands sat on
-// correctness (95% and 75%, over the operations a target implements) and these
-// sit on divergence (over the whole suite), so the same digits cut a different
-// line everywhere but full coverage: at 80% coverage, 5% divergence is 93.75%
-// correctness, which the old amber band caught. That is the leniency the
-// coverage caps below exist to answer. The splits at 15% and 35% are new, and
-// so are the caps.
+// not. Those bands sat on correctness - 95% and 75%, over the operations a
+// target implements - and these sit on divergence, over the whole suite, so the
+// same digits cut a different line at anything below full coverage: at 80%
+// coverage, 5% divergence is 93.75% correctness, which the old amber band
+// caught. The coverage weight below answers that leniency. The splits at 15%
+// and 35% are new lines, and so is the weight.
 //
-// A+ is exactly zero divergence, and the coverage caps apply to it like any
-// other letter.
+// The cap rolls rather than stepping. Withdrawing a failing test lowers
+// divergence and coverage by the same amount, so a stepped cap left gaps
+// between its steps where a target could decline what it failed, cross a band,
+// and never reach the step that would have held it.
+//
+// A weight prices every withdrawal, but it does not stop one: withdrawal moves
+// the effective figure by (1 - weight) of what was withdrawn, so only a weight
+// of 1 removes the gain, and that is a skip counted as heavily as a fail. The
+// prose says the price rose rather than claiming the gap closed.
 //
 // Criteria changes are versioned. A retuned threshold moves published grades
 // on targets that changed nothing - the documented failure mode of every
@@ -37,38 +41,27 @@ export const GRADE_BANDS = [
   { letter: 'D', under: 35 },
 ]
 
-// A+ is exactly zero divergence: not one failing test, not a figure that
-// rounds to 0.0%. Zero is a natural boundary rather than a tunable one -
-// conformance on everything the target implements - and pinning it to the
-// count rather than the rounded figure matters as the suite grows, because a
-// single fail in a large enough suite displays as 0.0% without being zero.
-// A+ carries no coverage condition of its own: the caps below apply to it
-// like any other letter, so a perfect answer over a narrow surface is capped
-// rather than gated. (A coverage floor on the gate would be redundant - any
-// coverage low enough to deny A+ already caps the letter to B or below.)
+// A+ is zero divergence over the whole suite: nothing failed and nothing
+// declined. Both halves read raw values, because a single fail in a large enough
+// suite displays as 0.0% without being zero, and a target one test short of the
+// suite does not print 100.0% coverage.
+export const A_PLUS = Object.freeze({ divergence: 0, coverage: 100, exact: true })
 
-// Coverage caps, lowest first: a target implementing under `under` percent of
-// the suite can grade no better than `cap`, however little it diverges. A cap
-// never moves a number - it ceilings the letter, so a capped grade is read
-// with the coverage figure that earned the cap, published right beside it.
-// The caps stop at D: coverage alone never grades a target F, because F means
-// wrong on more than a third of the suite, and an operation a target never
-// attempts is absent, not wrong.
+// What a declined test costs against the letter, relative to a failed one:
 //
-// A cap that bit and a cap that is merely holding are different facts, and only
-// the first used to be visible. Dynalite diverges 12.3% (band B) over 80.0%
-// coverage (cap B), so its letter sits on a ceiling it never had to be lowered
-// to, and its row was indistinguishable from one that earned B outright.
-// `capAt` publishes the ceiling a letter is sitting at; `capped` still says
-// whether reaching it moved the letter. Both are null/false for a row that
-// diverges its way past the cap on its own - a target at 30% divergence over
-// 80% coverage grades D, and naming B as its ceiling would imply a constraint
-// that is doing nothing.
-export const COVERAGE_CAPS = [
-  { under: 50, cap: 'D' },
-  { under: 70, cap: 'C' },
-  { under: 90, cap: 'B' },
-]
+//   effective = divergence + (100 - coverage) / COVERAGE_DIVISOR
+//
+// so a target implementing everything is graded on divergence alone. Since
+// effective is never below divergence, coverage can only lower a letter.
+//
+// A divisor rather than a decimal weight, because this is published for
+// consumers to regrade with: 0.333... is not representable, and a rounded
+// decimal lands on the other side of a band boundary from the division.
+//
+// Three is a judgement. At 1 a skip is a fail; much higher and it does nothing.
+// A third puts a target declining 30% of the suite two bands behind one that
+// implements it all, and leaves a target declining 2% where divergence puts it.
+export const COVERAGE_DIVISOR = 3
 
 // Plain-language reading of the divergence behind a grade, shown where the
 // bare percentage used to stand alone: "0.0% diverges" reads as a zero, and
@@ -89,12 +82,20 @@ const ORDER = ['A+', 'A', 'B', 'C', 'D', 'F']
 // grade, not a footnote to a better one.
 const BAND_OF = { 'A+': 'pass', A: 'pass', B: 'partial', C: 'partial', D: 'fail', F: 'fail' }
 
+// The colour band for a letter on its own, for surfaces that show the criteria
+// rather than a graded row - the board's legend, which needs a tinted chip per
+// letter without a target to grade. Exported so the legend derives its colours
+// from the same table the rows do.
+export const bandOf = (letter) => BAND_OF[letter] ?? 'none'
+
 const letterFor = (divergence) =>
   GRADE_BANDS.find((b) => divergence < b.under)?.letter ?? 'F'
 
-const capFor = (coverage) => COVERAGE_CAPS.find((c) => coverage < c.under)?.cap ?? null
-
-const worse = (a, b) => (ORDER.indexOf(a) >= ORDER.indexOf(b) ? a : b)
+// The figure the bands read: divergence plus the weighted share the target
+// declines, rounded to the one decimal the board publishes so a reader working
+// it out from the two figures on a card lands on the same letter.
+export const effectiveOf = (divergence, coverage) =>
+  Number((divergence + (100 - coverage) / COVERAGE_DIVISOR).toFixed(1))
 
 /**
  * Grade a target from its two published figures. Null in, null out: a target
@@ -110,35 +111,36 @@ export function gradeOf(divergenceValue, coverageValue) {
     return { letter: null, qualifier: 'not scored', band: 'none', capped: false, capAt: null }
   }
 
-  // The bands and caps read the figures at the one decimal place the board
-  // publishes, via the same toFixed the display uses, so a letter can never
-  // disagree with the number printed beside it: 898 implemented of 998 is
-  // 89.98% raw, prints "90.0%", and must escape the sub-90 cap exactly as a
-  // true 90.0 does. Grading the raw value instead opens a sliver at every
-  // boundary where the printed figure satisfies a band the letter denies.
+  // The bands read the figures at the one decimal place the board publishes,
+  // via the same toFixed the display uses, so a letter can never disagree with
+  // the numbers printed beside it. Grading the raw values instead opens a sliver
+  // at every boundary where the printed figures satisfy a band the letter denies.
   const divergence = Number(divergenceValue.toFixed(1))
   const coverage = Number(coverageValue.toFixed(1))
 
-  // A+ alone reads the raw value: it means zero failing tests, and a
-  // divergence that merely rounds to 0.0% is not zero. Everything else is
-  // graded as printed.
-  const base = divergenceValue === 0 ? 'A+' : letterFor(divergence)
+  // A+ alone reads the raw values, on both axes: zero failing tests and nothing
+  // declined. A divergence that merely rounds to 0.0% is not zero, and a target
+  // one test short of the suite does not print 100.0% coverage.
+  const perfect =
+    divergenceValue === A_PLUS.divergence && coverageValue === A_PLUS.coverage
 
-  const cap = capFor(coverage)
-  const letter = cap ? worse(base, cap) : base
+  // Divergence alone gives the letter the target would hold if it implemented
+  // everything; the effective figure gives the one it actually holds. The second
+  // is never better than the first, because effective >= divergence always.
+  const base = divergenceValue === A_PLUS.divergence ? 'A+' : letterFor(divergence)
+  const letter = perfect ? 'A+' : letterFor(effectiveOf(divergence, coverage))
 
   const qualifier =
-    divergenceValue === 0
+    divergenceValue === A_PLUS.divergence
       ? 'no divergence'
       : (QUALIFIERS.find((q) => divergence < q.under)?.text ?? 'severe divergence')
 
-  // The ceiling the letter is sitting at, when coverage is what put it there.
-  // `letter === cap` is the test for "the cap is doing work": it covers both the
-  // cap lowering the letter and the letter arriving at the cap on its own, and
-  // excludes a row that diverged past the cap without its help.
-  const capAt = cap && letter === cap ? cap : null
+  // Published only where coverage actually lowered the letter. A row graded on
+  // its divergence alone reports no ceiling, so a consumer ranking on letters
+  // can tell the two apart.
+  const capped = letter !== base
 
-  return { letter, qualifier, band: BAND_OF[letter], capped: letter !== base, capAt }
+  return { letter, qualifier, band: BAND_OF[letter], capped, capAt: capped ? letter : null }
 }
 
 // The label the baseline wears where every other row wears a letter. Real

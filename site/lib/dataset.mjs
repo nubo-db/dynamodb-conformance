@@ -8,9 +8,10 @@
 // suite's own results at build time, so they can't drift from what's on screen.
 
 import {
+  A_PLUS,
   BASELINE_GRADE,
   CAPABILITIES,
-  COVERAGE_CAPS,
+  COVERAGE_DIVISOR,
   GRADE_BANDS,
   GRADING_VERSION,
   asPct,
@@ -236,14 +237,16 @@ const METRICS = {
     direction: "A+ is best, F is worst",
     gradingVersion: GRADING_VERSION,
     description:
-      "A reading of the divergence and coverage pair, never a blend of it: divergence sets the letter and low coverage can only cap it. Recomputable from the two values with the criteria below; a criteria change bumps gradingVersion. The bands and caps read both values rounded to one decimal place (the precision the board publishes); only the A+ test reads the raw divergence, because A+ means exactly zero failing tests, not a figure that rounds to 0.0. When either value is null the grade is null ('not scored') - check for null before applying the bands, or a null divergence will coerce and mis-grade.",
+      "A reading of the divergence and coverage pair, never a blend of it: divergence sets the letter and low coverage can only cap it. The letter does not inherit divergence's resistance to scope withdrawal: the figures fall together, but the bands are continuous where the caps are three steps, so between cap boundaries a target that declines the operations it fails can cross a band while its coverage stays above the cap it would otherwise hit. Rank on the two figures, not the letter, if that distinction matters to you. Recomputable from the two values with the criteria below; a criteria change bumps gradingVersion. The bands and caps read both values rounded to one decimal place (the precision the board publishes); only the A+ test reads the raw divergence, because A+ means exactly zero failing tests, not a figure that rounds to 0.0. When either value is null the grade is null ('not scored') - check for null before applying the bands, or a null divergence will coerce and mis-grade.",
     // The criteria themselves, so a consumer can regrade without a prose page:
     // the letter for a divergence below each band's bound, A+ for exactly
     // zero divergence (zero failing tests, not a rounded 0.0%), and the
     // coverage caps, which apply to every letter and stop at D.
     bands: GRADE_BANDS,
-    aPlus: { divergence: 0, exact: true },
-    coverageCaps: COVERAGE_CAPS,
+    // Both halves, because both are required: A+ means nothing failed and
+    // nothing was declined. Read exactly, not at the published precision.
+    aPlus: { divergence: A_PLUS.divergence, coverage: A_PLUS.coverage, exact: true },
+    coverageDivisor: COVERAGE_DIVISOR,
   },
 };
 

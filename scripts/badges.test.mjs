@@ -49,7 +49,8 @@ describe('gradeFor', () => {
     // The yardstick is not graded against itself. It reads the shared
     // BASELINE_GRADE rather than a locally-derived gradeOf(0, 100), so the
     // badge cannot say A+ while the results table and the site decline to
-    // grade the same row - which is exactly what it was doing.
+    // grade the same row. The badge was still saying A+ after the site had
+    // stopped, which is the drift this pins.
     expect(gradeFor('dynamodb', {}, CONTEXT)).toEqual(BASELINE_GRADE)
     expect(gradeFor('dynamodb', {}, CONTEXT).letter).toBeNull()
   })
@@ -79,12 +80,13 @@ describe('gradeFor', () => {
     expect(buildBadge('dynoxide', result(0, 0, 5), CONTEXT)).toBeNull()
   })
 
-  it('caps the grade on a narrow surface', () => {
-    // A clean pass over 3 of 10 tests is zero divergence at 30% coverage:
-    // under the 50% cap, the letter can be no better than D.
+  it('lowers the grade on a narrow surface', () => {
+    // A clean pass over 3 of 10 tests is zero divergence at 30% coverage. A
+    // third of the 70 points it declines joins its divergence, so it grades C.
     expect(gradeFor('dynoxide', result(3, 0, 7), CONTEXT)).toMatchObject({
-      letter: 'D',
+      letter: 'C',
       capped: true,
+      capAt: 'C',
     })
   })
 
@@ -123,14 +125,18 @@ describe('gradeFor', () => {
   it('excludes a failed observation from divergence', () => {
     // The indeterminate is not a divergence - nobody observed an answer - but
     // it still widens the whole-suite denominator, the same as the published
-    // coverage figure. Enough passes keep coverage above the A+ floor so the
-    // assertion isolates the divergence side.
+    // coverage figure. So the target keeps zero divergence and loses A+ to the
+    // coverage it no longer has, which is the A band rather than the top grade.
     const raw = result(30, 0)
     raw.testResults[0].assertionResults.push({
       status: 'failed',
       meta: { indeterminate: { reason: 'gsi-consistency-timeout', at: 'test' } },
     })
-    expect(gradeFor('dynoxide', raw, CONTEXT)).toMatchObject({ letter: 'A+' })
+    expect(gradeFor('dynoxide', raw, CONTEXT)).toMatchObject({
+      letter: 'A',
+      qualifier: 'no divergence',
+      capped: true,
+    })
   })
 
   it('a run-level sidecar empties the grade rather than failing the target', () => {

@@ -2,14 +2,15 @@ import { describe, expect, it } from 'vitest'
 import {
   BASELINE_GRADE,
   BASELINE_LABEL,
-  COVERAGE_CAPS,
+  A_PLUS,
+  COVERAGE_DIVISOR,
   GRADE_BANDS,
   GRADING_VERSION,
   gradeOf,
 } from './grade.mjs'
 
 describe('gradeOf', () => {
-  it('grades exactly zero divergence A+, with the caps doing the coverage work', () => {
+  it('grades zero divergence at full coverage A+', () => {
     expect(gradeOf(0, 100)).toEqual({
       letter: 'A+',
       qualifier: 'no divergence',
@@ -17,13 +18,13 @@ describe('gradeOf', () => {
       capped: false,
       capAt: null,
     })
-    expect(gradeOf(0, 90)).toMatchObject({ letter: 'A+' })
-    // A+ needs exactly zero, not a figure that would display as 0.0%: one
-    // fail in a large suite rounds to 0.0% without being zero.
+    // Both halves are exact. A divergence that rounds to 0.0% is not zero, and
+    // a target one test short of the suite does not print 100.0% coverage.
     expect(gradeOf(0.04, 100).letter).toBe('A')
+    expect(gradeOf(0, 99.9)).toMatchObject({ letter: 'A', capped: true })
   })
 
-  it('letters follow the published divergence bands', () => {
+  it('letters follow the published divergence bands at full coverage', () => {
     expect(gradeOf(1.8, 100).letter).toBe('A')
     expect(gradeOf(4.9, 100).letter).toBe('A')
     expect(gradeOf(5, 100).letter).toBe('B')
@@ -35,19 +36,9 @@ describe('gradeOf', () => {
     expect(gradeOf(35, 100).letter).toBe('F')
   })
 
-  it('zero divergence under 90% coverage is capped, not gated', () => {
-    // No coverage floor on A+ itself: the sub-90 cap ceilings the letter at
-    // B, which is why a floor on the gate would have been redundant.
-    expect(gradeOf(0, 89.9)).toMatchObject({ letter: 'B', capped: true })
-  })
-
-  it('coverage alone never grades F: the caps stop at D', () => {
-    expect(gradeOf(0, 1)).toMatchObject({ letter: 'D', capped: true })
-  })
-
-  it('coverage caps ceiling the letter without touching the figures', () => {
-    // Dynoxide's wasm build on the current board: perfect answers over 78.7%
-    // of the suite reads B, not A+ - the cap is the whole point.
+  it('coverage lowers a letter in proportion to what is left unimplemented', () => {
+    // A third of the unimplemented share joins divergence before banding, so
+    // the cost rises smoothly rather than at three thresholds.
     expect(gradeOf(0, 78.7)).toEqual({
       letter: 'B',
       qualifier: 'no divergence',
@@ -55,61 +46,46 @@ describe('gradeOf', () => {
       capped: true,
       capAt: 'B',
     })
-    expect(gradeOf(1, 65)).toMatchObject({ letter: 'C', capped: true })
-    expect(gradeOf(1, 45)).toMatchObject({ letter: 'D', capped: true })
+    expect(gradeOf(1, 65)).toMatchObject({ letter: 'B', capped: true, capAt: 'B' })
+    expect(gradeOf(1, 45)).toMatchObject({ letter: 'C', capped: true, capAt: 'C' })
+    expect(gradeOf(0, 1)).toMatchObject({ letter: 'D', capped: true, capAt: 'D' })
   })
 
-  it('cap boundaries are exclusive at exactly 50, 70 and 90 covered', () => {
-    // "Under" means under: sitting exactly on a cap boundary takes the
-    // lighter cap, the same exclusivity the divergence bands use.
-    expect(gradeOf(1, 90)).toMatchObject({ letter: 'A', capped: false })
-    expect(gradeOf(1, 89.9)).toMatchObject({ letter: 'B', capped: true })
-    expect(gradeOf(1, 70)).toMatchObject({ letter: 'B', capped: true })
-    expect(gradeOf(1, 69.9)).toMatchObject({ letter: 'C', capped: true })
-    expect(gradeOf(1, 50)).toMatchObject({ letter: 'C', capped: true })
-    expect(gradeOf(1, 49.9)).toMatchObject({ letter: 'D', capped: true })
+  it('coverage never raises a letter', () => {
+    // effective is never below divergence, so a target can only be moved down
+    // the scale by what it declines.
+    for (const divergence of [0, 1.8, 12.3, 20.9, 30, 40]) {
+      for (const coverage of [100, 99.2, 91.3, 80, 65, 45, 1]) {
+        const full = gradeOf(divergence, 100)
+        const partial = gradeOf(divergence, coverage)
+        const order = ['A+', 'A', 'B', 'C', 'D', 'F']
+        expect(
+          order.indexOf(partial.letter),
+          `${divergence}% divergence at ${coverage}% coverage`,
+        ).toBeGreaterThanOrEqual(order.indexOf(full.letter))
+      }
+    }
   })
 
-  it('a cap never improves a letter already below it', () => {
-    expect(gradeOf(30, 45)).toMatchObject({ letter: 'D', capped: false })
-    expect(gradeOf(40, 45)).toMatchObject({ letter: 'F', capped: false })
-  })
-
-  it('capAt names the ceiling a letter sits at, in all three cap states', () => {
-    // The three states a cap can be in, and only the first of them used to be
-    // visible on a row. `capped` answers "did reaching the ceiling move the
-    // letter"; `capAt` answers "is this letter sitting on a ceiling at all",
-    // which is the question a reader comparing two rows is actually asking.
-
-    // 1. The cap bit: Dynoxide's wasm build, perfect over 78.7% of the suite.
-    expect(gradeOf(0, 78.7)).toMatchObject({ letter: 'B', capped: true, capAt: 'B' })
-
-    // 2. The cap is holding without ever having bitten: Dynalite's live row.
-    // Divergence alone gives B and coverage caps at B, so the letter is at its
-    // ceiling and `capped` is false. This is the case the row went silent on -
-    // it read identically to a target that earned B with room above it.
-    expect(gradeOf(12.3, 80)).toMatchObject({ letter: 'B', capped: false, capAt: 'B' })
-
-    // 3. The cap is irrelevant: divergence alone already put the row below it,
-    // so naming B as the ceiling would imply a constraint doing no work.
-    expect(gradeOf(30, 80)).toMatchObject({ letter: 'D', capped: false, capAt: null })
-
-    // No cap in force at all.
+  it('capAt is the ceiling coverage imposed, and null when coverage did nothing', () => {
+    // Dynalite: divergence alone gives B, coverage takes it to C.
+    expect(gradeOf(12.3, 80)).toMatchObject({ letter: 'C', capped: true, capAt: 'C' })
+    // LocalStack: graded on its divergence, coverage costs it nothing.
+    expect(gradeOf(15.6, 99.2)).toMatchObject({ letter: 'C', capped: false, capAt: null })
+    // Full coverage can never report a ceiling.
     expect(gradeOf(12.3, 100)).toMatchObject({ letter: 'B', capped: false, capAt: null })
+    expect(gradeOf(40, 100)).toMatchObject({ letter: 'F', capped: false, capAt: null })
   })
 
-  it('LocalStack and Dynalite are separated by the cap, not just the letter', () => {
-    // The pair that made the ceiling worth publishing. Dynalite reads B and
-    // LocalStack C, so the letters put Dynalite ahead - and it implements 19
-    // points less of the suite. Both facts are true and the board reports them
-    // apart on purpose, but a reader scanning letters needs the row to say that
-    // Dynalite's B cannot go higher while LocalStack's C can.
-    const dynalite = gradeOf(12.3, 80)
-    const localstack = gradeOf(15.6, 99.2)
-    expect(dynalite.letter).toBe('B')
-    expect(localstack.letter).toBe('C')
-    expect(dynalite.capAt).toBe('B')
-    expect(localstack.capAt).toBe(null)
+  it('qualifiers name the divergence band in plain language', () => {
+    // The qualifier reads divergence, not the effective figure: it describes
+    // how much the target gets wrong, which coverage does not change.
+    expect(gradeOf(1.8, 100).qualifier).toBe('low divergence')
+    expect(gradeOf(12.3, 100).qualifier).toBe('moderate divergence')
+    expect(gradeOf(16.1, 100).qualifier).toBe('high divergence')
+    expect(gradeOf(28, 100).qualifier).toBe('very high divergence')
+    expect(gradeOf(40, 100).qualifier).toBe('severe divergence')
+    expect(gradeOf(12.3, 80).qualifier).toBe('moderate divergence')
   })
 
   it('the baseline carries no letter, on every surface that reads one', () => {
@@ -133,14 +109,6 @@ describe('gradeOf', () => {
     expect(BASELINE_GRADE.qualifier).not.toBe(gradeOf(null, null).qualifier)
   })
 
-  it('qualifiers name the divergence band in plain language', () => {
-    expect(gradeOf(1.8, 100).qualifier).toBe('low divergence')
-    expect(gradeOf(12.3, 100).qualifier).toBe('moderate divergence')
-    expect(gradeOf(16.1, 100).qualifier).toBe('high divergence')
-    expect(gradeOf(28, 100).qualifier).toBe('very high divergence')
-    expect(gradeOf(40, 100).qualifier).toBe('severe divergence')
-  })
-
   it('nothing scored grades nothing', () => {
     expect(gradeOf(null, null)).toEqual({
       letter: null,
@@ -154,13 +122,11 @@ describe('gradeOf', () => {
   })
 
   it('letters agree with the printed one-decimal figures at every boundary sliver', () => {
-    // 4.96% prints "5.0%": the letter must be B, as a printed 5.0 demands,
-    // not the A that raw-value banding would give. Same for the caps: 89.98%
-    // coverage prints "90.0%" and must escape the sub-90 cap.
+    // 4.96% prints "5.0%", so the letter must be the B a printed 5.0 demands,
+    // not the A that raw-value banding would give.
     expect(gradeOf(4.96, 100).letter).toBe('B')
     expect(gradeOf(4.94, 100).letter).toBe('A')
     expect(gradeOf(1, 89.98)).toMatchObject({ letter: 'A', capped: false })
-    expect(gradeOf(0, 89.98).letter).toBe('A+')
     // A divergence that merely rounds to 0.0% is still not zero: the letter
     // is A, never A+ - the top grade reads the raw count alone.
     expect(gradeOf(0.04, 100).letter).toBe('A')
@@ -187,17 +153,112 @@ describe('gradeOf', () => {
     // A threshold change moves grades on targets that changed nothing, so the
     // criteria are versioned: retuning bands or caps must bump the version and
     // date the change in the methodology.
-    expect(GRADING_VERSION).toBe(1)
-    expect(GRADE_BANDS).toEqual([
-      { letter: 'A', under: 5 },
-      { letter: 'B', under: 15 },
-      { letter: 'C', under: 25 },
-      { letter: 'D', under: 35 },
-    ])
-    expect(COVERAGE_CAPS).toEqual([
-      { under: 50, cap: 'D' },
-      { under: 70, cap: 'C' },
-      { under: 90, cap: 'B' },
-    ])
+    //
+    // The criteria are keyed BY version rather than asserted as bare literals.
+    // A bare literal is updated in place by whoever changed the threshold - the
+    // test goes green and the version never moves, which is the exact failure
+    // the versioning exists to prevent, and it would be silent. Keyed this way,
+    // changing a band with no matching entry fails with the instruction rather
+    // than passing after a one-line edit. Old versions stay listed: they are the
+    // record of what published grades were computed under, and the methodology's
+    // dated criteria section is the prose half of the same record.
+    const CRITERIA_BY_VERSION = {
+      1: {
+        bands: [
+          { letter: 'A', under: 5 },
+          { letter: 'B', under: 15 },
+          { letter: 'C', under: 25 },
+          { letter: 'D', under: 35 },
+        ],
+        divisor: 3,
+        aPlus: { divergence: 0, coverage: 100 },
+      },
+    }
+
+    const criteria = CRITERIA_BY_VERSION[GRADING_VERSION]
+    expect(
+      criteria,
+      `GRADING_VERSION is ${GRADING_VERSION} with no criteria recorded for it. Add the new bands and divisor to CRITERIA_BY_VERSION and date the change in the methodology's grading criteria section.`,
+    ).toBeDefined()
+
+    expect(
+      GRADE_BANDS,
+      `the divergence bands changed without bumping GRADING_VERSION (still ${GRADING_VERSION}). A retune regrades targets whose results never moved, so bump the version and date it in the methodology.`,
+    ).toEqual(criteria.bands)
+
+    expect(
+      COVERAGE_DIVISOR,
+      `the coverage divisor changed without bumping GRADING_VERSION (still ${GRADING_VERSION}). Bump the version and date it in the methodology.`,
+    ).toBe(criteria.divisor)
+
+    // The A+ gate is a rule rather than a table, so it is asserted
+    // behaviourally: zero on both axes earns it, and anything that merely
+    // rounds to the boundary does not.
+    expect(A_PLUS.divergence).toBe(criteria.aPlus.divergence)
+    expect(A_PLUS.coverage).toBe(criteria.aPlus.coverage)
+    expect(gradeOf(0, 100).letter).toBe('A+')
+    expect(gradeOf(0.04, 100).letter).toBe('A')
+    expect(gradeOf(0, 99.99).letter).toBe('A')
+  })
+
+  it('the board matches the criteria, row by row', () => {
+    // The published board as of the 29 July 2026 run. A letter here moving
+    // without a figure moving means the criteria moved.
+    const board = [
+      ['dynoxide', 0.0, 98.6, 'A', true],
+      ['extenddb', 1.8, 91.3, 'A', false],
+      ['dynoxide-wasm', 0.0, 78.7, 'B', true],
+      ['dynalite', 12.3, 80.0, 'C', true],
+      ['localstack', 15.6, 99.2, 'C', false],
+      ['dynamodb-local', 15.9, 97.9, 'C', false],
+      ['ministack', 16.1, 100.0, 'C', false],
+      ['floci', 20.9, 99.1, 'C', false],
+    ]
+    for (const [slug, divergence, coverage, letter, capped] of board) {
+      const g = gradeOf(divergence, coverage)
+      expect(g.letter, `${slug} letter`).toBe(letter)
+      expect(g.capped, `${slug} capped`).toBe(capped)
+      expect(g.capAt, `${slug} capAt`).toBe(capped ? letter : null)
+    }
+  })
+
+  it('prices a scope withdrawal, and the price is a measurement not a law', () => {
+    // Withdrawing a failing test drops divergence and coverage by the same
+    // amount, so the effective figure falls by (1 - 1/divisor) of it. The
+    // target still gains; it pays more than it used to.
+    //
+    // The figure below is what today's board costs, not a property of the
+    // criteria: a target far enough into F can still reach B by withdrawing
+    // everything it fails. When a new target moves this number, re-derive it
+    // and disclose the new one - never raise it to make the test pass.
+    const SUITE = 998
+    const CHEAPEST_BUY_TODAY = 14
+    const ORDER = ['A+', 'A', 'B', 'C', 'D', 'F']
+    const board = [
+      ['dynoxide', 0, 14], ['dynoxide-wasm', 0, 213], ['extenddb', 18, 87],
+      ['dynalite', 123, 200], ['localstack', 156, 8], ['dynamodb-local', 159, 21],
+      ['ministack', 161, 0], ['floci', 209, 9],
+    ]
+    const gradeCounts = (failed, skipped) =>
+      gradeOf((failed / SUITE) * 100, ((SUITE - skipped) / SUITE) * 100).letter
+
+    let cheapest = Infinity
+    for (const [, failed, skipped] of board) {
+      const now = gradeCounts(failed, skipped)
+      for (let k = 1; k <= failed; k++) {
+        if (ORDER.indexOf(gradeCounts(failed - k, skipped + k)) < ORDER.indexOf(now)) {
+          cheapest = Math.min(cheapest, k)
+          break
+        }
+      }
+    }
+    expect(
+      cheapest,
+      'the cheapest letter a target can buy by declaring failing tests unsupported has moved. Re-derive the published figure rather than editing this one.',
+    ).toBe(CHEAPEST_BUY_TODAY)
+
+    // The worked example the methodology publishes.
+    expect(gradeCounts(156 - 7, 8 + 7)).toBe('C')
+    expect(gradeCounts(156 - 14, 8 + 14)).toBe('B')
   })
 })

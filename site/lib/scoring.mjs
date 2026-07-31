@@ -21,13 +21,15 @@ import {
   repoUrl,
   label,
 } from "dynamodb-conformance/scripts/summarise.mjs";
-import { passRate, scoreResults, tierOf } from "dynamodb-conformance/scripts/lib/score.mjs";
+import { GROUND_TRUTH_SLUG, passRate, scoreResults, tierOf } from "dynamodb-conformance/scripts/lib/score.mjs";
 import {
+  A_PLUS,
   BASELINE_GRADE,
   BASELINE_LABEL,
-  COVERAGE_CAPS,
+  COVERAGE_DIVISOR,
   GRADE_BANDS,
   GRADING_VERSION,
+  bandOf,
   gradeOf,
 } from "dynamodb-conformance/scripts/lib/grade.mjs";
 
@@ -38,7 +40,7 @@ export { DISPLAY, REPO, TARGETS, CHANNELS_SHOWN, configurationOf, display, distr
 // grade is derived from a row's two published values at the point of use -
 // never stored on the row - so every surface that shows a letter shows the
 // one implied by the figures beside it.
-export { BASELINE_GRADE, BASELINE_LABEL, COVERAGE_CAPS, GRADE_BANDS, GRADING_VERSION, gradeOf };
+export { A_PLUS, BASELINE_GRADE, BASELINE_LABEL, COVERAGE_DIVISOR, GRADE_BANDS, GRADING_VERSION, bandOf, gradeOf };
 
 // The one-line reading beside a grade chip: the qualifier in words, the
 // exact figure after it. The percentage stays for anyone who wants the
@@ -52,17 +54,48 @@ export function gradeLineOf(row) {
   return grade.qualifier + div;
 }
 
+// The grade for a row, and the call every rendering surface should make: the
+// baseline's exemption travels with the data rather than being a rule each
+// template has to remember. `gradeOf` stays exported for callers that hold only
+// the pair, like the legend and the tier bars.
+//
+// `slug` is for surfaces whose rows are run points: a point carries figures and
+// a date but not the identity of the target it belongs to, and without it the
+// baseline's definitional 0.0/100.0 grades like any other row.
+export function gradeForRow(row, slug) {
+  if (!row) return gradeOf(null, null);
+  const id = slug ?? row.slug;
+  const isBaseline = row.baseline || row.synthesised || id === GROUND_TRUTH_SLUG;
+  return isBaseline ? BASELINE_GRADE : gradeOf(row.divergenceValue, row.coverageValue);
+}
+
+// The board's grade legend, derived from the criteria rather than typed beside
+// them. It is where a reader goes to check a letter, so it is the one place on
+// the board that must not be able to drift from what the grader does.
+export function gradeLegendOf() {
+  return [
+    { letter: "A+", bound: "0% at full coverage", band: bandOf("A+") },
+    ...GRADE_BANDS.map((b) => ({ letter: b.letter, bound: `<${b.under}%`, band: bandOf(b.letter) })),
+    { letter: "F", bound: "beyond", band: bandOf("F") },
+  ];
+}
+
+// The legend's second sentence: what coverage does to the letter, as arithmetic
+// a reader can repeat on the two figures printed on any row. Derived from the
+// divisor so it cannot fall behind a retune.
+const SHARES = { 2: "half", 3: "a third", 4: "a quarter" };
+export function coverageShareSentenceOf() {
+  const share = SHARES[COVERAGE_DIVISOR] ?? `one ${COVERAGE_DIVISOR}th`;
+  return `Coverage can only lower a letter, never raise it: ${share} of whatever a target leaves unimplemented is added to its divergence before the bands are read.`;
+}
+
 // What coverage is doing to a row's letter, or "" when it is doing nothing.
-// Shown wherever a letter is read, because a cap in force is part of what the
-// letter means and the coverage figure alone does not say so: Dynalite diverges
-// 12.3% (band B) over 80.0% coverage (cap B), so B is its ceiling as well as its
-// band, and the row used to look identical to one that had earned B outright.
-// The clause names the ceiling in both cases - whether the cap lowered the
-// letter or merely held it - because "this cannot read better than B" is the
-// fact a reader is comparing rows on.
-export function capClauseOf(row) {
-  const { capAt } = gradeOf(row.divergenceValue, row.coverageValue);
-  return capAt ? `coverage caps this row at ${capAt}` : "";
+// Shown wherever a letter is read, because a letter held down by scope and one
+// earned outright are different facts and the coverage figure alone does not
+// separate them.
+export function capClauseOf(row, slug) {
+  const { capAt } = gradeForRow(row, slug);
+  return capAt ? `coverage lowers this row to ${capAt}` : "";
 }
 
 // The regional distribution, always with the figures attached: "in all 33

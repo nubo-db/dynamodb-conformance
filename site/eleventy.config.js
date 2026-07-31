@@ -5,7 +5,7 @@ import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/m
 import { renderCapabilities, renderCapabilityCards } from "./lib/capabilities.mjs";
 import { regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
 import { renderSplitEvidence } from "./lib/splits.mjs";
-import { TARGETS, capClauseOf, configurationOf, distributionOf, fallsShort, gradeLineOf, gradeOf, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
+import { TARGETS, capClauseOf, configurationOf, coverageShareSentenceOf, distributionOf, fallsShort, gradeForRow, gradeLegendOf, gradeLineOf, gradeOf, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
 import { channelIcon } from "./lib/channel-icons.mjs";
 import { targetLinks, targetRunHref } from "./lib/links.mjs";
 import { areaFailures, sourceUrl } from "./lib/findings.mjs";
@@ -101,9 +101,15 @@ export default function (eleventyConfig) {
   // two copy helpers keep the phrasing identical on every surface that
   // prints it (standings, variant rows, other-builds cards).
   eleventyConfig.addFilter("gradeOf", (divergenceValue, coverageValue) => gradeOf(divergenceValue, coverageValue));
+  // Prefer this over gradeOf in a template: it carries the baseline exemption.
+  eleventyConfig.addFilter("gradeForRow", (row, slug) => gradeForRow(row, slug));
   eleventyConfig.addFilter("gradeLine", (row) => gradeLineOf(row));
   eleventyConfig.addFilter("regionClause", (row) => regionClauseOf(row));
-  eleventyConfig.addFilter("capClause", (row) => capClauseOf(row));
+  eleventyConfig.addFilter("capClause", (row, slug) => capClauseOf(row, slug));
+  // The legend, derived from the criteria so the block a reader checks a letter
+  // against cannot fall behind the letters.
+  eleventyConfig.addGlobalData("gradeLegend", () => gradeLegendOf());
+  eleventyConfig.addGlobalData("coverageShareSentence", () => coverageShareSentenceOf());
   eleventyConfig.addFilter("configurationOf", (slug) => configurationOf(slug));
   eleventyConfig.addFilter("isVariant", (slug) => isVariant(slug));
   // Every way a target can be run, as marks. Uncapped: seeing all of them at a

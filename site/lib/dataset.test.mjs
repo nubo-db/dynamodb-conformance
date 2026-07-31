@@ -116,20 +116,21 @@ test("every published letter is reproducible from the envelope's criteria alone"
   const ORDER = ["A+", "A", "B", "C", "D", "F"];
   const regrade = (d, c) => {
     if (d == null || c == null) return { letter: null, capAt: null };
-    // Bands and caps read the figures at the published one-decimal
-    // precision; only the A+ test reads the raw value (zero means zero
-    // failing tests, not a rounded 0.0%). Mirrors metrics.grade.description.
+    // The bands read the figures at the published one-decimal precision; only
+    // the A+ gate reads raw values, on both axes. Mirrors
+    // metrics.grade.description, deliberately written from the published
+    // criteria rather than by importing gradeOf.
     const d1 = Number(d.toFixed(1));
     const c1 = Number(c.toFixed(1));
-    let letter =
-      d === criteria.aPlus.divergence
-        ? "A+"
-        : (criteria.bands.find((b) => d1 < b.under)?.letter ?? "F");
-    const cap = criteria.coverageCaps.find((x) => c1 < x.under)?.cap ?? null;
-    if (cap && ORDER.indexOf(cap) > ORDER.indexOf(letter)) letter = cap;
-    // The ceiling is published only where it is doing work: a row that
-    // diverged past its own cap unaided is held by nothing.
-    return { letter, capAt: cap && letter === cap ? cap : null };
+    const band = (x) => criteria.bands.find((b) => x < b.under)?.letter ?? "F";
+    const effective = Number((d1 + (100 - c1) / criteria.coverageDivisor).toFixed(1));
+    const perfect =
+      d === criteria.aPlus.divergence && c === criteria.aPlus.coverage;
+    const base = d === criteria.aPlus.divergence ? "A+" : band(d1);
+    const letter = perfect ? "A+" : band(effective);
+    // The ceiling is published only where coverage lowered the letter.
+    const capped = letter !== base;
+    return { letter, capAt: capped ? letter : null };
   };
 
   let baselines = 0;

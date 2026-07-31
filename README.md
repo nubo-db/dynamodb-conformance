@@ -35,10 +35,10 @@ _Scored against real DynamoDB's recorded behaviour in each observed region (`af-
 | Target | Grade | Divergence | Coverage | Regions | Tier 1 | Tier 2 | Tier 3 | Fail | Skip | Version | Date |
 |--------|-------|-----------|----------|---------|--------|--------|--------|------|------|---------|------|
 | [DynamoDB](https://aws.amazon.com/dynamodb/) | baseline | 0.0% | 100.0% | 33 of 33 | 0.0% | 0.0% | 0.0% | 0 | 0 | live (AWS) | 2026-07-29 |
-| [Dynoxide](https://github.com/nubo-db/dynoxide) · native | A+ | 0.0% | 98.6% | 6 of 33 | 0.0% | 0.0% | 0.0% | 0 | 14 | 0.12.0 | 2026-07-29 |
+| [Dynoxide](https://github.com/nubo-db/dynoxide) · native | A | 0.0% | 98.6% | 6 of 33 | 0.0% | 0.0% | 0.0% | 0 | 14 | 0.12.0 | 2026-07-29 |
 | ↳ WebAssembly / OPFS | B | 0.0% | 78.7% | 6 of 33 | 0.0% | 0.0% | 0.0% | 0 | 213 | 0.12.0 | 2026-07-24 |
 | [ExtendDB](https://github.com/ExtendDB/extenddb) · PostgreSQL | A | 1.8% | 91.3% | 33 of 33 | 0.4% | 3.5% | 2.8% | 18 | 87 | v0.1.2 | 2026-07-29 |
-| [Dynalite](https://github.com/architect/dynalite) | B | 12.3% | 80.0% | 27 of 33 | 8.6% | 14.1% | 16.7% | 123 | 200 | 4.0.0 | 2026-07-29 |
+| [Dynalite](https://github.com/architect/dynalite) | C | 12.3% | 80.0% | 27 of 33 | 8.6% | 14.1% | 16.7% | 123 | 200 | 4.0.0 | 2026-07-29 |
 | [LocalStack](https://github.com/localstack/localstack) | C | 15.6% | 99.2% | 27 of 33 | 6.5% | 18.1% | 27.5% | 156 | 8 | 2026.7.1 | 2026-07-29 |
 | [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) | C | 15.9% | 97.9% | 27 of 33 | 7.8% | 16.1% | 27.8% | 159 | 21 | d89f8fcc6b1a | 2026-07-29 |
 | [Ministack](https://github.com/ministackorg/ministack) | C | 16.1% | 100.0% | 33 of 33 | 8.2% | 28.6% | 20.1% | 161 | 0 | eb0a00c897ec | 2026-07-29 |
@@ -58,17 +58,19 @@ The **Grade** is a reading of the pair, never a blend of it. Divergence sets
 the letter (A+ exactly zero failing tests against the target's best-matching
 region, A under 5%, B under 15%, C under 25%, D under 35%, F beyond) and low
 coverage can only cap it (under 90% caps at B, under 70% at C, under 50% at
-D; coverage alone never grades F). Both
-figures stay printed beside every letter, so the grade is always
-recomputable; the criteria are versioned and dated in the
-[methodology](https://paritysuite.org/methodology#grading). A grade is an
+D; coverage alone never grades F). Both figures print beside the letter in this
+table and on every page of the board, so the grade is always recomputable; the
+criteria are versioned and dated in the
+[methodology](https://paritysuite.org/methodology#grading). The per-target
+badges are the exception: a shields endpoint has room for a label and a message
+and nothing else, so a badge carries the letter alone. A grade is an
 observation against this suite's tests on a date, not a certification.
 
 A cap is a ceiling, and where one is holding a letter the site says so on the
-row. Dynalite is the live case: 12.3% divergence puts it in the B band and
-80.0% coverage caps it at B, so its B is the best that row can read while
-LocalStack's C sits under nothing. The letters would otherwise separate them
-with no sign that one of the two is boxed in.
+row. On the 29 July 2026 run, Dynalite's 12.3% divergence put it in the B band
+while its 80.0% coverage capped it at B, so its B was the best that row could
+read and LocalStack's C sat under nothing. The letters would otherwise separate
+them with no sign that one of the two is boxed in.
 
 Real DynamoDB reads `baseline` rather than a letter. A grade measures how far a
 target sits from real DynamoDB, so grading the yardstick against itself would
@@ -80,8 +82,8 @@ colour bands since it began, though those bands sat on correctness over the
 operations a target implements and these sit on divergence over the whole
 suite. Same numbers, different denominator, and the two only coincide at full
 coverage: at 80% coverage, 5% divergence is 93.75% correctness, which the old
-amber band caught. The coverage caps are what answers that. The splits at 15%
-and 35% are new, and so are the caps.
+amber band caught. That leniency is what the coverage caps are for. The splits
+at 15% and 35% are new, and so are the caps.
 
 A skipped test is deliberate: each test file probes for feature support in
 `beforeAll` and skips itself when the target doesn't implement that operation,
@@ -559,7 +561,7 @@ Genuinely not covered, with no tests yet:
 
 When the suite surfaces a divergence in a target and you want to reference it from that target's own issue tracker, cite the suite as the independent source it is. The reference carries weight precisely because the suite is not the engine's own test harness: it scores every target against the same live-AWS baseline, so "the conformance suite flags this" says more than a self-written test can.
 
-**Disclosure.** This suite is maintained by the same person who maintains Dynoxide, one of the engines it scores. Dynoxide runs through the same automated matrix as every other target, against the same live-AWS ground truth. The tests and the results are in this repo. The grade bands and coverage caps are the one hand-picked input to a published letter, and moving one regrades targets whose results never changed, so they carry a version: these are grading criteria version 1, in effect from 30 July 2026, and any change to a band, a cap or the A+ gate bumps the version and is dated in the [methodology](https://paritysuite.org/methodology#grading).
+**Disclosure.** This suite is maintained by the same person who maintains Dynoxide, one of the engines it scores. Dynoxide runs through the same automated matrix as every other target, against the same live-AWS ground truth. The tests and the results are in this repo. The grade bands and coverage caps are the one hand-picked input to a published letter, and moving one regrades targets whose results never changed. So they carry a version. These are grading criteria version 1, in effect from 30 July 2026, and any change to a band, a cap or the A+ gate bumps the version and is dated in the [methodology](https://paritysuite.org/methodology#grading).
 
 Fill in the bracketed parts. The block is the same whichever engine the finding concerns:
 
