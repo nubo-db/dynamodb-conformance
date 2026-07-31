@@ -36,12 +36,12 @@
          read worst: a reader who takes "0.0%" as "scores nothing" has it
          exactly backwards. -->
     <div class="shrink-0 text-left sm:text-right">
-      <div :class="'grade-chip text-3xl grade-' + gradeOf($data.target.current.divergenceValue, $data.target.current.coverageValue).band">
-        <span aria-hidden="true" @text="gradeOf($data.target.current.divergenceValue, $data.target.current.coverageValue).letter ?? '–'"></span>
-        <span class="sr-only" @text="'Grade ' + (gradeOf($data.target.current.divergenceValue, $data.target.current.coverageValue).letter ?? 'not scored')"></span>
+      <div :class="'grade-chip text-3xl grade-' + gradeForRow($data.target.current, $data.target.slug).band">
+        <span aria-hidden="true" @text="gradeForRow($data.target.current, $data.target.slug).letter ?? '–'"></span>
+        <span class="sr-only" @text="'Grade ' + (gradeForRow($data.target.current, $data.target.slug).letter ?? gradeForRow($data.target.current, $data.target.slug).qualifier)"></span>
       </div>
       <div class="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
-        <span @text="gradeOf($data.target.current.divergenceValue, $data.target.current.coverageValue).qualifier"></span><span webc:if="capClause($data.target.current)" class="font-normal text-zinc-500 dark:text-zinc-400" @text="' · ' + capClause($data.target.current)"></span>
+        <span @text="gradeForRow($data.target.current, $data.target.slug).qualifier"></span><span webc:if="capClause($data.target.current, $data.target.slug)" class="font-normal text-zinc-500 dark:text-zinc-400" @text="' · ' + capClause($data.target.current, $data.target.slug)"></span>
       </div>
       <div class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
         answers <span class="font-mono tnum" @text="$data.target.current.divergence"></span> of the suite differently from real DynamoDB
@@ -109,9 +109,9 @@
       <li webc:for="v of $data.target.current.variants">
         <a :href="'/targets/' + v.slug"
           class="group flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3 hover:border-brand-300 dark:hover:border-brand-500/40 transition-colors">
-          <span :class="'grade-chip text-sm shrink-0 grade-' + gradeOf(v.divergenceValue, v.coverageValue).band">
-            <span aria-hidden="true" @text="gradeOf(v.divergenceValue, v.coverageValue).letter ?? '–'"></span>
-            <span class="sr-only" @text="'Grade ' + (gradeOf(v.divergenceValue, v.coverageValue).letter ?? 'not scored')"></span>
+          <span :class="'grade-chip text-sm shrink-0 grade-' + gradeForRow(v).band">
+            <span aria-hidden="true" @text="gradeForRow(v).letter ?? '–'"></span>
+            <span class="sr-only" @text="'Grade ' + (gradeForRow(v).letter ?? gradeForRow(v).qualifier)"></span>
           </span>
           <span class="min-w-0">
             <span class="block text-sm font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-brand-700 dark:group-hover:text-brand-300"
@@ -349,9 +349,9 @@
                letter's history is visible without replaying the chart. Graded
                from that run's own figures, like every other letter. -->
           <td class="px-3 py-3 text-center">
-            <span :class="'grade-chip text-[0.65rem] !min-w-0 !px-1.5 !py-0.5 grade-' + gradeOf(p.divergenceValue, p.coverageValue).band">
-              <span aria-hidden="true" @text="gradeOf(p.divergenceValue, p.coverageValue).letter ?? '–'"></span>
-              <span class="sr-only" @text="'Grade ' + (gradeOf(p.divergenceValue, p.coverageValue).letter ?? 'not scored')"></span>
+            <span :class="'grade-chip text-[0.65rem] !min-w-0 !px-1.5 !py-0.5 grade-' + gradeForRow(p, $data.target.slug).band">
+              <span aria-hidden="true" @text="gradeForRow(p, $data.target.slug).letter ?? '–'"></span>
+              <span class="sr-only" @text="'Grade ' + (gradeForRow(p, $data.target.slug).letter ?? gradeForRow(p, $data.target.slug).qualifier)"></span>
             </span>
           </td>
           <td class="px-3 py-3 text-right font-mono tnum hidden sm:table-cell" @text="p.tiers.tier1.divergence"></td>

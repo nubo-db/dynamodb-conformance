@@ -3,14 +3,12 @@
   // the tier's coverage in neutral grey, and the divergence figure carries the
   // band colour. The bar used to carry both at once - length as coverage,
   // colour as divergence - which is the dual encoding the board retired.
-  // Banded on the published boundaries (green under 5%, amber to 25%).
-  function band(v) {
-    if (v == null) return "none";
-    if (v < 5) return "pass";
-    if (v < 25) return "partial";
-    return "fail";
-  }
-  function figClass(v) { return "fig-" + band(v); }
+  // Banded by the same grader the letters use, so a tier figure and the board's
+  // colour boundaries cannot drift apart. Coverage is pinned at 100 because a
+  // tier bar colours by divergence alone: the coverage cap belongs to the row's
+  // letter, not to the colour of one tier's figure. These boundaries were three
+  // literals here (5 and 25), which a criteria change would have left behind.
+  function figClass(v) { return "fig-" + gradeOf(v, 100).band; }
   function widthPct(v) { return (v == null ? 0 : v) + "%"; }
   // The tier's product name and one-line meaning, so "Tier 2" is not a bare
   // ordinal on the one surface where a reader meets it first. Mirrors the

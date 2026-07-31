@@ -19,9 +19,9 @@
        card's own two figures at render time (gradeOf), the bar draws
        coverage alone, and the judgement lives in the chip. -->
   <div class="flex items-center gap-3">
-    <span :class="'grade-chip text-sm grade-' + gradeOf(row.divergenceValue, row.coverageValue).band">
-      <span aria-hidden="true" @text="gradeOf(row.divergenceValue, row.coverageValue).letter ?? '–'"></span>
-      <span class="sr-only" @text="'Grade ' + (gradeOf(row.divergenceValue, row.coverageValue).letter ?? 'not scored')"></span>
+    <span :class="'grade-chip text-sm grade-' + gradeForRow(row).band">
+      <span aria-hidden="true" @text="gradeForRow(row).letter ?? '–'"></span>
+      <span class="sr-only" @text="'Grade ' + (gradeForRow(row).letter ?? gradeForRow(row).qualifier)"></span>
     </span>
     <div
       class="flex-1 h-2.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden"
@@ -70,7 +70,7 @@
            named rather than flagged: "(capped)" said a ceiling existed without
            saying where, and on a chip this size the letter is the whole point. -->
       <span class="font-mono tnum text-zinc-400 dark:text-zinc-500"
-        @text="' · ' + (gradeOf(v.divergenceValue, v.coverageValue).letter ?? '–') + (gradeOf(v.divergenceValue, v.coverageValue).capAt ? ' (coverage cap)' : '') + ' · ' + v.divergence + ' diverges · ' + v.coverage + ' covered'"></span>
+        @text="' · ' + (gradeForRow(v).letter ?? '–') + (gradeForRow(v).capAt ? ' (coverage cap)' : '') + ' · ' + v.divergence + ' diverges · ' + v.coverage + ' covered'"></span>
     </a>
   </p>
 </div>

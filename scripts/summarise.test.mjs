@@ -537,10 +537,12 @@ describe('committed results pipeline', () => {
     // unconditional A+ stops being honest. This failing is the signal to
     // revisit the criteria in the open, under a bumped GRADING_VERSION - not
     // to loosen the assertion.
+    let guarded = 0
     for (const [slug, t] of Object.entries(fresh.targets)) {
       const headline = t.regions[t.headline.region];
       if (!headline || headline.count === 0) continue;
       if (axesOf(headline).divergence !== 0) continue;
+      guarded++
 
       const target = targets.find((x) => x.slug === slug);
       const verdicts = classifyResults(target.raw, target.sidecar ?? null);
@@ -562,6 +564,18 @@ describe('committed results pipeline', () => {
         ).toBeLessThan(5);
       }
     }
+
+    // The loop above only runs for a target at exactly zero headline
+    // divergence, so without this the whole guard could go quiet on a sweep
+    // where no target holds A+ - green, having checked nothing, with no signal
+    // that its coverage had dropped to zero. If this ever fails it is not a
+    // licence to delete it: it means nothing on the board currently exercises
+    // the A+ claim, and the claim should come down or the guard should move to
+    // a fixture that does exercise it.
+    expect(
+      guarded,
+      'no target holds a zero-divergence headline, so the A+ tripwire asserted nothing this run',
+    ).toBeGreaterThan(0)
   })
 
   it('the ground truth earns its 100%: the real run scores 100% against its own region', () => {

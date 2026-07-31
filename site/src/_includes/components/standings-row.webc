@@ -71,9 +71,9 @@
          two are still never blended: divergence sets the letter, coverage can
          only cap it, and both stay printed on the line. -->
     <div class="flex-1 flex items-center gap-3 sm:gap-4">
-      <span :class="chipClass(gradeOf(row.divergenceValue, row.coverageValue), 'lg')">
-        <span aria-hidden="true" @text="gradeOf(row.divergenceValue, row.coverageValue).letter ?? '–'"></span>
-        <span class="sr-only" @text="'Grade ' + (gradeOf(row.divergenceValue, row.coverageValue).letter ?? 'not scored')"></span>
+      <span :class="chipClass(gradeForRow(row), 'lg')">
+        <span aria-hidden="true" @text="gradeForRow(row).letter ?? '–'"></span>
+        <span class="sr-only" @text="'Grade ' + (gradeForRow(row).letter ?? gradeForRow(row).qualifier)"></span>
       </span>
       <div class="flex-1 min-w-0">
         <!-- No per-region count here. "6 of 33" is the cohort a headline was
@@ -165,9 +165,9 @@
           @text="configurationOf(v.slug) || v.display"></a>
       </div>
       <div class="flex-1 flex items-center gap-3 sm:gap-4">
-        <span :class="chipClass(gradeOf(v.divergenceValue, v.coverageValue), 'sm')">
-          <span aria-hidden="true" @text="gradeOf(v.divergenceValue, v.coverageValue).letter ?? '–'"></span>
-          <span class="sr-only" @text="'Grade ' + (gradeOf(v.divergenceValue, v.coverageValue).letter ?? 'not scored')"></span>
+        <span :class="chipClass(gradeForRow(v), 'sm')">
+          <span aria-hidden="true" @text="gradeForRow(v).letter ?? '–'"></span>
+          <span class="sr-only" @text="'Grade ' + (gradeForRow(v).letter ?? gradeForRow(v).qualifier)"></span>
         </span>
         <div class="flex-1 min-w-0">
           <p class="text-xs leading-snug text-zinc-600 dark:text-zinc-300 mb-1">

@@ -79,22 +79,13 @@
   <!-- Region health lives in the status strip above; this block is purely
        how to read a grade. -->
   <div class="mb-6 space-y-3">
-    <!-- The legend carries the complete criteria, because a letter a reader
-         cannot reproduce is a verdict asked to be taken on trust: every
-         boundary, the A+ gate and the coverage caps are here, so any letter
-         on the board can be rederived from the two figures beside it. The
-         5% and 25% boundaries carry over the numbers of the board's
-         long-published colour bands, which sat on correctness rather than
-         divergence; 15%, 35% and the caps are new. The methodology works
-         through what the change of denominator does to them. -->
+    <!-- The complete criteria, because a letter a reader cannot reproduce is a
+         verdict asked to be taken on trust. The 5% and 25% boundaries carry
+         over the numbers of the board's long-published colour bands, which sat
+         on correctness rather than divergence; the rest is new. -->
     <div class="space-y-1.5 text-xs text-zinc-500 dark:text-zinc-400">
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-pass text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">A+</span>exactly 0%</span>
-        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-pass text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">A</span>&lt;5%</span>
-        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-partial text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">B</span>&lt;15%</span>
-        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-partial text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">C</span>&lt;25%</span>
-        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-fail text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">D</span>&lt;35%</span>
-        <span class="inline-flex items-center gap-1.5"><span class="grade-chip grade-fail text-[0.65rem] !min-w-0 !px-1.5 !py-0.5">F</span>beyond</span>
+        <span webc:for="g of gradeLegend" class="inline-flex items-center gap-1.5"><span :class="'grade-chip grade-' + g.band + ' text-[0.65rem] !min-w-0 !px-1.5 !py-0.5'" @text="g.letter"></span><span @text="g.bound"></span></span>
         <span class="hidden sm:inline text-zinc-300 dark:text-zinc-700" aria-hidden="true">|</span>
         <span class="inline-flex items-center gap-x-5">
           <span class="inline-flex items-center gap-1"><span class="move-improved font-medium">▼</span> diverged less</span>
@@ -106,7 +97,7 @@
            screens the spans flow naturally. -->
       <p>
         <span class="sm:block">Letters follow divergence over the whole suite, in each target's closest region; A+ means zero failing tests there, not a rounded 0.0%.</span>
-        <span class="sm:block">Coverage only caps them: under 90% covered grades at best B, under 70% at best C, under 50% at best D, and coverage alone never grades F.</span>
+        <span class="sm:block" @text="coverageShareSentence"></span>
       </p>
     </div>
   </div>

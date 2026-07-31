@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { BASELINE_GRADE, gradeOf } from "../lib/scoring.mjs";
+import { capClauseOf, gradeForRow } from "../lib/scoring.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -30,8 +30,11 @@ function latestResults(conformance) {
     const baseline = isBaseline ? " (baseline)" : "";
     // The yardstick carries no letter here either, or this corpus would be the
     // one surface telling an agent real DynamoDB scored A+ against itself.
-    const grade = isBaseline ? BASELINE_GRADE : gradeOf(r.divergenceValue, r.coverageValue);
-    const cap = grade.capAt ? ` (coverage caps this row at ${grade.capAt})` : "";
+    const grade = gradeForRow(r);
+    // The same clause the pages render, from the same helper, so the corpus an
+    // agent reads cannot phrase a cap differently from the board a human reads.
+    const clause = capClauseOf(r);
+    const cap = clause ? ` (${clause})` : "";
     return `- ${r.display}${baseline} - grade ${grade.letter ?? grade.qualifier}${cap}; diverges ${r.divergence} of the suite; covers ${r.coverage}; diverges per tier ${tiers}; version ${r.version}`;
   });
   return [
