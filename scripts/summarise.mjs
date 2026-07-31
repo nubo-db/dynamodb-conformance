@@ -22,7 +22,9 @@
  * registry), and its headline - the table's Total - is the best of them. The
  * real-DynamoDB row renders 100%, earned rather than assumed: each real region
  * scores 100% against its own recorded behaviour by construction, so the max
- * over any observed set is 100% too.
+ * over any observed set is 100% too. Real AWS is observed in three runs rather
+ * than one, so its lane documents ("<ground truth>.<lane>.json") are folded in
+ * before scoring and their dates published beside the row.
  *
  * The percentage is correctness over IMPLEMENTED, OBSERVED operations:
  * passed / (passed + failed). Two kinds of test are excluded from it, for two
@@ -40,6 +42,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import {
+  GROUND_TRUTH_LANES,
   GROUND_TRUTH_SLUG,
   axesOf,
   cohortOf,
@@ -49,6 +52,7 @@ import {
   regionLabel,
   scoreTarget,
 } from './lib/score.mjs'
+import { relativeTestPath, testIdentities } from './ground-truth-coverage.mjs'
 import { isObserved, observedRegions } from './lib/observed.mjs'
 import { BASELINE_LABEL, gradeOf } from './lib/grade.mjs'
 import {
@@ -85,11 +89,92 @@ export {
 
 // ── Reading the target namespace ─────────────────────────────────────────────
 
+/** A run's capture date as YYYY-MM-DD, or "-" for a document with no start time. */
+const runDateOf = (raw) =>
+  raw?.startTime ? new Date(raw.startTime).toISOString().slice(0, 10) : '-'
+
+/** The name the ground truth's gating run is published under in `lanes`. */
+export const GATING_LANE = 'gating'
+
+/**
+ * Fold sibling lane documents into a ground-truth document, deduplicating on
+ * test identity.
+ *
+ * Identity is `<repo-relative file>::<fullName>`, the key
+ * scripts/ground-truth-coverage.mjs reconciles the lanes on. Shared rather
+ * than restated: if the merge and the coverage check disagreed about what
+ * "the same test" is, one would count an observation the other cannot see.
+ * The gating run wins any overlap, so a lane can add tests but never restate
+ * an answer the gate already recorded.
+ */
+export function mergeLanes(base, docs) {
+  const seen = testIdentities(base)
+  const merged = {
+    ...base,
+    testResults: base.testResults.map((tr) => ({
+      ...tr,
+      assertionResults: [...(tr.assertionResults ?? [])],
+    })),
+  }
+  // Keyed on the repo-relative path: the lanes run in their own CI jobs, so
+  // the same test file arrives under a different absolute prefix and would
+  // otherwise be appended as a second entry for one file.
+  const byFile = new Map(merged.testResults.map((tr) => [relativeTestPath(tr.name), tr]))
+
+  for (const doc of docs) {
+    for (const tr of doc.testResults ?? []) {
+      const path = relativeTestPath(tr.name)
+      for (const ar of tr.assertionResults ?? []) {
+        const id = `${path}::${ar.fullName}`
+        if (seen.has(id)) continue
+        seen.add(id)
+        let into = byFile.get(path)
+        if (!into) {
+          into = { ...tr, assertionResults: [] }
+          byFile.set(path, into)
+          merged.testResults.push(into)
+        }
+        into.assertionResults.push(ar)
+      }
+    }
+  }
+  return merged
+}
+
+/**
+ * The ground-truth document with its sibling lanes folded in, plus what each
+ * lane contributed: { raw, lanes, missingLanes }.
+ *
+ * The lanes are captured at different times, and three runs rendered as one
+ * measurement is worse than a disclosed literal, so each one's date and size
+ * are published rather than averaged away. A lane that did not run is simply
+ * not merged, which leaves the document exactly as the gating run wrote it.
+ */
+function withLanes(file, base) {
+  const lanes = [{ name: GATING_LANE, runDate: runDateOf(base), tests: testIdentities(base).size }]
+  const docs = []
+  for (const lane of GROUND_TRUTH_LANES) {
+    const path = file.replace(/\.json$/, `.${lane}.json`)
+    if (!existsSync(path)) continue
+    const doc = JSON.parse(readFileSync(path, 'utf8'))
+    docs.push(doc)
+    lanes.push({ name: lane, runDate: runDateOf(doc), tests: testIdentities(doc).size })
+  }
+  const present = new Set(lanes.map((l) => l.name))
+  return {
+    raw: docs.length === 0 ? base : mergeLanes(base, docs),
+    lanes,
+    missingLanes: GROUND_TRUTH_LANES.filter((lane) => !present.has(lane)),
+  }
+}
+
 /**
  * Read target result files into { slug, raw, sidecar, version, runDate }.
  * Reserved scratch slugs (local, summary) are never published targets, and
- * badge/sidecar files are companions rather than targets, so all are skipped
- * here; a sidecar is instead paired up with the results file it qualifies.
+ * badge/sidecar/lane files are companions rather than targets, so all are
+ * skipped here; a sidecar is instead paired up with the results file it
+ * qualifies, and a lane document folded into the ground-truth run it evidences
+ * (which also carries `lanes` and `missingLanes`).
  */
 export function readTargets(files) {
   const targets = []
@@ -107,11 +192,16 @@ export function readTargets(files) {
     const versionFile = file.replace(/\.json$/, '.version')
     const version =
       (existsSync(versionFile) && readFileSync(versionFile, 'utf8').trim()) || '-'
-    const runDate = raw.startTime
-      ? new Date(raw.startTime).toISOString().slice(0, 10)
-      : '-'
+    const runDate = runDateOf(raw)
 
-    targets.push({ slug, raw, sidecar, version, runDate })
+    targets.push({
+      slug,
+      raw,
+      sidecar,
+      version,
+      runDate,
+      ...(slug === GROUND_TRUTH_SLUG ? withLanes(file, raw) : {}),
+    })
   }
   return targets
 }
@@ -183,16 +273,30 @@ export function buildSummary(targets, { registry, health }) {
     },
     // Real DynamoDB's row is 100% because each real region scores 100% against
     // its own recorded behaviour by construction (self-agreement), so the max
-    // over any observed set is 100%. Earned, not assumed.
-    groundTruth: { slug: GROUND_TRUTH_SLUG, rate: 100, runDate: '-' },
+    // over any observed set is 100%. Earned, not assumed. `derived` says
+    // whether the counts under it were measured or pinned, and the lanes below
+    // say what they were measured from - see recordGroundTruth.
+    groundTruth: {
+      slug: GROUND_TRUTH_SLUG,
+      rate: 100,
+      runDate: '-',
+      derived: false,
+      testsObserved: 0,
+      suiteSize: 0,
+      lanes: [],
+      missingLanes: [...GROUND_TRUTH_LANES],
+      counts: null,
+    },
     targets: {},
   }
 
+  let baseline = null
   for (const t of [...targets].sort((a, b) => a.slug.localeCompare(b.slug))) {
     if (t.slug === GROUND_TRUTH_SLUG) {
       // Scores are self-agreement (above); keep the date of the last
       // successful real-AWS run so the ground-truth row isn't dateless.
       summary.groundTruth.runDate = t.runDate
+      baseline = t
       continue
     }
     const scored = scoreTarget(t.raw, t.sidecar, {
@@ -225,7 +329,78 @@ export function buildSummary(targets, { registry, health }) {
     }
   }
 
+  // After the targets: the suite size the baseline is checked against is the
+  // largest full run on the board, and the board is only complete here.
+  if (baseline) {
+    recordGroundTruth(summary, baseline, targets, { registry, observed: standing.observed })
+  }
+
   return summary
+}
+
+/**
+ * Publish the baseline's provenance, and measure its row only where the
+ * real-AWS lanes together span the whole suite.
+ *
+ * The row's figures are divided by the suite size, so a row derived from a
+ * partial merge would state counts over a surface nobody observed: the gating
+ * lane alone stops short by the tests the other lanes exist to run. Short of
+ * the suite the row stays pinned and says so, naming the lanes that are
+ * missing and how far the observation fell short. A disclosed pin is honest;
+ * a measurement quietly narrower than the row it fills is not.
+ */
+function recordGroundTruth(summary, baseline, targets, context) {
+  const gt = summary.groundTruth
+  const observedTests = testIdentities(baseline.raw)
+  gt.testsObserved = observedTests.size
+  // A baseline read off disk carries its lanes; one handed straight to
+  // buildSummary is the gating run on its own.
+  gt.lanes = baseline.lanes ?? [
+    { name: GATING_LANE, runDate: baseline.runDate, tests: gt.testsObserved },
+  ]
+  gt.missingLanes = baseline.missingLanes ?? []
+
+  // What the suite contains, by test identity, taken from the widest emulator
+  // run: every emulator runs the whole suite, so the largest identity set on
+  // the board is the closest thing to an inventory of it. Second-hand, and
+  // worth knowing as such - the tag manifest records describes and tags, not
+  // one entry per test, so there is no first-hand enumeration to check against.
+  const suite = new Set()
+  for (const t of targets) {
+    // A companion file (the tag manifest) rides in the same namespace and is
+    // not a run, so it carries no identities to compare against.
+    if (t.slug === GROUND_TRUTH_SLUG || !Array.isArray(t.raw?.testResults)) continue
+    const ids = testIdentities(t.raw)
+    if (ids.size > suite.size) {
+      suite.clear()
+      for (const id of ids) suite.add(id)
+    }
+  }
+  gt.suiteSize = suite.size
+
+  // Spanning, not counting. A cardinality check passes on the right number of
+  // the wrong tests, and the three lanes have independently changing test sets,
+  // which is exactly the shape that produces one. So the row derives only when
+  // every test the suite contains was actually observed against real AWS.
+  gt.unobserved = [...suite].filter((id) => !observedTests.has(id)).sort()
+
+  // Nothing else on the board means no suite to check against, which is not the
+  // same as agreement.
+  if (gt.suiteSize === 0 || gt.unobserved.length > 0) return
+
+  const scored = scoreTarget(baseline.raw, baseline.sidecar, context)
+  if (!scored) return
+  const best = scored.regions[scored.headline.region]
+  gt.derived = true
+  gt.rate = round1(scored.headline.rate)
+  gt.counts = {
+    passed: best.passed,
+    failed: best.failed,
+    skipped: best.skipped,
+    indeterminate: best.indeterminate,
+    count: best.count,
+    tiers: best.summary,
+  }
 }
 
 /** Write the summary artefact (results/summary.json). */
@@ -360,6 +535,15 @@ export function tableRows(summary) {
     0,
     ...rows.flatMap((r) => [r.count, ...(r.variants ?? []).map((v) => v.count)]),
   )
+  // The baseline's counts are measured when the real-AWS lanes together span
+  // the suite (buildSummary sets `counts` then) and pinned to the suite size
+  // when they fall short, which is the one case where the pin is the honest
+  // figure: every test was observed, just not in one run.
+  const measured = summary.groundTruth.counts ?? null
+  const axes = measured ? axesOf(measured) : { divergence: 0, coverage: 100 }
+  const tier = (name) => (measured ? pct(tierDivergence(measured.tiers[name])) : '0.0%')
+  const rate = measured ? summary.groundTruth.rate : 100
+
   const groundTruth = {
     slug: summary.groundTruth.slug,
     target: label(summary.groundTruth.slug),
@@ -368,22 +552,22 @@ export function tableRows(summary) {
     // the table had been left grading it A+, which is the row a reader meets
     // first.
     grade: BASELINE_LABEL,
-    tier1: '0.0%',
-    tier2: '0.0%',
-    tier3: '0.0%',
-    total: '100.0%',
-    divergence: '0.0%',
-    coverage: '100.0%',
-    divergenceValue: 0,
-    coverageValue: 100,
+    tier1: tier('tier1'),
+    tier2: tier('tier2'),
+    tier3: tier('tier3'),
+    total: pct(rate),
+    divergence: pct(axes.divergence),
+    coverage: pct(axes.coverage),
+    divergenceValue: axes.divergence,
+    coverageValue: axes.coverage,
     // Real DynamoDB is every region's own behaviour, so its row is not pinned
     // to one region the way a target's headline is.
-    cohort: cohortCount(observedCount(summary), summary, 100),
+    cohort: cohortCount(observedCount(summary), summary, rate),
     cohortLabel: 'all regions',
-    passed: suiteSize,
-    failed: 0,
-    skipped: 0,
-    count: suiteSize,
+    passed: measured ? measured.passed : suiteSize,
+    failed: measured ? measured.failed : 0,
+    skipped: measured ? measured.skipped : 0,
+    count: measured ? measured.count : suiteSize,
     version: 'live (AWS)',
     runDate: summary.groundTruth.runDate,
   }

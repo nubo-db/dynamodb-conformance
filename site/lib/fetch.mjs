@@ -13,6 +13,7 @@
 
 import { scoreEmulator, breakdownOf, areaTallies, capabilityTallies } from "./scoring.mjs";
 import { findingsOf } from "./findings.mjs";
+import { GROUND_TRUTH_SLUG, isPublishedTarget } from "dynamodb-conformance/scripts/lib/score.mjs";
 
 const OWNER = "paritysuite";
 const REPO = "dynamodb-conformance";
@@ -93,7 +94,13 @@ export async function fetchSnapshots({ token, timeoutMs = 8000, log = () => {}, 
       const m = /^results\/(.+)\.json$/.exec(file.filename);
       if (!m) continue;
       const slug = m[1];
-      if (slug === "dynamodb" || slug === "tag-manifest") continue;
+      // Which files in results/ are a target's run: the suite decides, so the
+      // site cannot drift from it. The ground truth is synthesised (above) and
+      // the manifest is not a run; isPublishedTarget covers the reserved slugs
+      // and the ground-truth lane documents, which matter here because they
+      // are real Vitest results and would otherwise be scored as an emulator
+      // holding a fraction of the suite.
+      if (!isPublishedTarget(slug) || slug === GROUND_TRUTH_SLUG || slug === "tag-manifest") continue;
       const key = `${sha}:${slug}`;
       if (seen.has(key)) continue;
       seen.add(key);

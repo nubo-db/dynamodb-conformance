@@ -36,10 +36,25 @@ export const GROUND_TRUTH_SLUG = 'dynamodb'
 // GROUND_TRUTH_SLUG.
 export const RESERVED_SLUGS = new Set(['local', 'summary'])
 
+// The lanes real AWS is observed in, beyond the gating run. Most of the suite
+// runs in one job, but S3 export/import, Kinesis and the UpdateTable GSI
+// backfills are far too slow for its credential window and run in jobs of
+// their own (package.json's test:integrations and test:gsi). Their documents
+// land beside the ground-truth results file as `<ground truth>.<lane>.json`,
+// where scripts/summarise.mjs folds them into it.
+export const GROUND_TRUTH_LANES = ['integrations', 'gsi']
+
+// Whether a result-file slug is one of those lane documents. They are evidence
+// behind the ground-truth row, not runs of their own, so nothing may score,
+// badge or seat them as a target.
+export function isGroundTruthLane(slug) {
+  return GROUND_TRUTH_LANES.some((lane) => slug === `${GROUND_TRUTH_SLUG}.${lane}`)
+}
+
 // Whether a result-file slug is a published conformance target. False for the
-// reserved scratch slugs above.
+// reserved scratch slugs above and for the ground-truth lanes.
 export function isPublishedTarget(slug) {
-  return !RESERVED_SLUGS.has(slug)
+  return !RESERVED_SLUGS.has(slug) && !isGroundTruthLane(slug)
 }
 
 export function tierOf(filePath) {

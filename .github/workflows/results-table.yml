@@ -71,7 +71,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run download "${{ steps.run.outputs.id }}" --pattern 'results-*' --dir /tmp/artifacts
+          gh run download "${{ steps.run.outputs.id }}" \
+            --pattern 'results-*' \
+            --pattern 'integration-results' \
+            --pattern 'ground-truth-gsi' \
+            --dir /tmp/artifacts
           # Each results-<target> artifact carries that target's fresh files
           # (plus stale copies of the others), so take only each target's own.
           shopt -s nullglob
@@ -86,6 +90,26 @@ jobs:
             rm -f "results/$target.indeterminate.json"
             if [ -f "$d$target.indeterminate.json" ]; then
               cp -f "$d$target.indeterminate.json" results/
+            fi
+          done
+
+          # Real AWS is observed in three lanes rather than one: the gating run,
+          # plus the service-integration and GSI-lifecycle jobs, whose runtimes
+          # don't fit the gating credential window. Both upload outside the
+          # results-* space so the loop above can never seat them as targets, so
+          # they are copied in here instead, under the sibling names
+          # scripts/summarise.mjs folds into the ground-truth document.
+          #
+          # Each is cleared first, on the same grounds as the sidecar above: a
+          # lane that didn't run this sweep must leave no file behind, or the
+          # baseline row would be evidenced by last week's observation.
+          for lane in "integration-results/dynamodb.json:dynamodb.integrations.json" \
+                      "ground-truth-gsi/gsi.json:dynamodb.gsi.json"; do
+            src="/tmp/artifacts/${lane%%:*}"
+            dest="results/${lane##*:}"
+            rm -f "$dest"
+            if [ -f "$src" ]; then
+              cp -f "$src" "$dest"
             fi
           done
 

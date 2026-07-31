@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   cohortOf,
+  GROUND_TRUTH_LANES,
   GROUND_TRUTH_SLUG,
   isPublishedTarget,
   loadScoringContext,
@@ -397,6 +398,15 @@ describe('isPublishedTarget', () => {
 
   it('excludes the summary artefact: pipeline output, not a target', () => {
     expect(isPublishedTarget('summary')).toBe(false)
+  })
+
+  it('excludes the ground-truth lanes: evidence behind one row, not rows', () => {
+    // These are real Vitest documents covering a slice of the suite, so
+    // whatever scores or badges a results file would happily publish one as a
+    // target holding a fraction of it.
+    for (const lane of GROUND_TRUTH_LANES) {
+      expect(isPublishedTarget(`${GROUND_TRUTH_SLUG}.${lane}`)).toBe(false)
+    }
   })
 
   it('keeps real targets, matching the slug exactly rather than by prefix', () => {

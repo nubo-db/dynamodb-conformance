@@ -4,6 +4,7 @@ import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { buildBadge } from './badges.mjs'
+import { testIdentities } from './ground-truth-coverage.mjs'
 import { GROUND_TRUTH_SLUG, axesOf, loadScoringContext, scoreTarget, verdictsForRegion } from './lib/score.mjs'
 import { classifyResults } from './lib/classify.mjs'
 import { splitFor } from './lib/registry.mjs'
@@ -16,6 +17,7 @@ import {
   buildSummary,
   display,
   label,
+  mergeLanes,
   readTargets,
   regionStanding,
   renderTable,
@@ -144,7 +146,11 @@ describe('buildSummary', () => {
       [target(GROUND_TRUTH_SLUG, suiteDoc('passed')), target('alpha', suiteDoc('passed'))],
       { registry: REGISTRY, health: HEALTHY },
     )
-    expect(summary.groundTruth).toEqual({ slug: GROUND_TRUTH_SLUG, rate: 100, runDate: DAY })
+    expect(summary.groundTruth).toMatchObject({
+      slug: GROUND_TRUTH_SLUG,
+      rate: 100,
+      runDate: DAY,
+    })
     // The ground truth is never listed as a target of itself.
     expect(Object.keys(summary.targets)).toEqual(['alpha'])
   })
@@ -192,6 +198,137 @@ describe('buildSummary', () => {
       { registry: REGISTRY, health: HEALTHY },
     )
     expect(Object.keys(summary.targets)).toEqual(['alpha'])
+  })
+})
+
+// ── The real-AWS lanes behind the baseline row ──────────────────────────────
+
+describe('the ground truth as three lanes', () => {
+  // Real AWS is observed in three runs: the gating job plus the two slower
+  // lanes. The fixture is split the same way, and each lane's paths carry a
+  // different absolute prefix because each lane runs in its own CI job.
+  const LANE_TESTS = {
+    gating: { 'tests/tier1/a.test.ts': [['a', 'passed'], ['b', 'passed']] },
+    integrations: {
+      'tests/tier2/export/exportImport.test.ts': [['export > writes to S3', 'passed']],
+    },
+    gsi: {
+      'tests/tier2/updateTable/gsi.test.ts': [['updateTable > adds a GSI', 'passed']],
+    },
+  }
+  const under = (prefix, files) =>
+    Object.fromEntries(Object.entries(files).map(([f, a]) => [`${prefix}/${f}`, a]))
+
+  const gating = rawDoc(under('/gate', LANE_TESTS.gating), Date.UTC(2026, 6, 6))
+  const integrations = rawDoc(under('/int', LANE_TESTS.integrations), Date.UTC(2026, 6, 7))
+  const gsi = rawDoc(under('/gsi', LANE_TESTS.gsi), Date.UTC(2026, 6, 8))
+  // What an emulator runs in one go, and so the suite size the baseline row is
+  // measured against.
+  const whole = rawDoc(
+    under('/repo', { ...LANE_TESTS.gating, ...LANE_TESTS.integrations, ...LANE_TESTS.gsi }),
+  )
+
+  // Lay out a results directory and read it back the way the CLI does.
+  const readDir = (files) => {
+    const dir = mkdtempSync(join(tmpdir(), 'lanes-'))
+    for (const [name, doc] of Object.entries(files)) {
+      writeFileSync(join(dir, name), JSON.stringify(doc))
+    }
+    return readTargets(readdirSync(dir).map((f) => join(dir, f)))
+  }
+  const summaryOf = (targets) => buildSummary(targets, { registry: REGISTRY, health: HEALTHY })
+  const baselineRow = (summary) => tableRows(summary).find((r) => r.slug === GROUND_TRUTH_SLUG)
+
+  it('unions the lanes into one document, with no test counted twice', () => {
+    // The gating document passed in twice over: a lane that repeats what the
+    // gate already ran must add nothing.
+    const merged = mergeLanes(gating, [integrations, gsi, gating])
+    expect(testIdentities(merged)).toEqual(testIdentities(whole))
+    expect(merged.testResults).toHaveLength(3)
+    expect(merged.testResults.flatMap((tr) => tr.assertionResults)).toHaveLength(4)
+  })
+
+  it('lets the gating run keep the answer when a lane restates it', () => {
+    const restated = rawDoc(under('/int', { 'tests/tier1/a.test.ts': [['a', 'failed']] }))
+    const merged = mergeLanes(gating, [restated])
+    const verdicts = merged.testResults.flatMap((tr) => tr.assertionResults)
+    expect(verdicts.filter((ar) => ar.fullName === 'a')).toEqual([
+      expect.objectContaining({ status: 'passed' }),
+    ])
+  })
+
+  it('leaves the document and the published row untouched when no lane is present', () => {
+    const targets = readDir({ 'dynamodb.json': gating, 'alpha.json': whole })
+    expect(targets.find((t) => t.slug === GROUND_TRUTH_SLUG).raw).toEqual(gating)
+
+    // The pinned row: the whole suite at 100%, which is what the lanes not
+    // being merged in has always published.
+    expect(baselineRow(summaryOf(targets))).toMatchObject({
+      total: '100.0%',
+      divergence: '0.0%',
+      coverage: '100.0%',
+      tier1: '0.0%',
+      passed: 4,
+      failed: 0,
+      skipped: 0,
+      count: 4,
+    })
+  })
+
+  it('stays pinned when the lanes fall short of the suite, and says which are missing', () => {
+    const gt = summaryOf(
+      readDir({ 'dynamodb.json': gating, 'dynamodb.gsi.json': gsi, 'alpha.json': whole }),
+    ).groundTruth
+
+    // Three of the suite's four tests were observed, so a row derived from
+    // them would span less than the figures beneath it are divided by. The pin
+    // is honest here; a narrower measurement would not be.
+    expect(gt).toMatchObject({
+      derived: false,
+      testsObserved: 3,
+      suiteSize: 4,
+      missingLanes: ['integrations'],
+      counts: null,
+    })
+  })
+
+  it('derives the row from the merge once it spans the suite', () => {
+    const summary = summaryOf(
+      readDir({
+        'dynamodb.json': gating,
+        'dynamodb.gsi.json': gsi,
+        'dynamodb.integrations.json': integrations,
+        'alpha.json': whole,
+      }),
+    )
+    expect(summary.groundTruth).toMatchObject({
+      derived: true,
+      testsObserved: 4,
+      suiteSize: 4,
+      missingLanes: [],
+      rate: 100,
+      counts: { passed: 4, failed: 0, skipped: 0, indeterminate: 0, count: 4 },
+    })
+    // Measured, not pinned: the row's counts are the merged document's.
+    expect(baselineRow(summary)).toMatchObject({ passed: 4, count: 4, total: '100.0%' })
+    // And a lane document is evidence, never a row of its own.
+    expect(Object.keys(summary.targets)).toEqual(['alpha'])
+  })
+
+  it('dates each lane it merged, so three captures never read as one', () => {
+    const summary = summaryOf(
+      readDir({
+        'dynamodb.json': gating,
+        'dynamodb.gsi.json': gsi,
+        'dynamodb.integrations.json': integrations,
+        'alpha.json': whole,
+      }),
+    )
+    expect(summary.groundTruth.lanes).toEqual([
+      { name: 'gating', runDate: '2026-07-06', tests: 2 },
+      { name: 'integrations', runDate: '2026-07-07', tests: 1 },
+      { name: 'gsi', runDate: '2026-07-08', tests: 1 },
+    ])
   })
 })
 

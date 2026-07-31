@@ -184,7 +184,41 @@
   "groundTruth": {
     "slug": "dynamodb",
     "rate": 100,
-    "runDate": "2026-07-29"
+    "runDate": "2026-07-29",
+    "derived": false,
+    "testsObserved": 981,
+    "suiteSize": 998,
+    "lanes": [
+      {
+        "name": "gating",
+        "runDate": "2026-07-29",
+        "tests": 981
+      }
+    ],
+    "missingLanes": [
+      "integrations",
+      "gsi"
+    ],
+    "counts": null,
+    "unobserved": [
+      "tests/tier2/export/exportImport.test.ts::Export and import — S3 ExportTableToPointInTime initiates an export and reports it",
+      "tests/tier2/export/exportImport.test.ts::Export and import — S3 ImportTable ingests S3 data into a new table",
+      "tests/tier2/kinesis/streamingDestination.test.ts::Kinesis streaming destination enables a streaming destination and reports it via Describe",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — GSI validation rejects a GSI keyed on a table attribute omitted from the request AttributeDefinitions",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — GSI validation rejects adding a GSI with a name that already exists",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — GSI validation rejects adding a GSI with an attribute not in AttributeDefinitions",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — GSI validation rejects removing a non-existent GSI",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI accepts a conflicting redeclaration of an existing key attribute and keeps the stored type",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds a GSI with INCLUDE projection and NonKeyAttributes",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds a GSI with KEYS_ONLY projection",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds a composite GSI (hash + range) to an existing table",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds a hash-only GSI to an existing table",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds multiple GSIs sequentially",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI can query a newly created GSI after putting items",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI drops an unused AttributeDefinition supplied with a GSI add",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — remove GSI base table operations still work after removing a GSI",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — remove GSI removes a GSI from a table"
+    ]
   },
   "targets": {
     "dynalite": {
