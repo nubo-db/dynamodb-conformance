@@ -81,7 +81,7 @@
            them undated is the case the standings component warns about in its
            own comment. -->
       <span class="font-mono tnum text-zinc-400 dark:text-zinc-500"
-        @text="' · ' + (gradeForRow(v).letter ?? '–') + (gradeForRow(v).capAt ? ' (coverage cap)' : '') + ' · ' + v.divergence + ' diverges · ' + v.coverage + ' covered' + (v.runDate ? ' · ' + dateLabel(v.runDate) : '')"></span>
+        @text="' · ' + (gradeForRow(v).letter ?? '–') + (capClause(v) ? ' (' + capClause(v) + ')' : '') + ' · ' + v.divergence + ' diverges · ' + v.coverage + ' covered' + (v.runDate ? ' · ' + dateLabel(v.runDate) : '')"></span>
     </a>
   </p>
 </div>

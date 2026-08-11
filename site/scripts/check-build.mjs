@@ -173,10 +173,13 @@ try {
     "the coverage caps are what answers",
     "That leniency is what the coverage caps are for",
   ];
+  // One alternation rather than 15 includes() per page: the same assertion over
+  // one pass of the corpus instead of fifteen.
+  const retired = new RegExp(RETIRED.map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"));
   const stale = [];
-  for (const path of pages) {
-    const html = await readFile(join(out, path), "utf8");
-    for (const phrase of RETIRED) if (html.includes(phrase)) stale.push(`${path}: "${phrase}"`);
+  for (const d of docs) {
+    const hit = retired.exec(d.html);
+    if (hit) stale.push(`${d.path}: "${hit[0]}"`);
   }
   check(stale.length === 0, "no built page carries wording the conversion retired", stale.slice(0, 3).join(", "));
 
@@ -186,13 +189,13 @@ try {
   // unit test sees.
   const badChips = [];
   let chipCount = 0;
-  for (const path of pages) {
-    if (!path.endsWith(".html")) continue;
-    const html = await readFile(join(out, path), "utf8");
+  for (const d of docs) {
+    if (!d.path.endsWith(".html")) continue;
+    const { html } = d;
     for (const m of html.matchAll(/class="grade-chip[^"]*"[^>]*>\s*<span aria-hidden="true">([^<]*)<\/span>/g)) {
       chipCount++;
       const letter = m[1].trim();
-      if (!["A+", "A", "B", "C", "D", "F", "–"].includes(letter)) badChips.push(`${path}: "${letter}"`);
+      if (!["A+", "A", "B", "C", "D", "F", "–"].includes(letter)) badChips.push(`${d.path}: "${letter}"`);
     }
   }
   check(chipCount > 0, "grade chips render on the built pages", `found ${chipCount}`);
@@ -206,15 +209,15 @@ try {
   // every chip was a valid letter, so the build stayed green. This reads the
   // chip inside each rendered baseline row instead.
   const graded = [];
-  for (const path of pages) {
-    const html = await readFile(join(out, path), "utf8");
+  for (const d of docs) {
+    const { html } = d;
     // Each block from a link to the baseline's page up to the next one, which
     // is the row or card that link belongs to.
     // The slug boundary matters: /targets/dynamodb is a prefix of
     // /targets/dynamodb-local, whose C would otherwise read as the baseline's.
     for (const block of html.split(/(?=href="\/targets\/dynamodb["/])/).slice(1)) {
       const chip = block.slice(0, 1200).match(/grade-chip[^>]*>\s*<span[^>]*>([^<]+)</);
-      if (chip && chip[1].trim() !== "–") graded.push(`${path}: ${chip[1].trim()}`);
+      if (chip && chip[1].trim() !== "–") graded.push(`${d.path}: ${chip[1].trim()}`);
     }
   }
   check(
@@ -226,9 +229,9 @@ try {
   // A figure that renders as NaN% or undefined is the shape of a zero-vs-null
   // slip, which is the recurring defect class of this conversion.
   const broken = [];
-  for (const path of pages) {
-    const html = await readFile(join(out, path), "utf8");
-    if (/NaN%|>undefined<|undefined%/.test(html)) broken.push(path);
+  for (const d of docs) {
+    const { html } = d;
+    if (/NaN%|>undefined<|undefined%/.test(html)) broken.push(d.path);
   }
   check(broken.length === 0, "no built page renders NaN or undefined as a figure", broken.slice(0, 3).join(", "));
 

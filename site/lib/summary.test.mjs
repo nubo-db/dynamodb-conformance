@@ -266,7 +266,6 @@ test("the strip counts what the lanes observed, not what the row is pinned at", 
   assert.equal(obs.observed, 981);
   assert.equal(obs.suite, 998);
   assert.equal(obs.shortfall, 17);
-  assert.equal(obs.complete, false);
 });
 
 test("a lane's capture date reaches the model the strip reads", () => {
@@ -277,8 +276,8 @@ test("a lane's capture date reaches the model the strip reads", () => {
 
 test("the provenance names the lanes seen and the ones still missing", () => {
   const note = controlProvenance(controlObservation(gt()));
-  assert.match(note, /gating lane 2026-08-09/);
-  assert.match(note, /17 tests run in the integrations and GSI lanes, not yet published here/);
+  assert.match(note, /the main run on 2026-08-09/);
+  assert.match(note, /17 tests sit in the integrations and GSI passes, which have not reported yet/);
 });
 
 test("three lanes spanning the suite read as one dated observation each", () => {
@@ -293,14 +292,13 @@ test("three lanes spanning the suite read as one dated observation each", () => 
     ],
   }));
   assert.equal(obs.shortfall, 0);
-  assert.equal(obs.complete, true);
   const note = controlProvenance(obs);
   // Each capture dated separately: one date over three captures would read as
   // a single measurement.
-  assert.match(note, /gating lane 2026-08-09/);
-  assert.match(note, /integrations lane 2026-08-02/);
-  assert.match(note, /GSI lane 2026-07-30/);
-  assert.doesNotMatch(note, /not yet published/);
+  assert.match(note, /the main run on 2026-08-09/);
+  assert.match(note, /integrations on 2026-08-02/);
+  assert.match(note, /GSI on 2026-07-30/);
+  assert.doesNotMatch(note, /have not reported/);
 });
 
 test("no ground truth degrades to no strip claim rather than throwing", () => {

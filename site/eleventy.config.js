@@ -160,6 +160,22 @@ export default function (eleventyConfig) {
   // normalised to a spaced hyphen on the way out, wording otherwise untouched.
   eleventyConfig.addFilter("tidyDashes", (s) => String(s).replace(/\s*—\s*/g, " - "));
 
+  // Templates explain themselves at length, and WebC passes HTML comments
+  // straight through, so the rationale was shipping to every visitor: 19% of
+  // the built HTML, and 31% of a run page. The comments stay in the source and
+  // stop at the build. Conditional comments are left alone, and so is anything
+  // inside <pre>, where a comment would be content rather than an aside.
+  eleventyConfig.addTransform("stripComments", function (content) {
+    if (!(this.page.outputPath || "").endsWith(".html")) return content;
+    // A NUL-delimited placeholder, because a bare number would collide with
+    // one already on the page and swap it for a code block.
+    const pre = [];
+    return content
+      .replace(/<pre[\s\S]*?<\/pre>/g, (m) => `\0${pre.push(m) - 1}\0`)
+      .replace(/<!--(?!\[if)[\s\S]*?-->/g, "")
+      .replace(/\0(\d+)\0/g, (_, i) => pre[Number(i)]);
+  });
+
   // Where a standings row links (that run's target view, or the current page),
   // the findings for one operation area, and a test's source pinned to the
   // commit that measured it.

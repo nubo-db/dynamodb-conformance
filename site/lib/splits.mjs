@@ -59,11 +59,11 @@ export function splitCoverage(split, observed = []) {
   // every region in the row has dropped out. Nothing to compare against.
   if (!split || !observed.length) return null;
   const named = new Set(split.groups.flatMap((g) => g.regions));
-  const accounted = observed.filter((r) => named.has(r));
+  const unrecorded = observed.filter((r) => !named.has(r));
   return {
     observed: observed.length,
-    accounted: accounted.length,
-    unrecorded: observed.filter((r) => !named.has(r)),
+    accounted: observed.length - unrecorded.length,
+    unrecorded,
     // Named in the row but no longer scored, so the cohort counts above can
     // exceed what the split accounts for today.
     departed: [...named].filter((r) => !observed.includes(r)),

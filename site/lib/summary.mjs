@@ -265,34 +265,31 @@ export function controlObservation(groundTruth) {
   return {
     observed,
     suite,
-    // Derived only where the lanes together span the suite. Short of that the
-    // row is a disclosed pin and the strip has to say so.
-    complete: !!groundTruth.derived,
     shortfall: suite != null && observed != null ? Math.max(0, suite - observed) : null,
-    lanes,
     missingLanes: missing,
-    // One capture date per lane. Rendering three captures under one date would
-    // date the whole observation to whichever lane ran last.
+    // One capture date per lane: three captures under a single date would read
+    // as one measurement.
     dated: lanes.filter((l) => l.runDate).map((l) => ({ name: l.name, runDate: l.runDate, tests: l.tests })),
   };
 }
 
-const LANE_NAMES = { gating: "gating", integrations: "integrations", gsi: "GSI" };
+// Plain names, because the page around this one explains the three passes in
+// words. "gating lane" is what CI calls it, not what a reader would.
+const LANE_NAMES = { gating: "the main run", integrations: "integrations", gsi: "GSI" };
 const listOf = (items) =>
   items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 
-/** The strip's provenance line: which lanes were seen, and what is missing. */
+/** Which passes have reported, when, and what is still outstanding. */
 export function controlProvenance(obs, dateLabel = (d) => d) {
   if (!obs) return "";
-  const seen = obs.dated.map((l) => `${LANE_NAMES[l.name] ?? l.name} lane ${dateLabel(l.runDate)}`);
-  const seenPart = seen.length ? listOf(seen) : "";
-  if (!obs.shortfall) return seenPart;
+  const seen = listOf(obs.dated.map((l) => `${LANE_NAMES[l.name] ?? l.name} on ${dateLabel(l.runDate)}`));
+  if (!obs.shortfall) return seen ? `Measured by ${seen}.` : "";
   const missing = listOf(obs.missingLanes.map((n) => LANE_NAMES[n] ?? n));
   const tests = `${obs.shortfall} test${obs.shortfall === 1 ? "" : "s"}`;
   const tail = missing
-    ? `${tests} run in the ${missing} lane${obs.missingLanes.length === 1 ? "" : "s"}, not yet published here`
-    : `${tests} not yet observed`;
-  return seenPart ? `${seenPart} · ${tail}` : tail;
+    ? `${tests} sit in the ${missing} passes, which have not reported yet.`
+    : `${tests} have not been observed yet.`;
+  return seen ? `Measured by ${seen}. ${tail}` : tail;
 }
 
 // Turn a raw summary.json into the per-region model, or an unavailable marker

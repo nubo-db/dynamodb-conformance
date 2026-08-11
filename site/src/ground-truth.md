@@ -27,6 +27,12 @@ The `{ NULL: false }` difference has since closed, but others are open. The suit
 Each cohort is a real region's answer, so an emulator matching either is behaving like some real region. Pin a single region as the only right answer and the other cohort is marked wrong for doing what AWS does elsewhere. An observed region missing from both cohorts is not a gap in the split: it had no definite recorded answer for this behaviour when the evidence was captured, and an unresolved observation is flagged rather than counted on either side. {{ splits.featured | splitCoverageNote(summary.latest.regions.observed) }}
 {% endif %}
 
+## What real DynamoDB was measured on
+
+{% if summary.available and summary.latest.groundTruth %}
+The suite runs against real DynamoDB in three passes, split because the slowest tests take hours: the main run, plus separate passes for the S3/Kinesis integrations and for GSI lifecycle. The board's baseline row only claims the whole suite once all three have reported. {{ summary.latest.groundTruth | controlObservation | controlProvenance }}
+{% endif %}
+
 ## Scored against every region
 
 From 2.0.0, ground truth is per region. The full suite runs against real DynamoDB in every commercial region, and each emulator is scored against every region's answers. Its headline is its best-matching region: the one it agrees with most closely.
