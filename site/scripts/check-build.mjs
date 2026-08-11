@@ -281,6 +281,37 @@ try {
     missingBands.length ? `missing ${missingBands.join(", ")}` : "",
   );
 
+  // Headings carry generated ids, so a fragment link can point at any section
+  // without someone hand-writing an anchor first. Two anchors are still written
+  // by hand because their slugs are published URLs the heading text would not
+  // produce; a hand-written one whose slug matches its heading is a duplicate.
+  const dupIds = [];
+  const deadFrags = [];
+  const idsByPage = new Map();
+  for (const d of docs) {
+    if (!d.path.endsWith(".html")) continue;
+    const ids = [...d.html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+    idsByPage.set(d.path.replace(/index\.html$/, "").replace(/\/$/, ""), new Set(ids));
+    const seen = new Set();
+    for (const id of ids) {
+      if (seen.has(id)) dupIds.push(`${d.path}: #${id}`);
+      seen.add(id);
+    }
+  }
+  check(dupIds.length === 0, "no page repeats an element id", dupIds.slice(0, 3).join(", "));
+
+  // And a fragment link has to land on something. The dead-link check above
+  // strips fragments, so a link to a section that never got an id passed it.
+  for (const d of docs) {
+    if (!d.path.endsWith(".html")) continue;
+    for (const m of d.html.matchAll(/href="(\/[^"#]*)#([^"]+)"/g)) {
+      const page = m[1].replace(/\/$/, "");
+      const ids = idsByPage.get(page);
+      if (ids && !ids.has(m[2])) deadFrags.push(`${d.path} -> ${m[1]}#${m[2]}`);
+    }
+  }
+  check(deadFrags.length === 0, "every fragment link lands on an id that exists", [...new Set(deadFrags)].slice(0, 3).join(", "));
+
   // The criteria date is a predicate as well as a caption: the feed reads it to
   // decide which runs predate the criteria. A page stating a different one
   // would caption history differently from the way the feed treats it. The

@@ -45,8 +45,6 @@ The data to tell the fuller story was there all along. Every run stamps its resu
 
 Every figure here is derived from the suite's own results at build time. None of it is typed in by hand, which is the point - the moment you copy a number into a second place, the two start drifting apart, and conformance figures that drift are worse than none at all.
 
-<a id="on-independence"></a>
-
 ## On independence
 
 The suite and this site are built and maintained by [Martin Hicks](https://martinhicks.dev), who also maintains Dynoxide - one of the targets scored here. That's why the no-figure-by-hand rule matters for more than drift: it's what keeps the scoring honest. Every number is derived from the suite's own results at build time, and the [scoring logic is shared with the suite](/methodology) rather than restated here. A target's score can't be tuned without changing the suite's published results first, in the open, and the code that turns those results into the numbers on this page is in the same public repository as the tests that produced them. Real DynamoDB is the baseline, every figure carries the region and date it was measured, and [anyone can suggest a target](https://github.com/paritysuite/dynamodb-conformance/issues). There's more for programmatic consumers, and the raw data, on the [agent guide](/for-agents).

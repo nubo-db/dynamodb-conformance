@@ -1,4 +1,5 @@
 import pluginWebc from "@11ty/eleventy-plugin-webc";
+import anchor from "markdown-it-anchor";
 import syntaxHighlight from "@11ty/eleventy-plugin-syntaxhighlight";
 import { chartGeometry } from "./lib/chart.mjs";
 import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/matrix.mjs";
@@ -28,6 +29,11 @@ export default function (eleventyConfig) {
   });
 
   eleventyConfig.addPlugin(syntaxHighlight);
+
+  // Every heading gets an id, so any section can be linked to without someone
+  // hand-writing an anchor first. The two that already exist stay: they are
+  // published URLs, and their slugs are not what the heading text would give.
+  eleventyConfig.amendLibrary("md", (md) => md.use(anchor, { level: [2, 3, 4] }));
 
   eleventyConfig.addPassthroughCopy({
     "src/images": "images",
