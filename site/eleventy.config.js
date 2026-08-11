@@ -5,7 +5,7 @@ import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/m
 import { renderCapabilities, renderCapabilityCards } from "./lib/capabilities.mjs";
 import { regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
 import { renderSplitEvidence } from "./lib/splits.mjs";
-import { TARGETS, capClauseOf, configurationOf, coverageShareSentenceOf, distributionOf, fallsShort, gradeForRow, gradeLegendOf, gradeLineOf, gradeOf, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
+import { GRADING_CRITERIA_EFFECTIVE, GRADING_VERSION, TARGETS, capClauseOf, configurationOf, coverageShareSentenceOf, distributionOf, fallsShort, gradeForRow, gradeLegendOf, gradeLineOf, gradeOf, gradingCriteriaEffectiveLabel, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
 import { channelIcon } from "./lib/channel-icons.mjs";
 import { targetLinks, targetRunHref } from "./lib/links.mjs";
 import { areaFailures, sourceUrl } from "./lib/findings.mjs";
@@ -110,6 +110,15 @@ export default function (eleventyConfig) {
   // against cannot fall behind the letters.
   eleventyConfig.addGlobalData("gradeLegend", () => gradeLegendOf());
   eleventyConfig.addGlobalData("coverageShareSentence", () => coverageShareSentenceOf());
+  // The criteria's version and effective date, from the suite's constant. Five
+  // pages stated the date in prose and would have drifted apart one edit at a
+  // time; the feed also reads it as a predicate, so a page disagreeing with it
+  // would caption one thing while the feed did another.
+  eleventyConfig.addGlobalData("gradingCriteria", () => ({
+    version: GRADING_VERSION,
+    effective: GRADING_CRITERIA_EFFECTIVE,
+    effectiveLabel: gradingCriteriaEffectiveLabel(),
+  }));
   eleventyConfig.addFilter("configurationOf", (slug) => configurationOf(slug));
   eleventyConfig.addFilter("isVariant", (slug) => isVariant(slug));
   // Every way a target can be run, as marks. Uncapped: seeing all of them at a

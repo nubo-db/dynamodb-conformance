@@ -57,7 +57,7 @@ Letters compress, so two things are worth knowing at the boundaries. A target si
 
 Every letter on the board is produced by one shared function from the two published figures and nothing else - no target is graded by different rules, the [board author's own engines](/targets/dynoxide) included - and the suite's tests assert exactly that: the published grade must equal the one recomputed from the row's own divergence and coverage. A row with no cap clause is a letter set by its divergence band alone.
 
-These are **grading criteria version 1**, in effect from 30 July 2026. Retuned thresholds move published grades on targets that changed nothing - the documented failure mode of every graded system - so any change to the bands, the caps or the A+ gate bumps the criteria version and is dated here. The criteria also travel machine-readably in every [data endpoint](/for-agents)'s `metrics.grade`.
+These are **grading criteria version {{ gradingCriteria.version }}**, in effect from {{ gradingCriteria.effectiveLabel }}. Retuned thresholds move published grades on targets that changed nothing - the documented failure mode of every graded system - so any change to the bands, the coverage weight or the A+ gate bumps the criteria version and is dated here. The criteria also travel machine-readably in every [data endpoint](/for-agents)'s `metrics.grade`.
 
 A grade is an observation, not a certificate. It grades observed behaviour against this suite's published tests on a named date, in the regions named beside it. It is not an audit of production readiness, not a compatibility certification, and not an endorsement of any target.
 

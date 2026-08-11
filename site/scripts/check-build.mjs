@@ -18,7 +18,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
-import { gradeOf } from "../lib/scoring.mjs";
+import { gradeOf, gradingCriteriaEffectiveLabel } from "../lib/scoring.mjs";
 import { axesOf } from "dynamodb-conformance/scripts/lib/score.mjs";
 
 const failures = [];
@@ -222,6 +222,39 @@ try {
     if (/NaN%|>undefined<|undefined%/.test(html)) broken.push(path);
   }
   check(broken.length === 0, "no built page renders NaN or undefined as a figure", broken.slice(0, 3).join(", "));
+
+  // The criteria's effective date is a predicate as well as a caption - the
+  // feed reads it to decide which runs predate the criteria - so a page
+  // stating a different one would caption history differently from the way the
+  // feed treats it. It has exactly one home, and this is what holds the rest
+  // of the surfaces to it: the methodology renders it, and nowhere else states
+  // a date of its own.
+  const criteriaLabel = gradingCriteriaEffectiveLabel();
+  const methodology = docs.find((d) => d.path === "/methodology/index.html");
+  check(
+    Boolean(methodology?.html.includes(criteriaLabel)),
+    "the methodology renders the criteria date from the constant",
+    `looking for "${criteriaLabel}"`,
+  );
+
+  // Any other long-form date on a page that also talks about the criteria is a
+  // second copy waiting to drift. The methodology is the one that may carry it.
+  const strayDates = [];
+  for (const d of docs) {
+    if (!d.path.endsWith(".html") || d.path === "/methodology/index.html") continue;
+    for (const m of d.html.matchAll(/\b\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) 20\d\d\b/g)) {
+      if (m[0] !== criteriaLabel) continue;
+      // The date itself is fine to print; stating it as the criteria's effective
+      // date somewhere other than the one page that owns it is not.
+      const around = d.html.slice(Math.max(0, m.index - 200), m.index + 200);
+      if (/criteria|in effect from/i.test(around)) strayDates.push(`${d.path}: "${m[0]}"`);
+    }
+  }
+  check(
+    strayDates.length === 0,
+    "no page other than the methodology dates the criteria itself",
+    strayDates.slice(0, 3).join(", "),
+  );
 
   // The A+ premise, checked against the data this build rendered.
   //

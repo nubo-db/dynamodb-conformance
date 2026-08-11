@@ -32,7 +32,7 @@ Each target also has a shields.io endpoint badge, served from the suite repo so 
 https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/paritysuite/dynamodb-conformance/main/results/<slug>.badge.json
 ```
 
-The slug is the target's slug on this site (`dynalite`, `localstack`, `dynoxide`, and so on), and the baseline's badge reads `baseline` rather than a letter. The path is the contract: it stays put, and what changes is the `message` inside it. It carries the letter grade under a `parity` label, and until 30 July 2026 it carried the retired correctness percentage under a `conformance` label - so if your alt text still says "conformance", it is describing a badge that no longer exists. The `schemaVersion` in the file is shields.io's own and is always `1`. It says nothing about this project's schema, and a badge has no other version channel, which is why the path is the one that has to hold.
+The slug is the target's slug on this site (`dynalite`, `localstack`, `dynoxide`, and so on), and the baseline's badge reads `baseline` rather than a letter. The path is the contract: it stays put, and what changes is the `message` inside it. It carries the letter grade under a `parity` label, and until {{ gradingCriteria.effectiveLabel }} it carried the retired correctness percentage under a `conformance` label - so if your alt text still says "conformance", it is describing a badge that no longer exists. The `schemaVersion` in the file is shields.io's own and is always `1`. It says nothing about this project's schema, and a badge has no other version channel, which is why the path is the one that has to hold.
 
 ## What a score actually is
 
