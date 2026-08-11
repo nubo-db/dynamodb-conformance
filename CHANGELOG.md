@@ -96,6 +96,12 @@ figures rather than the letter if it matters to you.
 - A movement reads `4.9pp less` where it read `-4.9pp`. A down arrow beside a
   negative number said the direction twice and whether it was good not at all,
   which on an inverted metric is the wrong way round.
+- Every heading on the prose pages carries an id, so any section can be linked
+  to directly. The two anchors that were already hand-written keep their
+  published slugs.
+- A badge whose target is still on the board but has no results this run reads
+  `no data` rather than disappearing. The URL sits in other people's READMEs,
+  where a 404 reads as the project having vanished.
 - The Atom feed carries no letter on any run measured before criteria version 1
   took effect, which today is every run in it. The feed had been rewriting each
   entry's summary with a grade the run never had, while leaving `<updated>`

@@ -39,6 +39,7 @@ import {
   scoreTarget,
 } from './lib/score.mjs'
 import { BASELINE_GRADE, gradeOf } from './lib/grade.mjs'
+import { TARGETS } from './lib/targets.mjs'
 
 const RESULTS_DIR = 'results'
 
@@ -133,18 +134,33 @@ export function writeBadges(resultsDir = RESULTS_DIR, context = loadScoringConte
     written++
   }
 
+  // A badge whose target is still on the board but has no results this run is
+  // a tombstone, not a deletion: the URL sits in someone else's README, and a
+  // 404 there reads as the project having vanished rather than as a gap in
+  // this board. A slug the suite no longer knows is genuinely gone, so its
+  // badge goes with it.
   let pruned = 0
+  let retired = 0
   for (const file of readdirSync(resultsDir).filter((f) => f.endsWith('.badge.json'))) {
     if (current.has(file)) continue
+    const slug = basename(file, '.badge.json')
+    if (TARGETS[slug]) {
+      writeFileSync(
+        join(resultsDir, file),
+        `${JSON.stringify({ schemaVersion: 1, label: 'parity', message: 'no data', color: 'lightgrey' }, null, 2)}\n`,
+      )
+      retired++
+      continue
+    }
     rmSync(join(resultsDir, file))
     pruned++
   }
-  return { written, pruned }
+  return { written, pruned, retired }
 }
 
 // CLI: regenerate the committed badges.
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { written, pruned } = writeBadges()
-  const prunedNote = pruned ? `, pruned ${pruned}` : ''
-  console.error(`wrote ${written} badge file(s) to ${RESULTS_DIR}/${prunedNote}`)
+  const { written, pruned, retired } = writeBadges()
+  const notes = [retired && `${retired} tombstoned`, pruned && `${pruned} pruned`].filter(Boolean)
+  console.error(`wrote ${written} badge file(s) to ${RESULTS_DIR}/${notes.length ? `, ${notes.join(', ')}` : ''}`)
 }

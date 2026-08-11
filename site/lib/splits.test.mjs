@@ -88,3 +88,42 @@ test("splitCoverage degrades on an absent split rather than throwing", () => {
   assert.equal(splitCoverageNote(null, ["eu-west-2"]), "");
   assert.equal(splitCoverageNote(split([["eu-west-2"]]), []), "");
 });
+
+// ── Escaping ────────────────────────────────────────────────────────────────
+//
+// renderSplitEvidence builds HTML by hand from registry data, and that data is
+// AWS error text: a real DynamoDB message, verbatim, in the one render helper
+// carrying it. Nothing else in this file's suite checks the escaping.
+
+test("renderSplitEvidence escapes the error text it renders", () => {
+  const html = renderSplitEvidence(
+    shapeSplit({
+      id: "x",
+      pinned: "eu-west-2",
+      regions: {
+        "eu-west-2": {
+          outcome: "rejected",
+          error: { name: "<img src=x onerror=alert(1)>", message: 'broke on "value" & <b>more</b>' },
+        },
+      },
+    }),
+  );
+  assert.ok(!html.includes("<img src=x"), "an error name reached the page as markup");
+  assert.ok(html.includes("&lt;img src=x"), "the name should be escaped, not dropped");
+  assert.ok(!html.includes("<b>more</b>"), "an error message reached the page as markup");
+  assert.ok(html.includes("&amp;") && html.includes("&quot;"), "ampersand and quote should be escaped");
+});
+
+test("renderSplitEvidence escapes a region name", () => {
+  // Region names come from the registry rather than AWS, but they are
+  // interpolated by the same helper and into the same context.
+  const html = renderSplitEvidence(
+    shapeSplit({
+      id: "x",
+      pinned: "eu-west-2",
+      regions: { '"><script>': { outcome: "accepted", detail: "ok" } },
+    }),
+  );
+  assert.ok(!html.includes("<script>"), "a region name reached the page as markup");
+  assert.ok(html.includes("&lt;script&gt;"));
+});
