@@ -18,7 +18,7 @@
 // write is guarded: a fetch that fails or returns something unusable leaves the
 // committed copy alone, because a stale fallback beats an empty one.
 
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -37,7 +37,26 @@ const log = (msg) => console.error(`[snapshot] ${msg}`);
 
 // The per-region overlay first, so buildModel can join it into the conformance
 // fallback and the committed model matches what a live build produces.
-const summarySnaps = await fetchSummaries({ token, timeoutMs, log });
+//
+// The checkout's own results/summary.json leads the fetched history. Everything
+// fetched comes from main, so on a branch that changes the artefact the fallback
+// would otherwise mirror a shape the branch has already moved past - and the
+// hermetic build check, which renders the fallback, would be checking the old
+// contract. Whatever this working tree publishes is what main carries once the
+// branch lands, so it belongs at the front. assemble() keeps the first snapshot
+// it sees for a run date, so on main this changes nothing: the local file and
+// the newest fetched commit are the same document.
+async function localSummarySnapshot() {
+  try {
+    const raw = JSON.parse(await readFile(join(root, "..", "results", "summary.json"), "utf8"));
+    return [{ sha: "working-tree", raw }];
+  } catch (err) {
+    log(`no local results/summary.json to lead the history (${err.message})`);
+    return [];
+  }
+}
+
+const summarySnaps = [...(await localSummarySnapshot()), ...(await fetchSummaries({ token, timeoutMs, log }))];
 const summary = assemble(summarySnaps);
 if (!summary.latest) {
   console.error("[snapshot] no summary snapshots reconstructed - refusing to write an empty overlay");

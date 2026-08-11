@@ -51,7 +51,9 @@ import {
   passRate,
   regionLabel,
   scoreTarget,
+  verdictsForRegion,
 } from './lib/score.mjs'
+import { classifyResults } from './lib/classify.mjs'
 import { relativeTestPath, testIdentities } from './ground-truth-coverage.mjs'
 import { isObserved, observedRegions } from './lib/observed.mjs'
 import { BASELINE_LABEL, gradeOf } from './lib/grade.mjs'
@@ -326,6 +328,7 @@ export function buildSummary(targets, { registry, health }) {
       regions,
       version: t.version,
       runDate: t.runDate,
+      ...regionFailuresOf(t, scored, registry, standing.observed),
     }
   }
 
@@ -336,6 +339,45 @@ export function buildSummary(targets, { registry, health }) {
   }
 
   return summary
+}
+
+/**
+ * Name the tests a zero-divergence target fails outside its headline region.
+ *
+ * The top grade rests on a claim about identity, not arithmetic: a target
+ * perfect in its headline region may fail elsewhere only on the behaviours the
+ * registry has confirmed real DynamoDB itself splits on. Counts cannot check
+ * that. Three fails matching three splits is the same count as three fails on
+ * unrelated behaviours, and only one of those is the claim the board makes.
+ *
+ * The suite can check it because it holds the verdicts. The site build cannot:
+ * it renders fetched data, and the fetched summary carried per-region counts
+ * and nothing else, so a guard living there could only ever compare numbers.
+ * Publishing the identities closes that gap without moving the scoring: the
+ * suite states what it observed, and the build joins those names against the
+ * split registry it already fetches to reach the verdict itself. Neither side
+ * has to trust the other's conclusion.
+ *
+ * Only zero-divergence targets carry the field - they are the only rows the A+
+ * claim is about - and within them only regions that actually fail, so the
+ * artefact grows by the handful of names under discussion rather than by the
+ * board. Returns an empty object for every other target, so the key is absent
+ * rather than null where it would mean nothing.
+ */
+function regionFailuresOf(target, scored, registry, observed) {
+  const headline = scored.regions[scored.headline.region]
+  if (!headline || headline.count === 0 || axesOf(headline).divergence !== 0) return {}
+
+  const verdicts = classifyResults(target.raw, target.sidecar ?? null)
+  const regionFailures = {}
+  for (const region of observed) {
+    const names = verdictsForRegion(verdicts, registry, region)
+      .filter((v) => v.verdict === 'fail')
+      .map((v) => v.fullName)
+      .sort()
+    if (names.length > 0) regionFailures[region] = names
+  }
+  return { regionFailures }
 }
 
 /**

@@ -108,6 +108,39 @@ test("indeterminate results are surfaced per region, not read as a disagreement"
   assert.equal(ap.indeterminatePresent, true);
 });
 
+// The build checks the A+ premise from the names the suite publishes, so the
+// model has to carry them through. It is a whitelist, and a field it does not
+// name is a field the build cannot see - which reads as an artefact too old to
+// check rather than as a passing check, but is wrong either way.
+test("the model carries the failing test identities a zero-divergence row publishes", () => {
+  const region = { rate: 90, passed: 9, failed: 1, skipped: 0, indeterminate: 0, count: 10, tiers: { tier1: { p: 9, f: 1, s: 0, i: 0 }, tier2: { p: 0, f: 0, s: 0, i: 0 }, tier3: { p: 0, f: 0, s: 0, i: 0 } } };
+  const raw2 = {
+    schemaVersion: 1,
+    regions: { observed: ["eu-west-2"], unresolved: [], dropped: [], detail: {} },
+    targets: {
+      foo: {
+        headline: { region: "eu-west-2", rate: 90 },
+        regions: { "eu-west-2": region },
+        regionFailures: { "eu-west-2": ["Some behaviour the registry splits on"] },
+      },
+    },
+  };
+  const m = buildSummaryModel(raw2);
+  assert.deepEqual(m.targets.foo.regionFailures, { "eu-west-2": ["Some behaviour the registry splits on"] });
+});
+
+test("a target that published no identities carries null, not an empty object", () => {
+  // An empty object would read as "checked, nothing failed"; null reads as
+  // "the artefact did not say", which is the state the build has to treat as
+  // uncheckable rather than clean.
+  const raw2 = {
+    schemaVersion: 1,
+    regions: { observed: ["eu-west-2"], unresolved: [], dropped: [], detail: {} },
+    targets: { foo: { headline: { region: "eu-west-2", rate: 90 }, regions: {} } },
+  };
+  assert.equal(buildSummaryModel(raw2).targets.foo.regionFailures, null);
+});
+
 test("a missing or wrong-schema payload degrades to unavailable rather than throwing", () => {
   assert.equal(buildSummaryModel(null).available, false);
   assert.equal(buildSummaryModel({ schemaVersion: 2, targets: {} }).available, false);

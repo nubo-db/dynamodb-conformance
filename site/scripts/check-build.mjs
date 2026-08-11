@@ -14,8 +14,12 @@
 
 import { mkdtemp, readFile, rm, glob } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+
+import { gradeOf } from "../lib/scoring.mjs";
+import { axesOf } from "dynamodb-conformance/scripts/lib/score.mjs";
 
 const failures = [];
 const check = (ok, label, detail = "") => {
@@ -23,6 +27,17 @@ const check = (ok, label, detail = "") => {
   failures.push(`${label}${detail ? `: ${detail}` : ""}`);
   console.log(`  FAIL  ${label}${detail ? ` - ${detail}` : ""}`);
 };
+
+// The two published artefacts the A+ premise is checked from, loaded the same
+// way the build loads them. The build here is hermetic, so both take their
+// committed-fallback path and this reads exactly what the pages above were
+// rendered from - not a third copy that could agree with neither.
+async function loadPublishedData() {
+  const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+  const summary = JSON.parse(await readFile(join(root, "data", "summary-history.json"), "utf8"));
+  const splits = JSON.parse(await readFile(join(root, "data", "splits-fallback.json"), "utf8"));
+  return { summary: summary.latest, splits: splits.splits ?? [] };
+}
 
 const out = await mkdtemp(join(tmpdir(), "paritysuite-build-"));
 
@@ -207,6 +222,103 @@ try {
     if (/NaN%|>undefined<|undefined%/.test(html)) broken.push(path);
   }
   check(broken.length === 0, "no built page renders NaN or undefined as a figure", broken.slice(0, 3).join(", "));
+
+  // The A+ premise, checked against the data this build rendered.
+  //
+  // A target with no failures in its headline region can still fail elsewhere,
+  // and the board's claim is that when it does, the behaviour is one real
+  // DynamoDB itself splits on by region - not something the target got wrong.
+  // The top grade rests on that being true, so it is checked rather than
+  // assumed, and checked by name: three fails matching three splits and three
+  // fails on unrelated behaviours are the same count, and only one of them is
+  // the claim.
+  //
+  // This lived in the tooling suite, which no publishing path depends on, and
+  // the methodology called it a build-time guard while results-table.yml and
+  // deploy.yml both published without it. It runs here now, over push,
+  // dispatch and cron alike. The tooling copy stays: that one catches a breach
+  // against the committed tree at development time, this one catches what
+  // ships. The two read different inputs, which is the point.
+  //
+  // Both halves come from published artefacts and are joined here rather than
+  // taken on trust - the suite states which tests failed where, the registry
+  // states which behaviours are confirmed splits, and the verdict is reached
+  // in this file from the two.
+  const { summary, splits } = await loadPublishedData();
+  const unconfirmed = [];
+  const uncheckable = [];
+  let guarded = 0;
+
+  for (const [slug, t] of Object.entries(summary?.targets ?? {})) {
+    const worst = t.divergenceWorst;
+    const best = t.divergenceBest;
+    if (best !== 0) continue; // not a zero-divergence target; the A+ claim is not about it
+    guarded++;
+
+    const failingRegions = t.regions.filter((r) => r.failed > 0).map((r) => r.region);
+    if (failingRegions.length === 0) continue; // perfect everywhere; nothing to confirm
+
+    // Fails somewhere, and the artefact did not say which tests. The check
+    // cannot be done, and passing here is how it silently becomes a count
+    // comparison - so this is a failure, not a skip.
+    if (!t.regionFailures) {
+      uncheckable.push(`${slug} fails in ${failingRegions.length} region(s) but published no test identities`);
+      continue;
+    }
+
+    for (const region of failingRegions) {
+      const names = t.regionFailures[region] ?? [];
+      const declared = t.regions.find((r) => r.region === region)?.failed ?? 0;
+      if (names.length !== declared) {
+        uncheckable.push(`${slug}/${region} declares ${declared} fail(s) but names ${names.length}`);
+        continue;
+      }
+      for (const fullName of names) {
+        if (!splits.some((row) => row.test.fullName === fullName)) {
+          unconfirmed.push(`${slug}/${region}: "${fullName}"`);
+        }
+      }
+    }
+
+    // Confirmed splits explain the drift, but enough of them would still move
+    // the letter, and the row publishes the headline one. The old tolerance
+    // was the A band, which the drift has never come close to - three splits
+    // in a thousand tests is 0.3% against 5%, so it could not bind and would
+    // not have bound until the registry grew seventeenfold. This asks the
+    // question the row actually makes a claim about: does the letter survive
+    // its own worst region. It binds from the first split that would move one.
+    // Coverage from the suite's own axesOf, over the headline region's counts.
+    // Withdrawal is region-invariant, so the same coverage applies to both
+    // readings and only the divergence moves between them.
+    const headlineRegion = t.regions.find((r) => r.region === t.suiteHeadlineRegion);
+    const coverage = headlineRegion ? axesOf(headlineRegion).coverage : null;
+    const headlineLetter = gradeOf(best, coverage)?.letter ?? null;
+    const worstLetter = gradeOf(worst, coverage)?.letter ?? null;
+    // A null letter on either side means the grade could not be derived, which
+    // would make the comparison pass by agreeing on nothing.
+    if (headlineLetter === null || worstLetter === null) {
+      uncheckable.push(`${slug} published no derivable grade to compare its worst region against`);
+    } else if (headlineLetter !== worstLetter) {
+      unconfirmed.push(
+        `${slug} publishes ${headlineLetter} from its headline region but its worst region grades ${worstLetter}`,
+      );
+    }
+  }
+
+  check(
+    unconfirmed.length === 0,
+    "a zero-divergence target fails only on confirmed regional splits",
+    unconfirmed.slice(0, 3).join(", "),
+  );
+  check(
+    uncheckable.length === 0,
+    "the published data carries the evidence the A+ premise is checked from",
+    uncheckable.slice(0, 3).join(", "),
+  );
+  // Without this the guard goes quiet on a board where nothing holds zero
+  // divergence - green, having checked nothing. If it ever fails, nothing on
+  // the board exercises the A+ claim and the claim should come down.
+  check(guarded > 0, "the A+ premise check found a target to check", `checked ${guarded}`);
 } finally {
   await rm(out, { recursive: true, force: true });
 }

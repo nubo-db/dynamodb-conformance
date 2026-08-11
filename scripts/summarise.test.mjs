@@ -199,6 +199,88 @@ describe('buildSummary', () => {
     )
     expect(Object.keys(summary.targets)).toEqual(['alpha'])
   })
+
+  // The evidence the site build checks the A+ premise from. The suite holds the
+  // verdicts and the build does not, so what the build can check is decided
+  // here: publish the names and it checks identity, publish nothing and the
+  // strongest thing available to it is a count.
+  describe('the failing test identities behind a zero-divergence row', () => {
+    it('names the tests a zero-divergence target fails outside its headline region', () => {
+      // Passes the split in us-east-1 (which accepts) and so fails it in
+      // eu-west-2 (which rejects): zero divergence in its headline, one fail
+      // elsewhere, and that fail is the registry's split.
+      const summary = buildSummary([target('alpha', suiteDoc('passed'))], {
+        registry: REGISTRY,
+        health: HEALTHY,
+      })
+      const t = summary.targets.alpha
+      expect(t.headline.region).toBe('us-east-1')
+      expect(t.regionFailures).toEqual({ 'eu-west-2': ['suite splits'] })
+    })
+
+    it('names every fail the row declares, so the build can check the count adds up', () => {
+      const summary = buildSummary([target('alpha', suiteDoc('passed'))], {
+        registry: REGISTRY,
+        health: HEALTHY,
+      })
+      const t = summary.targets.alpha
+      for (const [region, names] of Object.entries(t.regionFailures)) {
+        expect(names.length, `${region} names as many tests as it declares failed`).toBe(
+          t.regions[region].failed,
+        )
+      }
+    })
+
+    it('omits the field for a target that diverges in its headline region', () => {
+      // The A+ claim is not about this row, so publishing the evidence for it
+      // would grow the artefact for every target on the board to no purpose.
+      const summary = buildSummary([target('alpha', suiteDoc('failed'))], {
+        registry: REGISTRY,
+        health: HEALTHY,
+      })
+      expect(summary.targets.alpha.regionFailures).toBeUndefined()
+    })
+
+    it('omits regions where a zero-divergence target fails nothing', () => {
+      const summary = buildSummary([target('alpha', suiteDoc('passed'))], {
+        registry: REGISTRY,
+        health: HEALTHY,
+      })
+      expect(Object.keys(summary.targets.alpha.regionFailures)).not.toContain('us-east-1')
+    })
+
+    it('the committed board publishes evidence for every zero-divergence row', () => {
+      // The guard that would otherwise rot quietly: a change to scoring or to
+      // the artefact that stopped emitting the names would leave the build
+      // check with nothing to check, and it would report that rather than
+      // pass - but this fails first, at development time, against the tree.
+      const context = loadScoringContext()
+      const summary = buildSummary(
+        readTargets(
+          readdirSync('results')
+            .filter((f) => f.endsWith('.json'))
+            .map((f) => join('results', f)),
+        ),
+        context,
+      )
+      let zeroDivergence = 0
+      for (const [slug, t] of Object.entries(summary.targets)) {
+        const headline = t.regions[t.headline.region]
+        if (!headline || headline.count === 0 || axesOf(headline).divergence !== 0) continue
+        zeroDivergence++
+        const failing = Object.entries(t.regions).filter(([, r]) => r.failed > 0)
+        if (failing.length === 0) continue
+        expect(t.regionFailures, `${slug} fails somewhere and published no identities`).toBeTruthy()
+        for (const [region, r] of failing) {
+          expect(t.regionFailures[region]?.length, `${slug}/${region}`).toBe(r.failed)
+        }
+      }
+      expect(
+        zeroDivergence,
+        'no target on the board holds zero divergence, so this asserted nothing',
+      ).toBeGreaterThan(0)
+    })
+  })
 })
 
 // ── The real-AWS lanes behind the baseline row ──────────────────────────────
