@@ -3,7 +3,7 @@ import syntaxHighlight from "@11ty/eleventy-plugin-syntaxhighlight";
 import { chartGeometry } from "./lib/chart.mjs";
 import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/matrix.mjs";
 import { renderCapabilities, renderCapabilityCards } from "./lib/capabilities.mjs";
-import { regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
+import { controlObservation, controlProvenance, regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
 import { renderSplitEvidence, splitCoverageNote } from "./lib/splits.mjs";
 import { GRADING_CRITERIA_EFFECTIVE, GRADING_VERSION, TARGETS, capClauseOf, configurationOf, coverageShareSentenceOf, distributionOf, fallsShort, gradeForRow, gradeLegendOf, gradeLineOf, gradeOf, gradingCriteriaEffectiveLabel, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
 import { channelIcon } from "./lib/channel-icons.mjs";
@@ -11,6 +11,16 @@ import { targetLinks, targetRunHref } from "./lib/links.mjs";
 import { areaFailures, sourceUrl } from "./lib/findings.mjs";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// 2026-05-23 -> "23 May 2026". A named function as well as a filter, so the
+// helpers that build a dated sentence in JS format the date the same way the
+// templates do.
+function dateLabel(iso) {
+  if (!iso || iso === "-") return "-";
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return iso;
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+}
 
 export default function (eleventyConfig) {
   eleventyConfig.addPlugin(pluginWebc, {
@@ -36,13 +46,8 @@ export default function (eleventyConfig) {
     return title && title !== siteTitle ? `${title} | ${siteTitle}` : siteTitle;
   });
 
-  // 2026-05-23 -> "23 May 2026". Used across run and target pages.
-  eleventyConfig.addFilter("dateLabel", (iso) => {
-    if (!iso || iso === "-") return "-";
-    const [y, m, d] = iso.split("-").map(Number);
-    if (!y || !m || !d) return iso;
-    return `${d} ${MONTHS[m - 1]} ${y}`;
-  });
+  // Used across run and target pages.
+  eleventyConfig.addFilter("dateLabel", (iso) => dateLabel(iso));
 
   eleventyConfig.addFilter("dump", (obj) => JSON.stringify(obj));
 
@@ -91,6 +96,11 @@ export default function (eleventyConfig) {
   // phrasing is identical everywhere.
   eleventyConfig.addFilter("regionLabel", (label) => regionLabel(label));
   eleventyConfig.addFilter("regionCount", (label) => regionCount(label));
+  // What the real-AWS run observed, and which lanes it came from. The strip
+  // used to read the pinned baseline row and so claimed the whole suite for a
+  // run that recorded less.
+  eleventyConfig.addFilter("controlObservation", (groundTruth) => controlObservation(groundTruth));
+  eleventyConfig.addFilter("controlProvenance", (obs) => controlProvenance(obs, dateLabel));
 
   // Whether a target is maintained by the board's own author (a static fact, not
   // a per-run figure), so the conflict-of-interest disclosure renders from the

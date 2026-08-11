@@ -2,6 +2,11 @@
   // The synthesised baseline row, for the control strip: its figures are the
   // harness's own health check rather than a competitor's score.
   function baselineOf(standings) { return standings.find((r) => r.baseline) ?? null; }
+  // What the real-AWS lanes observed, from the artefact rather than the row.
+  function observationOf(summary) {
+    return summary?.available ? controlObservation(summary.latest?.groundTruth) : null;
+  }
+  function provenanceOf(summary) { return controlProvenance(observationOf(summary)); }
 </script>
 <section class="max-w-6xl mx-auto px-6 py-12 sm:py-16">
   <div class="mb-8">
@@ -39,12 +44,24 @@
            intro and the nav; this panel is only the check that the
            machinery works. -->
       <div class="text-[0.7rem] uppercase tracking-wide font-medium text-brand-700 dark:text-brand-300 mb-1">Control</div>
+      <!-- The count comes from what the real-AWS lanes observed, not from the
+           baseline row. The row is pinned at the full suite until all three
+           lanes have published, so reading it here claimed 998 of 998 for a
+           run that recorded 981. -->
       <div class="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-        <span class="tnum" @text="baselineOf($data.conformance.latest.standings).passed"></span> of <span class="tnum" @text="baselineOf($data.conformance.latest.standings).count"></span> reproduced
+        <span webc:if="observationOf($data.summary)">
+          <span class="tnum" @text="observationOf($data.summary).observed"></span> of <span class="tnum" @text="observationOf($data.summary).suite"></span> reproduced
+        </span>
+        <span webc:else>
+          <span class="tnum" @text="baselineOf($data.conformance.latest.standings).passed"></span> of <span class="tnum" @text="baselineOf($data.conformance.latest.standings).count"></span> reproduced
+        </span>
       </div>
       <div class="mt-0.5 text-xs leading-snug text-zinc-600 dark:text-zinc-400">
         live <a href="/targets/dynamodb" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300">AWS DynamoDB</a> replayed against its own recorded answers<span webc:if="baselineOf($data.conformance.latest.standings).regionLabel?.observed">, in all <span class="tnum" @text="baselineOf($data.conformance.latest.standings).regionLabel.observed"></span> regions</span>
       </div>
+      <!-- Which lanes, captured when. Three captures at different times shown
+           under one date would read as one measurement. -->
+      <div webc:if="provenanceOf($data.summary)" class="mt-1 text-[0.7rem] leading-snug text-zinc-500 dark:text-zinc-400" @text="provenanceOf($data.summary)"></div>
     </div>
     <div class="rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3">
       <div class="text-[0.7rem] uppercase tracking-wide font-medium text-zinc-500 dark:text-zinc-400 mb-1">Suite</div>

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { buildSummaryModel, cohortOf, regionLabel, regionCount, groupRegionsByDivergence, renderRegionGroups } from "./summary.mjs";
+import { buildSummaryModel, cohortOf, regionLabel, regionCount, groupRegionsByDivergence, renderRegionGroups, controlObservation, controlProvenance } from "./summary.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const raw = JSON.parse(readFileSync(join(here, "..", "test", "fixtures", "regions", "summary.json"), "utf8"));
@@ -243,4 +243,67 @@ test("coverage is region-invariant, so a row's counts reproduce its divergence",
       assert.ok(Math.abs(r.failed / r.count * 100 - r.divergenceValue) < 1e-9, `${slug}/${r.region}`);
     }
   }
+});
+
+// ── The control strip's observation ─────────────────────────────────────────
+//
+// Real AWS is measured in three lanes and the baseline row is pinned at the
+// full suite until all three publish. The strip read that row and so claimed
+// "998 of 998 reproduced" for a run that recorded 981.
+
+const gt = (over = {}) => ({
+  slug: "dynamodb",
+  suiteSize: 998,
+  testsObserved: 981,
+  derived: false,
+  lanes: [{ name: "gating", runDate: "2026-08-09", tests: 981 }],
+  missingLanes: ["integrations", "gsi"],
+  ...over,
+});
+
+test("the strip counts what the lanes observed, not what the row is pinned at", () => {
+  const obs = controlObservation(gt());
+  assert.equal(obs.observed, 981);
+  assert.equal(obs.suite, 998);
+  assert.equal(obs.shortfall, 17);
+  assert.equal(obs.complete, false);
+});
+
+test("a lane's capture date reaches the model the strip reads", () => {
+  assert.deepEqual(controlObservation(gt()).dated, [
+    { name: "gating", runDate: "2026-08-09", tests: 981 },
+  ]);
+});
+
+test("the provenance names the lanes seen and the ones still missing", () => {
+  const note = controlProvenance(controlObservation(gt()));
+  assert.match(note, /gating lane 2026-08-09/);
+  assert.match(note, /17 tests run in the integrations and GSI lanes, not yet published here/);
+});
+
+test("three lanes spanning the suite read as one dated observation each", () => {
+  const obs = controlObservation(gt({
+    testsObserved: 998,
+    derived: true,
+    missingLanes: [],
+    lanes: [
+      { name: "gating", runDate: "2026-08-09", tests: 981 },
+      { name: "integrations", runDate: "2026-08-02", tests: 3 },
+      { name: "gsi", runDate: "2026-07-30", tests: 14 },
+    ],
+  }));
+  assert.equal(obs.shortfall, 0);
+  assert.equal(obs.complete, true);
+  const note = controlProvenance(obs);
+  // Each capture dated separately: one date over three captures would read as
+  // a single measurement.
+  assert.match(note, /gating lane 2026-08-09/);
+  assert.match(note, /integrations lane 2026-08-02/);
+  assert.match(note, /GSI lane 2026-07-30/);
+  assert.doesNotMatch(note, /not yet published/);
+});
+
+test("no ground truth degrades to no strip claim rather than throwing", () => {
+  assert.equal(controlObservation(null), null);
+  assert.equal(controlProvenance(null), "");
 });

@@ -243,6 +243,58 @@ export function renderRegionGroups(regions) {
     .join("");
 }
 
+/**
+ * What the real-AWS run actually observed, for the control strip.
+ *
+ * Real DynamoDB is measured in three lanes - the gating run plus the slower
+ * integrations and GSI lanes - and the baseline row is pinned at the full suite
+ * until all three have published. The strip was reading the pinned row, so it
+ * said "998 of 998 reproduced" about a run that recorded 981.
+ *
+ * The counts and the lanes come from the artefact rather than the row, so the
+ * strip states what was seen and names the lanes behind it. Three captures at
+ * different times rendered as one measurement would be worse than a disclosed
+ * literal, because it looks derived.
+ */
+export function controlObservation(groundTruth) {
+  if (!groundTruth) return null;
+  const observed = groundTruth.testsObserved ?? null;
+  const suite = groundTruth.suiteSize ?? null;
+  const lanes = groundTruth.lanes ?? [];
+  const missing = groundTruth.missingLanes ?? [];
+  return {
+    observed,
+    suite,
+    // Derived only where the lanes together span the suite. Short of that the
+    // row is a disclosed pin and the strip has to say so.
+    complete: !!groundTruth.derived,
+    shortfall: suite != null && observed != null ? Math.max(0, suite - observed) : null,
+    lanes,
+    missingLanes: missing,
+    // One capture date per lane. Rendering three captures under one date would
+    // date the whole observation to whichever lane ran last.
+    dated: lanes.filter((l) => l.runDate).map((l) => ({ name: l.name, runDate: l.runDate, tests: l.tests })),
+  };
+}
+
+const LANE_NAMES = { gating: "gating", integrations: "integrations", gsi: "GSI" };
+const listOf = (items) =>
+  items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+
+/** The strip's provenance line: which lanes were seen, and what is missing. */
+export function controlProvenance(obs, dateLabel = (d) => d) {
+  if (!obs) return "";
+  const seen = obs.dated.map((l) => `${LANE_NAMES[l.name] ?? l.name} lane ${dateLabel(l.runDate)}`);
+  const seenPart = seen.length ? listOf(seen) : "";
+  if (!obs.shortfall) return seenPart;
+  const missing = listOf(obs.missingLanes.map((n) => LANE_NAMES[n] ?? n));
+  const tests = `${obs.shortfall} test${obs.shortfall === 1 ? "" : "s"}`;
+  const tail = missing
+    ? `${tests} run in the ${missing} lane${obs.missingLanes.length === 1 ? "" : "s"}, not yet published here`
+    : `${tests} not yet observed`;
+  return seenPart ? `${seenPart} · ${tail}` : tail;
+}
+
 // Turn a raw summary.json into the per-region model, or an unavailable marker
 // when the payload is missing or not the schema we understand. Never throws: an
 // absent or malformed summary degrades the site to its eu-west-2-only story

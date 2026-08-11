@@ -8,7 +8,15 @@
     <span class="font-semibold text-zinc-900 dark:text-zinc-50 group-hover:text-brand-700 dark:group-hover:text-brand-300 truncate" @text="row.display"></span>
     <span webc:if="row.synthesised" class="text-xs text-brand-700 dark:text-brand-300 font-medium shrink-0">ground truth</span>
     <span webc:elseif="row.movement.state === 'new'" class="shrink-0 inline-flex items-center rounded-full bg-brand-100 dark:bg-brand-500/20 px-2 py-0.5 text-xs font-medium text-brand-700 dark:text-brand-200">new</span>
-    <span webc:elseif="row.movement.state === 'carried'" class="text-xs text-zinc-500 dark:text-zinc-400 shrink-0" aria-hidden="true">–</span>
+    <!-- A carried row was not re-tested this run, which is a fact about the
+         figures below it. It was a bare aria-hidden dash: nothing for a screen
+         reader, nothing on hover, and visually indistinguishable from a
+         decorative separator. The state is named. -->
+    <span webc:elseif="row.movement.state === 'carried'" class="text-xs text-zinc-500 dark:text-zinc-400 shrink-0"
+      :title="row.runDate ? 'Not re-tested this run; last measured ' + dateLabel(row.runDate) : 'Not re-tested this run'">
+      <span aria-hidden="true">–</span>
+      <span class="sr-only" @text="row.runDate ? 'Not re-tested this run, last measured ' + dateLabel(row.runDate) : 'Not re-tested this run'"></span>
+    </span>
     <span webc:else :class="'shrink-0 inline-flex items-center gap-1 text-xs font-medium tnum move-' + row.movement.state">
       <span aria-hidden="true" @text="row.movement.arrow"></span>
       <span @text="row.movement.deltaLabel"></span>
@@ -65,9 +73,15 @@
       <!-- The build's own grade and named figures. This line read "0.0% / 78.7%",
            two bare percentages a reader had to guess the order of. The cap is
            named rather than flagged: "(capped)" said a ceiling existed without
-           saying where, and on a chip this size the letter is the whole point. -->
+           saying where.
+
+           Dated, like every other figure on the board. A variant is measured on
+           its own schedule and lags the run it appears in - the wasm build's
+           figures are weeks older than the native row beside them - so printing
+           them undated is the case the standings component warns about in its
+           own comment. -->
       <span class="font-mono tnum text-zinc-400 dark:text-zinc-500"
-        @text="' · ' + (gradeForRow(v).letter ?? '–') + (gradeForRow(v).capAt ? ' (coverage cap)' : '') + ' · ' + v.divergence + ' diverges · ' + v.coverage + ' covered'"></span>
+        @text="' · ' + (gradeForRow(v).letter ?? '–') + (gradeForRow(v).capAt ? ' (coverage cap)' : '') + ' · ' + v.divergence + ' diverges · ' + v.coverage + ' covered' + (v.runDate ? ' · ' + dateLabel(v.runDate) : '')"></span>
     </a>
   </p>
 </div>
