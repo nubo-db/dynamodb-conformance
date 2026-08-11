@@ -107,7 +107,7 @@ export default function (eleventyConfig) {
   // run that recorded less.
   eleventyConfig.addFilter("controlObservation", (groundTruth) => controlObservation(groundTruth));
   eleventyConfig.addFilter("controlProvenance", (obs) => controlProvenance(obs, dateLabel));
-  eleventyConfig.addFilter("controlSplit", (obs) => controlSplit(obs, dateLabel));
+  eleventyConfig.addFilter("controlSplit", (obs) => controlSplit(obs));
 
   // Whether a target is maintained by the board's own author (a static fact, not
   // a per-run figure), so the conflict-of-interest disclosure renders from the

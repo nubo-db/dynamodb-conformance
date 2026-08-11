@@ -194,25 +194,26 @@ correctness chart, with nothing saying they were different measurements.
   the counts as fails over each operation's whole size. It was a pass rate over
   what the operation attempted, which left the most detailed table on the page
   running opposite to every figure above it.
-- **These are schema 3's three breaking changes, and every consumer was on
-  schema 2, so all three land at once.** A tier no
+- **These are schema 3's four breaking changes, and every consumer was on
+  schema 2, so all four land at once.** A tier no
   longer carries `pct` and `value`; it carries `divergence`, `coverage` and
   `correctness`, each with a `pct` and a `value` of its own. The whole-suite
   correctness percentage is `correctness`, not `total`: `total` also names the
   raw test count inside `counts`, so the same word meant a count in one place
   and a percentage in another. Anything reading a tier's `pct`, or `total` as a
   percentage, has to be updated - read as-is, both now invert or vanish. The
-  third is `movement.state`, whose values are named above; it is listed here too
-  so a consumer counting the breaks against the version gets all of them in one
-  place. It is the dangerous one, because `up` and `down` still parse and now
-  mean the opposite thing.
+  last two are `movement.state` and `movement.delta`, whose values are named
+  above; they are listed here too so a consumer counting the breaks against the
+  version gets all of them in one place. They are the dangerous ones, because
+  `up` and `down` still parse and a delta keeps its shape, and both now mean the
+  opposite thing.
 
 **A headline says how many regions it came from.** Each target is scored
 against every observed region and headlines its best-matching cohort, and the
 size of that cohort only appeared on the target's own page. A figure earned
-across six regions and one earned across all thirty-three rendered identically.
+across six regions and one earned across every region rendered identically.
 
-- The board and the targets index show the count beside the figure - `6 of 33
+- The board and the targets index show the count beside the figure - `6 of 32
   regions` - for the same reason coverage sits beside divergence: the number
   that qualifies a headline belongs with it, not a click away. The full cohort
   listing stays on the target page, where a reader has asked for that detail.

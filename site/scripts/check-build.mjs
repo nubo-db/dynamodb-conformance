@@ -272,9 +272,19 @@ try {
   // And the legend has to carry every band, not merely avoid rendering wrong:
   // an empty loop leaves valid HTML and no letters at all.
   const home = docs.find((d) => d.path === "/index.html");
-  const missingBands = GRADE_BANDS.map((b) => b.letter).filter(
-    (letter) => !new RegExp(`grade-chip[^"]*"[^>]*>\\s*${letter}\\s*<`).test(home?.html ?? ""),
-  );
+  // The full published letter set, built from the criteria rather than from
+  // gradeLegendOf: iterating GRADE_BANDS missed A+ and F, and iterating the
+  // legend makes the check self-referential, so dropping a letter from the
+  // legend would drop it from the expectation too. The letter is escaped
+  // because "A+" reads as a quantifier in a RegExp.
+  const expectedLetters = ["A+", ...GRADE_BANDS.map((b) => b.letter), "F"];
+  const missingBands = expectedLetters
+    .filter(
+      (letter) =>
+        !new RegExp(`grade-chip[^"]*"[^>]*>\\s*${letter.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*<`).test(
+          home?.html ?? "",
+        ),
+    );
   check(
     missingBands.length === 0,
     "the grade legend renders a chip for every band",
