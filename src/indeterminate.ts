@@ -21,6 +21,10 @@ export const INDETERMINATE_REASONS = [
   'table-active-timeout',
   /** A GSI never reflected the expected items within its ceiling. */
   'gsi-consistency-timeout',
+  /** A vector index never reached ACTIVE (backfill done) within its ceiling. */
+  'vector-index-timeout',
+  /** A vector index never reflected the expected items within its ceiling. */
+  'vector-consistency-timeout',
   /** A throttle survived the SDK's configured retry (see src/client.ts). */
   'throttle-exhausted',
   /** A transport failure or 5xx: the request may never have been evaluated. */

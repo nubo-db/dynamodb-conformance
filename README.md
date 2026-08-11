@@ -199,6 +199,7 @@ The shared indexed table carries both kinds together, so any test using it is ta
 | `batch` | data-plane | BatchGetItem, BatchWriteItem |
 | `transactions` | data-plane | TransactWriteItems, TransactGetItems |
 | `partiql` | data-plane | ExecuteStatement, BatchExecuteStatement, ExecuteTransaction |
+| `search-vectors` | data-plane | SearchVectors |
 | `create-table` | control-plane | CreateTable |
 | `update-table` | control-plane | UpdateTable |
 | `delete-table` | control-plane | DeleteTable |
@@ -223,6 +224,7 @@ The shared indexed table carries both kinds together, so any test using it is ta
 | `cloud-only` | No emulator implements it; needs real AWS infrastructure, another AWS service, or account/region context |
 | `gsi` | Depends on a Global Secondary Index, whether it queries one, asserts on an index key, or creates a table carrying one |
 | `lsi` | Depends on a Local Secondary Index, on the same terms |
+| `vector` | Depends on a vector index, whether it searches one, writes through one, or creates a table carrying one |
 | `legacy` | Sends a deprecated request parameter (AttributeUpdates, QueryFilter, ScanFilter, Expected, AttributesToGet), wherever the test lives |
 | `slow` | Long-running against real AWS; the set `test:gating` excludes |
 | `negative-path` | Asserts only rejections: every case expects a validation error, conditional-check failure, or transaction cancellation |

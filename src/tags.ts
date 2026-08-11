@@ -30,6 +30,7 @@ const DATA_PLANE_OPS: readonly TagDef[] = [
     name: 'partiql',
     description: 'PartiQL: ExecuteStatement, BatchExecuteStatement, ExecuteTransaction',
   },
+  { name: 'search-vectors', description: 'SearchVectors' },
 ]
 
 // Operation tags — control plane. Operations that manage tables, indexes, or
@@ -62,6 +63,7 @@ const CROSS_CUTTING: readonly TagDef[] = [
   },
   { name: 'gsi', description: 'Exercises Global Secondary Indexes' },
   { name: 'lsi', description: 'Exercises Local Secondary Indexes' },
+  { name: 'vector', description: 'Exercises vector indexes or vector search' },
   {
     name: 'legacy',
     description:

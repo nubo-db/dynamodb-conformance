@@ -63,6 +63,19 @@ export const CAPABILITY_MARKERS = [
     pattern: /\b(lsi1sk|lsi2sk|bidx)\s*:/,
   },
   {
+    tag: 'search-vectors',
+    what: 'a SearchVectors command',
+    pattern: /\b(SearchVectorsCommand)\b/,
+  },
+  {
+    // Building or reshaping a table that carries a vector index. Mirrors the
+    // secondary-index marker below: the table is created before any assertion
+    // runs, so an exclusion filter has to catch the construction itself.
+    tag: 'vector',
+    what: 'a table carrying a vector index',
+    pattern: /\b(VectorIndexes|VectorIndexUpdates)\s*:/,
+  },
+  {
     // Building a table that carries an index. This is the case an exclusion has
     // to catch, because the table is created before any assertion runs.
     //
