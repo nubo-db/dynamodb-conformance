@@ -19,6 +19,7 @@
 // headline rate - only on how the matched region is described.
 
 import { asPct, pct } from "./scoring.mjs";
+import { GATING_LANE } from "dynamodb-conformance/scripts/summarise.mjs";
 
 const PINNED = "eu-west-2";
 
@@ -270,11 +271,15 @@ export function controlObservation(groundTruth) {
     // One capture date per lane: three captures under a single date would read
     // as one measurement.
     dated: lanes.filter((l) => l.runDate).map((l) => ({ name: l.name, runDate: l.runDate, tests: l.tests })),
+    // By name. Positionally it is first today, and a reordering would have the
+    // strip date the whole observation to whichever pass happened to lead.
+    mainRun: lanes.find((l) => l.name === GATING_LANE) ?? null,
   };
 }
 
 // Plain names, because the page around this one explains the three passes in
 // words. "gating lane" is what CI calls it, not what a reader would.
+const COUNT_WORDS = ["", "one", "two", "three", "four"];
 const LANE_NAMES = { gating: "the main run", integrations: "integrations", gsi: "GSI" };
 const listOf = (items) =>
   items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
@@ -288,13 +293,14 @@ const listOf = (items) =>
  * the suite guarantees: all 998 run against real AWS, and 17 of them run in
  * slower passes whose results have not reached this artefact.
  */
-export function controlSplit(obs, dateLabel = (d) => d) {
+export function controlSplit(obs) {
   if (!obs || !obs.shortfall) return "";
-  const main = obs.dated[0];
   const n = obs.missingLanes.length;
-  const passes = n === 1 ? "one slower pass" : `${n === 2 ? "two" : n} slower passes`;
-  const where = main ? `in the ${dateLabel(main.runDate)} run` : "in this run";
-  return `${obs.observed} ${where}, ${obs.shortfall} in ${passes}`;
+  const word = COUNT_WORDS[n] ?? String(n);
+  const passes = `${word} slower pass${n === 1 ? "" : "es"}`;
+  // No date of its own: the line it sits on is already labelled with the run
+  // this refers back to, and repeating it there read as two measurements.
+  return `${obs.observed} in that run, ${obs.shortfall} in ${passes}`;
 }
 
 /** Which passes have reported, when, and what is still outstanding. */

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { buildSummaryModel, cohortOf, regionLabel, regionCount, groupRegionsByDivergence, renderRegionGroups, controlObservation, controlProvenance } from "./summary.mjs";
+import { buildSummaryModel, cohortOf, regionLabel, regionCount, groupRegionsByDivergence, renderRegionGroups, controlObservation, controlProvenance, controlSplit } from "./summary.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const raw = JSON.parse(readFileSync(join(here, "..", "test", "fixtures", "regions", "summary.json"), "utf8"));
@@ -304,4 +304,31 @@ test("three lanes spanning the suite read as one dated observation each", () => 
 test("no ground truth degrades to no strip claim rather than throwing", () => {
   assert.equal(controlObservation(null), null);
   assert.equal(controlProvenance(null), "");
+});
+
+
+// The strip's compact split.
+
+test("the split names the gating run by name, not by array position", () => {
+  const obs = controlObservation(gt({
+    lanes: [{ name: "gsi", runDate: "2026-07-30", tests: 14 }, { name: "gating", runDate: "2026-08-09", tests: 981 }],
+    missingLanes: ["integrations"],
+  }));
+  assert.equal(obs.mainRun.name, "gating");
+  assert.equal(obs.mainRun.runDate, "2026-08-09");
+});
+
+test("the split counts passes in words and carries no date of its own", () => {
+  assert.equal(controlSplit(controlObservation(gt())), "981 in that run, 17 in two slower passes");
+  assert.doesNotMatch(controlSplit(controlObservation(gt())), /2026/);
+});
+
+test("one outstanding pass reads singular", () => {
+  const obs = controlObservation(gt({ missingLanes: ["gsi"] }));
+  assert.match(controlSplit(obs), /in one slower pass$/);
+});
+
+test("nothing outstanding means no split line", () => {
+  assert.equal(controlSplit(controlObservation(gt({ testsObserved: 998, derived: true, missingLanes: [] }))), "");
+  assert.equal(controlSplit(null), "");
 });
