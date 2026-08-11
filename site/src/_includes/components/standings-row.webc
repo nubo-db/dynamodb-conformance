@@ -117,14 +117,14 @@
         <span class="sr-only" @text="'not re-tested this run, last tested ' + dateLabel(row.runDate)"></span>
       </span>
       <span webc:else :class="'w-20 shrink-0 text-right text-xs font-medium tnum move-' + row.movement.state">
-        <span class="inline-flex items-center justify-end gap-1">
-          <span aria-hidden="true" @text="row.movement.arrow"></span>
-          <span @text="row.movement.deltaLabel"></span>
+        <span class="inline-flex items-center justify-end gap-1" aria-hidden="true">
+          <span @text="row.movement.arrow"></span>
+          <span @text="row.movement.deltaReading"></span>
         </span>
         <!-- A letter change is stated beside the delta that caused it: near a
              band boundary a 0.3pp move flips a grade, and the flip should not
              have to be rederived from the criteria. -->
-        <span webc:if="row.movement.grade" class="block mt-0.5 text-[0.7rem] font-normal" @text="row.movement.grade.from + ' → ' + row.movement.grade.to"></span>
+        <span webc:if="row.movement.grade" class="block mt-0.5 text-[0.7rem] font-normal" aria-hidden="true" @text="row.movement.grade.from + ' → ' + row.movement.grade.to"></span>
         <span class="sr-only" @text="row.movement.label + (row.movement.grade ? ', ' + row.movement.grade.label : '')"></span>
       </span>
     </div>

@@ -74,6 +74,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -209,6 +210,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": [
@@ -303,6 +305,7 @@
                 "arrow": "–",
                 "delta": null,
                 "deltaLabel": "–",
+                "deltaReading": "–",
                 "label": "not re-tested this run"
               }
             }
@@ -399,6 +402,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "not re-tested this run"
           }
         },
@@ -518,6 +522,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -638,6 +643,7 @@
             "arrow": "▼",
             "delta": -4.9,
             "deltaLabel": "-4.9pp",
+            "deltaReading": "4.9pp less",
             "label": "diverged 4.9 percentage points less",
             "grade": {
               "from": "C",
@@ -759,6 +765,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -875,6 +882,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -991,6 +999,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -1111,6 +1120,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -1121,6 +1131,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -1206,6 +1217,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -1341,6 +1353,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": [
@@ -1435,6 +1448,7 @@
                 "arrow": "–",
                 "delta": null,
                 "deltaLabel": "–",
+                "deltaReading": "–",
                 "label": "not re-tested this run"
               }
             }
@@ -1531,6 +1545,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "not re-tested this run"
           }
         },
@@ -1650,6 +1665,7 @@
             "arrow": "▲",
             "delta": 0.2,
             "deltaLabel": "+0.2pp",
+            "deltaReading": "0.2pp more",
             "label": "diverged 0.2 percentage points more"
           },
           "variants": []
@@ -1766,6 +1782,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -1882,6 +1899,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -1998,6 +2016,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -2118,6 +2137,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -2238,6 +2258,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -2248,6 +2269,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -2333,6 +2355,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -2469,6 +2492,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": [
@@ -2563,6 +2587,7 @@
                 "arrow": "–",
                 "delta": null,
                 "deltaLabel": "–",
+                "deltaReading": "–",
                 "label": "not re-tested this run"
               }
             }
@@ -2659,6 +2684,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "not re-tested this run"
           }
         },
@@ -2779,6 +2805,7 @@
             "arrow": "▲",
             "delta": 0.2,
             "deltaLabel": "+0.2pp",
+            "deltaReading": "0.2pp more",
             "label": "diverged 0.2 percentage points more"
           },
           "variants": []
@@ -2896,6 +2923,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -3013,6 +3041,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -3130,6 +3159,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -3251,6 +3281,7 @@
             "arrow": "▲",
             "delta": 0.2,
             "deltaLabel": "+0.2pp",
+            "deltaReading": "0.2pp more",
             "label": "diverged 0.2 percentage points more"
           },
           "variants": []
@@ -3372,6 +3403,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -3382,6 +3414,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -3467,6 +3500,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -3603,6 +3637,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": [
@@ -3697,6 +3732,7 @@
                 "arrow": "–",
                 "delta": null,
                 "deltaLabel": "–",
+                "deltaReading": "–",
                 "label": "not re-tested this run"
               }
             }
@@ -3793,6 +3829,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "not re-tested this run"
           }
         },
@@ -3913,6 +3950,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -4030,6 +4068,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -4147,6 +4186,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -4268,6 +4308,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -4385,6 +4426,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -4506,6 +4548,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -4516,6 +4559,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -4601,6 +4645,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -4737,6 +4782,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": [
@@ -4831,6 +4877,7 @@
                 "arrow": "–",
                 "delta": null,
                 "deltaLabel": "–",
+                "deltaReading": "–",
                 "label": "not re-tested this run"
               }
             }
@@ -4927,6 +4974,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "not re-tested this run"
           }
         },
@@ -5047,6 +5095,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -5164,6 +5213,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -5281,6 +5331,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -5402,6 +5453,7 @@
             "arrow": "▼",
             "delta": -2.1,
             "deltaLabel": "-2.1pp",
+            "deltaReading": "2.1pp less",
             "label": "diverged 2.1 percentage points less"
           },
           "variants": []
@@ -5519,6 +5571,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -5640,6 +5693,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -5650,6 +5704,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -5735,6 +5790,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -5870,6 +5926,7 @@
             "arrow": "▼",
             "delta": -5.2,
             "deltaLabel": "-5.2pp",
+            "deltaReading": "5.2pp less",
             "label": "diverged 5.2 percentage points less",
             "grade": {
               "from": "B",
@@ -5969,6 +6026,7 @@
                 "arrow": "–",
                 "delta": null,
                 "deltaLabel": "new",
+                "deltaReading": "new",
                 "label": "first run for this target"
               }
             }
@@ -6065,6 +6123,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           }
         },
@@ -6185,6 +6244,7 @@
             "arrow": "▼",
             "delta": -13.7,
             "deltaLabel": "-13.7pp",
+            "deltaReading": "13.7pp less",
             "label": "diverged 13.7 percentage points less",
             "grade": {
               "from": "C",
@@ -6307,6 +6367,7 @@
             "arrow": "▼",
             "delta": -9,
             "deltaLabel": "-9.0pp",
+            "deltaReading": "9.0pp less",
             "label": "diverged 9.0 percentage points less",
             "grade": {
               "from": "D",
@@ -6429,6 +6490,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -6546,6 +6608,7 @@
             "arrow": "▼",
             "delta": -0.9,
             "deltaLabel": "-0.9pp",
+            "deltaReading": "0.9pp less",
             "label": "diverged 0.9 percentage points less"
           },
           "variants": []
@@ -6667,6 +6730,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -6788,6 +6852,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -6798,6 +6863,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -6883,6 +6949,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -6998,6 +7065,7 @@
             "arrow": "▲",
             "delta": 1.5,
             "deltaLabel": "+1.5pp",
+            "deltaReading": "1.5pp more",
             "label": "diverged 1.5 percentage points more",
             "grade": {
               "from": "A",
@@ -7077,6 +7145,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "variants": []
@@ -7151,6 +7220,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more"
           },
           "variants": []
@@ -7225,6 +7295,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "variants": []
@@ -7299,6 +7370,7 @@
             "arrow": "▲",
             "delta": 1.3,
             "deltaLabel": "+1.3pp",
+            "deltaReading": "1.3pp more",
             "label": "diverged 1.3 percentage points more"
           },
           "variants": []
@@ -7373,6 +7445,7 @@
             "arrow": "▲",
             "delta": 1.3,
             "deltaLabel": "+1.3pp",
+            "deltaReading": "1.3pp more",
             "label": "diverged 1.3 percentage points more"
           },
           "variants": []
@@ -7447,6 +7520,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less",
             "grade": {
               "from": "C",
@@ -7462,6 +7536,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "B",
         "topTotal": "94.7%",
         "topDivergence": "5.2%",
@@ -7547,6 +7622,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -7683,6 +7759,7 @@
             "arrow": "▲",
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
+            "deltaReading": "2.9pp more",
             "label": "diverged 2.9 percentage points more"
           },
           "variants": []
@@ -7800,6 +7877,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -7921,6 +7999,7 @@
             "arrow": "▼",
             "delta": -0.5,
             "deltaLabel": "-0.5pp",
+            "deltaReading": "0.5pp less",
             "label": "diverged 0.5 percentage points less"
           },
           "variants": []
@@ -8038,6 +8117,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -8159,6 +8239,7 @@
             "arrow": "▲",
             "delta": 2.3,
             "deltaLabel": "+2.3pp",
+            "deltaReading": "2.3pp more",
             "label": "diverged 2.3 percentage points more",
             "grade": {
               "from": "B",
@@ -8285,6 +8366,7 @@
             "arrow": "▲",
             "delta": 2,
             "deltaLabel": "+2.0pp",
+            "deltaReading": "2.0pp more",
             "label": "diverged 2.0 percentage points more"
           },
           "variants": []
@@ -8402,6 +8484,7 @@
             "arrow": "▼",
             "delta": -0.6,
             "deltaLabel": "-0.6pp",
+            "deltaReading": "0.6pp less",
             "label": "diverged 0.6 percentage points less"
           },
           "variants": []
@@ -8412,6 +8495,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "96.3%",
         "topDivergence": "3.7%",
@@ -8497,6 +8581,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -8633,6 +8718,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -8754,6 +8840,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -8871,6 +8958,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -8988,6 +9076,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -9109,6 +9198,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -9230,6 +9320,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -9347,6 +9438,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -9357,6 +9449,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.3%",
         "topDivergence": "0.7%",
@@ -9442,6 +9535,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -9578,6 +9672,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -9699,6 +9794,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -9816,6 +9912,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -9933,6 +10030,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -10054,6 +10152,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -10175,6 +10274,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -10292,6 +10392,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -10302,6 +10403,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.3%",
         "topDivergence": "0.7%",
@@ -10387,6 +10489,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -10523,6 +10626,7 @@
             "arrow": "▲",
             "delta": 0.1,
             "deltaLabel": "+0.1pp",
+            "deltaReading": "0.1pp more",
             "label": "diverged 0.1 percentage points more"
           },
           "variants": []
@@ -10644,6 +10748,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -10761,6 +10866,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "variants": []
@@ -10878,6 +10984,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "variants": []
@@ -10999,6 +11106,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "variants": []
@@ -11120,6 +11228,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -11237,6 +11346,7 @@
             "arrow": "▼",
             "delta": -0.3,
             "deltaLabel": "-0.3pp",
+            "deltaReading": "0.3pp less",
             "label": "diverged 0.3 percentage points less"
           },
           "variants": []
@@ -11247,6 +11357,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.3%",
         "topDivergence": "0.7%",
@@ -11332,6 +11443,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -11468,6 +11580,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -11563,6 +11676,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -11684,6 +11798,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -11805,6 +11920,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -11900,6 +12016,7 @@
             "arrow": "▲",
             "delta": 0.1,
             "deltaLabel": "+0.1pp",
+            "deltaReading": "0.1pp more",
             "label": "diverged 0.1 percentage points more"
           },
           "variants": []
@@ -11995,6 +12112,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -12116,6 +12234,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -12126,6 +12245,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.4%",
         "topDivergence": "0.6%",
@@ -12211,6 +12331,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -12313,6 +12434,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -12404,6 +12526,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -12495,6 +12618,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -12586,6 +12710,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -12677,6 +12802,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -12768,6 +12894,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -12859,6 +12986,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -12869,6 +12997,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.4%",
         "topDivergence": "0.6%",
@@ -12954,6 +13083,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -13056,6 +13186,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "variants": []
@@ -13147,6 +13278,7 @@
             "arrow": "▲",
             "delta": 1.1,
             "deltaLabel": "+1.1pp",
+            "deltaReading": "1.1pp more",
             "label": "diverged 1.1 percentage points more"
           },
           "variants": []
@@ -13238,6 +13370,7 @@
             "arrow": "▼",
             "delta": -0.8,
             "deltaLabel": "-0.8pp",
+            "deltaReading": "0.8pp less",
             "label": "diverged 0.8 percentage points less"
           },
           "variants": []
@@ -13329,6 +13462,7 @@
             "arrow": "▼",
             "delta": -0.9,
             "deltaLabel": "-0.9pp",
+            "deltaReading": "0.9pp less",
             "label": "diverged 0.9 percentage points less"
           },
           "variants": []
@@ -13420,6 +13554,7 @@
             "arrow": "▲",
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
+            "deltaReading": "2.9pp more",
             "label": "diverged 2.9 percentage points more",
             "grade": {
               "from": "B",
@@ -13516,6 +13651,7 @@
             "arrow": "▲",
             "delta": 2.6,
             "deltaLabel": "+2.6pp",
+            "deltaReading": "2.6pp more",
             "label": "diverged 2.6 percentage points more"
           },
           "variants": []
@@ -13607,6 +13743,7 @@
             "arrow": "▼",
             "delta": -0.5,
             "deltaLabel": "-0.5pp",
+            "deltaReading": "0.5pp less",
             "label": "diverged 0.5 percentage points less",
             "grade": {
               "from": "D",
@@ -13622,6 +13759,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.4%",
         "topDivergence": "0.6%",
@@ -13707,6 +13845,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -13805,6 +13944,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -13894,6 +14034,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -13983,6 +14124,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -14072,6 +14214,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -14161,6 +14304,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -14250,6 +14394,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -14339,6 +14484,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -14349,6 +14495,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -14434,6 +14581,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -14532,6 +14680,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -14621,6 +14770,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -14710,6 +14860,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -14799,6 +14950,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -14888,6 +15040,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -14977,6 +15130,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -15066,6 +15220,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -15076,6 +15231,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -15161,6 +15317,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -15275,6 +15432,7 @@
             "arrow": "▼",
             "delta": -2.3,
             "deltaLabel": "-2.3pp",
+            "deltaReading": "2.3pp less",
             "label": "diverged 2.3 percentage points less"
           },
           "variants": []
@@ -15349,6 +15507,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -15423,6 +15582,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -15497,6 +15657,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -15571,6 +15732,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -15645,6 +15807,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -15719,6 +15882,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -15729,6 +15893,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -15814,6 +15979,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -15928,6 +16094,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "variants": []
@@ -16002,6 +16169,7 @@
             "arrow": "▲",
             "delta": 2.5,
             "deltaLabel": "+2.5pp",
+            "deltaReading": "2.5pp more",
             "label": "diverged 2.5 percentage points more"
           },
           "variants": []
@@ -16076,6 +16244,7 @@
             "arrow": "▲",
             "delta": 2.5,
             "deltaLabel": "+2.5pp",
+            "deltaReading": "2.5pp more",
             "label": "diverged 2.5 percentage points more"
           },
           "variants": []
@@ -16150,6 +16319,7 @@
             "arrow": "▲",
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
+            "deltaReading": "2.9pp more",
             "label": "diverged 2.9 percentage points more",
             "grade": {
               "from": "B",
@@ -16229,6 +16399,7 @@
             "arrow": "▼",
             "delta": -0.7,
             "deltaLabel": "-0.7pp",
+            "deltaReading": "0.7pp less",
             "label": "diverged 0.7 percentage points less"
           },
           "variants": []
@@ -16303,6 +16474,7 @@
             "arrow": "▼",
             "delta": -0.8,
             "deltaLabel": "-0.8pp",
+            "deltaReading": "0.8pp less",
             "label": "diverged 0.8 percentage points less"
           },
           "variants": []
@@ -16377,6 +16549,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "variants": []
@@ -16387,6 +16560,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "97.7%",
         "topDivergence": "2.3%",
@@ -16472,6 +16646,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -16586,6 +16761,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "variants": []
@@ -16660,6 +16836,7 @@
             "arrow": "▲",
             "delta": 0.3,
             "deltaLabel": "+0.3pp",
+            "deltaReading": "0.3pp more",
             "label": "diverged 0.3 percentage points more"
           },
           "variants": []
@@ -16734,6 +16911,7 @@
             "arrow": "▲",
             "delta": 0.4,
             "deltaLabel": "+0.4pp",
+            "deltaReading": "0.4pp more",
             "label": "diverged 0.4 percentage points more"
           },
           "variants": []
@@ -16808,6 +16986,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "variants": []
@@ -16882,6 +17061,7 @@
             "arrow": "▲",
             "delta": 0.3,
             "deltaLabel": "+0.3pp",
+            "deltaReading": "0.3pp more",
             "label": "diverged 0.3 percentage points more"
           },
           "variants": []
@@ -16956,6 +17136,7 @@
             "arrow": "▲",
             "delta": 0.3,
             "deltaLabel": "+0.3pp",
+            "deltaReading": "0.3pp more",
             "label": "diverged 0.3 percentage points more"
           },
           "variants": []
@@ -17030,6 +17211,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more",
             "grade": {
               "from": "C",
@@ -17045,6 +17227,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "98.5%",
         "topDivergence": "1.5%",
@@ -17130,6 +17313,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -17244,6 +17428,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -17318,6 +17503,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -17392,6 +17578,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -17466,6 +17653,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -17540,6 +17728,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -17614,6 +17803,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -17688,6 +17878,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -17698,6 +17889,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.1%",
         "topDivergence": "0.9%",
@@ -17783,6 +17975,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -17897,6 +18090,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "variants": []
@@ -17971,6 +18165,7 @@
             "arrow": "▲",
             "delta": 3,
             "deltaLabel": "+3.0pp",
+            "deltaReading": "3.0pp more",
             "label": "diverged 3.0 percentage points more"
           },
           "variants": []
@@ -18045,6 +18240,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "variants": []
@@ -18119,6 +18315,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "variants": []
@@ -18193,6 +18390,7 @@
             "arrow": "▲",
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
+            "deltaReading": "2.1pp more",
             "label": "diverged 2.1 percentage points more",
             "grade": {
               "from": "B",
@@ -18272,6 +18470,7 @@
             "arrow": "▲",
             "delta": 2.3,
             "deltaLabel": "+2.3pp",
+            "deltaReading": "2.3pp more",
             "label": "diverged 2.3 percentage points more"
           },
           "variants": []
@@ -18346,6 +18545,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "variants": []
@@ -18356,6 +18556,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.1%",
         "topDivergence": "0.9%",
@@ -18441,6 +18642,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -18555,6 +18757,7 @@
             "arrow": "▼",
             "delta": -5.4,
             "deltaLabel": "-5.4pp",
+            "deltaReading": "5.4pp less",
             "label": "diverged 5.4 percentage points less",
             "grade": {
               "from": "B",
@@ -18634,6 +18837,7 @@
             "arrow": "▲",
             "delta": 1.4,
             "deltaLabel": "+1.4pp",
+            "deltaReading": "1.4pp more",
             "label": "diverged 1.4 percentage points more"
           },
           "variants": []
@@ -18708,6 +18912,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -18782,6 +18987,7 @@
             "arrow": "▲",
             "delta": 1.8,
             "deltaLabel": "+1.8pp",
+            "deltaReading": "1.8pp more",
             "label": "diverged 1.8 percentage points more"
           },
           "variants": []
@@ -18856,6 +19062,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "variants": []
@@ -18930,6 +19137,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "variants": []
@@ -19004,6 +19212,7 @@
             "arrow": "▲",
             "delta": 1.9,
             "deltaLabel": "+1.9pp",
+            "deltaReading": "1.9pp more",
             "label": "diverged 1.9 percentage points more"
           },
           "variants": []
@@ -19014,6 +19223,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.7%",
         "topDivergence": "0.3%",
@@ -19099,6 +19309,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -19213,6 +19424,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more"
           },
           "variants": []
@@ -19287,6 +19499,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "variants": []
@@ -19361,6 +19574,7 @@
             "arrow": "▼",
             "delta": -2.4,
             "deltaLabel": "-2.4pp",
+            "deltaReading": "2.4pp less",
             "label": "diverged 2.4 percentage points less"
           },
           "variants": []
@@ -19435,6 +19649,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more"
           },
           "variants": []
@@ -19509,6 +19724,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -19583,6 +19799,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "variants": []
@@ -19657,6 +19874,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "variants": []
@@ -19667,6 +19885,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "B",
         "topTotal": "94.2%",
         "topDivergence": "5.6%",
@@ -19752,6 +19971,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -19866,6 +20086,7 @@
             "arrow": "▲",
             "delta": 3.5,
             "deltaLabel": "+3.5pp",
+            "deltaReading": "3.5pp more",
             "label": "diverged 3.5 percentage points more",
             "grade": {
               "from": "A",
@@ -19945,6 +20166,7 @@
             "arrow": "▲",
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
+            "deltaReading": "2.9pp more",
             "label": "diverged 2.9 percentage points more",
             "grade": {
               "from": "A",
@@ -20024,6 +20246,7 @@
             "arrow": "▲",
             "delta": 5.6,
             "deltaLabel": "+5.6pp",
+            "deltaReading": "5.6pp more",
             "label": "diverged 5.6 percentage points more",
             "grade": {
               "from": "A",
@@ -20103,6 +20326,7 @@
             "arrow": "▲",
             "delta": 3.5,
             "deltaLabel": "+3.5pp",
+            "deltaReading": "3.5pp more",
             "label": "diverged 3.5 percentage points more"
           },
           "variants": []
@@ -20177,6 +20401,7 @@
             "arrow": "▲",
             "delta": 2,
             "deltaLabel": "+2.0pp",
+            "deltaReading": "2.0pp more",
             "label": "diverged 2.0 percentage points more"
           },
           "variants": []
@@ -20251,6 +20476,7 @@
             "arrow": "▲",
             "delta": 1.9,
             "deltaLabel": "+1.9pp",
+            "deltaReading": "1.9pp more",
             "label": "diverged 1.9 percentage points more",
             "grade": {
               "from": "B",
@@ -20330,6 +20556,7 @@
             "arrow": "▲",
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
+            "deltaReading": "2.1pp more",
             "label": "diverged 2.1 percentage points more"
           },
           "variants": []
@@ -20340,6 +20567,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "B",
         "topTotal": "95.3%",
         "topDivergence": "4.6%",
@@ -20425,6 +20653,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -20539,6 +20768,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "variants": []
@@ -20613,6 +20843,7 @@
             "arrow": "▲",
             "delta": 0.4,
             "deltaLabel": "+0.4pp",
+            "deltaReading": "0.4pp more",
             "label": "diverged 0.4 percentage points more"
           },
           "variants": []
@@ -20687,6 +20918,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "variants": []
@@ -20761,6 +20993,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "variants": []
@@ -20835,6 +21068,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -20909,6 +21143,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -20983,6 +21218,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -20993,6 +21229,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "98.8%",
         "topDivergence": "1.1%",
@@ -21078,6 +21315,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -21192,6 +21430,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -21266,6 +21505,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -21340,6 +21580,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -21414,6 +21655,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -21488,6 +21730,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -21562,6 +21805,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -21636,6 +21880,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -21646,6 +21891,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.6%",
         "topDivergence": "0.4%",
@@ -21731,6 +21977,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -21845,6 +22092,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -21919,6 +22167,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -21993,6 +22242,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22067,6 +22317,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22141,6 +22392,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22215,6 +22467,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22289,6 +22542,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22299,6 +22553,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.6%",
         "topDivergence": "0.4%",
@@ -22384,6 +22639,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -22498,6 +22754,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22572,6 +22829,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22646,6 +22904,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22720,6 +22979,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22794,6 +23054,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22868,6 +23129,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22942,6 +23204,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -22952,6 +23215,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.6%",
         "topDivergence": "0.4%",
@@ -23037,6 +23301,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -23151,6 +23416,7 @@
             "arrow": "▲",
             "delta": 0.4,
             "deltaLabel": "+0.4pp",
+            "deltaReading": "0.4pp more",
             "label": "diverged 0.4 percentage points more"
           },
           "variants": []
@@ -23225,6 +23491,7 @@
             "arrow": "▼",
             "delta": -3.9,
             "deltaLabel": "-3.9pp",
+            "deltaReading": "3.9pp less",
             "label": "diverged 3.9 percentage points less",
             "grade": {
               "from": "B",
@@ -23304,6 +23571,7 @@
             "arrow": "▼",
             "delta": -10.4,
             "deltaLabel": "-10.4pp",
+            "deltaReading": "10.4pp less",
             "label": "diverged 10.4 percentage points less",
             "grade": {
               "from": "B",
@@ -23383,6 +23651,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -23457,6 +23726,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -23531,6 +23801,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -23605,6 +23876,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "variants": []
@@ -23615,6 +23887,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.6%",
         "topDivergence": "0.4%",
@@ -23700,6 +23973,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -23814,6 +24088,7 @@
             "arrow": "▼",
             "delta": -4.4,
             "deltaLabel": "-4.4pp",
+            "deltaReading": "4.4pp less",
             "label": "diverged 4.4 percentage points less",
             "grade": {
               "from": "B",
@@ -23893,6 +24168,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -23967,6 +24243,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "variants": []
@@ -24041,6 +24318,7 @@
             "arrow": "▼",
             "delta": -0.3,
             "deltaLabel": "-0.3pp",
+            "deltaReading": "0.3pp less",
             "label": "diverged 0.3 percentage points less"
           },
           "variants": []
@@ -24115,6 +24393,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -24189,6 +24468,7 @@
             "arrow": "▼",
             "delta": -21.3,
             "deltaLabel": "-21.3pp",
+            "deltaReading": "21.3pp less",
             "label": "diverged 21.3 percentage points less",
             "grade": {
               "from": "D",
@@ -24268,6 +24548,7 @@
             "arrow": "▼",
             "delta": -0.3,
             "deltaLabel": "-0.3pp",
+            "deltaReading": "0.3pp less",
             "label": "diverged 0.3 percentage points less"
           },
           "variants": []
@@ -24278,6 +24559,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -24363,6 +24645,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -24477,6 +24760,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more",
             "grade": {
               "from": "A",
@@ -24556,6 +24840,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more"
           },
           "variants": []
@@ -24630,6 +24915,7 @@
             "arrow": "▲",
             "delta": 1.2,
             "deltaLabel": "+1.2pp",
+            "deltaReading": "1.2pp more",
             "label": "diverged 1.2 percentage points more"
           },
           "variants": []
@@ -24704,6 +24990,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "variants": []
@@ -24778,6 +25065,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -24852,6 +25140,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "variants": []
@@ -24926,6 +25215,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "variants": []
@@ -24936,6 +25226,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "B",
         "topTotal": "95.5%",
         "topDivergence": "4.4%",
@@ -25021,6 +25312,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -25135,6 +25427,7 @@
             "arrow": "▲",
             "delta": 1.7,
             "deltaLabel": "+1.7pp",
+            "deltaReading": "1.7pp more",
             "label": "diverged 1.7 percentage points more"
           },
           "variants": []
@@ -25209,6 +25502,7 @@
             "arrow": "▲",
             "delta": 2,
             "deltaLabel": "+2.0pp",
+            "deltaReading": "2.0pp more",
             "label": "diverged 2.0 percentage points more",
             "grade": {
               "from": "A",
@@ -25288,6 +25582,7 @@
             "arrow": "▲",
             "delta": 1.7,
             "deltaLabel": "+1.7pp",
+            "deltaReading": "1.7pp more",
             "label": "diverged 1.7 percentage points more",
             "grade": {
               "from": "A",
@@ -25367,6 +25662,7 @@
             "arrow": "▲",
             "delta": 0.4,
             "deltaLabel": "+0.4pp",
+            "deltaReading": "0.4pp more",
             "label": "diverged 0.4 percentage points more"
           },
           "variants": []
@@ -25441,6 +25737,7 @@
             "arrow": "▲",
             "delta": 0.3,
             "deltaLabel": "+0.3pp",
+            "deltaReading": "0.3pp more",
             "label": "diverged 0.3 percentage points more"
           },
           "variants": []
@@ -25515,6 +25812,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "variants": []
@@ -25589,6 +25887,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "variants": []
@@ -25599,6 +25898,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "96.2%",
         "topDivergence": "3.8%",
@@ -25684,6 +25984,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -25798,6 +26099,7 @@
             "arrow": "▲",
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
+            "deltaReading": "2.1pp more",
             "label": "diverged 2.1 percentage points more",
             "grade": {
               "from": "A+",
@@ -25877,6 +26179,7 @@
             "arrow": "▲",
             "delta": 3,
             "deltaLabel": "+3.0pp",
+            "deltaReading": "3.0pp more",
             "label": "diverged 3.0 percentage points more"
           },
           "variants": []
@@ -25951,6 +26254,7 @@
             "arrow": "▲",
             "delta": 3,
             "deltaLabel": "+3.0pp",
+            "deltaReading": "3.0pp more",
             "label": "diverged 3.0 percentage points more"
           },
           "variants": []
@@ -26025,6 +26329,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "variants": []
@@ -26099,6 +26404,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "variants": []
@@ -26173,6 +26479,7 @@
             "arrow": "▼",
             "delta": -0.6,
             "deltaLabel": "-0.6pp",
+            "deltaReading": "0.6pp less",
             "label": "diverged 0.6 percentage points less"
           },
           "variants": []
@@ -26247,6 +26554,7 @@
             "arrow": "▲",
             "delta": 2.3,
             "deltaLabel": "+2.3pp",
+            "deltaReading": "2.3pp more",
             "label": "diverged 2.3 percentage points more"
           },
           "variants": []
@@ -26257,6 +26565,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "97.9%",
         "topDivergence": "2.1%",
@@ -26342,6 +26651,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -26456,6 +26766,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -26530,6 +26841,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "variants": []
@@ -26604,6 +26916,7 @@
             "arrow": "▼",
             "delta": -36.6,
             "deltaLabel": "-36.6pp",
+            "deltaReading": "36.6pp less",
             "label": "diverged 36.6 percentage points less",
             "grade": {
               "from": "F",
@@ -26683,6 +26996,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -26757,6 +27071,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -26831,6 +27146,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -26905,6 +27221,7 @@
             "arrow": "▼",
             "delta": -4.8,
             "deltaLabel": "-4.8pp",
+            "deltaReading": "4.8pp less",
             "label": "diverged 4.8 percentage points less",
             "grade": {
               "from": "F",
@@ -26920,6 +27237,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A+",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -27005,6 +27323,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -27119,6 +27438,7 @@
             "arrow": "▼",
             "delta": -1,
             "deltaLabel": "-1.0pp",
+            "deltaReading": "1.0pp less",
             "label": "diverged 1.0 percentage points less",
             "grade": {
               "from": "A",
@@ -27198,6 +27518,7 @@
             "arrow": "▲",
             "delta": 3.3,
             "deltaLabel": "+3.3pp",
+            "deltaReading": "3.3pp more",
             "label": "diverged 3.3 percentage points more"
           },
           "variants": []
@@ -27272,6 +27593,7 @@
             "arrow": "▲",
             "delta": 3.2,
             "deltaLabel": "+3.2pp",
+            "deltaReading": "3.2pp more",
             "label": "diverged 3.2 percentage points more"
           },
           "variants": []
@@ -27346,6 +27668,7 @@
             "arrow": "▲",
             "delta": 2.2,
             "deltaLabel": "+2.2pp",
+            "deltaReading": "2.2pp more",
             "label": "diverged 2.2 percentage points more"
           },
           "variants": []
@@ -27420,6 +27743,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "variants": []
@@ -27494,6 +27818,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "variants": []
@@ -27504,6 +27829,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A+",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -27589,6 +27915,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -27703,6 +28030,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more",
             "grade": {
               "from": "A+",
@@ -27782,6 +28110,7 @@
             "arrow": "▲",
             "delta": 1.2,
             "deltaLabel": "+1.2pp",
+            "deltaReading": "1.2pp more",
             "label": "diverged 1.2 percentage points more"
           },
           "variants": []
@@ -27856,6 +28185,7 @@
             "arrow": "▲",
             "delta": 1.2,
             "deltaLabel": "+1.2pp",
+            "deltaReading": "1.2pp more",
             "label": "diverged 1.2 percentage points more"
           },
           "variants": []
@@ -27930,6 +28260,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more",
             "grade": {
               "from": "B",
@@ -27945,6 +28276,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A",
         "topTotal": "99.0%",
         "topDivergence": "1.0%",
@@ -28030,6 +28362,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -28144,6 +28477,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -28218,6 +28552,7 @@
             "arrow": "▼",
             "delta": -0.6,
             "deltaLabel": "-0.6pp",
+            "deltaReading": "0.6pp less",
             "label": "diverged 0.6 percentage points less"
           },
           "variants": []
@@ -28292,6 +28627,7 @@
             "arrow": "▼",
             "delta": -0.6,
             "deltaLabel": "-0.6pp",
+            "deltaReading": "0.6pp less",
             "label": "diverged 0.6 percentage points less"
           },
           "variants": []
@@ -28366,6 +28702,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "variants": []
@@ -28376,6 +28713,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A+",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -28461,6 +28799,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -28575,6 +28914,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "not re-tested this run"
           },
           "variants": []
@@ -28649,6 +28989,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "variants": []
@@ -28723,6 +29064,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "not re-tested this run"
           },
           "variants": []
@@ -28797,6 +29139,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "not re-tested this run"
           },
           "variants": []
@@ -28807,6 +29150,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A+",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -28892,6 +29236,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           },
           "regionLabel": {
@@ -29006,6 +29351,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "variants": []
@@ -29080,6 +29426,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "variants": []
@@ -29154,6 +29501,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "variants": []
@@ -29228,6 +29576,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "variants": []
@@ -29238,6 +29587,7 @@
       "headline": {
         "topSlug": "dynoxide",
         "topDisplay": "Dynoxide",
+        "graded": false,
         "topGrade": "A+",
         "topTotal": "100.0%",
         "topDivergence": "0.0%",
@@ -29324,6 +29674,7 @@
           "arrow": "–",
           "delta": null,
           "deltaLabel": "–",
+          "deltaReading": "–",
           "label": "baseline - live AWS DynamoDB"
         },
         "regionLabel": {
@@ -29459,6 +29810,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": [
@@ -29553,6 +29905,7 @@
               "arrow": "–",
               "delta": null,
               "deltaLabel": "–",
+              "deltaReading": "–",
               "label": "not re-tested this run"
             }
           }
@@ -29649,6 +30002,7 @@
           "arrow": "–",
           "delta": null,
           "deltaLabel": "–",
+          "deltaReading": "–",
           "label": "not re-tested this run"
         }
       },
@@ -29768,6 +30122,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": []
@@ -29888,6 +30243,7 @@
           "arrow": "▼",
           "delta": -4.9,
           "deltaLabel": "-4.9pp",
+          "deltaReading": "4.9pp less",
           "label": "diverged 4.9 percentage points less",
           "grade": {
             "from": "C",
@@ -30009,6 +30365,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": []
@@ -30125,6 +30482,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": []
@@ -30241,6 +30599,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": []
@@ -30361,6 +30720,7 @@
           "arrow": "▼",
           "delta": -0.1,
           "deltaLabel": "-0.1pp",
+          "deltaReading": "0.1pp less",
           "label": "diverged 0.1 percentage points less"
         },
         "variants": []
@@ -30371,6 +30731,7 @@
     "headline": {
       "topSlug": "dynoxide",
       "topDisplay": "Dynoxide",
+      "graded": false,
       "topGrade": "A",
       "topTotal": "100.0%",
       "topDivergence": "0.0%",
@@ -30388,6 +30749,7 @@
       "arrow": "–",
       "delta": null,
       "deltaLabel": "–",
+      "deltaReading": "–",
       "label": "baseline - live AWS DynamoDB"
     },
     "dynoxide": {
@@ -30395,6 +30757,7 @@
       "arrow": "–",
       "delta": 0,
       "deltaLabel": "0.0pp",
+      "deltaReading": "0.0pp",
       "label": "unchanged"
     },
     "dynoxide-wasm": {
@@ -30402,6 +30765,7 @@
       "arrow": "–",
       "delta": null,
       "deltaLabel": "–",
+      "deltaReading": "–",
       "label": "not re-tested this run"
     },
     "extenddb": {
@@ -30409,6 +30773,7 @@
       "arrow": "–",
       "delta": 0,
       "deltaLabel": "0.0pp",
+      "deltaReading": "0.0pp",
       "label": "unchanged"
     },
     "ministack": {
@@ -30416,6 +30781,7 @@
       "arrow": "▼",
       "delta": -4.9,
       "deltaLabel": "-4.9pp",
+      "deltaReading": "4.9pp less",
       "label": "diverged 4.9 percentage points less",
       "grade": {
         "from": "C",
@@ -30428,6 +30794,7 @@
       "arrow": "–",
       "delta": 0,
       "deltaLabel": "0.0pp",
+      "deltaReading": "0.0pp",
       "label": "unchanged"
     },
     "localstack": {
@@ -30435,6 +30802,7 @@
       "arrow": "–",
       "delta": 0,
       "deltaLabel": "0.0pp",
+      "deltaReading": "0.0pp",
       "label": "unchanged"
     },
     "dynamodb-local": {
@@ -30442,6 +30810,7 @@
       "arrow": "–",
       "delta": 0,
       "deltaLabel": "0.0pp",
+      "deltaReading": "0.0pp",
       "label": "unchanged"
     },
     "floci": {
@@ -30449,6 +30818,7 @@
       "arrow": "▼",
       "delta": -0.1,
       "deltaLabel": "-0.1pp",
+      "deltaReading": "0.1pp less",
       "label": "diverged 0.1 percentage points less"
     }
   },
@@ -30459,6 +30829,7 @@
       "total": "88.8%",
       "arrow": "▼",
       "deltaLabel": "-4.9pp",
+      "deltaReading": "4.9pp less",
       "delta": -4.9,
       "state": "improved",
       "label": "diverged 4.9 percentage points less"
@@ -30469,6 +30840,7 @@
       "total": "79.0%",
       "arrow": "▼",
       "deltaLabel": "-0.1pp",
+      "deltaReading": "0.1pp less",
       "delta": -0.1,
       "state": "improved",
       "label": "diverged 0.1 percentage points less"
@@ -30583,6 +30955,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": [
@@ -30677,6 +31050,7 @@
               "arrow": "–",
               "delta": null,
               "deltaLabel": "–",
+              "deltaReading": "–",
               "label": "not re-tested this run"
             }
           }
@@ -30747,6 +31121,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "sha": "bf23bad68e27519cd31dae15a445e3aadd7e3c16"
@@ -30812,6 +31187,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8cb08ca29508028769802a996087ca2968e5a90d"
@@ -30877,6 +31253,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more",
             "grade": {
               "from": "A+",
@@ -30947,6 +31324,7 @@
             "arrow": "▼",
             "delta": -1,
             "deltaLabel": "-1.0pp",
+            "deltaReading": "1.0pp less",
             "label": "diverged 1.0 percentage points less",
             "grade": {
               "from": "A",
@@ -31017,6 +31395,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "853e186d8fc8c60177a81e314b862e0ce3be7cb7"
@@ -31082,6 +31461,7 @@
             "arrow": "▲",
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
+            "deltaReading": "2.1pp more",
             "label": "diverged 2.1 percentage points more",
             "grade": {
               "from": "A+",
@@ -31152,6 +31532,7 @@
             "arrow": "▲",
             "delta": 1.7,
             "deltaLabel": "+1.7pp",
+            "deltaReading": "1.7pp more",
             "label": "diverged 1.7 percentage points more"
           },
           "sha": "1c8a491df1fe02cb39aee43f864e06590850a234"
@@ -31217,6 +31598,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more",
             "grade": {
               "from": "A",
@@ -31287,6 +31669,7 @@
             "arrow": "▼",
             "delta": -4.4,
             "deltaLabel": "-4.4pp",
+            "deltaReading": "4.4pp less",
             "label": "diverged 4.4 percentage points less",
             "grade": {
               "from": "B",
@@ -31357,6 +31740,7 @@
             "arrow": "▲",
             "delta": 0.4,
             "deltaLabel": "+0.4pp",
+            "deltaReading": "0.4pp more",
             "label": "diverged 0.4 percentage points more"
           },
           "sha": "faa8b1c1a0b89851e4fc2c6fd65e39bb1cf68d28"
@@ -31422,6 +31806,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "bd4d46d28e27d9f0052c4e15668723777bc50c70"
@@ -31487,6 +31872,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8ef29b0ec9c65759497adab77e893a9dab7d3291"
@@ -31552,6 +31938,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "c090dc13d81ad05147056ea11258517e4615601a"
@@ -31617,6 +32004,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "sha": "eb8a03622669cdb1cbad693d442c877c5eca9d9d"
@@ -31682,6 +32070,7 @@
             "arrow": "▲",
             "delta": 3.5,
             "deltaLabel": "+3.5pp",
+            "deltaReading": "3.5pp more",
             "label": "diverged 3.5 percentage points more",
             "grade": {
               "from": "A",
@@ -31752,6 +32141,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more"
           },
           "sha": "34e25d2d3f3ef0edc8babb169c28dbddcebf8045"
@@ -31817,6 +32207,7 @@
             "arrow": "▼",
             "delta": -5.4,
             "deltaLabel": "-5.4pp",
+            "deltaReading": "5.4pp less",
             "label": "diverged 5.4 percentage points less",
             "grade": {
               "from": "B",
@@ -31887,6 +32278,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "sha": "4ecf3db34ab9a77df2ab38fa5b281594878fe8ba"
@@ -31952,6 +32344,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "31da7553589a483b5149c1a8b8014dbf627eb2c7"
@@ -32017,6 +32410,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "sha": "68e2a25267d295bfbe7cc83e475912879068bfeb"
@@ -32082,6 +32476,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "sha": "c944d9738334b23ebcec6fa6e8f35dbcba4acdd4"
@@ -32147,6 +32542,7 @@
             "arrow": "▼",
             "delta": -2.3,
             "deltaLabel": "-2.3pp",
+            "deltaReading": "2.3pp less",
             "label": "diverged 2.3 percentage points less"
           },
           "sha": "f23f825c8a67eec6aa4c30f18bb550a76f43dd0a"
@@ -32212,6 +32608,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "9c3036dc0b655c87448407965114b042d7843716"
@@ -32277,6 +32674,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "258031907eabf5e8ad378d27c21634e18bf0b2df"
@@ -32342,6 +32740,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "sha": "faadf31d6c2cb5b4169b5f7974dcd06993318f6f"
@@ -32407,6 +32806,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "63a309fd6a5e9c17d463b4a202d02879a839d7ad"
@@ -32472,6 +32872,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "dde2fcae15eb4cb6edf80319a6d7e7ab971fd59b"
@@ -32537,6 +32938,7 @@
             "arrow": "▲",
             "delta": 0.1,
             "deltaLabel": "+0.1pp",
+            "deltaReading": "0.1pp more",
             "label": "diverged 0.1 percentage points more"
           },
           "sha": "9c044c33d8cbe59c0d8de17471a1836ae1eaef3d"
@@ -32602,6 +33004,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "b37fe6b35fad8dd51b6504766bf3a6df185faf8e"
@@ -32667,6 +33070,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "67811ecd9007d6cd701f8cef18c422caf69a6747"
@@ -32732,6 +33136,7 @@
             "arrow": "▲",
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
+            "deltaReading": "2.9pp more",
             "label": "diverged 2.9 percentage points more"
           },
           "sha": "9e18ba720e2a6346276e29cf4432d7c29cd74aa0"
@@ -32797,6 +33202,7 @@
             "arrow": "▲",
             "delta": 1.5,
             "deltaLabel": "+1.5pp",
+            "deltaReading": "1.5pp more",
             "label": "diverged 1.5 percentage points more",
             "grade": {
               "from": "A",
@@ -32867,6 +33273,7 @@
             "arrow": "▼",
             "delta": -5.2,
             "deltaLabel": "-5.2pp",
+            "deltaReading": "5.2pp less",
             "label": "diverged 5.2 percentage points less",
             "grade": {
               "from": "B",
@@ -32937,6 +33344,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "773724cdb51f38c8bf850df80d3be7872fe3fd35"
@@ -33002,6 +33410,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "68e2ba5b7e34b729b6ff3c58c2e0f04a1dd7ec06"
@@ -33067,6 +33476,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "494ce3b181ab0542554bdbede49ca29267d3f2ee"
@@ -33132,6 +33542,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8bc419a7d5852acfad7a67ad472a12306d217487"
@@ -33197,6 +33608,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "findings": [],
@@ -35873,6 +36285,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": []
@@ -35942,6 +36355,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "sha": "bf23bad68e27519cd31dae15a445e3aadd7e3c16"
@@ -36007,6 +36421,7 @@
             "arrow": "▼",
             "delta": -0.6,
             "deltaLabel": "-0.6pp",
+            "deltaReading": "0.6pp less",
             "label": "diverged 0.6 percentage points less"
           },
           "sha": "8cb08ca29508028769802a996087ca2968e5a90d"
@@ -36072,6 +36487,7 @@
             "arrow": "▲",
             "delta": 1.2,
             "deltaLabel": "+1.2pp",
+            "deltaReading": "1.2pp more",
             "label": "diverged 1.2 percentage points more"
           },
           "sha": "df7cb9225f91e2103b205e2343b432ae80c5b991"
@@ -36137,6 +36553,7 @@
             "arrow": "▲",
             "delta": 3.2,
             "deltaLabel": "+3.2pp",
+            "deltaReading": "3.2pp more",
             "label": "diverged 3.2 percentage points more"
           },
           "sha": "8b1f994b550ff546eb76e168195c4b6cb3db971a"
@@ -36202,6 +36619,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "853e186d8fc8c60177a81e314b862e0ce3be7cb7"
@@ -36267,6 +36685,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "sha": "30e031c25bee53115c195d4801afce72c0aed437"
@@ -36332,6 +36751,7 @@
             "arrow": "▲",
             "delta": 0.3,
             "deltaLabel": "+0.3pp",
+            "deltaReading": "0.3pp more",
             "label": "diverged 0.3 percentage points more"
           },
           "sha": "1c8a491df1fe02cb39aee43f864e06590850a234"
@@ -36397,6 +36817,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "910029d72cdbd0d0254b3ec9e19d575153c737d6"
@@ -36462,6 +36883,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "6bb096a07b1e84da5ed9c4ae09d09e331f344581"
@@ -36527,6 +36949,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "faa8b1c1a0b89851e4fc2c6fd65e39bb1cf68d28"
@@ -36592,6 +37015,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "bd4d46d28e27d9f0052c4e15668723777bc50c70"
@@ -36657,6 +37081,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8ef29b0ec9c65759497adab77e893a9dab7d3291"
@@ -36722,6 +37147,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "c090dc13d81ad05147056ea11258517e4615601a"
@@ -36787,6 +37213,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "eb8a03622669cdb1cbad693d442c877c5eca9d9d"
@@ -36852,6 +37279,7 @@
             "arrow": "▲",
             "delta": 1.9,
             "deltaLabel": "+1.9pp",
+            "deltaReading": "1.9pp more",
             "label": "diverged 1.9 percentage points more",
             "grade": {
               "from": "B",
@@ -36922,6 +37350,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "sha": "34e25d2d3f3ef0edc8babb169c28dbddcebf8045"
@@ -36987,6 +37416,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "sha": "f2d81f3d111192a396cb02c7bdc4c316b2327b4a"
@@ -37052,6 +37482,7 @@
             "arrow": "▲",
             "delta": 2.3,
             "deltaLabel": "+2.3pp",
+            "deltaReading": "2.3pp more",
             "label": "diverged 2.3 percentage points more"
           },
           "sha": "4ecf3db34ab9a77df2ab38fa5b281594878fe8ba"
@@ -37117,6 +37548,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "31da7553589a483b5149c1a8b8014dbf627eb2c7"
@@ -37182,6 +37614,7 @@
             "arrow": "▲",
             "delta": 0.3,
             "deltaLabel": "+0.3pp",
+            "deltaReading": "0.3pp more",
             "label": "diverged 0.3 percentage points more"
           },
           "sha": "68e2a25267d295bfbe7cc83e475912879068bfeb"
@@ -37247,6 +37680,7 @@
             "arrow": "▼",
             "delta": -0.8,
             "deltaLabel": "-0.8pp",
+            "deltaReading": "0.8pp less",
             "label": "diverged 0.8 percentage points less"
           },
           "sha": "c944d9738334b23ebcec6fa6e8f35dbcba4acdd4"
@@ -37312,6 +37746,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "f23f825c8a67eec6aa4c30f18bb550a76f43dd0a"
@@ -37377,6 +37812,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "9c3036dc0b655c87448407965114b042d7843716"
@@ -37442,6 +37878,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "258031907eabf5e8ad378d27c21634e18bf0b2df"
@@ -37507,6 +37944,7 @@
             "arrow": "▼",
             "delta": -0.9,
             "deltaLabel": "-0.9pp",
+            "deltaReading": "0.9pp less",
             "label": "diverged 0.9 percentage points less"
           },
           "sha": "faadf31d6c2cb5b4169b5f7974dcd06993318f6f"
@@ -37572,6 +38010,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "63a309fd6a5e9c17d463b4a202d02879a839d7ad"
@@ -37637,6 +38076,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "dde2fcae15eb4cb6edf80319a6d7e7ab971fd59b"
@@ -37702,6 +38142,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "sha": "9c044c33d8cbe59c0d8de17471a1836ae1eaef3d"
@@ -37767,6 +38208,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "b37fe6b35fad8dd51b6504766bf3a6df185faf8e"
@@ -37832,6 +38274,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "67811ecd9007d6cd701f8cef18c422caf69a6747"
@@ -37897,6 +38340,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "9e18ba720e2a6346276e29cf4432d7c29cd74aa0"
@@ -37962,6 +38406,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "sha": "cb2f0e0a958bdec6638fb2e10394164908b8050b"
@@ -38027,6 +38472,7 @@
             "arrow": "▼",
             "delta": -0.9,
             "deltaLabel": "-0.9pp",
+            "deltaReading": "0.9pp less",
             "label": "diverged 0.9 percentage points less"
           },
           "sha": "f027afa1c345956f076d13c5b81c590343d8c1db"
@@ -38092,6 +38538,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "773724cdb51f38c8bf850df80d3be7872fe3fd35"
@@ -38157,6 +38604,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "68e2ba5b7e34b729b6ff3c58c2e0f04a1dd7ec06"
@@ -38222,6 +38670,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "494ce3b181ab0542554bdbede49ca29267d3f2ee"
@@ -38287,6 +38736,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8bc419a7d5852acfad7a67ad472a12306d217487"
@@ -38352,6 +38802,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "findings": [
@@ -46310,6 +46761,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": []
@@ -46379,6 +46831,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "sha": "bf23bad68e27519cd31dae15a445e3aadd7e3c16"
@@ -46444,6 +46897,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "sha": "8cb08ca29508028769802a996087ca2968e5a90d"
@@ -46509,6 +46963,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more",
             "grade": {
               "from": "B",
@@ -46579,6 +47034,7 @@
             "arrow": "▲",
             "delta": 2.2,
             "deltaLabel": "+2.2pp",
+            "deltaReading": "2.2pp more",
             "label": "diverged 2.2 percentage points more"
           },
           "sha": "8b1f994b550ff546eb76e168195c4b6cb3db971a"
@@ -46644,6 +47100,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "853e186d8fc8c60177a81e314b862e0ce3be7cb7"
@@ -46709,6 +47166,7 @@
             "arrow": "▼",
             "delta": -0.6,
             "deltaLabel": "-0.6pp",
+            "deltaReading": "0.6pp less",
             "label": "diverged 0.6 percentage points less"
           },
           "sha": "30e031c25bee53115c195d4801afce72c0aed437"
@@ -46774,6 +47232,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "sha": "1c8a491df1fe02cb39aee43f864e06590850a234"
@@ -46839,6 +47298,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "sha": "910029d72cdbd0d0254b3ec9e19d575153c737d6"
@@ -46904,6 +47364,7 @@
             "arrow": "▼",
             "delta": -0.3,
             "deltaLabel": "-0.3pp",
+            "deltaReading": "0.3pp less",
             "label": "diverged 0.3 percentage points less"
           },
           "sha": "6bb096a07b1e84da5ed9c4ae09d09e331f344581"
@@ -46969,6 +47430,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "sha": "faa8b1c1a0b89851e4fc2c6fd65e39bb1cf68d28"
@@ -47034,6 +47496,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "bd4d46d28e27d9f0052c4e15668723777bc50c70"
@@ -47099,6 +47562,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8ef29b0ec9c65759497adab77e893a9dab7d3291"
@@ -47164,6 +47628,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "c090dc13d81ad05147056ea11258517e4615601a"
@@ -47229,6 +47694,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "eb8a03622669cdb1cbad693d442c877c5eca9d9d"
@@ -47294,6 +47760,7 @@
             "arrow": "▲",
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
+            "deltaReading": "2.1pp more",
             "label": "diverged 2.1 percentage points more"
           },
           "sha": "9d77d6a9da56d6a50fd47db2d0a82d75b830bdf3"
@@ -47359,6 +47826,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "sha": "34e25d2d3f3ef0edc8babb169c28dbddcebf8045"
@@ -47424,6 +47892,7 @@
             "arrow": "▲",
             "delta": 1.9,
             "deltaLabel": "+1.9pp",
+            "deltaReading": "1.9pp more",
             "label": "diverged 1.9 percentage points more"
           },
           "sha": "f2d81f3d111192a396cb02c7bdc4c316b2327b4a"
@@ -47489,6 +47958,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "sha": "4ecf3db34ab9a77df2ab38fa5b281594878fe8ba"
@@ -47554,6 +48024,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "31da7553589a483b5149c1a8b8014dbf627eb2c7"
@@ -47619,6 +48090,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more",
             "grade": {
               "from": "C",
@@ -47689,6 +48161,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "sha": "c944d9738334b23ebcec6fa6e8f35dbcba4acdd4"
@@ -47754,6 +48227,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "f23f825c8a67eec6aa4c30f18bb550a76f43dd0a"
@@ -47819,6 +48293,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "9c3036dc0b655c87448407965114b042d7843716"
@@ -47884,6 +48359,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "258031907eabf5e8ad378d27c21634e18bf0b2df"
@@ -47949,6 +48425,7 @@
             "arrow": "▼",
             "delta": -0.5,
             "deltaLabel": "-0.5pp",
+            "deltaReading": "0.5pp less",
             "label": "diverged 0.5 percentage points less",
             "grade": {
               "from": "D",
@@ -48019,6 +48496,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "63a309fd6a5e9c17d463b4a202d02879a839d7ad"
@@ -48084,6 +48562,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "dde2fcae15eb4cb6edf80319a6d7e7ab971fd59b"
@@ -48149,6 +48628,7 @@
             "arrow": "▼",
             "delta": -0.3,
             "deltaLabel": "-0.3pp",
+            "deltaReading": "0.3pp less",
             "label": "diverged 0.3 percentage points less"
           },
           "sha": "9c044c33d8cbe59c0d8de17471a1836ae1eaef3d"
@@ -48214,6 +48694,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "b37fe6b35fad8dd51b6504766bf3a6df185faf8e"
@@ -48279,6 +48760,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "67811ecd9007d6cd701f8cef18c422caf69a6747"
@@ -48344,6 +48826,7 @@
             "arrow": "▼",
             "delta": -0.6,
             "deltaLabel": "-0.6pp",
+            "deltaReading": "0.6pp less",
             "label": "diverged 0.6 percentage points less"
           },
           "sha": "9e18ba720e2a6346276e29cf4432d7c29cd74aa0"
@@ -48409,6 +48892,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less",
             "grade": {
               "from": "C",
@@ -48479,6 +48963,7 @@
             "arrow": "▼",
             "delta": -9,
             "deltaLabel": "-9.0pp",
+            "deltaReading": "9.0pp less",
             "label": "diverged 9.0 percentage points less",
             "grade": {
               "from": "D",
@@ -48549,6 +49034,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "773724cdb51f38c8bf850df80d3be7872fe3fd35"
@@ -48614,6 +49100,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "68e2ba5b7e34b729b6ff3c58c2e0f04a1dd7ec06"
@@ -48679,6 +49166,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "494ce3b181ab0542554bdbede49ca29267d3f2ee"
@@ -48744,6 +49232,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8bc419a7d5852acfad7a67ad472a12306d217487"
@@ -48809,6 +49298,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "findings": [
@@ -55858,6 +56348,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": []
@@ -55927,6 +56418,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "sha": "bf23bad68e27519cd31dae15a445e3aadd7e3c16"
@@ -55992,6 +56484,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "d3f0bf1d0ea6c687200ebdd91f091afc81911f21"
@@ -56057,6 +56550,7 @@
             "arrow": "▼",
             "delta": -0.6,
             "deltaLabel": "-0.6pp",
+            "deltaReading": "0.6pp less",
             "label": "diverged 0.6 percentage points less"
           },
           "sha": "8cb08ca29508028769802a996087ca2968e5a90d"
@@ -56122,6 +56616,7 @@
             "arrow": "▲",
             "delta": 1.2,
             "deltaLabel": "+1.2pp",
+            "deltaReading": "1.2pp more",
             "label": "diverged 1.2 percentage points more"
           },
           "sha": "df7cb9225f91e2103b205e2343b432ae80c5b991"
@@ -56187,6 +56682,7 @@
             "arrow": "▲",
             "delta": 3.3,
             "deltaLabel": "+3.3pp",
+            "deltaReading": "3.3pp more",
             "label": "diverged 3.3 percentage points more"
           },
           "sha": "8b1f994b550ff546eb76e168195c4b6cb3db971a"
@@ -56252,6 +56748,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "853e186d8fc8c60177a81e314b862e0ce3be7cb7"
@@ -56317,6 +56814,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "sha": "30e031c25bee53115c195d4801afce72c0aed437"
@@ -56382,6 +56880,7 @@
             "arrow": "▲",
             "delta": 0.4,
             "deltaLabel": "+0.4pp",
+            "deltaReading": "0.4pp more",
             "label": "diverged 0.4 percentage points more"
           },
           "sha": "1c8a491df1fe02cb39aee43f864e06590850a234"
@@ -56447,6 +56946,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "sha": "910029d72cdbd0d0254b3ec9e19d575153c737d6"
@@ -56512,6 +57012,7 @@
             "arrow": "▼",
             "delta": -0.3,
             "deltaLabel": "-0.3pp",
+            "deltaReading": "0.3pp less",
             "label": "diverged 0.3 percentage points less"
           },
           "sha": "6bb096a07b1e84da5ed9c4ae09d09e331f344581"
@@ -56577,6 +57078,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "faa8b1c1a0b89851e4fc2c6fd65e39bb1cf68d28"
@@ -56642,6 +57144,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "bd4d46d28e27d9f0052c4e15668723777bc50c70"
@@ -56707,6 +57210,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8ef29b0ec9c65759497adab77e893a9dab7d3291"
@@ -56772,6 +57276,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "c090dc13d81ad05147056ea11258517e4615601a"
@@ -56837,6 +57342,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "eb8a03622669cdb1cbad693d442c877c5eca9d9d"
@@ -56902,6 +57408,7 @@
             "arrow": "▲",
             "delta": 2,
             "deltaLabel": "+2.0pp",
+            "deltaReading": "2.0pp more",
             "label": "diverged 2.0 percentage points more"
           },
           "sha": "9d77d6a9da56d6a50fd47db2d0a82d75b830bdf3"
@@ -56967,6 +57474,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "34e25d2d3f3ef0edc8babb169c28dbddcebf8045"
@@ -57032,6 +57540,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "sha": "f2d81f3d111192a396cb02c7bdc4c316b2327b4a"
@@ -57097,6 +57606,7 @@
             "arrow": "▲",
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
+            "deltaReading": "2.1pp more",
             "label": "diverged 2.1 percentage points more",
             "grade": {
               "from": "B",
@@ -57167,6 +57677,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "31da7553589a483b5149c1a8b8014dbf627eb2c7"
@@ -57232,6 +57743,7 @@
             "arrow": "▲",
             "delta": 0.3,
             "deltaLabel": "+0.3pp",
+            "deltaReading": "0.3pp more",
             "label": "diverged 0.3 percentage points more"
           },
           "sha": "68e2a25267d295bfbe7cc83e475912879068bfeb"
@@ -57297,6 +57809,7 @@
             "arrow": "▼",
             "delta": -0.7,
             "deltaLabel": "-0.7pp",
+            "deltaReading": "0.7pp less",
             "label": "diverged 0.7 percentage points less"
           },
           "sha": "c944d9738334b23ebcec6fa6e8f35dbcba4acdd4"
@@ -57362,6 +57875,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "f23f825c8a67eec6aa4c30f18bb550a76f43dd0a"
@@ -57427,6 +57941,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "9c3036dc0b655c87448407965114b042d7843716"
@@ -57492,6 +58007,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "258031907eabf5e8ad378d27c21634e18bf0b2df"
@@ -57557,6 +58073,7 @@
             "arrow": "▼",
             "delta": -0.8,
             "deltaLabel": "-0.8pp",
+            "deltaReading": "0.8pp less",
             "label": "diverged 0.8 percentage points less"
           },
           "sha": "faadf31d6c2cb5b4169b5f7974dcd06993318f6f"
@@ -57622,6 +58139,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "63a309fd6a5e9c17d463b4a202d02879a839d7ad"
@@ -57687,6 +58205,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "dde2fcae15eb4cb6edf80319a6d7e7ab971fd59b"
@@ -57752,6 +58271,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "sha": "9c044c33d8cbe59c0d8de17471a1836ae1eaef3d"
@@ -57817,6 +58337,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "b37fe6b35fad8dd51b6504766bf3a6df185faf8e"
@@ -57882,6 +58403,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "67811ecd9007d6cd701f8cef18c422caf69a6747"
@@ -57947,6 +58469,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "9e18ba720e2a6346276e29cf4432d7c29cd74aa0"
@@ -58012,6 +58535,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more"
           },
           "sha": "cb2f0e0a958bdec6638fb2e10394164908b8050b"
@@ -58077,6 +58601,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "f027afa1c345956f076d13c5b81c590343d8c1db"
@@ -58142,6 +58667,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "773724cdb51f38c8bf850df80d3be7872fe3fd35"
@@ -58207,6 +58733,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "68e2ba5b7e34b729b6ff3c58c2e0f04a1dd7ec06"
@@ -58272,6 +58799,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "494ce3b181ab0542554bdbede49ca29267d3f2ee"
@@ -58337,6 +58865,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8bc419a7d5852acfad7a67ad472a12306d217487"
@@ -58402,6 +58931,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "findings": [
@@ -66256,6 +66786,7 @@
           "arrow": "▼",
           "delta": -0.1,
           "deltaLabel": "-0.1pp",
+          "deltaReading": "0.1pp less",
           "label": "diverged 0.1 percentage points less"
         },
         "variants": []
@@ -66325,6 +66856,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "sha": "8b1f994b550ff546eb76e168195c4b6cb3db971a"
@@ -66390,6 +66922,7 @@
             "arrow": "▼",
             "delta": -36.6,
             "deltaLabel": "-36.6pp",
+            "deltaReading": "36.6pp less",
             "label": "diverged 36.6 percentage points less",
             "grade": {
               "from": "F",
@@ -66460,6 +66993,7 @@
             "arrow": "▲",
             "delta": 3,
             "deltaLabel": "+3.0pp",
+            "deltaReading": "3.0pp more",
             "label": "diverged 3.0 percentage points more"
           },
           "sha": "30e031c25bee53115c195d4801afce72c0aed437"
@@ -66525,6 +67059,7 @@
             "arrow": "▲",
             "delta": 1.7,
             "deltaLabel": "+1.7pp",
+            "deltaReading": "1.7pp more",
             "label": "diverged 1.7 percentage points more",
             "grade": {
               "from": "A",
@@ -66595,6 +67130,7 @@
             "arrow": "▲",
             "delta": 1.2,
             "deltaLabel": "+1.2pp",
+            "deltaReading": "1.2pp more",
             "label": "diverged 1.2 percentage points more"
           },
           "sha": "910029d72cdbd0d0254b3ec9e19d575153c737d6"
@@ -66660,6 +67196,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "sha": "6bb096a07b1e84da5ed9c4ae09d09e331f344581"
@@ -66725,6 +67262,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "faa8b1c1a0b89851e4fc2c6fd65e39bb1cf68d28"
@@ -66790,6 +67328,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "bd4d46d28e27d9f0052c4e15668723777bc50c70"
@@ -66855,6 +67394,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8ef29b0ec9c65759497adab77e893a9dab7d3291"
@@ -66920,6 +67460,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "c090dc13d81ad05147056ea11258517e4615601a"
@@ -66985,6 +67526,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "sha": "eb8a03622669cdb1cbad693d442c877c5eca9d9d"
@@ -67050,6 +67592,7 @@
             "arrow": "▲",
             "delta": 3.5,
             "deltaLabel": "+3.5pp",
+            "deltaReading": "3.5pp more",
             "label": "diverged 3.5 percentage points more"
           },
           "sha": "9d77d6a9da56d6a50fd47db2d0a82d75b830bdf3"
@@ -67115,6 +67658,7 @@
             "arrow": "▼",
             "delta": -2.4,
             "deltaLabel": "-2.4pp",
+            "deltaReading": "2.4pp less",
             "label": "diverged 2.4 percentage points less"
           },
           "sha": "34e25d2d3f3ef0edc8babb169c28dbddcebf8045"
@@ -67180,6 +67724,7 @@
             "arrow": "▲",
             "delta": 1.8,
             "deltaLabel": "+1.8pp",
+            "deltaReading": "1.8pp more",
             "label": "diverged 1.8 percentage points more"
           },
           "sha": "f2d81f3d111192a396cb02c7bdc4c316b2327b4a"
@@ -67245,6 +67790,7 @@
             "arrow": "▲",
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
+            "deltaReading": "0.9pp more",
             "label": "diverged 0.9 percentage points more"
           },
           "sha": "4ecf3db34ab9a77df2ab38fa5b281594878fe8ba"
@@ -67310,6 +67856,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "31da7553589a483b5149c1a8b8014dbf627eb2c7"
@@ -67375,6 +67922,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "sha": "68e2a25267d295bfbe7cc83e475912879068bfeb"
@@ -67440,6 +67988,7 @@
             "arrow": "▲",
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
+            "deltaReading": "2.9pp more",
             "label": "diverged 2.9 percentage points more",
             "grade": {
               "from": "B",
@@ -67510,6 +68059,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "f23f825c8a67eec6aa4c30f18bb550a76f43dd0a"
@@ -67575,6 +68125,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "9c3036dc0b655c87448407965114b042d7843716"
@@ -67640,6 +68191,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "258031907eabf5e8ad378d27c21634e18bf0b2df"
@@ -67705,6 +68257,7 @@
             "arrow": "▲",
             "delta": 2.6,
             "deltaLabel": "+2.6pp",
+            "deltaReading": "2.6pp more",
             "label": "diverged 2.6 percentage points more"
           },
           "sha": "faadf31d6c2cb5b4169b5f7974dcd06993318f6f"
@@ -67770,6 +68323,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "63a309fd6a5e9c17d463b4a202d02879a839d7ad"
@@ -67835,6 +68389,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "dde2fcae15eb4cb6edf80319a6d7e7ab971fd59b"
@@ -67900,6 +68455,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "9c044c33d8cbe59c0d8de17471a1836ae1eaef3d"
@@ -67965,6 +68521,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "b37fe6b35fad8dd51b6504766bf3a6df185faf8e"
@@ -68030,6 +68587,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "67811ecd9007d6cd701f8cef18c422caf69a6747"
@@ -68095,6 +68653,7 @@
             "arrow": "▲",
             "delta": 2,
             "deltaLabel": "+2.0pp",
+            "deltaReading": "2.0pp more",
             "label": "diverged 2.0 percentage points more"
           },
           "sha": "9e18ba720e2a6346276e29cf4432d7c29cd74aa0"
@@ -68160,6 +68719,7 @@
             "arrow": "▲",
             "delta": 1.3,
             "deltaLabel": "+1.3pp",
+            "deltaReading": "1.3pp more",
             "label": "diverged 1.3 percentage points more"
           },
           "sha": "cb2f0e0a958bdec6638fb2e10394164908b8050b"
@@ -68225,6 +68785,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "f027afa1c345956f076d13c5b81c590343d8c1db"
@@ -68290,6 +68851,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "773724cdb51f38c8bf850df80d3be7872fe3fd35"
@@ -68355,6 +68917,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "68e2ba5b7e34b729b6ff3c58c2e0f04a1dd7ec06"
@@ -68420,6 +68983,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "494ce3b181ab0542554bdbede49ca29267d3f2ee"
@@ -68485,6 +69049,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8bc419a7d5852acfad7a67ad472a12306d217487"
@@ -68550,6 +69115,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "findings": [
@@ -78118,6 +78684,7 @@
           "arrow": "▼",
           "delta": -4.9,
           "deltaLabel": "-4.9pp",
+          "deltaReading": "4.9pp less",
           "label": "diverged 4.9 percentage points less",
           "grade": {
             "from": "C",
@@ -78192,6 +78759,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "sha": "8b1f994b550ff546eb76e168195c4b6cb3db971a"
@@ -78257,6 +78825,7 @@
             "arrow": "▼",
             "delta": -4.8,
             "deltaLabel": "-4.8pp",
+            "deltaReading": "4.8pp less",
             "label": "diverged 4.8 percentage points less",
             "grade": {
               "from": "F",
@@ -78327,6 +78896,7 @@
             "arrow": "▲",
             "delta": 2.3,
             "deltaLabel": "+2.3pp",
+            "deltaReading": "2.3pp more",
             "label": "diverged 2.3 percentage points more"
           },
           "sha": "30e031c25bee53115c195d4801afce72c0aed437"
@@ -78392,6 +78962,7 @@
             "arrow": "▲",
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
+            "deltaReading": "0.6pp more",
             "label": "diverged 0.6 percentage points more"
           },
           "sha": "1c8a491df1fe02cb39aee43f864e06590850a234"
@@ -78457,6 +79028,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "910029d72cdbd0d0254b3ec9e19d575153c737d6"
@@ -78522,6 +79094,7 @@
             "arrow": "▼",
             "delta": -21.3,
             "deltaLabel": "-21.3pp",
+            "deltaReading": "21.3pp less",
             "label": "diverged 21.3 percentage points less",
             "grade": {
               "from": "D",
@@ -78592,6 +79165,7 @@
             "arrow": "▼",
             "delta": -10.4,
             "deltaLabel": "-10.4pp",
+            "deltaReading": "10.4pp less",
             "label": "diverged 10.4 percentage points less",
             "grade": {
               "from": "B",
@@ -78662,6 +79236,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "bd4d46d28e27d9f0052c4e15668723777bc50c70"
@@ -78727,6 +79302,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8ef29b0ec9c65759497adab77e893a9dab7d3291"
@@ -78792,6 +79368,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "c090dc13d81ad05147056ea11258517e4615601a"
@@ -78857,6 +79434,7 @@
             "arrow": "▲",
             "delta": 0.8,
             "deltaLabel": "+0.8pp",
+            "deltaReading": "0.8pp more",
             "label": "diverged 0.8 percentage points more"
           },
           "sha": "eb8a03622669cdb1cbad693d442c877c5eca9d9d"
@@ -78922,6 +79500,7 @@
             "arrow": "▲",
             "delta": 5.6,
             "deltaLabel": "+5.6pp",
+            "deltaReading": "5.6pp more",
             "label": "diverged 5.6 percentage points more",
             "grade": {
               "from": "A",
@@ -78992,6 +79571,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more"
           },
           "sha": "34e25d2d3f3ef0edc8babb169c28dbddcebf8045"
@@ -79057,6 +79637,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "f2d81f3d111192a396cb02c7bdc4c316b2327b4a"
@@ -79122,6 +79703,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "sha": "4ecf3db34ab9a77df2ab38fa5b281594878fe8ba"
@@ -79187,6 +79769,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "31da7553589a483b5149c1a8b8014dbf627eb2c7"
@@ -79252,6 +79835,7 @@
             "arrow": "▲",
             "delta": 0.4,
             "deltaLabel": "+0.4pp",
+            "deltaReading": "0.4pp more",
             "label": "diverged 0.4 percentage points more"
           },
           "sha": "68e2a25267d295bfbe7cc83e475912879068bfeb"
@@ -79317,6 +79901,7 @@
             "arrow": "▲",
             "delta": 2.5,
             "deltaLabel": "+2.5pp",
+            "deltaReading": "2.5pp more",
             "label": "diverged 2.5 percentage points more"
           },
           "sha": "c944d9738334b23ebcec6fa6e8f35dbcba4acdd4"
@@ -79382,6 +79967,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "f23f825c8a67eec6aa4c30f18bb550a76f43dd0a"
@@ -79447,6 +80033,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "9c3036dc0b655c87448407965114b042d7843716"
@@ -79512,6 +80099,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "258031907eabf5e8ad378d27c21634e18bf0b2df"
@@ -79577,6 +80165,7 @@
             "arrow": "▲",
             "delta": 1.1,
             "deltaLabel": "+1.1pp",
+            "deltaReading": "1.1pp more",
             "label": "diverged 1.1 percentage points more"
           },
           "sha": "faadf31d6c2cb5b4169b5f7974dcd06993318f6f"
@@ -79642,6 +80231,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "63a309fd6a5e9c17d463b4a202d02879a839d7ad"
@@ -79707,6 +80297,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "dde2fcae15eb4cb6edf80319a6d7e7ab971fd59b"
@@ -79772,6 +80363,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "9c044c33d8cbe59c0d8de17471a1836ae1eaef3d"
@@ -79837,6 +80429,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "b37fe6b35fad8dd51b6504766bf3a6df185faf8e"
@@ -79902,6 +80495,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "67811ecd9007d6cd701f8cef18c422caf69a6747"
@@ -79967,6 +80561,7 @@
             "arrow": "▲",
             "delta": 2.3,
             "deltaLabel": "+2.3pp",
+            "deltaReading": "2.3pp more",
             "label": "diverged 2.3 percentage points more",
             "grade": {
               "from": "B",
@@ -80037,6 +80632,7 @@
             "arrow": "▲",
             "delta": 1.3,
             "deltaLabel": "+1.3pp",
+            "deltaReading": "1.3pp more",
             "label": "diverged 1.3 percentage points more"
           },
           "sha": "cb2f0e0a958bdec6638fb2e10394164908b8050b"
@@ -80102,6 +80698,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "f027afa1c345956f076d13c5b81c590343d8c1db"
@@ -80167,6 +80764,7 @@
             "arrow": "▼",
             "delta": -2.1,
             "deltaLabel": "-2.1pp",
+            "deltaReading": "2.1pp less",
             "label": "diverged 2.1 percentage points less"
           },
           "sha": "773724cdb51f38c8bf850df80d3be7872fe3fd35"
@@ -80232,6 +80830,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "68e2ba5b7e34b729b6ff3c58c2e0f04a1dd7ec06"
@@ -80297,6 +80896,7 @@
             "arrow": "▲",
             "delta": 0.2,
             "deltaLabel": "+0.2pp",
+            "deltaReading": "0.2pp more",
             "label": "diverged 0.2 percentage points more"
           },
           "sha": "494ce3b181ab0542554bdbede49ca29267d3f2ee"
@@ -80362,6 +80962,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8bc419a7d5852acfad7a67ad472a12306d217487"
@@ -80427,6 +81028,7 @@
             "arrow": "▼",
             "delta": -4.9,
             "deltaLabel": "-4.9pp",
+            "deltaReading": "4.9pp less",
             "label": "diverged 4.9 percentage points less",
             "grade": {
               "from": "C",
@@ -86871,6 +87473,7 @@
           "arrow": "–",
           "delta": 0,
           "deltaLabel": "0.0pp",
+          "deltaReading": "0.0pp",
           "label": "unchanged"
         },
         "variants": []
@@ -86940,6 +87543,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "sha": "853e186d8fc8c60177a81e314b862e0ce3be7cb7"
@@ -87005,6 +87609,7 @@
             "arrow": "▲",
             "delta": 3,
             "deltaLabel": "+3.0pp",
+            "deltaReading": "3.0pp more",
             "label": "diverged 3.0 percentage points more"
           },
           "sha": "30e031c25bee53115c195d4801afce72c0aed437"
@@ -87070,6 +87675,7 @@
             "arrow": "▲",
             "delta": 2,
             "deltaLabel": "+2.0pp",
+            "deltaReading": "2.0pp more",
             "label": "diverged 2.0 percentage points more",
             "grade": {
               "from": "A",
@@ -87140,6 +87746,7 @@
             "arrow": "▲",
             "delta": 1,
             "deltaLabel": "+1.0pp",
+            "deltaReading": "1.0pp more",
             "label": "diverged 1.0 percentage points more"
           },
           "sha": "910029d72cdbd0d0254b3ec9e19d575153c737d6"
@@ -87205,6 +87812,7 @@
             "arrow": "▼",
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
+            "deltaReading": "0.1pp less",
             "label": "diverged 0.1 percentage points less"
           },
           "sha": "6bb096a07b1e84da5ed9c4ae09d09e331f344581"
@@ -87270,6 +87878,7 @@
             "arrow": "▼",
             "delta": -3.9,
             "deltaLabel": "-3.9pp",
+            "deltaReading": "3.9pp less",
             "label": "diverged 3.9 percentage points less",
             "grade": {
               "from": "B",
@@ -87340,6 +87949,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "bd4d46d28e27d9f0052c4e15668723777bc50c70"
@@ -87405,6 +88015,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "8ef29b0ec9c65759497adab77e893a9dab7d3291"
@@ -87470,6 +88081,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "c090dc13d81ad05147056ea11258517e4615601a"
@@ -87535,6 +88147,7 @@
             "arrow": "▲",
             "delta": 0.4,
             "deltaLabel": "+0.4pp",
+            "deltaReading": "0.4pp more",
             "label": "diverged 0.4 percentage points more"
           },
           "sha": "eb8a03622669cdb1cbad693d442c877c5eca9d9d"
@@ -87600,6 +88213,7 @@
             "arrow": "▲",
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
+            "deltaReading": "2.9pp more",
             "label": "diverged 2.9 percentage points more",
             "grade": {
               "from": "A",
@@ -87670,6 +88284,7 @@
             "arrow": "▲",
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
+            "deltaReading": "0.7pp more",
             "label": "diverged 0.7 percentage points more"
           },
           "sha": "34e25d2d3f3ef0edc8babb169c28dbddcebf8045"
@@ -87735,6 +88350,7 @@
             "arrow": "▲",
             "delta": 1.4,
             "deltaLabel": "+1.4pp",
+            "deltaReading": "1.4pp more",
             "label": "diverged 1.4 percentage points more"
           },
           "sha": "f2d81f3d111192a396cb02c7bdc4c316b2327b4a"
@@ -87800,6 +88416,7 @@
             "arrow": "▲",
             "delta": 3,
             "deltaLabel": "+3.0pp",
+            "deltaReading": "3.0pp more",
             "label": "diverged 3.0 percentage points more"
           },
           "sha": "4ecf3db34ab9a77df2ab38fa5b281594878fe8ba"
@@ -87865,6 +88482,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "31da7553589a483b5149c1a8b8014dbf627eb2c7"
@@ -87930,6 +88548,7 @@
             "arrow": "▲",
             "delta": 0.3,
             "deltaLabel": "+0.3pp",
+            "deltaReading": "0.3pp more",
             "label": "diverged 0.3 percentage points more"
           },
           "sha": "68e2a25267d295bfbe7cc83e475912879068bfeb"
@@ -87995,6 +88614,7 @@
             "arrow": "▲",
             "delta": 2.5,
             "deltaLabel": "+2.5pp",
+            "deltaReading": "2.5pp more",
             "label": "diverged 2.5 percentage points more"
           },
           "sha": "c944d9738334b23ebcec6fa6e8f35dbcba4acdd4"
@@ -88060,6 +88680,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "f23f825c8a67eec6aa4c30f18bb550a76f43dd0a"
@@ -88125,6 +88746,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "9c3036dc0b655c87448407965114b042d7843716"
@@ -88190,6 +88812,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "258031907eabf5e8ad378d27c21634e18bf0b2df"
@@ -88255,6 +88878,7 @@
             "arrow": "▲",
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
+            "deltaReading": "2.9pp more",
             "label": "diverged 2.9 percentage points more",
             "grade": {
               "from": "B",
@@ -88325,6 +88949,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "63a309fd6a5e9c17d463b4a202d02879a839d7ad"
@@ -88390,6 +89015,7 @@
             "arrow": "▲",
             "delta": 0.1,
             "deltaLabel": "+0.1pp",
+            "deltaReading": "0.1pp more",
             "label": "diverged 0.1 percentage points more"
           },
           "sha": "dde2fcae15eb4cb6edf80319a6d7e7ab971fd59b"
@@ -88455,6 +89081,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "sha": "9c044c33d8cbe59c0d8de17471a1836ae1eaef3d"
@@ -88520,6 +89147,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "b37fe6b35fad8dd51b6504766bf3a6df185faf8e"
@@ -88585,6 +89213,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "67811ecd9007d6cd701f8cef18c422caf69a6747"
@@ -88650,6 +89279,7 @@
             "arrow": "▼",
             "delta": -0.5,
             "deltaLabel": "-0.5pp",
+            "deltaReading": "0.5pp less",
             "label": "diverged 0.5 percentage points less"
           },
           "sha": "9e18ba720e2a6346276e29cf4432d7c29cd74aa0"
@@ -88715,6 +89345,7 @@
             "arrow": "▼",
             "delta": -0.2,
             "deltaLabel": "-0.2pp",
+            "deltaReading": "0.2pp less",
             "label": "diverged 0.2 percentage points less"
           },
           "sha": "cb2f0e0a958bdec6638fb2e10394164908b8050b"
@@ -88780,6 +89411,7 @@
             "arrow": "▼",
             "delta": -13.7,
             "deltaLabel": "-13.7pp",
+            "deltaReading": "13.7pp less",
             "label": "diverged 13.7 percentage points less",
             "grade": {
               "from": "C",
@@ -88850,6 +89482,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "773724cdb51f38c8bf850df80d3be7872fe3fd35"
@@ -88915,6 +89548,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "sha": "68e2ba5b7e34b729b6ff3c58c2e0f04a1dd7ec06"
@@ -88980,6 +89614,7 @@
             "arrow": "▲",
             "delta": 0.2,
             "deltaLabel": "+0.2pp",
+            "deltaReading": "0.2pp more",
             "label": "diverged 0.2 percentage points more"
           },
           "sha": "494ce3b181ab0542554bdbede49ca29267d3f2ee"
@@ -89045,6 +89680,7 @@
             "arrow": "▲",
             "delta": 0.2,
             "deltaLabel": "+0.2pp",
+            "deltaReading": "0.2pp more",
             "label": "diverged 0.2 percentage points more"
           },
           "sha": "8bc419a7d5852acfad7a67ad472a12306d217487"
@@ -89110,6 +89746,7 @@
             "arrow": "–",
             "delta": 0,
             "deltaLabel": "0.0pp",
+            "deltaReading": "0.0pp",
             "label": "unchanged"
           },
           "findings": [
@@ -92567,6 +93204,7 @@
           "arrow": "–",
           "delta": null,
           "deltaLabel": "–",
+          "deltaReading": "–",
           "label": "not re-tested this run"
         }
       },
@@ -92635,6 +93273,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "new",
+            "deltaReading": "new",
             "label": "first run for this target"
           },
           "findings": [],
@@ -95448,6 +96087,7 @@
           "arrow": "–",
           "delta": null,
           "deltaLabel": "–",
+          "deltaReading": "–",
           "label": "baseline - live AWS DynamoDB"
         },
         "regionLabel": {
@@ -95557,6 +96197,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -95621,6 +96262,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -95685,6 +96327,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -95749,6 +96392,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -95813,6 +96457,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -95877,6 +96522,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -95941,6 +96587,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96005,6 +96652,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96069,6 +96717,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96133,6 +96782,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96197,6 +96847,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96261,6 +96912,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96325,6 +96977,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96389,6 +97042,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96453,6 +97107,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96517,6 +97172,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96581,6 +97237,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96645,6 +97302,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96709,6 +97367,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96773,6 +97432,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96837,6 +97497,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96901,6 +97562,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -96965,6 +97627,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97029,6 +97692,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97093,6 +97757,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97157,6 +97822,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97221,6 +97887,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97285,6 +97952,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97349,6 +98017,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97413,6 +98082,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97477,6 +98147,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97541,6 +98212,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97605,6 +98277,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97669,6 +98342,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97733,6 +98407,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97797,6 +98472,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97861,6 +98537,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97925,6 +98602,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         },
@@ -97989,6 +98667,7 @@
             "arrow": "–",
             "delta": null,
             "deltaLabel": "–",
+            "deltaReading": "–",
             "label": "baseline - live AWS DynamoDB"
           }
         }
@@ -100285,5 +100964,5 @@
     }
   ],
   "historyHash": "fe789afb234f0bbb",
-  "capturedAt": "2026-08-11T13:38:22.250Z"
+  "capturedAt": "2026-08-11T15:25:31.348Z"
 }

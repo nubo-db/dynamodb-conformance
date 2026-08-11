@@ -28,11 +28,21 @@ export const gradedUnderCriteria = (runDate) =>
 // correctness figure this replaced. So the state says what happened rather than
 // which way the number went: "up" was green while higher meant better, and
 // reusing it here would have painted a target getting worse in the colour for
-// improvement. The delta stays signed as published, so a row showing +0.2pp
-// diverged more.
+// improvement.
+//
+// Two labels, because a published field and a rendered one want different
+// things. `deltaLabel` stays signed for consumers, so a row carrying +0.2pp
+// diverged more. `deltaReading` is what a page shows, and it drops the sign:
+// beside the arrow, a minus stated the direction a second time while nothing
+// visible stated whether the direction was good. A reader scanning a down arrow
+// and a negative number reads decline, because that is what both mean
+// everywhere else, and the only word that resolved it was screen-reader-only.
+// The magnitude plus "less" or "more" says it without relying on the colour,
+// which the roughly one in twelve men with red-green colour blindness do not
+// get either.
 function deltaMovement(cur, prev) {
   if (cur == null || prev == null) {
-    return { state: "flat", arrow: "–", delta: null, deltaLabel: "–", label: "unchanged" };
+    return { state: "flat", arrow: "–", delta: null, deltaLabel: "–", deltaReading: "–", label: "unchanged" };
   }
   const r = Math.round((cur - prev) * 10) / 10;
   if (r < 0) {
@@ -41,6 +51,7 @@ function deltaMovement(cur, prev) {
       arrow: "▼",
       delta: r,
       deltaLabel: `${r.toFixed(1)}pp`,
+      deltaReading: `${Math.abs(r).toFixed(1)}pp less`,
       label: `diverged ${Math.abs(r).toFixed(1)} percentage points less`,
     };
   }
@@ -50,10 +61,11 @@ function deltaMovement(cur, prev) {
       arrow: "▲",
       delta: r,
       deltaLabel: `+${r.toFixed(1)}pp`,
+      deltaReading: `${r.toFixed(1)}pp more`,
       label: `diverged ${r.toFixed(1)} percentage points more`,
     };
   }
-  return { state: "flat", arrow: "–", delta: 0, deltaLabel: "0.0pp", label: "unchanged" };
+  return { state: "flat", arrow: "–", delta: 0, deltaLabel: "0.0pp", deltaReading: "0.0pp", label: "unchanged" };
 }
 
 // The grade shift behind a movement, attached only when the letter changed.
@@ -90,9 +102,9 @@ function figuresOf(s) {
   };
 }
 
-const newMovement = () => ({ state: "new", arrow: "–", delta: null, deltaLabel: "new", label: "first run for this target" });
-const carriedMovement = () => ({ state: "carried", arrow: "–", delta: null, deltaLabel: "–", label: "not re-tested this run" });
-const baselineMovement = () => ({ state: "baseline", arrow: "–", delta: null, deltaLabel: "–", label: "baseline - live AWS DynamoDB" });
+const newMovement = () => ({ state: "new", arrow: "–", delta: null, deltaLabel: "new", deltaReading: "new", label: "first run for this target" });
+const carriedMovement = () => ({ state: "carried", arrow: "–", delta: null, deltaLabel: "–", deltaReading: "–", label: "not re-tested this run" });
+const baselineMovement = () => ({ state: "baseline", arrow: "–", delta: null, deltaLabel: "–", deltaReading: "–", label: "baseline - live AWS DynamoDB" });
 
 const fmtRate = (r) => (r == null ? "-" : `${r.toFixed(1)}%`);
 
@@ -430,6 +442,10 @@ export function buildModel(snapshots, summary = null) {
           total: r.total,
           arrow: r.movement.arrow,
           deltaLabel: r.movement.deltaLabel,
+          // The strip renders this one. A hand-picked field list drops a new
+          // one silently, and an absent reading renders as an empty span
+          // rather than as an error.
+          deltaReading: r.movement.deltaReading,
           delta: r.movement.delta,
           state: r.movement.state,
           label: r.movement.label,

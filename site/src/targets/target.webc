@@ -356,7 +356,7 @@
             <span webc:elseif="p.movement.state === 'baseline'" class="text-xs text-zinc-500 dark:text-zinc-400" aria-hidden="true">–</span>
             <span webc:else :class="'inline-flex items-center justify-end gap-1 text-xs font-medium move-' + p.movement.state">
               <span aria-hidden="true" @text="p.movement.arrow"></span>
-              <span @text="p.movement.deltaLabel"></span>
+              <span aria-hidden="true" @text="p.movement.deltaReading"></span>
               <span class="sr-only" @text="p.movement.label"></span>
             </span>
           </td>

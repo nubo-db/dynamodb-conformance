@@ -110,10 +110,14 @@ test("movement: diverging less is an improvement, diverging more a regression", 
   assert.equal(move("2026-01-02").state, "improved");
   assert.equal(move("2026-01-02").delta, -12);
   assert.equal(move("2026-01-02").deltaLabel, "-12.0pp");
+  // The rendered reading drops the sign: the arrow already carries direction,
+  // and the word is the only cue that does not depend on colour.
+  assert.equal(move("2026-01-02").deltaReading, "12.0pp less");
   assert.equal(move("2026-01-03").state, "flat");
   // 8 fails -> 30: diverging more, and signed as published.
   assert.equal(move("2026-01-04").state, "regressed");
   assert.equal(move("2026-01-04").deltaLabel, "+22.0pp");
+  assert.equal(move("2026-01-04").deltaReading, "22.0pp more");
 });
 
 test("movement: a letter change travels with the delta; an in-band move carries none", () => {
@@ -585,4 +589,37 @@ test("withholding the letter leaves the entry's timestamp alone", () => {
   const model = buildModel([at("dynoxide", iso, "ddd", 90)]);
   assert.equal(model.runs[0].headline.graded, false);
   assert.equal(model.runs[0].startTime, Date.parse(iso));
+});
+
+// ── The rendered movement reading ───────────────────────────────────────────
+
+test("an unchanged row reads as a magnitude with no direction word", () => {
+  const model = buildModel([at("dynoxide", "2026-07-20T10:00:00Z", "a", 90), at("dynoxide", "2026-07-21T10:00:00Z", "b", 90)]);
+  const mv = model.runs[0].standings.find((r) => r.slug === "dynoxide").movement;
+  assert.equal(mv.state, "flat");
+  assert.equal(mv.deltaReading, "0.0pp");
+});
+
+test("every movement state carries a reading, so no row renders a blank", () => {
+  // The templates print deltaReading unconditionally in the default branch, so
+  // a state without one would render an empty span rather than fail.
+  const model = buildModel([
+    at("dynoxide", "2026-07-20T10:00:00Z", "a", 90),
+    at("dynoxide", "2026-07-21T10:00:00Z", "b", 95),
+    at("floci", "2026-07-21T10:00:00Z", "b", 80),
+  ]);
+  for (const run of model.runs) {
+    for (const row of run.standings) {
+      assert.ok(row.movement.deltaReading, `${row.slug} in ${run.date} has no deltaReading`);
+    }
+  }
+});
+
+test("the reading never contradicts the sign the endpoints publish", () => {
+  // deltaLabel stays signed for consumers; deltaReading is the same magnitude
+  // with a word. A drift between them would put two different numbers on one row.
+  const model = buildModel([at("dynoxide", "2026-07-20T10:00:00Z", "a", 80), at("dynoxide", "2026-07-21T10:00:00Z", "b", 90)]);
+  const mv = model.runs[0].standings.find((r) => r.slug === "dynoxide").movement;
+  assert.equal(mv.deltaReading, `${Math.abs(mv.delta).toFixed(1)}pp less`);
+  assert.equal(mv.deltaLabel, `${mv.delta.toFixed(1)}pp`);
 });

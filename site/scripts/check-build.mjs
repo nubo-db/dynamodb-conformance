@@ -244,6 +244,28 @@ try {
     unresolved.slice(0, 3).map((d) => d.path).join(", "),
   );
 
+  // A movement indicator that renders an arrow has to render its reading too.
+  // Both times a field was added to the model this release, the templates read
+  // it before the committed fallback carried it, and the page rendered an empty
+  // span: valid HTML, no error, and a row showing a bare arrow with no figure.
+  // The arrow is the marker because it is the sibling that cannot be absent.
+  // Counted rather than pattern-matched around the arrow: the legend colours a
+  // bare glyph with the same class and has no reading to state, so anchoring on
+  // the class flagged the legend. Every real indicator carries the
+  // screen-reader sentence, so the two counts have to agree.
+  const armless = [];
+  for (const d of docs) {
+    if (!d.path.endsWith(".html")) continue;
+    const announced = (d.html.match(/diverged \d+\.\d+ percentage points (?:less|more)/g) ?? []).length;
+    const shown = (d.html.match(/\d+\.\d+pp (?:less|more)/g) ?? []).length;
+    if (announced !== shown) armless.push(`${d.path} (${shown} shown, ${announced} announced)`);
+  }
+  check(
+    armless.length === 0,
+    "a movement indicator states its reading, not just its arrow",
+    armless.slice(0, 3).join(", "),
+  );
+
   // And the legend has to carry every band, not merely avoid rendering wrong:
   // an empty loop leaves valid HTML and no letters at all.
   const home = docs.find((d) => d.path === "/index.html");

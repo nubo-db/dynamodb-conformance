@@ -19,7 +19,7 @@
     </span>
     <span webc:else :class="'shrink-0 inline-flex items-center gap-1 text-xs font-medium tnum move-' + row.movement.state">
       <span aria-hidden="true" @text="row.movement.arrow"></span>
-      <span @text="row.movement.deltaLabel"></span>
+      <span aria-hidden="true" @text="row.movement.deltaReading"></span>
       <span class="sr-only" @text="row.movement.label"></span>
     </span>
   </div>
