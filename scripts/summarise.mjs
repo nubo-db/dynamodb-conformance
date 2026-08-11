@@ -622,9 +622,9 @@ export function tableCaption(regions) {
       `from real DynamoDB - the operations it implements and gets wrong. ` +
       `**Coverage** is the share it implements at all. They are reported apart ` +
       `because they carry opposite risks: a declined operation is discoverable in ` +
-      `minutes, a wrong one in production. **Grade** is a reading of the pair, ` +
-      `never a blend of it: divergence sets the letter and low coverage can only ` +
-      `cap it, under the versioned criteria in the ` +
+      `minutes, a wrong one in production. **Grade** is a reading of the pair: ` +
+      `divergence sets the letter and coverage can only lower it, never raise it, ` +
+      `under the versioned criteria in the ` +
       `[methodology](https://paritysuite.org/methodology). Sorted by divergence, so the order ranks ` +
       `risk rather than declaring a winner - a target with no divergences over a ` +
       `narrow surface is exactly what its two figures say it is. Regions is how many ` +

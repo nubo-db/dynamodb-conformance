@@ -45,9 +45,10 @@ figures rather than the letter if it matters to you.
 - Dynoxide reads `A` where it read `0.0% diverges, 98.6% covered` - both
   figures stay printed beside the letter. It diverges nowhere, and the
   1.4-point coverage gap is what denies it A+. Its WebAssembly build reads `B`
-  on the same zero divergence over 78.7% coverage. Coverage weighs on the board
-  author's own engine like any other, and it is the only engine the rolling
-  weight moved downward from the stepped draft.
+  on the same zero divergence over 78.7% coverage. Two rows sit lower than the
+  stepped draft would have put them: Dynoxide, which is the board author's own,
+  and Dynalite, which is not. Naming both matters more than the first one being
+  convenient.
 - Real DynamoDB reads `baseline`, not a letter. A grade measures how far a
   target sits from real DynamoDB, so grading the yardstick against itself would
   seat it in a band an engine had to earn its way into. Its two figures still
@@ -73,9 +74,29 @@ figures rather than the letter if it matters to you.
   grade carries `capAt`, the ceiling a letter is sitting at, alongside the
   `capped` flag that says whether reaching it moved the letter.
 - The board leads with the highest-graded engine, because the baseline moved
-  out of the standings and into a control strip above them. Today that puts the
+  out of the standings and into a panel above them. Today that puts the
   board author's own engine in the top card, with the conflict-of-interest
   disclosure on the card itself.
+- `results/summary.json` gains `regionFailures`: for a target that diverges
+  nowhere in its headline region, the tests it fails elsewhere, by name. The
+  site build reads them against the split registry to check the top grade's
+  premise by identity rather than by count. Additive, and `schemaVersion` stays
+  1, so an existing reader is unaffected.
+- The baseline row is measured rather than pinned once real AWS has been
+  observed across the whole suite. It runs in three passes and only the main
+  one reached the published artefact, so the row claimed 998 of 998 on a run
+  that recorded 981. The passes are merged before scoring now, each with its own
+  capture date, and the row stays pinned and says so until all three report.
+- The A+ premise is checked in the site build rather than beside it. It lived
+  in a test suite no publishing path depended on, while the methodology called
+  it a build-time guard.
+- The grading criteria's effective date comes from one constant. Five surfaces
+  stated it in prose, and the feed reads it to decide which runs may carry a
+  letter, so a page disagreeing with it would date history differently from the
+  way the feed treats it.
+- A movement reads `4.9pp less` where it read `-4.9pp`. A down arrow beside a
+  negative number said the direction twice and whether it was good not at all,
+  which on an inverted metric is the wrong way round.
 - The Atom feed carries no letter on any run measured before criteria version 1
   took effect, which today is every run in it. The feed had been rewriting each
   entry's summary with a grade the run never had, while leaving `<updated>`
@@ -87,11 +108,10 @@ The board publishes two figures now instead of one, and the index exclusions
 started meaning what they said. No target was re-run for this and no
 pass, fail or skip changed: what moved is how the same counts are expressed, so
 a figure that looks different here is the same measurement described more
-honestly. Relative order is the one exception. Divergence puts skips in the
-denominator where correctness left them out, which is enough to swap two
-adjacent rows: Ministack has no skips and DynamoDB Local has 21, so DynamoDB
-Local now sits above Ministack having sat below it, on identical pass and fail
-counts. No other pair moves.
+honestly. Divergence puts skips in the denominator where correctness left them out, so
+the two metrics can order the board differently where one target declines much
+more than another. On this run they do not: every row sits where correctness
+would have put it.
 
 **A score is now divergence and coverage, never one number.** Divergence is
 the share of the whole suite a target answers differently from real DynamoDB.
@@ -105,10 +125,10 @@ something you find in production. Summing them would price them the same.
   operations you need. A target with no divergences over a narrow surface sits
   high, and its coverage figure says how narrow.
 - Dynoxide reads `0.0% diverges, 98.6% covered` where it used to read `100%`.
-  Ministack reads `16.1% diverges, 100.0% covered` where it used to read
-  `83.9%`. Neither engine changed.
+  Ministack reads `11.2% diverges, 100.0% covered` where it used to read
+  `88.8%`. Neither engine changed.
 - The Region column is gone. It named the cohort a target matched at its best
-  rate, which read as breadth: a target equally wrong in all 33 regions showed
+  rate, which read as breadth: a target equally wrong in every region showed
   `all regions` while one perfect in 6 showed `6 regions`, even though the
   second diverges less in its worst region than the first does in its best.
   Regional disagreement moves a figure by at most 0.3 points, across three
