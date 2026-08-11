@@ -18,7 +18,7 @@ Every figure on the site is published as JSON, regenerated at build time from th
 - [/data/latest.json](/data/latest.json) - the latest run in full: every target's divergence and coverage, overall and per tier, its per-capability and per-operation-area state, and the full per-region breakdown, alongside the run's region health.
 - [/data/runs.json](/data/runs.json) - the whole history, newest first: per-target divergence and coverage, overall and per tier, plus run-over-run movement and headline region for every recorded run.
 - [/data/index.json](/data/index.json) - a discovery manifest: the tier, capability and region vocabularies, where each endpoint lives, and the licence.
-- [/feed.xml](/feed.xml) - an Atom feed, one entry per run.
+- [/feed.xml](/feed.xml) - an Atom feed, one entry per run. Entries for runs measured before criteria version 1 took effect carry no letter, because none was published at the time. Their `<updated>` is unchanged, so if you archived those entries when they were first published, the letters you may have seen in an earlier copy of this feed were applied retroactively and have been withdrawn.
 
 Every target carries the identical schema, live AWS DynamoDB included. The data is published under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): use it freely, just credit paritysuite.org. The schema is versioned with a `schemaVersion` field, and a breaking change bumps it.
 

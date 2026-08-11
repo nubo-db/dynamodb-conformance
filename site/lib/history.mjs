@@ -10,7 +10,19 @@
 // the same day supersedes the earlier result), and a target not re-tested in a
 // run is carried forward at its last measured value.
 
-import { dynamodbRow, gradeOf, label, display, repoUrl, sortRows, suiteSizeOf, CAPABILITIES } from "./scoring.mjs";
+import { dynamodbRow, gradeOf, label, display, repoUrl, sortRows, suiteSizeOf, CAPABILITIES, GRADING_CRITERIA_EFFECTIVE } from "./scoring.mjs";
+
+/**
+ * Whether a run may carry a letter: measured on or after the day the criteria
+ * took effect.
+ *
+ * Not `scoredOnCorrectness`, which marks a different set. That flag says a run
+ * was scored under the retired metric, so a run scored on divergence but
+ * published before the letter existed passes it and gets a grade it never had.
+ * Both dates are ISO, so a string compare orders them.
+ */
+export const gradedUnderCriteria = (runDate) =>
+  typeof runDate === "string" && runDate >= GRADING_CRITERIA_EFFECTIVE;
 
 // Movement in divergence, where lower is better - the opposite sense to the
 // correctness figure this replaced. So the state says what happened rather than
@@ -363,6 +375,12 @@ export function buildModel(snapshots, summary = null) {
       headline: {
         topSlug: top?.slug ?? "dynamodb",
         topDisplay: top?.display ?? display("dynamodb"),
+        // Whether this run may carry a letter at all. The feed is archived by
+        // third parties and its entries keep their original <updated>, so a
+        // grade attached to a run that predates the criteria restates history
+        // silently: no subscriber re-notifies, and the entry now says the run
+        // was graded when nothing graded it at the time.
+        graded: gradedUnderCriteria(date),
         // The top target's letter, for the feed: every other surface the
         // grade shipped to leads with it, and the feed should not be the one
         // place a reader still meets a bare percentage pair.

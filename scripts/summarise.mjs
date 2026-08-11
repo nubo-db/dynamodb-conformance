@@ -344,25 +344,15 @@ export function buildSummary(targets, { registry, health }) {
 /**
  * Name the tests a zero-divergence target fails outside its headline region.
  *
- * The top grade rests on a claim about identity, not arithmetic: a target
- * perfect in its headline region may fail elsewhere only on the behaviours the
- * registry has confirmed real DynamoDB itself splits on. Counts cannot check
- * that. Three fails matching three splits is the same count as three fails on
- * unrelated behaviours, and only one of those is the claim the board makes.
+ * The site build checks the A+ premise and cannot recompute verdicts: it
+ * renders fetched data, and the summary carried per-region counts alone, which
+ * makes three fails on confirmed splits indistinguishable from three fails on
+ * anything else. The suite holds the verdicts, so it publishes the names and
+ * the build joins them against the split registry itself.
  *
- * The suite can check it because it holds the verdicts. The site build cannot:
- * it renders fetched data, and the fetched summary carried per-region counts
- * and nothing else, so a guard living there could only ever compare numbers.
- * Publishing the identities closes that gap without moving the scoring: the
- * suite states what it observed, and the build joins those names against the
- * split registry it already fetches to reach the verdict itself. Neither side
- * has to trust the other's conclusion.
- *
- * Only zero-divergence targets carry the field - they are the only rows the A+
- * claim is about - and within them only regions that actually fail, so the
- * artefact grows by the handful of names under discussion rather than by the
- * board. Returns an empty object for every other target, so the key is absent
- * rather than null where it would mean nothing.
+ * Only zero-divergence targets carry the field, and within them only regions
+ * that fail, so the artefact grows by the names under discussion rather than
+ * by the board. Every other target gets no key at all.
  */
 function regionFailuresOf(target, scored, registry, observed) {
   const headline = scored.regions[scored.headline.region]

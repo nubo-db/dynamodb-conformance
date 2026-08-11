@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { scoreEmulator } from "./scoring.mjs";
-import { buildModel, assignRunIds, targetRunsOf, leanForFallback } from "./history.mjs";
+import { buildModel, assignRunIds, targetRunsOf, leanForFallback, gradedUnderCriteria } from "./history.mjs";
+import { GRADING_CRITERIA_EFFECTIVE } from "./scoring.mjs";
 
 test("targetRunsOf pairs each target with the runs that measured it", () => {
   const model = {
@@ -538,4 +539,50 @@ test("leanForFallback leaves everything but findings intact", () => {
 test("leanForFallback degrades on absent sections rather than throwing", () => {
   assert.doesNotThrow(() => leanForFallback({}));
   assert.doesNotThrow(() => leanForFallback({ runs: [], perTarget: {}, latest: null }));
+});
+
+// ── The feed stops grading history ──────────────────────────────────────────
+//
+// The one artefact designed to be archived by third parties, whose entries keep
+// their original <updated> so a subscriber never re-notifies. A letter attached
+// to a run that predates the criteria restates that run silently.
+
+test("a run measured before the criteria took effect carries no letter", () => {
+  const before = new Date(Date.parse(`${GRADING_CRITERIA_EFFECTIVE}T00:00:00Z`) - 86400000)
+    .toISOString()
+    .slice(0, 10);
+  const model = buildModel([at("dynoxide", `${before}T10:00:00Z`, "aaa", 90)]);
+  assert.equal(model.runs[0].headline.graded, false);
+});
+
+test("a run measured on the day the criteria took effect carries one", () => {
+  const model = buildModel([at("dynoxide", `${GRADING_CRITERIA_EFFECTIVE}T10:00:00Z`, "bbb", 90)]);
+  assert.equal(model.runs[0].headline.graded, true);
+  assert.ok(model.runs[0].headline.topGrade, "a graded run still derives its letter");
+});
+
+test("a run measured after it carries one", () => {
+  const after = new Date(Date.parse(`${GRADING_CRITERIA_EFFECTIVE}T00:00:00Z`) + 86400000)
+    .toISOString()
+    .slice(0, 10);
+  const model = buildModel([at("dynoxide", `${after}T10:00:00Z`, "ccc", 90)]);
+  assert.equal(model.runs[0].headline.graded, true);
+});
+
+test("the grading predicate is the criteria date, not the retired-metric flag", () => {
+  // These mark different sets. A run scored on divergence but published before
+  // the letter existed passes scoredOnCorrectness and would still be graded.
+  assert.equal(gradedUnderCriteria("2026-07-29"), false);
+  assert.equal(gradedUnderCriteria(GRADING_CRITERIA_EFFECTIVE), true);
+  assert.equal(gradedUnderCriteria(undefined), false);
+  assert.equal(gradedUnderCriteria(null), false);
+});
+
+test("withholding the letter leaves the entry's timestamp alone", () => {
+  // The whole reason the retro-grade is a problem: <updated> does not move, so
+  // a changed summary is a silent rewrite. The fix must not move it either.
+  const iso = "2026-07-20T10:00:00Z";
+  const model = buildModel([at("dynoxide", iso, "ddd", 90)]);
+  assert.equal(model.runs[0].headline.graded, false);
+  assert.equal(model.runs[0].startTime, Date.parse(iso));
 });

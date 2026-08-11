@@ -200,10 +200,8 @@ describe('buildSummary', () => {
     expect(Object.keys(summary.targets)).toEqual(['alpha'])
   })
 
-  // The evidence the site build checks the A+ premise from. The suite holds the
-  // verdicts and the build does not, so what the build can check is decided
-  // here: publish the names and it checks identity, publish nothing and the
-  // strongest thing available to it is a count.
+  // The evidence the site build checks the A+ premise from. Publish the names
+  // and it can check identity; publish nothing and a count is all it has.
   describe('the failing test identities behind a zero-divergence row', () => {
     it('names the tests a zero-divergence target fails outside its headline region', () => {
       // Passes the split in us-east-1 (which accepts) and so fails it in
@@ -250,10 +248,9 @@ describe('buildSummary', () => {
     })
 
     it('the committed board publishes evidence for every zero-divergence row', () => {
-      // The guard that would otherwise rot quietly: a change to scoring or to
-      // the artefact that stopped emitting the names would leave the build
-      // check with nothing to check, and it would report that rather than
-      // pass - but this fails first, at development time, against the tree.
+      // A change that stopped emitting the names would leave the build check
+      // with nothing to check. It reports that rather than passing, but this
+      // fails first, against the tree, while someone is working.
       const context = loadScoringContext()
       const summary = buildSummary(
         readTargets(

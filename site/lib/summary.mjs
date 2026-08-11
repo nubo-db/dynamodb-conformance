@@ -180,10 +180,9 @@ function targetOf(slug, t, pinned) {
     divergenceWorst: perRegion.length ? Math.max(...perRegion) : null,
     version: t?.version ?? null,
     runDate: t?.runDate ?? null,
-    // Only a zero-divergence target carries this, and it is evidence rather
-    // than a figure: the tests it fails outside its headline region, by name,
-    // so the build can check them against the split registry instead of taking
-    // the counts on trust. Null where the suite published nothing, which for a
+    // Evidence rather than a figure: the tests a zero-divergence target fails
+    // outside its headline region, by name, for the build to check against the
+    // split registry. Null where the suite published nothing, which for a
     // target that fails somewhere means the artefact is too old to check.
     regionFailures: t?.regionFailures ?? null,
   };

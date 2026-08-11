@@ -28,10 +28,9 @@ const check = (ok, label, detail = "") => {
   console.log(`  FAIL  ${label}${detail ? ` - ${detail}` : ""}`);
 };
 
-// The two published artefacts the A+ premise is checked from, loaded the same
-// way the build loads them. The build here is hermetic, so both take their
-// committed-fallback path and this reads exactly what the pages above were
-// rendered from - not a third copy that could agree with neither.
+// The two published artefacts the A+ premise is checked from, loaded the way
+// the build loads them. This build is hermetic, so both take their committed
+// fallback and this reads what the pages above were rendered from.
 async function loadPublishedData() {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
   const summary = JSON.parse(await readFile(join(root, "data", "summary-history.json"), "utf8"));
@@ -223,12 +222,10 @@ try {
   }
   check(broken.length === 0, "no built page renders NaN or undefined as a figure", broken.slice(0, 3).join(", "));
 
-  // The criteria's effective date is a predicate as well as a caption - the
-  // feed reads it to decide which runs predate the criteria - so a page
-  // stating a different one would caption history differently from the way the
-  // feed treats it. It has exactly one home, and this is what holds the rest
-  // of the surfaces to it: the methodology renders it, and nowhere else states
-  // a date of its own.
+  // The criteria date is a predicate as well as a caption: the feed reads it to
+  // decide which runs predate the criteria. A page stating a different one
+  // would caption history differently from the way the feed treats it. The
+  // methodology renders it, and nowhere else states a date of its own.
   const criteriaLabel = gradingCriteriaEffectiveLabel();
   const methodology = docs.find((d) => d.path === "/methodology/index.html");
   check(
@@ -258,25 +255,17 @@ try {
 
   // The A+ premise, checked against the data this build rendered.
   //
-  // A target with no failures in its headline region can still fail elsewhere,
-  // and the board's claim is that when it does, the behaviour is one real
-  // DynamoDB itself splits on by region - not something the target got wrong.
-  // The top grade rests on that being true, so it is checked rather than
-  // assumed, and checked by name: three fails matching three splits and three
-  // fails on unrelated behaviours are the same count, and only one of them is
-  // the claim.
+  // A target with no failures in its headline region can still fail elsewhere.
+  // The board's claim is that when it does, the behaviour is one real DynamoDB
+  // splits on by region. Counts cannot settle that: three fails matching three
+  // splits and three fails on unrelated behaviours are the same number. So it
+  // is checked by name, against the split registry the build already fetches.
   //
-  // This lived in the tooling suite, which no publishing path depends on, and
-  // the methodology called it a build-time guard while results-table.yml and
-  // deploy.yml both published without it. It runs here now, over push,
-  // dispatch and cron alike. The tooling copy stays: that one catches a breach
-  // against the committed tree at development time, this one catches what
-  // ships. The two read different inputs, which is the point.
-  //
-  // Both halves come from published artefacts and are joined here rather than
-  // taken on trust - the suite states which tests failed where, the registry
-  // states which behaviours are confirmed splits, and the verdict is reached
-  // in this file from the two.
+  // This lived in the tooling suite, which no publishing path depends on,
+  // while the methodology called it a build-time guard. It runs here now, over
+  // push, dispatch and cron alike. The tooling copy stays and reads the
+  // committed tree, so a breach surfaces while someone is working as well as
+  // when it ships.
   const { summary, splits } = await loadPublishedData();
   const unconfirmed = [];
   const uncheckable = [];
@@ -314,15 +303,14 @@ try {
     }
 
     // Confirmed splits explain the drift, but enough of them would still move
-    // the letter, and the row publishes the headline one. The old tolerance
-    // was the A band, which the drift has never come close to - three splits
-    // in a thousand tests is 0.3% against 5%, so it could not bind and would
-    // not have bound until the registry grew seventeenfold. This asks the
-    // question the row actually makes a claim about: does the letter survive
-    // its own worst region. It binds from the first split that would move one.
-    // Coverage from the suite's own axesOf, over the headline region's counts.
-    // Withdrawal is region-invariant, so the same coverage applies to both
-    // readings and only the divergence moves between them.
+    // the letter, and the row publishes the headline one. The old tolerance was
+    // the A band: three splits in a thousand tests is 0.3% against 5%, so it
+    // could not bind until the registry grew seventeenfold. Comparing the two
+    // letters binds from the first split that would move one.
+    //
+    // Coverage comes from the suite's axesOf over the headline region's counts.
+    // Withdrawal is region-invariant, so only the divergence moves between the
+    // two readings.
     const headlineRegion = t.regions.find((r) => r.region === t.suiteHeadlineRegion);
     const coverage = headlineRegion ? axesOf(headlineRegion).coverage : null;
     const headlineLetter = gradeOf(best, coverage)?.letter ?? null;

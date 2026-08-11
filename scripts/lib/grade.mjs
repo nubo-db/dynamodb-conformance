@@ -33,16 +33,13 @@
 export const GRADING_VERSION = 1
 
 // The day these criteria took effect, and the only place it is written down.
+// Five surfaces stated it in prose, which drifts one edit at a time.
 //
-// Five surfaces stated it in prose and would have drifted apart one edit at a
-// time. It is also a predicate, not just a caption: the feed reads it to decide
-// which runs predate the criteria and so carry no letter, and a date that
-// disagreed with the one on the methodology page would grade history on one
-// surface and not the other.
-//
-// Prose that does not need the literal says "criteria version 1" and links to
-// the methodology, which renders this. The CHANGELOG heading keeps its own
-// date - that is the release, a different fact that happens to coincide.
+// It is a predicate as well as a caption: the feed reads it to decide which
+// runs predate the criteria and so carry no letter. Prose that does not need
+// the literal says "criteria version 1" and links to the methodology, which
+// renders this. The CHANGELOG heading keeps its own date - that is the
+// release, a different fact that happens to coincide.
 export const GRADING_CRITERIA_EFFECTIVE = '2026-08-11'
 
 /** The effective date in the long form the pages print. */

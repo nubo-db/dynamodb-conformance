@@ -38,14 +38,11 @@ const log = (msg) => console.error(`[snapshot] ${msg}`);
 // The per-region overlay first, so buildModel can join it into the conformance
 // fallback and the committed model matches what a live build produces.
 //
-// The checkout's own results/summary.json leads the fetched history. Everything
-// fetched comes from main, so on a branch that changes the artefact the fallback
-// would otherwise mirror a shape the branch has already moved past - and the
-// hermetic build check, which renders the fallback, would be checking the old
-// contract. Whatever this working tree publishes is what main carries once the
-// branch lands, so it belongs at the front. assemble() keeps the first snapshot
-// it sees for a run date, so on main this changes nothing: the local file and
-// the newest fetched commit are the same document.
+// The checkout's own results/summary.json leads the fetched history, which all
+// comes from main. On a branch that changes the artefact the fallback would
+// otherwise mirror a shape the branch has moved past, and the hermetic build
+// check renders that fallback. assemble() keeps the first snapshot it sees for
+// a run date, so on main this changes nothing.
 async function localSummarySnapshot() {
   try {
     const raw = JSON.parse(await readFile(join(root, "..", "results", "summary.json"), "utf8"));

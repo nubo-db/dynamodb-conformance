@@ -56,6 +56,12 @@ moving one regrades targets whose results never changed.
   out of the standings and into a control strip above them. Today that puts the
   board author's own engine in the top card, with the conflict-of-interest
   disclosure on the card itself.
+- The Atom feed carries no letter on any run measured before criteria version 1
+  took effect, which today is every run in it. The feed had been rewriting each
+  entry's summary with a grade the run never had, while leaving `<updated>`
+  alone so no subscriber re-notified: the one artefact built to be archived by
+  other people was restating its own history quietly. Expect the letters to
+  start appearing from the first run measured after the criteria date.
 
 The board publishes two figures now instead of one, and the index exclusions
 started meaning what they said. No target was re-run for this and no
