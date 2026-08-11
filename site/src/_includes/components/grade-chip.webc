@@ -1,0 +1,17 @@
+<script webc:setup>
+  // One chip, five surfaces. The markup was repeated in the standings, the
+  // target cards, the variant list, the per-run pages and the run-history
+  // table, and each copy carried its own screen-reader text. The last time the
+  // baseline exemption moved, four of them were missed and shipped a letter
+  // the board had already withdrawn.
+  //
+  // `slug` matters for surfaces whose rows are run points: a point carries
+  // figures and a date but not the identity of the target it belongs to, and
+  // without it the baseline's definitional 0.0/100.0 grades like any other row.
+  // gradeForRow carries that exemption.
+  function chip(row, slug) { return gradeForRow(row, slug); }
+</script>
+<span :class="'grade-chip ' + (size || 'text-sm') + ' grade-' + chip(row, slug).band">
+  <span aria-hidden="true" @text="chip(row, slug).letter ?? '–'"></span>
+  <span class="sr-only" @text="'Grade ' + (chip(row, slug).letter ?? chip(row, slug).qualifier)"></span>
+</span>

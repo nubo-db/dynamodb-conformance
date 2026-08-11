@@ -4,7 +4,7 @@ import { chartGeometry } from "./lib/chart.mjs";
 import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/matrix.mjs";
 import { renderCapabilities, renderCapabilityCards } from "./lib/capabilities.mjs";
 import { regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
-import { renderSplitEvidence } from "./lib/splits.mjs";
+import { renderSplitEvidence, splitCoverageNote } from "./lib/splits.mjs";
 import { GRADING_CRITERIA_EFFECTIVE, GRADING_VERSION, TARGETS, capClauseOf, configurationOf, coverageShareSentenceOf, distributionOf, fallsShort, gradeForRow, gradeLegendOf, gradeLineOf, gradeOf, gradingCriteriaEffectiveLabel, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
 import { channelIcon } from "./lib/channel-icons.mjs";
 import { targetLinks, targetRunHref } from "./lib/links.mjs";
@@ -142,6 +142,9 @@ export default function (eleventyConfig) {
   // One confirmed regional split rendered as region cohorts, for the explainer's
   // live evidence (HTML, same nesting reason as the drilldown).
   eleventyConfig.addFilter("splitEvidence", (split) => renderSplitEvidence(split));
+  // The arithmetic under the cohorts: which observed regions the split does
+  // not account for, so the counts do not read as regions gone missing.
+  eleventyConfig.addFilter("splitCoverageNote", (split, observed) => splitCoverageNote(split, observed));
 
   // The suite's test titles carry em dashes; nothing on this site does. They are
   // normalised to a spaced hyphen on the way out, wording otherwise untouched.

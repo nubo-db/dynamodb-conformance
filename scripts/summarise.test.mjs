@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { buildBadge } from './badges.mjs'
+import { buildBadge, writeBadges } from './badges.mjs'
 import { testIdentities } from './ground-truth-coverage.mjs'
 import { GROUND_TRUTH_SLUG, axesOf, loadScoringContext, scoreTarget, verdictsForRegion } from './lib/score.mjs'
 import { classifyResults } from './lib/classify.mjs'
@@ -517,6 +517,35 @@ describe('tableRows / renderTable', () => {
       expect(row.grade).toBe(badge === null ? '-' : badge.message)
     }
   })
+
+  it('a badge is deleted when its target stops being gradeable', () => {
+    // Third parties embed these in their own READMEs, so a badge left behind
+    // after its results file goes serves a letter about someone else from a
+    // URL they do not control. The freshness test spots the drift; only the
+    // delete fixes it.
+    const dir = mkdtempSync(join(tmpdir(), 'badges-'))
+    const context = { registry: REGISTRY, observed: ['eu-west-2', 'us-east-1'] }
+    writeFileSync(join(dir, 'alpha.json'), JSON.stringify(suiteDoc('passed')))
+    writeFileSync(join(dir, 'departed.badge.json'), '{"message":"A"}\n')
+
+    const { written, pruned } = writeBadges(dir, context)
+
+    expect(written).toBe(1)
+    expect(pruned).toBe(1)
+    expect(readdirSync(dir).sort()).toEqual(['alpha.badge.json', 'alpha.json'])
+  })
+
+  it('leaves the badge of a target that is still gradeable alone', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'badges-'))
+    const context = { registry: REGISTRY, observed: ['eu-west-2', 'us-east-1'] }
+    writeFileSync(join(dir, 'alpha.json'), JSON.stringify(suiteDoc('passed')))
+    writeFileSync(join(dir, 'alpha.badge.json'), '{"message":"stale"}\n')
+
+    const { pruned } = writeBadges(dir, context)
+
+    expect(pruned).toBe(0)
+    expect(JSON.parse(readFileSync(join(dir, 'alpha.badge.json'), 'utf8')).message).not.toBe('stale')
+  })
 })
 
 describe('tableRows tie-break', () => {
@@ -715,12 +744,18 @@ describe('committed results pipeline', () => {
   })
 
   it('every published results file covers the full suite - one denominator under every figure', () => {
-    // Divergence, coverage, the caps and the A+ tripwire all divide by the
+    // Divergence, coverage, the cap and the A+ tripwire all divide by the
     // whole-suite count, and "the denominator never moves" is a published
     // claim. A partial run (a file-level crash, or a filtered capture) would
-    // shrink one target's denominator, inflate its coverage past the caps and
+    // shrink one target's denominator, inflate its coverage past the cap and
     // sail through the tripwire vacuously - so full-suite coverage is
     // asserted, not assumed.
+    //
+    // Carried rows are in scope without a fixture of their own. Every file in
+    // results/ is measured against the widest one, so a target that missed a
+    // run while the suite grew keeps its old count and fails here, which is
+    // the stale-denominator case: it would otherwise publish a letter earned
+    // over a smaller suite and outrank a re-tested peer.
     const size = Math.max(
       0,
       ...Object.values(fresh.targets).map((t) => t.regions[t.headline.region]?.count ?? 0),
@@ -746,13 +781,11 @@ describe('committed results pipeline', () => {
     // non-split behaviour is varying by region - the scoring model changed
     // underneath the claim the methodology makes.
     //
-    // Second, the tripwire: every such target's worst region stays within the
-    // A band. Real DynamoDB's regions currently disagree on three behaviours
-    // in about a thousand; if they ever drift far enough apart that a target
-    // can be perfect somewhere while diverging past 5% somewhere else, an
-    // unconditional A+ stops being honest. This failing is the signal to
-    // revisit the criteria in the open, under a bumped GRADING_VERSION - not
-    // to loosen the assertion.
+    // Second, the tripwire: the letter survives the target's worst region. If
+    // real DynamoDB's regions ever drift far enough apart that a target can be
+    // perfect in one and grade lower in another, an unconditional A+ stops
+    // being honest. This failing is the signal to revisit the criteria in the
+    // open, under a bumped GRADING_VERSION, not to loosen the assertion.
     let guarded = 0
     for (const [slug, t] of Object.entries(fresh.targets)) {
       const headline = t.regions[t.headline.region];
@@ -773,12 +806,21 @@ describe('committed results pipeline', () => {
             `${slug} fails "${f.fullName}" in ${region}, and it is not one of the registry's confirmed splits - a non-split behaviour is varying by region`,
           ).toBeTruthy();
         }
-        const divergence = axesOf(r).divergence ?? 0;
-        expect(
-          divergence,
-          `${slug} is perfect in ${t.headline.region} but leaves the A band in ${region} - revisit the A+ criteria before publishing`,
-        ).toBeLessThan(5);
       }
+
+      // The tolerance is the row's own letter, not the A band. Three splits in
+      // a thousand tests is 0.3% against 5%, so the band could not bind until
+      // the registry grew seventeenfold. Comparing the letter the headline
+      // publishes against the one its worst region earns binds from the first
+      // split that would move it.
+      const coverage = axesOf(headline).coverage;
+      const worst = Math.max(
+        ...Object.values(t.regions).map((r) => axesOf(r).divergence ?? 0),
+      )
+      expect(
+        gradeOf(worst, coverage).letter,
+        `${slug} publishes ${gradeOf(0, coverage).letter} from ${t.headline.region} but its worst region earns less - revisit the A+ criteria before publishing`,
+      ).toBe(gradeOf(0, coverage).letter);
     }
 
     // The loop above only runs for a target at exactly zero headline

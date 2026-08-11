@@ -3,9 +3,6 @@
   // disagree with the letter. The 5% and 25% boundaries carry over the numbers
   // of the board's published colour bands, on a different denominator; see the
   // methodology's grading criteria.
-  function chipClass(grade, size) {
-    return "grade-chip grade-" + grade.band + " " + (size === "sm" ? "text-xs" : "text-xl");
-  }
   // The grade line and region clause render through the shared gradeLine /
   // regionClause filters (lib/scoring.mjs), so this row, the variant rows
   // and the target page's other-builds cards phrase a grade identically.
@@ -71,10 +68,7 @@
          two are still never blended: divergence sets the letter, coverage can
          only cap it, and both stay printed on the line. -->
     <div class="flex-1 flex items-center gap-3 sm:gap-4">
-      <span :class="chipClass(gradeForRow(row), 'lg')">
-        <span aria-hidden="true" @text="gradeForRow(row).letter ?? '–'"></span>
-        <span class="sr-only" @text="'Grade ' + (gradeForRow(row).letter ?? gradeForRow(row).qualifier)"></span>
-      </span>
+      <grade-chip :row="row" :size="'text-xl'"></grade-chip>
       <div class="flex-1 min-w-0">
         <!-- No per-region count here. "6 of 33" is the cohort a headline was
              earned in, and the naive reading inverts it: a target failing
@@ -165,10 +159,7 @@
           @text="configurationOf(v.slug) || v.display"></a>
       </div>
       <div class="flex-1 flex items-center gap-3 sm:gap-4">
-        <span :class="chipClass(gradeForRow(v), 'sm')">
-          <span aria-hidden="true" @text="gradeForRow(v).letter ?? '–'"></span>
-          <span class="sr-only" @text="'Grade ' + (gradeForRow(v).letter ?? gradeForRow(v).qualifier)"></span>
-        </span>
+        <grade-chip :row="v" :size="'text-xs'"></grade-chip>
         <div class="flex-1 min-w-0">
           <p class="text-xs leading-snug text-zinc-600 dark:text-zinc-300 mb-1">
             <span class="font-medium" @text="gradeLine(v)"></span><span webc:if="regionClause(v)" class="text-zinc-500 dark:text-zinc-400" @text="' ' + regionClause(v)"></span><span class="text-zinc-500 dark:text-zinc-400"> · covers <span class="tnum" @text="v.coverage"></span></span>

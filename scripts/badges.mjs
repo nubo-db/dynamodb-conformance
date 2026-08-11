@@ -29,7 +29,7 @@
  * freshness test fails if a committed file drifts from a fresh build.
  */
 
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import {
   GROUND_TRUTH_SLUG,
@@ -92,9 +92,16 @@ export function buildBadge(slug, raw, context) {
   }
 }
 
-// Write results/<slug>.badge.json for every target result file; returns the
-// number of badges written. Sidecar and badge files are companions of a
-// target's results file, not targets, so they are never scored themselves.
+// Write results/<slug>.badge.json for every target result file, and delete the
+// badge of any target that no longer produces one. Returns both counts.
+//
+// Third parties embed these in their own READMEs, so a badge left behind after
+// its target stopped being gradeable keeps serving a letter about someone else
+// from a URL they do not control. The freshness test notices the drift; only
+// deleting the file fixes it.
+//
+// Sidecar and badge files are companions of a target's results file, not
+// targets, so they are never scored themselves.
 export function writeBadges(resultsDir = RESULTS_DIR, context = loadScoringContext()) {
   const files = readdirSync(resultsDir).filter(
     (f) =>
@@ -102,6 +109,7 @@ export function writeBadges(resultsDir = RESULTS_DIR, context = loadScoringConte
       !f.endsWith('.badge.json') &&
       !f.endsWith('.indeterminate.json'),
   )
+  const current = new Set()
   let written = 0
   for (const file of files) {
     const slug = basename(file, '.json')
@@ -112,17 +120,26 @@ export function writeBadges(resultsDir = RESULTS_DIR, context = loadScoringConte
       : null
     const badge = buildBadge(slug, raw, { ...context, sidecar })
     if (!badge) continue
+    current.add(`${slug}.badge.json`)
     writeFileSync(
       join(resultsDir, `${slug}.badge.json`),
       `${JSON.stringify(badge, null, 2)}\n`,
     )
     written++
   }
-  return written
+
+  let pruned = 0
+  for (const file of readdirSync(resultsDir).filter((f) => f.endsWith('.badge.json'))) {
+    if (current.has(file)) continue
+    rmSync(join(resultsDir, file))
+    pruned++
+  }
+  return { written, pruned }
 }
 
 // CLI: regenerate the committed badges.
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const written = writeBadges()
-  console.error(`wrote ${written} badge file(s) to ${RESULTS_DIR}/`)
+  const { written, pruned } = writeBadges()
+  const prunedNote = pruned ? `, pruned ${pruned}` : ''
+  console.error(`wrote ${written} badge file(s) to ${RESULTS_DIR}/${prunedNote}`)
 }

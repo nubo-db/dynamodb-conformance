@@ -19,10 +19,7 @@
        card's own two figures at render time (gradeOf), the bar draws
        coverage alone, and the judgement lives in the chip. -->
   <div class="flex items-center gap-3">
-    <span :class="'grade-chip text-sm grade-' + gradeForRow(row).band">
-      <span aria-hidden="true" @text="gradeForRow(row).letter ?? '–'"></span>
-      <span class="sr-only" @text="'Grade ' + (gradeForRow(row).letter ?? gradeForRow(row).qualifier)"></span>
-    </span>
+    <grade-chip :row="row"></grade-chip>
     <div
       class="flex-1 h-2.5 rounded-full bg-zinc-200 dark:bg-white/10 overflow-hidden"
       role="meter"

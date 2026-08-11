@@ -10,7 +10,7 @@
 // the same day supersedes the earlier result), and a target not re-tested in a
 // run is carried forward at its last measured value.
 
-import { dynamodbRow, gradeOf, label, display, repoUrl, sortRows, suiteSizeOf, CAPABILITIES, GRADING_CRITERIA_EFFECTIVE } from "./scoring.mjs";
+import { dynamodbRow, gradeOf, label, display, repoUrl, sortRows, suiteSizeOf, CAPABILITIES, GRADING_CRITERIA_EFFECTIVE, GROUND_TRUTH_SLUG } from "./scoring.mjs";
 
 /**
  * Whether a run may carry a letter: measured on or after the day the criteria
@@ -373,8 +373,8 @@ export function buildModel(snapshots, summary = null) {
       suiteSize,
       emulatorCount: emulatorRows.length,
       headline: {
-        topSlug: top?.slug ?? "dynamodb",
-        topDisplay: top?.display ?? display("dynamodb"),
+        topSlug: top?.slug ?? GROUND_TRUTH_SLUG,
+        topDisplay: top?.display ?? display(GROUND_TRUTH_SLUG),
         // Whether this run may carry a letter at all. The feed is archived by
         // third parties and its entries keep their original <updated>, so a
         // grade attached to a run that predates the criteria restates history
@@ -552,8 +552,8 @@ export function buildModel(snapshots, summary = null) {
       };
     });
     perTarget.dynamodb = {
-      slug: "dynamodb",
-      display: display("dynamodb"),
+      slug: GROUND_TRUTH_SLUG,
+      display: display(GROUND_TRUTH_SLUG),
       target: label("dynamodb"),
       repoUrl: repoUrl("dynamodb"),
       baseline: true,

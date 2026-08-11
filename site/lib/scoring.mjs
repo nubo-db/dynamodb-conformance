@@ -21,7 +21,7 @@ import {
   repoUrl,
   label,
 } from "dynamodb-conformance/scripts/summarise.mjs";
-import { GROUND_TRUTH_SLUG, passRate, scoreResults, tierOf } from "dynamodb-conformance/scripts/lib/score.mjs";
+import { GROUND_TRUTH_SLUG, axesOf, passRate, scoreResults, tierOf } from "dynamodb-conformance/scripts/lib/score.mjs";
 import {
   A_PLUS,
   BASELINE_GRADE,
@@ -35,7 +35,7 @@ import {
   gradingCriteriaEffectiveLabel,
 } from "dynamodb-conformance/scripts/lib/grade.mjs";
 
-export { DISPLAY, REPO, TARGETS, CHANNELS_SHOWN, configurationOf, display, distributionOf, isVariant, projectOf, repoUrl, label, tierOf };
+export { DISPLAY, REPO, TARGETS, CHANNELS_SHOWN, GROUND_TRUTH_SLUG, configurationOf, display, distributionOf, isVariant, projectOf, repoUrl, label, tierOf };
 
 // The letter grade, imported from the suite like the rest of the scoring so
 // the board, the README table and the badges grade from one definition. The
@@ -362,8 +362,13 @@ export const asPct = (v) => (v == null ? "-" : `${v.toFixed(1)}%`);
 export function tierFigures(t) {
   const total = tierTotal(t);
   const implemented = t.p + t.f;
-  const divergenceValue = total === 0 || implemented === 0 ? null : (t.f / total) * 100;
-  const coverageValue = total === 0 ? null : (implemented / total) * 100;
+  // The suite's axes, not a local copy: a tier figure and a headline figure
+  // that drifted apart would put two different divergences on one page.
+  const { divergence: divergenceValue, coverage: coverageValue } = axesOf({
+    passed: t.p,
+    failed: t.f,
+    count: total,
+  });
   return {
     passed: t.p,
     failed: t.f,
@@ -401,20 +406,18 @@ export function scoreEmulator(slug, raw, version) {
   const tier = tierFigures;
 
   const { passed, failed, skipped, indeterminate, count } = scored;
-  // Scope axis, distinct from correctness: how much of the suite the target
-  // actually implements. Always shown beside the correctness percentage so a
-  // high score on a narrow surface can't read as broad conformance.
   const implemented = passed + failed;
-  const coverageValue = count === 0 ? null : (implemented / count) * 100;
-  // Risk axis, over the whole suite rather than over what the target attempts:
-  // the share of DynamoDB's behaviour this target answers differently. Kept
-  // apart from coverage because the two carry opposite consequences - a
-  // declined operation is discoverable in minutes, a wrong one in production -
-  // and folding them into one figure would price them the same.
-  // Null when the target implemented nothing: diverging nowhere because you
-  // attempted nothing is not a good score, it is the absence of one, and a
-  // zero here would sort an empty target above every real engine.
-  const divergenceValue = count === 0 || implemented === 0 ? null : (failed / count) * 100;
+  // Coverage is the scope axis: how much of the suite the target implements at
+  // all. Divergence is the risk axis, over the whole suite rather than over
+  // what the target attempts. They are kept apart because the consequences
+  // differ - a declined operation is discoverable in minutes, a wrong one in
+  // production - and one figure would price them the same.
+  //
+  // Divergence is null when the target implemented nothing: diverging nowhere
+  // because you attempted nothing is the absence of a score, and a zero would
+  // sort an empty target above every real engine. Both come from the suite's
+  // axesOf so the site cannot compute either differently from the board.
+  const { divergence: divergenceValue, coverage: coverageValue } = axesOf(scored);
 
   return {
     slug,
@@ -445,10 +448,10 @@ export function scoreEmulator(slug, raw, version) {
 // runs that never exercised AWS. suiteSize is the largest emulator count seen.
 export function dynamodbRow(suiteSize, date) {
   return {
-    slug: "dynamodb",
-    target: label("dynamodb"),
-    display: display("dynamodb"),
-    repoUrl: repoUrl("dynamodb"),
+    slug: GROUND_TRUTH_SLUG,
+    target: label(GROUND_TRUTH_SLUG),
+    display: display(GROUND_TRUTH_SLUG),
+    repoUrl: repoUrl(GROUND_TRUTH_SLUG),
     // Derived the same way every other row's tiers are, so the baseline can't
     // carry a hand-written shape that drifts from the scored one.
     tiers: {

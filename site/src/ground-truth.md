@@ -24,7 +24,7 @@ The `{ NULL: false }` difference has since closed, but others are open. The suit
 
 <div class="not-prose space-y-3 my-6">{{ splits.featured | splitEvidence | safe }}</div>
 
-Each cohort is a real region's answer, so an emulator matching either is behaving like some real region. Pin a single region as the only right answer and the other cohort is marked wrong for doing what AWS does elsewhere. An observed region missing from both cohorts is not a gap in the split: it had no definite recorded answer for this behaviour when the evidence was captured, and an unresolved observation is flagged rather than counted on either side.
+Each cohort is a real region's answer, so an emulator matching either is behaving like some real region. Pin a single region as the only right answer and the other cohort is marked wrong for doing what AWS does elsewhere. An observed region missing from both cohorts is not a gap in the split: it had no definite recorded answer for this behaviour when the evidence was captured, and an unresolved observation is flagged rather than counted on either side. {{ splits.featured | splitCoverageNote(summary.latest.regions.observed) }}
 {% endif %}
 
 ## Scored against every region

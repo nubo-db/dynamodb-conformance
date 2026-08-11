@@ -33,10 +33,7 @@
     <!-- The same grade-led hero as the target's own page, graded from this
          run's figures, so a dated view and the current one read alike. -->
     <div class="shrink-0 text-left sm:text-right">
-      <div :class="'grade-chip text-3xl grade-' + gradeForRow($data.point, $data.pair.slug).band">
-        <span aria-hidden="true" @text="gradeForRow($data.point, $data.pair.slug).letter ?? '–'"></span>
-        <span class="sr-only" @text="'Grade ' + (gradeForRow($data.point, $data.pair.slug).letter ?? gradeForRow($data.point, $data.pair.slug).qualifier)"></span>
-      </div>
+      <grade-chip :row="$data.point" :slug="$data.pair.slug" :size="'text-3xl'"></grade-chip>
       <div class="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
         <span @text="gradeForRow($data.point, $data.pair.slug).qualifier"></span><span webc:if="capClause($data.point, $data.pair.slug)" class="font-normal text-zinc-500 dark:text-zinc-400" @text="' · ' + capClause($data.point, $data.pair.slug)"></span>
       </div>

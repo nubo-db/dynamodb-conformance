@@ -14,6 +14,7 @@ import {
   COVERAGE_DIVISOR,
   GRADE_BANDS,
   GRADING_VERSION,
+  GROUND_TRUTH_SLUG,
   asPct,
   configurationOf,
   gradeOf,
@@ -21,6 +22,11 @@ import {
   isVariant,
   projectOf,
 } from "./scoring.mjs";
+
+// Where a target's badge lives. Served from the suite repo rather than the
+// site, so this is the raw path and not a site URL.
+const BADGE_URL_TEMPLATE =
+  "https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/paritysuite/dynamodb-conformance/main/results/{slug}.badge.json";
 
 // The two published figures for any {passed, failed, total}-shaped tally, on the
 // same terms and with the same null-guard as everywhere else: divergence is
@@ -120,7 +126,7 @@ function regionSummary(row) {
 // endpoint shares. Divergence and coverage travel together by design, so a
 // target that is right about a narrow surface cannot read as broad conformance.
 function targetRow(row) {
-  const baseline = row.slug === "dynamodb";
+  const baseline = row.slug === GROUND_TRUTH_SLUG;
   return {
     slug: row.slug,
     display: row.display,
@@ -263,7 +269,7 @@ function envelope(conformance, site) {
     attribution: site.dataAttribution,
     ...(conformance.generatedAt ? { generatedAt: conformance.generatedAt } : {}),
     baseline: {
-      slug: "dynamodb",
+      slug: GROUND_TRUTH_SLUG,
       region: "all",
       description: "Live AWS DynamoDB. The ground truth: it agrees with itself by definition, so it diverges nowhere in every region, and it is what every other target is measured against.",
     },
@@ -298,7 +304,11 @@ export function buildIndex(conformance, site) {
     endpoints: [
       { name: "Latest run", format: "application/json", url: site.url + "/data/latest.json", description: "Current standings: per target, divergence and coverage overall and per tier, capabilities, operation areas, and the full per-region breakdown." },
       { name: "All runs", format: "application/json", url: site.url + "/data/runs.json", description: "Full history: every run's per-target divergence and coverage, overall and per tier, plus movement and headline region." },
-      { name: "Runs feed", format: "application/atom+xml", url: site.url + "/feed.xml", description: "Atom feed, one entry per run." },
+      { name: "Runs feed", format: "application/atom+xml", url: site.url + "/feed.xml", description: "Atom feed, one entry per run. Runs measured before the grading criteria took effect carry no letter." },
+      // The badge and corpus endpoints are documented on the agent guide, so
+      // leaving them out made the manifest disagree with the page it points at.
+      { name: "Target badge", format: "application/json", url: BADGE_URL_TEMPLATE, description: "Per-target shields.io endpoint badge carrying the letter grade under a `parity` label, or `baseline` for live AWS. Substitute the target's slug; the path is the contract, and shields' own `schemaVersion` says nothing about this project's." },
+      { name: "Corpus", format: "text/plain", url: site.url + "/llms.txt", description: "The site as plain text for language models, with the full corpus at /llms-full.txt." },
     ],
   };
 }
