@@ -119,11 +119,20 @@ export function passRate(passed, failed) {
 // an empty target above every real engine. One definition, shared by the
 // results table, the badges and the site, so the axes behind a published
 // grade cannot drift between surfaces.
-export function axesOf({ passed, failed, count }) {
+export function axesOf({ passed, failed, count, indeterminate = 0 }) {
   const implemented = passed + failed
+  // An indeterminate leaves the denominator rather than counting against the
+  // target. classify.mjs draws the line already: a skip is a property of the
+  // target, an indeterminate is a property of the run - nobody observed an
+  // answer. Divergence honoured that and coverage did not, so a provisioning
+  // timeout lowered coverage and could move a published letter near a band
+  // edge. Both figures now divide by what was actually observed, which leaves
+  // the withdrawal invariant intact: a fail turning into a skip still moves
+  // both numerators over one unchanged denominator.
+  const observed = count - indeterminate
   return {
-    divergence: count === 0 || implemented === 0 ? null : (failed / count) * 100,
-    coverage: count === 0 ? null : (implemented / count) * 100,
+    divergence: observed === 0 || implemented === 0 ? null : (failed / observed) * 100,
+    coverage: observed === 0 ? null : (implemented / observed) * 100,
   }
 }
 

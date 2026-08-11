@@ -126,7 +126,11 @@ export function regionClauseOf(row) {
 // results and restated in the new figures, which is right - the results didn't
 // change - but someone who cited "Dynalite 84.6%, 22 Jul" can no longer find
 // that number anywhere, so runs before this date say so.
-export const METRIC_CHANGED_ON = "2026-07-29";
+// The board stopped publishing correctness on the day the criteria took
+// effect, not before it. Pinned to the same constant: set three runs early,
+// the runs in between were published under the retired metric and said
+// nothing about it.
+export const METRIC_CHANGED_ON = GRADING_CRITERIA_EFFECTIVE;
 export const scoredOnCorrectness = (date) => !!date && date < METRIC_CHANGED_ON;
 
 // Keyed by project, not slug: a build of a self-maintained engine is the
@@ -368,6 +372,7 @@ export function tierFigures(t) {
     passed: t.p,
     failed: t.f,
     count: total,
+    indeterminate: t.i,
   });
   return {
     passed: t.p,

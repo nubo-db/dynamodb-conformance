@@ -63,6 +63,10 @@ jobs:
       - name: Hermetic build check
         run: npm run site:check-build
 
+      # results/ is committed to a public repo and carries live-AWS output.
+      - name: No leaked AWS account IDs in committed results
+        run: npm run results:check-leaks
+
   dependency-review:
     name: Dependency review
     # Only meaningful on a PR diff; blocks a PR that introduces a newly

@@ -313,7 +313,14 @@ test("moving a fail to a skip moves divergence and coverage by identical deltas"
 
     // Both fall, by the same amount, and that amount is one test's worth.
     assert.ok(Math.abs(dDiv - dCov) < 1e-9, `deltas differ for ${JSON.stringify(t)}: ${dDiv} vs ${dCov}`);
-    assert.ok(Math.abs(dDiv - -100 / total) < 1e-9, `delta is not -1/total for ${JSON.stringify(t)}`);
+    // One test's worth of the tests actually observed. An indeterminate is not
+    // observed, so it is out of the denominator - the withdrawal invariant
+    // above is unaffected, since both numerators still move over the same one.
+    const observed = total - t.i;
+    assert.ok(
+      Math.abs(dDiv - -100 / observed) < 1e-9,
+      `delta is not -1/observed for ${JSON.stringify(t)}`,
+    );
     assert.ok(dDiv < 0 && dCov < 0, "withdrawal lowers both, never raises either");
   }
 });

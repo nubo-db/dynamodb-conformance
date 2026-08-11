@@ -123,19 +123,20 @@ describe('gradeFor', () => {
   })
 
   it('excludes a failed observation from divergence', () => {
-    // The indeterminate is not a divergence - nobody observed an answer - but
-    // it still widens the whole-suite denominator, the same as the published
-    // coverage figure. So the target keeps zero divergence and loses A+ to the
-    // coverage it no longer has, which is the A band rather than the top grade.
+    // An indeterminate leaves the denominator rather than counting against the
+    // target. It used to widen it, so a provisioning timeout cost the target
+    // A+ - an infrastructure fault moving a published letter, which is not a
+    // fact about the engine. classify.mjs already drew this line: a skip is a
+    // property of the target, an indeterminate is a property of the run.
     const raw = result(30, 0)
     raw.testResults[0].assertionResults.push({
       status: 'failed',
       meta: { indeterminate: { reason: 'gsi-consistency-timeout', at: 'test' } },
     })
     expect(gradeFor('dynoxide', raw, CONTEXT)).toMatchObject({
-      letter: 'A',
+      letter: 'A+',
       qualifier: 'no divergence',
-      capped: true,
+      capped: false,
     })
   })
 

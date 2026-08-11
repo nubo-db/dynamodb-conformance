@@ -439,8 +439,40 @@ function recordGroundTruth(summary, baseline, targets, context) {
   }
 }
 
+/**
+ * Every published row divides by the same whole-suite count, or the artefact
+ * is not written.
+ *
+ * A short results file is a cheaper lever than scope withdrawal, and in the
+ * opposite direction: withdrawal trades divergence against coverage one for
+ * one, but a truncated denominator lowers divergence and raises coverage at
+ * once. Nothing about the file says it is short - it reads as a target that
+ * simply ran fewer tests. This was asserted in the tooling suite, which no
+ * publishing path runs, so the board could ship a row the tests would have
+ * rejected.
+ *
+ * A target that scored nothing publishes "-" rather than a shrunken figure and
+ * is not in scope. Everything else is measured against the widest run, which
+ * also catches a carried row whose count went stale while the suite grew.
+ */
+export function assertOneDenominator(summary) {
+  const counts = Object.entries(summary.targets).map(([slug, t]) => [
+    slug,
+    t.regions[t.headline.region]?.count ?? 0,
+  ])
+  const size = Math.max(0, ...counts.map(([, c]) => c))
+  const short = counts.filter(([, c]) => c !== 0 && c !== size)
+  if (short.length === 0) return
+  const detail = short.map(([slug, c]) => `${slug} scored ${c}`).join(', ')
+  throw new Error(
+    `refusing to publish: every row divides by the ${size}-test suite, but ${detail}. ` +
+      'A short results file lowers divergence and raises coverage at the same time.',
+  )
+}
+
 /** Write the summary artefact (results/summary.json). */
 export function writeSummaryFile(summary, path = SUMMARY_PATH) {
+  assertOneDenominator(summary)
   writeFileSync(path, JSON.stringify(summary, null, 2) + '\n')
 }
 

@@ -260,7 +260,12 @@ try {
   for (const d of docs) {
     if (!d.path.endsWith(".html")) continue;
     const announced = (d.html.match(/diverged \d+\.\d+ percentage points (?:less|more)/g) ?? []).length;
-    const shown = (d.html.match(/\d+\.\d+pp (?:less|more)/g) ?? []).length;
+    // Scoped to the indicators. The reading is ordinary prose too - the
+    // changelog describes the change in the same words - and counting those
+    // made a page with no indicators at all look like it had lost one.
+    const shown = (
+      d.html.match(/move-(?:improved|regressed)"[\s\S]{0,400}?\d+\.\d+pp (?:less|more)/g) ?? []
+    ).length;
     if (announced !== shown) armless.push(`${d.path} (${shown} shown, ${announced} announced)`);
   }
   check(
@@ -321,6 +326,19 @@ try {
     }
   }
   check(deadFrags.length === 0, "every fragment link lands on an id that exists", [...new Set(deadFrags)].slice(0, 3).join(", "));
+
+  // Nothing may survive the comment strip. The transform round-trips <pre>
+  // blocks through placeholders and skips conditional comments, and a comment
+  // containing the string "<pre" would take content with it. Cheap to assert,
+  // and it is the failure that would be silent.
+  const leftoverComments = docs.filter(
+    (d) => d.path.endsWith(".html") && /<!--(?!\[if)/.test(d.html),
+  );
+  check(
+    leftoverComments.length === 0,
+    "no built page ships a developer comment",
+    leftoverComments.slice(0, 3).map((d) => d.path).join(", "),
+  );
 
   // The criteria date is a predicate as well as a caption: the feed reads it to
   // decide which runs predate the criteria. A page stating a different one
@@ -404,6 +422,14 @@ try {
       }
     }
 
+      // A note on the day this first fires. The comparison is the published
+      // letter against the worst region's, so at full coverage it reads A+
+      // versus A: the first target ever to earn A+ while any confirmed split
+      // exists will fail this, and the trigger is the ordinary A+ case rather
+      // than an anomaly. That is deliberate - an A+ that holds only in the
+      // headline region is the claim this guard exists to question - but read
+      // it as a prompt to revisit the criteria in the open, not as a defect in
+      // the target that tripped it.
     // Confirmed splits explain the drift, but enough of them would still move
     // the letter, and the row publishes the headline one. The old tolerance was
     // the A band: three splits in a thousand tests is 0.3% against 5%, so it

@@ -119,8 +119,13 @@ export function writeBadges(resultsDir = RESULTS_DIR, context = loadScoringConte
       ? JSON.parse(readFileSync(sidecarFile, 'utf8'))
       : null
     const badge = buildBadge(slug, raw, { ...context, sidecar })
-    if (!badge) continue
+    // A results file that exists keeps its badge even when this run produced
+    // no letter. A run-level indeterminate - one provisioning timeout - makes
+    // the row ungradeable for that sweep, and deleting the badge would 404 a
+    // URL inside a third party's README over an infrastructure fault. Only a
+    // target with no results file at all is gone.
     current.add(`${slug}.badge.json`)
+    if (!badge) continue
     writeFileSync(
       join(resultsDir, `${slug}.badge.json`),
       `${JSON.stringify(badge, null, 2)}\n`,

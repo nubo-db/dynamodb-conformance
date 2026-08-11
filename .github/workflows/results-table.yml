@@ -122,6 +122,21 @@ jobs:
             fi
           done
 
+          # These two lanes drive live S3, Kinesis and KMS, so their failure
+          # messages carry bucket names, stream and role ARNs and request IDs,
+          # and the documents are committed to a public repo. Nothing
+          # downstream reads the message - the lanes are folded in on test
+          # identity - so it is cleared before it can be committed.
+          node scripts/strip-lane-detail.mjs \
+            results/dynamodb.integrations.json results/dynamodb.gsi.json
+
+      # The sanitiser rewrites account IDs inside ARNs and IAM principals; this
+      # is the check that it worked. It was written for exactly this path and
+      # had never been wired to anything, so nothing verified the sanitising
+      # before these files were committed.
+      - name: Refuse to commit a leaked account ID
+        run: node scripts/check-account-ids.mjs
+
       # Rewrites the README block between the results markers and refreshes
       # results/summary.json, the versioned per-region artefact the site reads.
       - name: Regenerate results table and summary

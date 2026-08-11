@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { buildSummaryModel, cohortOf, regionLabel, regionCount, groupRegionsByDivergence, renderRegionGroups, controlObservation, controlProvenance, controlSplit } from "./summary.mjs";
+import { GRADING_CRITERIA_EFFECTIVE, METRIC_CHANGED_ON } from "./scoring.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const raw = JSON.parse(readFileSync(join(here, "..", "test", "fixtures", "regions", "summary.json"), "utf8"));
@@ -331,4 +332,11 @@ test("one outstanding pass reads singular", () => {
 test("nothing outstanding means no split line", () => {
   assert.equal(controlSplit(controlObservation(gt({ testsObserved: 998, derived: true, missingLanes: [] }))), "");
   assert.equal(controlSplit(null), "");
+});
+
+
+test("the metric change and the criteria take effect on the same day", () => {
+  // Set apart, the runs in between are published under the retired metric and
+  // carry no notice saying so, which is the disclosure this release is about.
+  assert.equal(METRIC_CHANGED_ON, GRADING_CRITERIA_EFFECTIVE);
 });

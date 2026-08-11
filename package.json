@@ -44,6 +44,7 @@
     "results:table": "node scripts/summarise.mjs",
     "results:tags": "node scripts/tag-manifest.mjs",
     "results:badges": "node scripts/badges.mjs",
+    "results:check-leaks": "node scripts/check-account-ids.mjs",
     "test:ui": "vitest --ui",
     "site:dev": "npm run dev --workspace site",
     "site:build": "npm run build --workspace site",

@@ -822,6 +822,14 @@ describe('committed results pipeline', () => {
         }
       }
 
+      // A note on the day this first fires. The comparison is the published
+      // letter against the worst region's, so at full coverage it reads A+
+      // versus A: the first target ever to earn A+ while any confirmed split
+      // exists will fail this, and the trigger is the ordinary A+ case rather
+      // than an anomaly. That is deliberate - an A+ that holds only in the
+      // headline region is the claim this guard exists to question - but read
+      // it as a prompt to revisit the criteria in the open, not as a defect in
+      // the target that tripped it.
       // The tolerance is the row's own letter, not the A band. Three splits in
       // a thousand tests is 0.3% against 5%, so the band could not bind until
       // the registry grew seventeenfold. Comparing the letter the headline
