@@ -13,6 +13,7 @@ import {
   CAPABILITIES,
   COVERAGE_DIVISOR,
   GRADE_BANDS,
+  GRADING_CRITERIA_EFFECTIVE,
   GRADING_VERSION,
   GROUND_TRUTH_SLUG,
   asPct,
@@ -254,6 +255,10 @@ const METRICS = {
     // nothing was declined. Read exactly, not at the published precision.
     aPlus: { divergence: A_PLUS.divergence, coverage: A_PLUS.coverage, exact: true },
     coverageDivisor: COVERAGE_DIVISOR,
+    // The day these criteria took effect. Published because it is a predicate
+    // as well as a caption: the feed reads it to decide which runs may carry a
+    // letter, and without it a consumer cannot reproduce that cutoff.
+    effective: GRADING_CRITERIA_EFFECTIVE,
   },
 };
 
@@ -365,6 +370,12 @@ export function buildRuns(conformance, site) {
       sha: r.sha,
       suiteSize: r.suiteSize,
       emulatorCount: r.emulatorCount,
+      // Whether this run was measured under the published criteria. Every
+      // target below carries a letter regardless, computed under the criteria
+      // in force now - the feed instead withholds it, because a feed entry is
+      // archived by other people and keeps its original timestamp. Same fact,
+      // two correct answers, so the flag says which you are reading.
+      gradedUnderCriteria: r.headline?.graded ?? null,
       targets: r.standings.map(targetRow),
     })),
   };

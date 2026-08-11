@@ -213,7 +213,9 @@ describe('buildSummary', () => {
       })
       const t = summary.targets.alpha
       expect(t.headline.region).toBe('us-east-1')
-      expect(t.regionFailures).toEqual({ 'eu-west-2': ['suite splits'] })
+      expect(t.regionFailures).toEqual({
+        'eu-west-2': ['tests/tier3/split.test.ts::suite splits'],
+      })
     })
 
     it('names every fail the row declares, so the build can check the count adds up', () => {
@@ -226,6 +228,18 @@ describe('buildSummary', () => {
         expect(names.length, `${region} names as many tests as it declares failed`).toBe(
           t.regions[region].failed,
         )
+      }
+    })
+
+    it('names each fail by file and title, the identity splitFor matches on', () => {
+      // A title is unique only within its file, so a bare name would let a
+      // same-named test in another file satisfy the build's split check.
+      const summary = buildSummary([target('alpha', suiteDoc('passed'))], {
+        registry: REGISTRY,
+        health: HEALTHY,
+      })
+      for (const names of Object.values(summary.targets.alpha.regionFailures)) {
+        for (const id of names) expect(id).toMatch(/^tests\/.+\.test\.ts::.+/)
       }
     })
 

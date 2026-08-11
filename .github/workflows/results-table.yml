@@ -28,10 +28,17 @@ jobs:
     runs-on: ubuntu-latest
     # Manual runs always proceed; auto runs only for successful main runs (skip
     # PR conformance runs, which must never write to main).
+    # head_branch alone is not a gate. A pull request from a fork runs
+    # conformance.yml with the fork's own workflow and test code, uploads
+    # results-* artefacts, and reports head_branch as the branch name in the
+    # fork - so a PR opened from a fork branch called `main` passed this and
+    # had its artefacts committed to main and published, badges included.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main')
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
 
     steps:
       - name: Mint a token for the results bot
@@ -100,14 +107,16 @@ jobs:
           # they are copied in here instead, under the sibling names
           # scripts/summarise.mjs folds into the ground-truth document.
           #
-          # Each is cleared first, on the same grounds as the sidecar above: a
-          # lane that didn't run this sweep must leave no file behind, or the
-          # baseline row would be evidenced by last week's observation.
+          # A lane that didn't run is carried, not cleared. These two only run
+          # on schedule and dispatch, while this workflow fires on every
+          # conformance run including push, so clearing them would delete the
+          # last sweep's evidence within a day and drop the baseline row back
+          # to pinned. Each lane publishes its own capture date, so a carried
+          # lane is dated rather than passed off as this run's.
           for lane in "integration-results/dynamodb.json:dynamodb.integrations.json" \
                       "ground-truth-gsi/gsi.json:dynamodb.gsi.json"; do
             src="/tmp/artifacts/${lane%%:*}"
             dest="results/${lane##*:}"
-            rm -f "$dest"
             if [ -f "$src" ]; then
               cp -f "$src" "$dest"
             fi

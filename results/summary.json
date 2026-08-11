@@ -2938,134 +2938,134 @@
       "runDate": "2026-08-09",
       "regionFailures": {
         "af-south-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-east-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-northeast-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-northeast-3": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-south-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-south-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-3": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-4": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-5": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-6": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-7": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ca-central-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ca-west-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-central-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-south-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-south-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-west-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-west-3": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "il-central-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "mx-central-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "sa-east-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-east-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-east-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-west-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-west-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ]
       }
     },
@@ -3976,134 +3976,134 @@
       "runDate": "2026-07-24",
       "regionFailures": {
         "af-south-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-east-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-northeast-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-northeast-3": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-south-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-south-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-3": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-4": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-5": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-6": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ap-southeast-7": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ca-central-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "ca-west-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-central-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-south-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-south-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-west-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "eu-west-3": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "il-central-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "mx-central-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "sa-east-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-east-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-east-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-west-1": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-west-2": [
-          "Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
-          "UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ]
       }
     },

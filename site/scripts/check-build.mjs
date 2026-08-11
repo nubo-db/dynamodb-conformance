@@ -395,9 +395,11 @@ try {
         uncheckable.push(`${slug}/${region} declares ${declared} fail(s) but names ${names.length}`);
         continue;
       }
-      for (const fullName of names) {
-        if (!splits.some((row) => row.test.fullName === fullName)) {
-          unconfirmed.push(`${slug}/${region}: "${fullName}"`);
+      for (const identity of names) {
+        // `<file>::<fullName>`, the suite's own test identity. Matching on the
+        // name alone accepted a same-named test from a different file.
+        if (!splits.some((row) => `${row.test.file}::${row.test.fullName}` === identity)) {
+          unconfirmed.push(`${slug}/${region}: "${identity}"`);
         }
       }
     }

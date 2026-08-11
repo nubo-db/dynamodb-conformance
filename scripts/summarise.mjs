@@ -363,7 +363,11 @@ function regionFailuresOf(target, scored, registry, observed) {
   for (const region of observed) {
     const names = verdictsForRegion(verdicts, registry, region)
       .filter((v) => v.verdict === 'fail')
-      .map((v) => v.fullName)
+      // Full identity, not the bare name. splitFor matches on file AND
+      // fullName, and a title is unique only within its file, so joining on
+      // the name alone would let a same-named test in another file satisfy
+      // the guard - which is the substitution the guard exists to catch.
+      .map((v) => `${relativeTestPath(v.file)}::${v.fullName}`)
       .sort()
     if (names.length > 0) regionFailures[region] = names
   }
