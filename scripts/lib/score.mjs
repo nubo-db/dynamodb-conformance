@@ -121,18 +121,23 @@ export function passRate(passed, failed) {
 // grade cannot drift between surfaces.
 export function axesOf({ passed, failed, count, indeterminate = 0 }) {
   const implemented = passed + failed
-  // An indeterminate leaves the denominator rather than counting against the
-  // target. classify.mjs draws the line already: a skip is a property of the
-  // target, an indeterminate is a property of the run - nobody observed an
-  // answer. Divergence honoured that and coverage did not, so a provisioning
-  // timeout lowered coverage and could move a published letter near a band
-  // edge. Both figures now divide by what was actually observed, which leaves
-  // the withdrawal invariant intact: a fail turning into a skip still moves
-  // both numerators over one unchanged denominator.
-  const observed = count - indeterminate
+  // A run that did not observe the whole suite is not scored at all.
+  //
+  // An indeterminate is a failed observation: nobody knows what the target
+  // would have answered. Holding it against coverage let an infrastructure
+  // timeout move a published letter, and taking it out of the denominator was
+  // worse - divergence then fell further than coverage, so converting a fail
+  // into an indeterminate bought a better letter than withdrawing it would,
+  // and a target can induce one by answering 503 (see isTransport in
+  // src/indeterminate.ts). Both readings grade a partial run.
+  //
+  // So neither figure is published for one. The row falls back to its last
+  // clean measurement, carried and dated like any other untested row, which
+  // is what the board already does for a run-level indeterminate.
+  if (indeterminate > 0) return { divergence: null, coverage: null }
   return {
-    divergence: observed === 0 || implemented === 0 ? null : (failed / observed) * 100,
-    coverage: observed === 0 ? null : (implemented / observed) * 100,
+    divergence: count === 0 || implemented === 0 ? null : (failed / count) * 100,
+    coverage: count === 0 ? null : (implemented / count) * 100,
   }
 }
 

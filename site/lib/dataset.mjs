@@ -222,16 +222,16 @@ function regionDetail(pt) {
 // with nothing in the payload to catch it.
 const METRICS = {
   divergence: {
-    formula: "failed / (total - indeterminate)",
+    formula: "failed / total",
     direction: "lower_is_better",
     description:
       "The share of the whole suite the target answers differently from real DynamoDB. Skips and indeterminates are in the denominator, so it cannot be lowered by shrinking what is attempted without the same fall showing in coverage.",
   },
   coverage: {
-    formula: "(passed + failed) / (total - indeterminate)",
+    formula: "(passed + failed) / total",
     direction: "higher_is_better",
     description:
-      "The share of the suite's tests the target implements at all. Weighted by test count, not by a count of features.",
+      "Null when the run recorded any indeterminate: a failed observation means nobody knows what the target would have answered, so a partial run is not scored and the board carries its last clean measurement instead. The share of the suite's tests the target implements at all. Weighted by test count, not by a count of features.",
   },
   correctness: {
     formula: "passed / (passed + failed)",

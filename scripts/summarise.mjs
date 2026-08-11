@@ -155,10 +155,36 @@ export function mergeLanes(base, docs) {
 function withLanes(file, base) {
   const lanes = [{ name: GATING_LANE, runDate: runDateOf(base), tests: testIdentities(base).size }]
   const docs = []
+  const unusable = []
   for (const lane of GROUND_TRUTH_LANES) {
     const path = file.replace(/\.json$/, `.${lane}.json`)
     if (!existsSync(path)) continue
-    const doc = JSON.parse(readFileSync(path, 'utf8'))
+
+    let doc
+    try {
+      doc = JSON.parse(readFileSync(path, 'utf8'))
+    } catch (err) {
+      // A truncated artefact used to abort the whole regeneration with a bare
+      // stack trace. Every other degraded input in this pipeline warns and
+      // carries on, and the lane is optional by construction.
+      console.warn(`::warning title=Unreadable lane::${path} (${err.message}); treating the lane as absent`)
+      unusable.push(lane)
+      continue
+    }
+
+    // A lane's own sidecar travels with its document. Without it a run-level
+    // indeterminate in the lane arrives as plain failed assertions: the tests
+    // still count as observed, `unobserved` empties, the row derives, and the
+    // board publishes real DynamoDB diverging from itself.
+    const sidecarPath = path.replace(/\.json$/, '.indeterminate.json')
+    if (existsSync(sidecarPath)) {
+      console.warn(
+        `::warning title=Lane not observed::${path} shipped an indeterminate sidecar; the baseline row stays pinned`,
+      )
+      unusable.push(lane)
+      continue
+    }
+
     docs.push(doc)
     lanes.push({ name: lane, runDate: runDateOf(doc), tests: testIdentities(doc).size })
   }
@@ -166,7 +192,10 @@ function withLanes(file, base) {
   return {
     raw: docs.length === 0 ? base : mergeLanes(base, docs),
     lanes,
-    missingLanes: GROUND_TRUTH_LANES.filter((lane) => !present.has(lane)),
+    // An unreadable or unobserved lane is missing, not merged. The row then
+    // stays pinned and names the tests nobody ran, rather than deriving from
+    // an observation that did not happen.
+    missingLanes: GROUND_TRUTH_LANES.filter((lane) => !present.has(lane) || unusable.includes(lane)),
   }
 }
 

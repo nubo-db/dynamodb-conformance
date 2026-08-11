@@ -149,3 +149,55 @@ test("committed fallback: no row still carries a pre-rename movement state", () 
   }
   assert.deepEqual([...stale].slice(0, 5), [], `movement states from before the rename (${stale.size} rows)`);
 });
+
+// ── The other committed fallback ────────────────────────────────────────────
+//
+// summary-history.json stores a derived model too, and it is where every field
+// this release added lives: the per-region entries, the grade inputs, the
+// ground-truth lane provenance, and the failing test identities the build's
+// A+ check reads. The documented failure mode is exactly the one above - a
+// field is added, a template reads it, the fallback does not carry it, and an
+// empty span ships - and it has happened twice on this branch. Shape rather
+// than arithmetic: whether the stored model still has what the templates and
+// the guard now read.
+
+const summaryFallback = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "data", "summary-history.json"), "utf8"),
+);
+
+test("the summary fallback carries the fields the pages and the guard read", () => {
+  const latest = summaryFallback.latest;
+  assert.ok(latest, "no latest summary in the fallback");
+
+  for (const key of ["regions", "targets", "groundTruth"]) {
+    assert.ok(latest[key], `summary fallback has no ${key}`);
+  }
+  // The control strip reads these off groundTruth; without them it silently
+  // falls back to the pinned baseline row it was written to stop reading.
+  for (const key of ["testsObserved", "suiteSize", "lanes", "missingLanes"]) {
+    assert.ok(key in latest.groundTruth, `groundTruth is missing ${key}`);
+  }
+
+  const targets = Object.entries(latest.targets);
+  assert.ok(targets.length > 0, "summary fallback has no targets");
+  for (const [slug, t] of targets) {
+    for (const key of ["regions", "label", "divergenceBest", "divergenceWorst", "regionFailures"]) {
+      assert.ok(key in t, `${slug} is missing ${key}`);
+    }
+  }
+});
+
+test("a zero-divergence row in the fallback still names its failures by identity", () => {
+  // The build's A+ check joins these against the split registry. A fallback
+  // predating the identity change carries bare titles, and the check reports
+  // that it cannot verify rather than passing - but it fails the build either
+  // way, so catch it here instead.
+  for (const [slug, t] of Object.entries(summaryFallback.latest.targets)) {
+    if (t.divergenceBest !== 0 || !t.regionFailures) continue;
+    for (const [region, names] of Object.entries(t.regionFailures)) {
+      for (const id of names) {
+        assert.match(id, /^tests\/.+\.test\.ts::.+/, `${slug}/${region} carries a bare title: ${id}`);
+      }
+    }
+  }
+});

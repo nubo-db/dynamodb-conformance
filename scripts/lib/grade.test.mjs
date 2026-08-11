@@ -1,3 +1,4 @@
+import { axesOf } from './score.mjs'
 import { describe, expect, it } from 'vitest'
 import {
   BASELINE_GRADE,
@@ -219,6 +220,24 @@ describe('gradeOf', () => {
       expect(g.letter, `${slug} letter`).toBe(letter)
       expect(g.capped, `${slug} capped`).toBe(capped)
       expect(g.capAt, `${slug} capAt`).toBe(capped ? letter : null)
+    }
+  })
+
+  it('an unobserved test buys nothing, because a partial run is not scored', () => {
+    // A target controls its own responses, and a 503 classifies as
+    // indeterminate (src/indeterminate.ts). If an indeterminate were scored it
+    // would be a second, cheaper lever than withdrawal: excluded from the
+    // denominator, divergence falls further than coverage and the effective
+    // figure drops; counted in it, an infrastructure fault moves the letter.
+    // Neither figure publishes for such a run, so there is nothing to buy.
+    const SUITE = 998
+    const clean = axesOf({ passed: 834, failed: 156, count: SUITE })
+    expect(gradeOf(clean.divergence, clean.coverage).letter).toBe('C')
+
+    for (const k of [1, 7, 14, 60]) {
+      const bought = axesOf({ passed: 834, failed: 156 - k, count: SUITE, indeterminate: k })
+      expect(bought, `${k} converted`).toEqual({ divergence: null, coverage: null })
+      expect(gradeOf(bought.divergence, bought.coverage).letter, `${k} converted`).toBeNull()
     }
   })
 

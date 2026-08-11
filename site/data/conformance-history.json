@@ -644,12 +644,7 @@
             "delta": -4.9,
             "deltaLabel": "-4.9pp",
             "deltaReading": "4.9pp less",
-            "label": "diverged 4.9 percentage points less",
-            "grade": {
-              "from": "C",
-              "to": "B",
-              "label": "grade C to B"
-            }
+            "label": "diverged 4.9 percentage points less"
           },
           "variants": []
         },
@@ -5927,12 +5922,7 @@
             "delta": -5.2,
             "deltaLabel": "-5.2pp",
             "deltaReading": "5.2pp less",
-            "label": "diverged 5.2 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 5.2 percentage points less"
           },
           "variants": [
             {
@@ -6245,12 +6235,7 @@
             "delta": -13.7,
             "deltaLabel": "-13.7pp",
             "deltaReading": "13.7pp less",
-            "label": "diverged 13.7 percentage points less",
-            "grade": {
-              "from": "C",
-              "to": "A",
-              "label": "grade C to A"
-            }
+            "label": "diverged 13.7 percentage points less"
           },
           "variants": []
         },
@@ -6368,12 +6353,7 @@
             "delta": -9,
             "deltaLabel": "-9.0pp",
             "deltaReading": "9.0pp less",
-            "label": "diverged 9.0 percentage points less",
-            "grade": {
-              "from": "D",
-              "to": "C",
-              "label": "grade D to C"
-            }
+            "label": "diverged 9.0 percentage points less"
           },
           "variants": []
         },
@@ -7066,12 +7046,7 @@
             "delta": 1.5,
             "deltaLabel": "+1.5pp",
             "deltaReading": "1.5pp more",
-            "label": "diverged 1.5 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 1.5 percentage points more"
           },
           "variants": []
         },
@@ -7521,12 +7496,7 @@
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
             "deltaReading": "0.1pp less",
-            "label": "diverged 0.1 percentage points less",
-            "grade": {
-              "from": "C",
-              "to": "D",
-              "label": "grade C to D"
-            }
+            "label": "diverged 0.1 percentage points less"
           },
           "variants": []
         }
@@ -8240,12 +8210,7 @@
             "delta": 2.3,
             "deltaLabel": "+2.3pp",
             "deltaReading": "2.3pp more",
-            "label": "diverged 2.3 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 2.3 percentage points more"
           },
           "variants": []
         },
@@ -13555,12 +13520,7 @@
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
             "deltaReading": "2.9pp more",
-            "label": "diverged 2.9 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 2.9 percentage points more"
           },
           "variants": []
         },
@@ -13744,12 +13704,7 @@
             "delta": -0.5,
             "deltaLabel": "-0.5pp",
             "deltaReading": "0.5pp less",
-            "label": "diverged 0.5 percentage points less",
-            "grade": {
-              "from": "D",
-              "to": "C",
-              "label": "grade D to C"
-            }
+            "label": "diverged 0.5 percentage points less"
           },
           "variants": []
         }
@@ -16320,12 +16275,7 @@
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
             "deltaReading": "2.9pp more",
-            "label": "diverged 2.9 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 2.9 percentage points more"
           },
           "variants": []
         },
@@ -17212,12 +17162,7 @@
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
             "deltaReading": "0.7pp more",
-            "label": "diverged 0.7 percentage points more",
-            "grade": {
-              "from": "C",
-              "to": "D",
-              "label": "grade C to D"
-            }
+            "label": "diverged 0.7 percentage points more"
           },
           "variants": []
         }
@@ -18391,12 +18336,7 @@
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
             "deltaReading": "2.1pp more",
-            "label": "diverged 2.1 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 2.1 percentage points more"
           },
           "variants": []
         },
@@ -18758,12 +18698,7 @@
             "delta": -5.4,
             "deltaLabel": "-5.4pp",
             "deltaReading": "5.4pp less",
-            "label": "diverged 5.4 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 5.4 percentage points less"
           },
           "variants": []
         },
@@ -20087,12 +20022,7 @@
             "delta": 3.5,
             "deltaLabel": "+3.5pp",
             "deltaReading": "3.5pp more",
-            "label": "diverged 3.5 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 3.5 percentage points more"
           },
           "variants": []
         },
@@ -20167,12 +20097,7 @@
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
             "deltaReading": "2.9pp more",
-            "label": "diverged 2.9 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 2.9 percentage points more"
           },
           "variants": []
         },
@@ -20247,12 +20172,7 @@
             "delta": 5.6,
             "deltaLabel": "+5.6pp",
             "deltaReading": "5.6pp more",
-            "label": "diverged 5.6 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 5.6 percentage points more"
           },
           "variants": []
         },
@@ -20477,12 +20397,7 @@
             "delta": 1.9,
             "deltaLabel": "+1.9pp",
             "deltaReading": "1.9pp more",
-            "label": "diverged 1.9 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 1.9 percentage points more"
           },
           "variants": []
         },
@@ -23492,12 +23407,7 @@
             "delta": -3.9,
             "deltaLabel": "-3.9pp",
             "deltaReading": "3.9pp less",
-            "label": "diverged 3.9 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 3.9 percentage points less"
           },
           "variants": []
         },
@@ -23572,12 +23482,7 @@
             "delta": -10.4,
             "deltaLabel": "-10.4pp",
             "deltaReading": "10.4pp less",
-            "label": "diverged 10.4 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 10.4 percentage points less"
           },
           "variants": []
         },
@@ -24089,12 +23994,7 @@
             "delta": -4.4,
             "deltaLabel": "-4.4pp",
             "deltaReading": "4.4pp less",
-            "label": "diverged 4.4 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 4.4 percentage points less"
           },
           "variants": []
         },
@@ -24469,12 +24369,7 @@
             "delta": -21.3,
             "deltaLabel": "-21.3pp",
             "deltaReading": "21.3pp less",
-            "label": "diverged 21.3 percentage points less",
-            "grade": {
-              "from": "D",
-              "to": "B",
-              "label": "grade D to B"
-            }
+            "label": "diverged 21.3 percentage points less"
           },
           "variants": []
         },
@@ -24761,12 +24656,7 @@
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
             "deltaReading": "0.6pp more",
-            "label": "diverged 0.6 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 0.6 percentage points more"
           },
           "variants": []
         },
@@ -25503,12 +25393,7 @@
             "delta": 2,
             "deltaLabel": "+2.0pp",
             "deltaReading": "2.0pp more",
-            "label": "diverged 2.0 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 2.0 percentage points more"
           },
           "variants": []
         },
@@ -25583,12 +25468,7 @@
             "delta": 1.7,
             "deltaLabel": "+1.7pp",
             "deltaReading": "1.7pp more",
-            "label": "diverged 1.7 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 1.7 percentage points more"
           },
           "variants": []
         },
@@ -26100,12 +25980,7 @@
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
             "deltaReading": "2.1pp more",
-            "label": "diverged 2.1 percentage points more",
-            "grade": {
-              "from": "A+",
-              "to": "A",
-              "label": "grade A+ to A"
-            }
+            "label": "diverged 2.1 percentage points more"
           },
           "variants": []
         },
@@ -26917,12 +26792,7 @@
             "delta": -36.6,
             "deltaLabel": "-36.6pp",
             "deltaReading": "36.6pp less",
-            "label": "diverged 36.6 percentage points less",
-            "grade": {
-              "from": "F",
-              "to": "A",
-              "label": "grade F to A"
-            }
+            "label": "diverged 36.6 percentage points less"
           },
           "variants": []
         },
@@ -27222,12 +27092,7 @@
             "delta": -4.8,
             "deltaLabel": "-4.8pp",
             "deltaReading": "4.8pp less",
-            "label": "diverged 4.8 percentage points less",
-            "grade": {
-              "from": "F",
-              "to": "D",
-              "label": "grade F to D"
-            }
+            "label": "diverged 4.8 percentage points less"
           },
           "variants": []
         }
@@ -27439,12 +27304,7 @@
             "delta": -1,
             "deltaLabel": "-1.0pp",
             "deltaReading": "1.0pp less",
-            "label": "diverged 1.0 percentage points less",
-            "grade": {
-              "from": "A",
-              "to": "A+",
-              "label": "grade A to A+"
-            }
+            "label": "diverged 1.0 percentage points less"
           },
           "variants": []
         },
@@ -28031,12 +27891,7 @@
             "delta": 1,
             "deltaLabel": "+1.0pp",
             "deltaReading": "1.0pp more",
-            "label": "diverged 1.0 percentage points more",
-            "grade": {
-              "from": "A+",
-              "to": "A",
-              "label": "grade A+ to A"
-            }
+            "label": "diverged 1.0 percentage points more"
           },
           "variants": []
         },
@@ -28261,12 +28116,7 @@
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
             "deltaReading": "0.9pp more",
-            "label": "diverged 0.9 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 0.9 percentage points more"
           },
           "variants": []
         }
@@ -30244,12 +30094,7 @@
           "delta": -4.9,
           "deltaLabel": "-4.9pp",
           "deltaReading": "4.9pp less",
-          "label": "diverged 4.9 percentage points less",
-          "grade": {
-            "from": "C",
-            "to": "B",
-            "label": "grade C to B"
-          }
+          "label": "diverged 4.9 percentage points less"
         },
         "variants": []
       },
@@ -30782,12 +30627,7 @@
       "delta": -4.9,
       "deltaLabel": "-4.9pp",
       "deltaReading": "4.9pp less",
-      "label": "diverged 4.9 percentage points less",
-      "grade": {
-        "from": "C",
-        "to": "B",
-        "label": "grade C to B"
-      }
+      "label": "diverged 4.9 percentage points less"
     },
     "dynalite": {
       "state": "flat",
@@ -31254,12 +31094,7 @@
             "delta": 1,
             "deltaLabel": "+1.0pp",
             "deltaReading": "1.0pp more",
-            "label": "diverged 1.0 percentage points more",
-            "grade": {
-              "from": "A+",
-              "to": "A",
-              "label": "grade A+ to A"
-            }
+            "label": "diverged 1.0 percentage points more"
           },
           "sha": "df7cb9225f91e2103b205e2343b432ae80c5b991"
         },
@@ -31325,12 +31160,7 @@
             "delta": -1,
             "deltaLabel": "-1.0pp",
             "deltaReading": "1.0pp less",
-            "label": "diverged 1.0 percentage points less",
-            "grade": {
-              "from": "A",
-              "to": "A+",
-              "label": "grade A to A+"
-            }
+            "label": "diverged 1.0 percentage points less"
           },
           "sha": "8b1f994b550ff546eb76e168195c4b6cb3db971a"
         },
@@ -31462,12 +31292,7 @@
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
             "deltaReading": "2.1pp more",
-            "label": "diverged 2.1 percentage points more",
-            "grade": {
-              "from": "A+",
-              "to": "A",
-              "label": "grade A+ to A"
-            }
+            "label": "diverged 2.1 percentage points more"
           },
           "sha": "30e031c25bee53115c195d4801afce72c0aed437"
         },
@@ -31599,12 +31424,7 @@
             "delta": 0.6,
             "deltaLabel": "+0.6pp",
             "deltaReading": "0.6pp more",
-            "label": "diverged 0.6 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 0.6 percentage points more"
           },
           "sha": "910029d72cdbd0d0254b3ec9e19d575153c737d6"
         },
@@ -31670,12 +31490,7 @@
             "delta": -4.4,
             "deltaLabel": "-4.4pp",
             "deltaReading": "4.4pp less",
-            "label": "diverged 4.4 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 4.4 percentage points less"
           },
           "sha": "6bb096a07b1e84da5ed9c4ae09d09e331f344581"
         },
@@ -32071,12 +31886,7 @@
             "delta": 3.5,
             "deltaLabel": "+3.5pp",
             "deltaReading": "3.5pp more",
-            "label": "diverged 3.5 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 3.5 percentage points more"
           },
           "sha": "9d77d6a9da56d6a50fd47db2d0a82d75b830bdf3"
         },
@@ -32208,12 +32018,7 @@
             "delta": -5.4,
             "deltaLabel": "-5.4pp",
             "deltaReading": "5.4pp less",
-            "label": "diverged 5.4 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 5.4 percentage points less"
           },
           "sha": "f2d81f3d111192a396cb02c7bdc4c316b2327b4a"
         },
@@ -33203,12 +33008,7 @@
             "delta": 1.5,
             "deltaLabel": "+1.5pp",
             "deltaReading": "1.5pp more",
-            "label": "diverged 1.5 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 1.5 percentage points more"
           },
           "sha": "cb2f0e0a958bdec6638fb2e10394164908b8050b"
         },
@@ -33274,12 +33074,7 @@
             "delta": -5.2,
             "deltaLabel": "-5.2pp",
             "deltaReading": "5.2pp less",
-            "label": "diverged 5.2 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 5.2 percentage points less"
           },
           "sha": "f027afa1c345956f076d13c5b81c590343d8c1db"
         },
@@ -37280,12 +37075,7 @@
             "delta": 1.9,
             "deltaLabel": "+1.9pp",
             "deltaReading": "1.9pp more",
-            "label": "diverged 1.9 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 1.9 percentage points more"
           },
           "sha": "9d77d6a9da56d6a50fd47db2d0a82d75b830bdf3"
         },
@@ -46964,12 +46754,7 @@
             "delta": 0.9,
             "deltaLabel": "+0.9pp",
             "deltaReading": "0.9pp more",
-            "label": "diverged 0.9 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 0.9 percentage points more"
           },
           "sha": "df7cb9225f91e2103b205e2343b432ae80c5b991"
         },
@@ -48091,12 +47876,7 @@
             "delta": 0.7,
             "deltaLabel": "+0.7pp",
             "deltaReading": "0.7pp more",
-            "label": "diverged 0.7 percentage points more",
-            "grade": {
-              "from": "C",
-              "to": "D",
-              "label": "grade C to D"
-            }
+            "label": "diverged 0.7 percentage points more"
           },
           "sha": "68e2a25267d295bfbe7cc83e475912879068bfeb"
         },
@@ -48426,12 +48206,7 @@
             "delta": -0.5,
             "deltaLabel": "-0.5pp",
             "deltaReading": "0.5pp less",
-            "label": "diverged 0.5 percentage points less",
-            "grade": {
-              "from": "D",
-              "to": "C",
-              "label": "grade D to C"
-            }
+            "label": "diverged 0.5 percentage points less"
           },
           "sha": "faadf31d6c2cb5b4169b5f7974dcd06993318f6f"
         },
@@ -48893,12 +48668,7 @@
             "delta": -0.1,
             "deltaLabel": "-0.1pp",
             "deltaReading": "0.1pp less",
-            "label": "diverged 0.1 percentage points less",
-            "grade": {
-              "from": "C",
-              "to": "D",
-              "label": "grade C to D"
-            }
+            "label": "diverged 0.1 percentage points less"
           },
           "sha": "cb2f0e0a958bdec6638fb2e10394164908b8050b"
         },
@@ -48964,12 +48734,7 @@
             "delta": -9,
             "deltaLabel": "-9.0pp",
             "deltaReading": "9.0pp less",
-            "label": "diverged 9.0 percentage points less",
-            "grade": {
-              "from": "D",
-              "to": "C",
-              "label": "grade D to C"
-            }
+            "label": "diverged 9.0 percentage points less"
           },
           "sha": "f027afa1c345956f076d13c5b81c590343d8c1db"
         },
@@ -57607,12 +57372,7 @@
             "delta": 2.1,
             "deltaLabel": "+2.1pp",
             "deltaReading": "2.1pp more",
-            "label": "diverged 2.1 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 2.1 percentage points more"
           },
           "sha": "4ecf3db34ab9a77df2ab38fa5b281594878fe8ba"
         },
@@ -66923,12 +66683,7 @@
             "delta": -36.6,
             "deltaLabel": "-36.6pp",
             "deltaReading": "36.6pp less",
-            "label": "diverged 36.6 percentage points less",
-            "grade": {
-              "from": "F",
-              "to": "A",
-              "label": "grade F to A"
-            }
+            "label": "diverged 36.6 percentage points less"
           },
           "sha": "853e186d8fc8c60177a81e314b862e0ce3be7cb7"
         },
@@ -67060,12 +66815,7 @@
             "delta": 1.7,
             "deltaLabel": "+1.7pp",
             "deltaReading": "1.7pp more",
-            "label": "diverged 1.7 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 1.7 percentage points more"
           },
           "sha": "1c8a491df1fe02cb39aee43f864e06590850a234"
         },
@@ -67989,12 +67739,7 @@
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
             "deltaReading": "2.9pp more",
-            "label": "diverged 2.9 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 2.9 percentage points more"
           },
           "sha": "c944d9738334b23ebcec6fa6e8f35dbcba4acdd4"
         },
@@ -78685,12 +78430,7 @@
           "delta": -4.9,
           "deltaLabel": "-4.9pp",
           "deltaReading": "4.9pp less",
-          "label": "diverged 4.9 percentage points less",
-          "grade": {
-            "from": "C",
-            "to": "B",
-            "label": "grade C to B"
-          }
+          "label": "diverged 4.9 percentage points less"
         },
         "variants": []
       },
@@ -78826,12 +78566,7 @@
             "delta": -4.8,
             "deltaLabel": "-4.8pp",
             "deltaReading": "4.8pp less",
-            "label": "diverged 4.8 percentage points less",
-            "grade": {
-              "from": "F",
-              "to": "D",
-              "label": "grade F to D"
-            }
+            "label": "diverged 4.8 percentage points less"
           },
           "sha": "853e186d8fc8c60177a81e314b862e0ce3be7cb7"
         },
@@ -79095,12 +78830,7 @@
             "delta": -21.3,
             "deltaLabel": "-21.3pp",
             "deltaReading": "21.3pp less",
-            "label": "diverged 21.3 percentage points less",
-            "grade": {
-              "from": "D",
-              "to": "B",
-              "label": "grade D to B"
-            }
+            "label": "diverged 21.3 percentage points less"
           },
           "sha": "6bb096a07b1e84da5ed9c4ae09d09e331f344581"
         },
@@ -79166,12 +78896,7 @@
             "delta": -10.4,
             "deltaLabel": "-10.4pp",
             "deltaReading": "10.4pp less",
-            "label": "diverged 10.4 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 10.4 percentage points less"
           },
           "sha": "faa8b1c1a0b89851e4fc2c6fd65e39bb1cf68d28"
         },
@@ -79501,12 +79226,7 @@
             "delta": 5.6,
             "deltaLabel": "+5.6pp",
             "deltaReading": "5.6pp more",
-            "label": "diverged 5.6 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 5.6 percentage points more"
           },
           "sha": "9d77d6a9da56d6a50fd47db2d0a82d75b830bdf3"
         },
@@ -80562,12 +80282,7 @@
             "delta": 2.3,
             "deltaLabel": "+2.3pp",
             "deltaReading": "2.3pp more",
-            "label": "diverged 2.3 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 2.3 percentage points more"
           },
           "sha": "9e18ba720e2a6346276e29cf4432d7c29cd74aa0"
         },
@@ -81029,12 +80744,7 @@
             "delta": -4.9,
             "deltaLabel": "-4.9pp",
             "deltaReading": "4.9pp less",
-            "label": "diverged 4.9 percentage points less",
-            "grade": {
-              "from": "C",
-              "to": "B",
-              "label": "grade C to B"
-            }
+            "label": "diverged 4.9 percentage points less"
           },
           "findings": [
             {
@@ -87676,12 +87386,7 @@
             "delta": 2,
             "deltaLabel": "+2.0pp",
             "deltaReading": "2.0pp more",
-            "label": "diverged 2.0 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 2.0 percentage points more"
           },
           "sha": "1c8a491df1fe02cb39aee43f864e06590850a234"
         },
@@ -87879,12 +87584,7 @@
             "delta": -3.9,
             "deltaLabel": "-3.9pp",
             "deltaReading": "3.9pp less",
-            "label": "diverged 3.9 percentage points less",
-            "grade": {
-              "from": "B",
-              "to": "A",
-              "label": "grade B to A"
-            }
+            "label": "diverged 3.9 percentage points less"
           },
           "sha": "faa8b1c1a0b89851e4fc2c6fd65e39bb1cf68d28"
         },
@@ -88214,12 +87914,7 @@
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
             "deltaReading": "2.9pp more",
-            "label": "diverged 2.9 percentage points more",
-            "grade": {
-              "from": "A",
-              "to": "B",
-              "label": "grade A to B"
-            }
+            "label": "diverged 2.9 percentage points more"
           },
           "sha": "9d77d6a9da56d6a50fd47db2d0a82d75b830bdf3"
         },
@@ -88879,12 +88574,7 @@
             "delta": 2.9,
             "deltaLabel": "+2.9pp",
             "deltaReading": "2.9pp more",
-            "label": "diverged 2.9 percentage points more",
-            "grade": {
-              "from": "B",
-              "to": "C",
-              "label": "grade B to C"
-            }
+            "label": "diverged 2.9 percentage points more"
           },
           "sha": "faadf31d6c2cb5b4169b5f7974dcd06993318f6f"
         },
@@ -89412,12 +89102,7 @@
             "delta": -13.7,
             "deltaLabel": "-13.7pp",
             "deltaReading": "13.7pp less",
-            "label": "diverged 13.7 percentage points less",
-            "grade": {
-              "from": "C",
-              "to": "A",
-              "label": "grade C to A"
-            }
+            "label": "diverged 13.7 percentage points less"
           },
           "sha": "f027afa1c345956f076d13c5b81c590343d8c1db"
         },
@@ -100964,5 +100649,5 @@
     }
   ],
   "historyHash": "fe789afb234f0bbb",
-  "capturedAt": "2026-08-11T20:56:00.158Z"
+  "capturedAt": "2026-08-11T21:15:05.310Z"
 }

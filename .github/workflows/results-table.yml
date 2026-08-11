@@ -119,6 +119,14 @@ jobs:
             dest="results/${lane##*:}"
             if [ -f "$src" ]; then
               cp -f "$src" "$dest"
+              # The sidecar travels with the document it qualifies. Without it
+              # a run-level indeterminate in the lane reads as plain failures,
+              # the tests count as observed, and the baseline row derives from
+              # a run that never answered.
+              rm -f "${dest%.json}.indeterminate.json"
+              if [ -f "${src%.json}.indeterminate.json" ]; then
+                cp -f "${src%.json}.indeterminate.json" "${dest%.json}.indeterminate.json"
+              fi
             fi
           done
 

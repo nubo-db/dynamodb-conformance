@@ -297,6 +297,33 @@ describe('buildSummary', () => {
 // ── The real-AWS lanes behind the baseline row ──────────────────────────────
 
 describe('the ground truth as three lanes', () => {
+  const laneDir = () => mkdtempSync(join(tmpdir(), 'lanes-'))
+
+  it('a lane that shipped an indeterminate sidecar is not merged', () => {
+    // Otherwise the lane's failures read as observed answers, `unobserved`
+    // empties, the row derives, and the board publishes real DynamoDB
+    // diverging from itself.
+    const dir = laneDir()
+    const file = join(dir, 'dynamodb.json')
+    writeFileSync(file, JSON.stringify(suiteDoc('passed')))
+    writeFileSync(join(dir, 'dynamodb.gsi.json'), JSON.stringify(suiteDoc('passed')))
+    writeFileSync(
+      join(dir, 'dynamodb.gsi.indeterminate.json'),
+      JSON.stringify({ runLevel: [{ reason: 'table-active-timeout', phase: 'provisioning' }] }),
+    )
+    const [target] = readTargets([file])
+    expect(target.missingLanes).toContain('gsi')
+  })
+
+  it('an unreadable lane degrades rather than aborting the regeneration', () => {
+    const dir = laneDir()
+    const file = join(dir, 'dynamodb.json')
+    writeFileSync(file, JSON.stringify(suiteDoc('passed')))
+    writeFileSync(join(dir, 'dynamodb.gsi.json'), '{"testResults": [truncated')
+    expect(() => readTargets([file])).not.toThrow()
+    expect(readTargets([file])[0].missingLanes).toContain('gsi')
+  })
+
   // Real AWS is observed in three runs: the gating job plus the two slower
   // lanes. The fixture is split the same way, and each lane's paths carry a
   // different absolute prefix because each lane runs in its own CI job.

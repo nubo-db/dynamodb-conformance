@@ -73,7 +73,14 @@ function deltaMovement(cur, prev) {
 // stated where the delta is rather than left for a reader to rederive from
 // the criteria. Both figures feed the grade, so the previous run's coverage
 // matters too: a cap can lift or land without divergence moving at all.
-function withGradeShift(mv, cur, prev) {
+function withGradeShift(mv, cur, prev, dates = {}) {
+  // A transition is a claim about history, stronger than a letter computed
+  // now: it says two letters existed and one became the other. Neither did on
+  // a run measured before the criteria, so the shift is withheld on the same
+  // grounds the feed withholds the letter. Both ends have to qualify - a move
+  // out of a run that never had a letter is not a move.
+  const graded = gradedUnderCriteria(dates.cur) && gradedUnderCriteria(dates.prev);
+  if (!graded) return mv;
   const to = gradeOf(cur.divergenceValue, cur.coverageValue).letter;
   const from = gradeOf(prev.divergenceValue, prev.coverageValue).letter;
   if (!from || !to || from === to) return mv;
@@ -343,7 +350,10 @@ export function buildModel(snapshots, summary = null) {
     // same run got better.
     const f = figuresOf(cur);
     const p = figuresOf(prev);
-    return withGradeShift(deltaMovement(f.divergenceValue, p.divergenceValue), f, p);
+    return withGradeShift(deltaMovement(f.divergenceValue, p.divergenceValue), f, p, {
+      cur: date,
+      prev: ds[idx - 1],
+    });
   };
 
   // Build runs oldest -> newest.
@@ -466,6 +476,7 @@ export function buildModel(snapshots, summary = null) {
               deltaMovement(f.divergenceValue, figuresOf(m.get(ds[i - 1])).divergenceValue),
               f,
               figuresOf(m.get(ds[i - 1])),
+              { cur: date, prev: ds[i - 1] },
             );
       return {
         runId: idByDate.get(date),

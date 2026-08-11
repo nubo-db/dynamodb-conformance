@@ -121,21 +121,42 @@ test("movement: diverging less is an improvement, diverging more a regression", 
 });
 
 test("movement: a letter change travels with the delta; an in-band move carries none", () => {
+  // Dated on and after the criteria: a transition between two runs that never
+  // carried a letter is withheld, which the next test covers.
+  const d = (n) => {
+    const t = new Date(`${GRADING_CRITERIA_EFFECTIVE}T10:00:00Z`);
+    t.setUTCDate(t.getUTCDate() + n);
+    return t.toISOString();
+  };
   const model = buildModel([
-    at("dynoxide", "2026-01-01T10:00:00Z", "a", 80), // 20% diverges: C
-    at("dynoxide", "2026-01-02T10:00:00Z", "b", 92), // 8%: crosses into B
-    at("dynoxide", "2026-01-03T10:00:00Z", "c", 90), // 10%: still B
-    at("dynoxide", "2026-01-04T10:00:00Z", "d", 100), // 0% at full coverage: A+
+    at("dynoxide", d(0), "a", 80), // 20% diverges: C
+    at("dynoxide", d(1), "b", 92), // 8%: crosses into B
+    at("dynoxide", d(2), "c", 90), // 10%: still B
+    at("dynoxide", d(3), "d", 100), // 0% at full coverage: A+
   ]);
+  const on = (n) => d(n).slice(0, 10);
   const move = (date) => rowFor(model.runs.find((r) => r.date === date), "dynoxide").movement;
-  assert.deepEqual(move("2026-01-02").grade, { from: "C", to: "B", label: "grade C to B" });
+  assert.deepEqual(move(on(1)).grade, { from: "C", to: "B", label: "grade C to B" });
   // A move inside a band changes no letter, so nothing is attached: the
   // absence of a grade shift is itself a statement.
-  assert.equal(move("2026-01-03").grade, undefined);
-  assert.deepEqual(move("2026-01-04").grade, { from: "B", to: "A+", label: "grade B to A+" });
+  assert.equal(move(on(2)).grade, undefined);
+  assert.deepEqual(move(on(3)).grade, { from: "B", to: "A+", label: "grade B to A+" });
   // The per-target series must agree with the standings about the same run.
   const series = model.perTarget.dynoxide.series;
   assert.deepEqual(series[1].movement.grade, { from: "C", to: "B", label: "grade C to B" });
+});
+
+test("a run predating the criteria reports no letter transition", () => {
+  // Stronger than withholding the letter: a transition asserts two letters
+  // existed and one became the other, and neither did.
+  const model = buildModel([
+    at("dynoxide", "2026-01-01T10:00:00Z", "a", 80),
+    at("dynoxide", "2026-01-02T10:00:00Z", "b", 92),
+  ]);
+  const mv = rowFor(model.runs.find((r) => r.date === "2026-01-02"), "dynoxide").movement;
+  assert.equal(mv.grade, undefined);
+  // The delta itself still publishes; it is a figure, not a claim about a letter.
+  assert.ok(mv.deltaReading);
 });
 
 test("movement: a target absent from earlier runs is flagged new", () => {

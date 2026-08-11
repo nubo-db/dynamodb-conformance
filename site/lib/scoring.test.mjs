@@ -19,6 +19,11 @@ import {
   scoreEmulator,
   tierFigures,
   tierOf,
+  GROUND_TRUTH_SLUG,
+  capClauseOf,
+  gradeForRow,
+  gradeLineOf,
+  regionClauseOf,
 } from "./scoring.mjs";
 import * as suite from "dynamodb-conformance/scripts/summarise.mjs";
 import * as suiteScore from "dynamodb-conformance/scripts/lib/score.mjs";
@@ -306,6 +311,15 @@ test("moving a fail to a skip moves divergence and coverage by identical deltas"
     const after = tierFigures({ ...t, f: t.f - 1, s: t.s + 1 });
     const total = t.p + t.f + t.s + t.i;
 
+    // A tally carrying an indeterminate is not scored at all, so there is no
+    // invariant to check on it. That is the point: an unobserved test must not
+    // be a cheaper lever than a withdrawn one.
+    if (t.i > 0) {
+      assert.equal(before.divergenceValue, null, `partial run scored: ${JSON.stringify(t)}`);
+      assert.equal(before.coverageValue, null, `partial run scored: ${JSON.stringify(t)}`);
+      continue;
+    }
+
     assert.equal(before.total, after.total, "the denominator must not move");
 
     const dDiv = after.divergenceValue - before.divergenceValue;
@@ -313,13 +327,9 @@ test("moving a fail to a skip moves divergence and coverage by identical deltas"
 
     // Both fall, by the same amount, and that amount is one test's worth.
     assert.ok(Math.abs(dDiv - dCov) < 1e-9, `deltas differ for ${JSON.stringify(t)}: ${dDiv} vs ${dCov}`);
-    // One test's worth of the tests actually observed. An indeterminate is not
-    // observed, so it is out of the denominator - the withdrawal invariant
-    // above is unaffected, since both numerators still move over the same one.
-    const observed = total - t.i;
     assert.ok(
-      Math.abs(dDiv - -100 / observed) < 1e-9,
-      `delta is not -1/observed for ${JSON.stringify(t)}`,
+      Math.abs(dDiv - -100 / total) < 1e-9,
+      `delta is not -1/total for ${JSON.stringify(t)}`,
     );
     assert.ok(dDiv < 0 && dCov < 0, "withdrawal lowers both, never raises either");
   }
@@ -328,7 +338,7 @@ test("moving a fail to a skip moves divergence and coverage by identical deltas"
 // The contrast the page draws, on the same tallies: the figure this replaced
 // moved the other way, because those tests left its denominator too.
 test("the correctness figure this replaced rises on the same withdrawal", () => {
-  for (const t of [{ p: 673, f: 213, s: 112, i: 0 }, { p: 7, f: 41, s: 3, i: 5 }, { p: 130, f: 2, s: 0, i: 0 }]) {
+  for (const t of [{ p: 673, f: 213, s: 112, i: 0 }, { p: 7, f: 41, s: 3, i: 0 }, { p: 130, f: 2, s: 0, i: 0 }]) {
     const before = tierFigures(t);
     const after = tierFigures({ ...t, f: t.f - 1, s: t.s + 1 });
     assert.ok(
@@ -348,4 +358,60 @@ test("withdrawing the last fail leaves no divergence, not zero", () => {
   assert.equal(after.divergenceValue, null);
   assert.equal(after.divergence, "-");
   assert.equal(after.coverage, "0.0%");
+});
+
+// ── The layer between the grade and the template ────────────────────────────
+//
+// gradeOf and axesOf are thoroughly covered; the copy helpers that turn their
+// output into the sentences on a card are not. A branch inversion here renders
+// as plausible prose and passes every build check, because the checks assert
+// shape rather than meaning. regionClauseOf prints the strongest claim on the
+// board - "no divergence in 6 regions" - and the count it pairs with the
+// figure is the thing that read backwards before.
+
+test("regionClauseOf pairs the cohort with its worst-region figure", () => {
+  const row = {
+    regionLabel: { regions: ["a", "b", "c", "d", "e", "f"], observed: 32 },
+    divergenceWorstLabel: "0.3%",
+  };
+  assert.equal(regionClauseOf(row), "in 6 regions · up to 0.3% in the other 26");
+});
+
+test("regionClauseOf says all regions only when the cohort is every one", () => {
+  assert.equal(
+    regionClauseOf({ regionLabel: { regions: Array(32).fill("r"), observed: 32 } }),
+    "in all 32 regions",
+  );
+  // One short is not all, and must not round up to it.
+  assert.match(
+    regionClauseOf({ regionLabel: { regions: Array(31).fill("r"), observed: 32 }, divergenceWorstLabel: "1.0%" }),
+    /^in 31 regions/,
+  );
+});
+
+test("regionClauseOf drops the remainder clause when no worst figure is known", () => {
+  // Rather than claiming a range it cannot evidence.
+  assert.equal(
+    regionClauseOf({ regionLabel: { regions: ["a"], observed: 32 } }),
+    "in 1 of 32 regions",
+  );
+  assert.equal(regionClauseOf({}), "");
+});
+
+test("gradeLineOf names the qualifier and only prints a figure when there is one", () => {
+  assert.equal(gradeLineOf({ divergenceValue: 0, coverageValue: 100, divergence: "0.0%" }), "no divergence");
+  assert.match(gradeLineOf({ divergenceValue: 12.3, coverageValue: 80, divergence: "12.3%" }), /\(12\.3%\)$/);
+});
+
+test("capClauseOf speaks only when coverage is holding the letter down", () => {
+  // Dynalite: B on divergence alone, C once coverage is read.
+  assert.match(capClauseOf({ divergenceValue: 12.3, coverageValue: 80 }), /lowers this row to C/);
+  // Ministack: full coverage, nothing to say.
+  assert.equal(capClauseOf({ divergenceValue: 11.2, coverageValue: 100 }), "");
+});
+
+test("the baseline is never given a letter by any of them", () => {
+  const baseline = { divergenceValue: 0, coverageValue: 100, slug: GROUND_TRUTH_SLUG };
+  assert.equal(gradeForRow(baseline, GROUND_TRUTH_SLUG).letter, null);
+  assert.equal(capClauseOf(baseline, GROUND_TRUTH_SLUG), "");
 });

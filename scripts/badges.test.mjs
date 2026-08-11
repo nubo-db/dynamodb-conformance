@@ -122,22 +122,21 @@ describe('gradeFor', () => {
     expect(gradeFor('dynoxide', raw, context)).toMatchObject({ letter: 'A+' })
   })
 
-  it('excludes a failed observation from divergence', () => {
-    // An indeterminate leaves the denominator rather than counting against the
-    // target. It used to widen it, so a provisioning timeout cost the target
-    // A+ - an infrastructure fault moving a published letter, which is not a
-    // fact about the engine. classify.mjs already drew this line: a skip is a
-    // property of the target, an indeterminate is a property of the run.
+  it('does not grade a run that recorded a failed observation', () => {
+    // A partial run is not graded. Counting the indeterminate against coverage
+    // let a timeout cost the target its letter; excluding it from the
+    // denominator was worse, because divergence then fell further than
+    // coverage, so converting a fail into an indeterminate beat withdrawing
+    // it - and a target can induce one by answering 503. Neither figure is
+    // published, and the board carries the last clean measurement.
     const raw = result(30, 0)
     raw.testResults[0].assertionResults.push({
       status: 'failed',
       meta: { indeterminate: { reason: 'gsi-consistency-timeout', at: 'test' } },
     })
-    expect(gradeFor('dynoxide', raw, CONTEXT)).toMatchObject({
-      letter: 'A+',
-      qualifier: 'no divergence',
-      capped: false,
-    })
+    // Same answer as the run-level sidecar below: no badge rather than a
+    // letter derived from a run that did not observe the whole suite.
+    expect(gradeFor('dynoxide', raw, CONTEXT)).toBeNull()
   })
 
   it('a run-level sidecar empties the grade rather than failing the target', () => {
