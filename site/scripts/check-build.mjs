@@ -162,6 +162,16 @@ try {
     // The baseline is framed by its divergence now, not the retired
     // correctness percentage.
     "the baseline, 100% by definition",
+    // The rolling coverage weight replaced three discrete steps. The old
+    // wording claimed more than the criteria deliver: it said the two figures
+    // were never traded against each other, which the weight does, and it
+    // named cap boundaries that no longer exist.
+    "never summed, averaged or otherwise traded",
+    "nothing is averaged, weighted or traded between the two",
+    "under 90% of the suite grades no better than",
+    "under 90% caps at B",
+    "the coverage caps are what answers",
+    "That leniency is what the coverage caps are for",
   ];
   const stale = [];
   for (const path of pages) {

@@ -54,36 +54,51 @@ stay apart because a skip and a fail are not the same kind of problem. An
 operation a target declines is something you find in minutes and plan around;
 one it gets quietly wrong is something you find in production.
 
-The **Grade** is a reading of the pair, never a blend of it. Divergence sets
-the letter (A+ exactly zero failing tests against the target's best-matching
-region, A under 5%, B under 15%, C under 25%, D under 35%, F beyond) and low
-coverage can only cap it (under 90% caps at B, under 70% at C, under 50% at
-D; coverage alone never grades F). Both figures print beside the letter in this
-table and on every page of the board, so the grade is always recomputable; the
-criteria are versioned and dated in the
+The **Grade** leads because a row carries several figures and a reader
+comparing eight targets needs somewhere to start. Divergence sets the letter (A
+under 5%, B under 15%, C under 25%, D under 35%, F beyond) and coverage can
+only lower it, never raise it: a third of whatever a target leaves
+unimplemented is added to its divergence before the bands are read, so a target
+implementing the whole suite is graded on divergence alone. A+ is exactly zero
+divergence at full coverage, and nothing holds it today. Both figures print
+beside the letter in this table and on every page of the board, so the grade is
+always recomputable; the criteria are versioned and dated in the
 [methodology](https://paritysuite.org/methodology#grading). The per-target
 badges are the exception: a shields endpoint has room for a label and a message
 and nothing else, so a badge carries the letter alone. A grade is an
 observation against this suite's tests on a date, not a certification.
 
-A cap is a ceiling, and where one is holding a letter the site says so on the
-row. On the 29 July 2026 run, Dynalite's 12.3% divergence put it in the B band
-while its 80.0% coverage capped it at B, so its B was the best that row could
-read and LocalStack's C sat under nothing. The letters would otherwise separate
-them with no sign that one of the two is boxed in.
+Where coverage is holding a letter down the site says so on the row. On the 9
+August 2026 run, Dynalite diverged on 12.3% of the suite, which is the B band
+on its own, but implemented 80.0% of it, and the third of that shortfall reads
+it up to an effective 19.0 and grades it C. Dynoxide diverged nowhere and
+implemented 98.6%, and that 1.4-point gap is enough to deny it A+ and settle it
+at A.
 
 Real DynamoDB reads `baseline` rather than a letter. A grade measures how far a
 target sits from real DynamoDB, so grading the yardstick against itself would
 put it in a band an engine had to earn its way into. Its two figures still
 publish: they are the definition every other row is read against.
 
+Withdrawing a failing test lowers divergence and coverage by exactly the same
+amount, which is what makes the pair hard to game. The letter does not fully
+inherit that. A third of the withdrawal comes back, so the effective figure
+still falls by two thirds of whatever left: withdrawal costs more than it used
+to rather than costing everything. Closing it completely would mean weighting a
+declined test exactly as heavily as a failed one, and the distinction between
+those two is what the board is built on. **Rank on the two figures, not the
+letter, if that matters to you.** On the 9 August 2026 run the cheapest letter
+anyone could buy this way was LocalStack's, at 14 withdrawn tests, which is a
+measurement of that board rather than a property of the criteria.
+
 The 5% and 25% boundaries are the numbers this board has published as its
 colour bands since it began, though those bands sat on correctness over the
 operations a target implements and these sit on divergence over the whole
 suite. Same numbers, different denominator, and the two only coincide at full
-coverage: at 80% coverage, 5% divergence is 93.75% correctness, which the old
-amber band caught. That leniency is what the coverage caps are for. The splits
-at 15% and 35% are new, and so are the caps.
+coverage. The coverage weight is what answers that: a target diverging 4.9%
+over 92% coverage is 94.7% correct, which the old sub-95% amber band caught,
+and reads an effective 7.6 here, which grades B. The splits at 15% and 35% are
+new, and so is the weight.
 
 A skipped test is deliberate: each test file probes for feature support in
 `beforeAll` and skips itself when the target doesn't implement that operation,

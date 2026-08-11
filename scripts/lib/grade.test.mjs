@@ -202,17 +202,17 @@ describe('gradeOf', () => {
   })
 
   it('the board matches the criteria, row by row', () => {
-    // The published board as of the 29 July 2026 run. A letter here moving
+    // The published board as of the 9 August 2026 run. A letter here moving
     // without a figure moving means the criteria moved.
     const board = [
       ['dynoxide', 0.0, 98.6, 'A', true],
-      ['extenddb', 1.8, 91.3, 'A', false],
+      ['extenddb', 2.0, 91.3, 'A', false],
       ['dynoxide-wasm', 0.0, 78.7, 'B', true],
+      ['ministack', 11.2, 100.0, 'B', false],
       ['dynalite', 12.3, 80.0, 'C', true],
       ['localstack', 15.6, 99.2, 'C', false],
       ['dynamodb-local', 15.9, 97.9, 'C', false],
-      ['ministack', 16.1, 100.0, 'C', false],
-      ['floci', 20.9, 99.1, 'C', false],
+      ['floci', 20.8, 99.1, 'C', false],
     ]
     for (const [slug, divergence, coverage, letter, capped] of board) {
       const g = gradeOf(divergence, coverage)
@@ -235,9 +235,9 @@ describe('gradeOf', () => {
     const CHEAPEST_BUY_TODAY = 14
     const ORDER = ['A+', 'A', 'B', 'C', 'D', 'F']
     const board = [
-      ['dynoxide', 0, 14], ['dynoxide-wasm', 0, 213], ['extenddb', 18, 87],
+      ['dynoxide', 0, 14], ['dynoxide-wasm', 0, 213], ['extenddb', 20, 87],
       ['dynalite', 123, 200], ['localstack', 156, 8], ['dynamodb-local', 159, 21],
-      ['ministack', 161, 0], ['floci', 209, 9],
+      ['ministack', 112, 0], ['floci', 208, 9],
     ]
     const gradeCounts = (failed, skipped) =>
       gradeOf((failed / SUITE) * 100, ((SUITE - skipped) / SUITE) * 100).letter

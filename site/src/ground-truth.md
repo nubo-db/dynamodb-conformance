@@ -1,7 +1,7 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-07-22"
+lastmod: "2026-08-11"
 meta:
   title: Regional ground truth
   description: "Why the conformance suite scores against every AWS region rather than one, how the best-matching region becomes a target's headline, and why real DynamoDB diverges nowhere by definition."

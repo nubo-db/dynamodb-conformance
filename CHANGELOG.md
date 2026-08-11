@@ -3,45 +3,65 @@
 A dated log of how the conformance test suite has grown: tests added, tiers
 broadened, and targets brought into the run. Newest first.
 
-## 2026-07-30 (3.0.0)
+## 2026-08-11 (3.0.0)
 
 **Read this first if you consume the JSON.** The data endpoints go from schema
 2 to schema 4 in this one release. Schema 3 was never published on its own, so
 there is no intermediate version to have been running: everything on 2 crosses
-both steps at once. Schema 3 is breaking in three ways and they are listed under
+both steps at once. Schema 3 is breaking in four ways and they are listed under
 "Everything else that was a percentage follows the headline down" below. Schema
 4 is additive on top of it. The one that fails silently is `movement.state`,
 whose values changed from `up`/`down` to `improved`/`regressed` - the old names
-still parse and now mean the opposite direction.
+still parse and now mean the opposite direction. `movement.delta` inverts the
+same way without changing shape: it was computed from correctness and is now
+computed from divergence, so the sign of a delta means the opposite of what it
+did and nothing in the data says so.
 
-Every target now wears a letter grade, read from the two published figures and
-never blended from them. Divergence sets the letter - A+ for exactly zero
-failing tests against the target's best-matching region, A under 5%, B under
-15%, C under 25%, D under 35%, F beyond -
-and low coverage can only cap it: under 90% caps at B, under 70% at C, under
-50% at D, and coverage alone never grades F. No measurement changed. The 5% and
-25% boundaries carry over the numbers of the colour bands the board has always
-published, though those sat on correctness and these sit on divergence, so the
-same numbers cut a different line at anything below full coverage; 15%, 35% and
-the caps are new. The criteria are versioned (v1) and dated in the methodology,
-because where a threshold sits is the one hand-picked input to a letter and
-moving one regrades targets whose results never changed.
+Every target now wears a letter grade, read from the two published figures.
+Divergence sets the letter - A under 5%, B under 15%, C under 25%, D under 35%,
+F beyond - and coverage can only lower it, never raise it: a third of whatever
+a target leaves unimplemented is added to its divergence before the bands are
+read, so a target implementing the whole suite is graded on divergence alone.
+A+ is exactly zero divergence at full coverage, and nothing on the board holds
+it. No measurement changed. The 5% and 25% boundaries carry over the numbers of
+the colour bands the board has always published, though those sat on
+correctness and these sit on divergence, so the same numbers cut a different
+line at anything below full coverage; 15%, 35% and the coverage weight are new.
+The criteria are versioned (v1) and dated in the methodology, because where a
+threshold sits is a hand-picked input to a letter and moving one regrades
+targets whose results never changed.
 
-- Dynoxide reads `A+` where it read `0.0% diverges, 98.6% covered` - both
-  figures stay printed beside the letter. Its WebAssembly build reads `B` on
-  the same zero divergence, capped by its 78.7% coverage: the cap applies to
-  the board author's own engine like any other.
+The coverage weight rolls rather than stepping. An earlier draft of these
+criteria capped in three jumps, at 90%, 70% and 50% covered, and between two
+steps a target could decline the operations it failed, cross a band, and never
+come near the step that would have held it. Pricing every withdrawal instead of
+three of them removes that cliff. It does not make withdrawal unprofitable: the
+effective figure still falls by two thirds of whatever is withdrawn, so a
+target that declines what it fails still gains, it just pays more. Only
+weighting a declined test exactly as heavily as a failed one would remove the
+gain, and that distinction is what the board is built on. Rank on the two
+figures rather than the letter if it matters to you.
+
+- Dynoxide reads `A` where it read `0.0% diverges, 98.6% covered` - both
+  figures stay printed beside the letter. It diverges nowhere, and the
+  1.4-point coverage gap is what denies it A+. Its WebAssembly build reads `B`
+  on the same zero divergence over 78.7% coverage. Coverage weighs on the board
+  author's own engine like any other, and it is the only engine the rolling
+  weight moved downward from the stepped draft.
 - Real DynamoDB reads `baseline`, not a letter. A grade measures how far a
   target sits from real DynamoDB, so grading the yardstick against itself would
   seat it in a band an engine had to earn its way into. Its two figures still
   publish.
-- A row says "coverage caps this row at B" wherever a cap is holding its letter,
-  whether or not the cap had to lower it. Dynalite diverges 12.3%, which is the
-  B band on its own, over 80.0% coverage, which caps at B: nothing was lowered
-  and B is still the best that row can read. Without the clause it looked
-  identical to a target with room above it, and a reader comparing Dynalite's
-  **B** with LocalStack's **C** could not see that only one of the two is
-  boxed in.
+- A row says where coverage is holding its letter, whether or not it had to
+  lower one. Dynalite diverges 12.3%, which is the B band on its own, over
+  80.0% coverage, and the third of that shortfall reads it up to an effective
+  19.0 and grades it `C`. Without the clause a capped row looks identical to
+  one with room above it, and a reader comparing Dynalite's **C** with
+  LocalStack's **C** could not see that only one of the two is boxed in.
+- `maintainedByAuthor` now reads `true` for `dynoxide-wasm`. It is keyed on the
+  project rather than the exact slug, because a build of a self-maintained
+  engine is the same conflict of interest as the engine. The flag was
+  understating the disclosure, so this widens it.
 - The per-target badges show the grade under a `parity` label. They had still
   been publishing the correctness percentage the board retired, under a
   `conformance` label, so a badge could disagree with the table it cited. The

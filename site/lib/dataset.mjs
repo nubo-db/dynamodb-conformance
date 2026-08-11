@@ -243,11 +243,12 @@ const METRICS = {
     direction: "A+ is best, F is worst",
     gradingVersion: GRADING_VERSION,
     description:
-      "A reading of the divergence and coverage pair, never a blend of it: divergence sets the letter and low coverage can only cap it. The letter does not inherit divergence's resistance to scope withdrawal: the figures fall together, but the bands are continuous where the caps are three steps, so between cap boundaries a target that declines the operations it fails can cross a band while its coverage stays above the cap it would otherwise hit. Rank on the two figures, not the letter, if that distinction matters to you. Recomputable from the two values with the criteria below; a criteria change bumps gradingVersion. The bands and caps read both values rounded to one decimal place (the precision the board publishes); only the A+ test reads the raw divergence, because A+ means exactly zero failing tests, not a figure that rounds to 0.0. When either value is null the grade is null ('not scored') - check for null before applying the bands, or a null divergence will coerce and mis-grade.",
+      "A reading of the divergence and coverage pair: divergence sets the letter and coverage can only lower it, never raise it. One divisor's share of whatever a target leaves unimplemented is added to its divergence before the bands are read, so a target implementing the whole suite is graded on divergence alone. The letter does not inherit divergence's resistance to scope withdrawal. The two figures fall together under a withdrawal, but the effective figure falls by (1 - 1/coverageDivisor) of it, so a target that declines the operations it fails still gains ground - it pays more than it used to rather than paying in full. Only weighting a declined test as heavily as a failed one would close that, and the board deliberately does not. Rank on the two figures, not the letter, if that distinction matters to you. Recomputable from the two values with the criteria below; a criteria change bumps gradingVersion. The bands read both values rounded to one decimal place (the precision the board publishes); the A+ gate reads both raw, because A+ means exactly zero failing tests and nothing declined, not figures that round to 0.0 and 100.0. When either value is null the grade is null ('not scored') - check for null before applying the bands, or a null divergence will coerce and mis-grade.",
     // The criteria themselves, so a consumer can regrade without a prose page:
-    // the letter for a divergence below each band's bound, A+ for exactly
-    // zero divergence (zero failing tests, not a rounded 0.0%), and the
-    // coverage caps, which apply to every letter and stop at D.
+    // the letter for an effective divergence below each band's bound, the A+
+    // gate, and the divisor coverage is weighted by. A divisor rather than a
+    // decimal because 0.333... is not representable, and a rounded one lands
+    // on the other side of a band boundary from the division.
     bands: GRADE_BANDS,
     // Both halves, because both are required: A+ means nothing failed and
     // nothing was declined. Read exactly, not at the published precision.
