@@ -47,8 +47,7 @@ figures rather than the letter if it matters to you.
   1.4-point coverage gap is what denies it A+. Its WebAssembly build reads `B`
   on the same zero divergence over 78.7% coverage. Two rows sit lower than the
   stepped draft would have put them: Dynoxide, which is the board author's own,
-  and Dynalite, which is not. Naming both matters more than the first one being
-  convenient.
+  and Dynalite, which is not.
 - Real DynamoDB reads `baseline`, not a letter. A grade measures how far a
   target sits from real DynamoDB, so grading the yardstick against itself would
   seat it in a band an engine had to earn its way into. Its two figures still
