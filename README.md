@@ -430,14 +430,16 @@ tests/
     describeTable/          # basic
     listTables/             # basic
     updateTable/            # basic
-  tier2/                    # ~199 tests
+  tier2/                    # ~229 tests
     transactions/           # transactWrite, transactGet
     partiql/                # executeStatement, batchExecuteStatement, executeTransaction
     ttl/                    # basic
     streams/                # basic
     tags/                   # basic
     updateTable/            # gsi
-  tier3/                    # ~324 tests
+    vectorSearch/           # lifecycle, updateLifecycle, search, validation,
+                            # writeValidation, consumedCapacity, partiql
+  tier3/                    # ~336 tests
     validation-ordering/    # per-operation validation error ordering
     error-messages/         # exact error message strings
     limits/                 # itemSize, batchLimits, responseSize, transactionLimits,
@@ -530,7 +532,7 @@ All test data must be synthetic. Don't use real names, emails, addresses, or any
 
 | Operation | Tier 1 | Tier 2 | Tier 3 |
 |-----------|--------|--------|--------|
-| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, itemCollectionMetrics | | error messages |
+| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, itemCollectionMetrics | vector write validation, vector write capacity | error messages |
 | GetItem | basic, validation, projection, consumedCapacity | | error messages |
 | UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths | | error messages |
 | DeleteItem | basic, conditions (incl. parens), validation | | error messages |
@@ -538,14 +540,15 @@ All test data must be synthetic. Don't use real names, emails, addresses, or any
 | Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens | | error messages, validation ordering |
 | BatchWriteItem | basic, validation | | error messages |
 | BatchGetItem | basic, validation | | error messages |
-| CreateTable | basic, GSI, LSI | | error messages, validation ordering |
+| CreateTable | basic, GSI, LSI | vector indexes (lifecycle, SearchSchema, validation) | error messages, validation ordering |
 | DeleteTable | basic | | |
 | DescribeTable | basic | | |
 | ListTables | basic | | |
-| UpdateTable | basic (throughput, billing mode) | GSI lifecycle | |
+| UpdateTable | basic (throughput, billing mode) | GSI lifecycle, vector index lifecycle | |
+| SearchVectors | | scores per distance function, projection, capacity shape, request validation | error messages |
 | TransactWriteItems | | basic, conditions (incl. parens, non-existent key branch), idempotency, cancellation | error messages |
 | TransactGetItems | | basic, validation | error messages |
-| ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised, RETURNING | error messages (RETURNING) |
+| ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised, RETURNING, vector index non-reach | error messages (RETURNING) |
 | BatchExecuteStatement | | batch, partial failure, RETURNING honoured | |
 | ExecuteTransaction | | atomic, rollback, RETURNING rejected | error messages (RETURNING) |
 | UpdateTimeToLive | | enable, validation | |
@@ -579,6 +582,16 @@ gate material, so they run in a separate non-gating job via
 `npm run test:integrations` rather than on the gating run. They still run
 against real AWS every scheduled run, and the ground-truth coverage check
 fails if they don't.
+
+Vector search (SearchVectors and the vector index lifecycle) is in the same
+position today for a different reason: the surface shipped on AWS in August
+2026 and no emulator implements it yet, so every current target skips the
+whole family through its support probes. Unlike the list above it is not
+`cloud-only` - it is ordinary DynamoDB surface any emulator can adopt, and the
+skips (and the coverage they cost) should shrink as targets catch up. The
+family carries the `vector` tag, so `--tags-filter='!vector'` drops it. The
+UpdateTable half of the lifecycle backfills on GSI timescales and rides in the
+same slow lane as the GSI lifecycle (`npm run test:gsi`).
 
 Genuinely not covered, with no tests yet:
 
