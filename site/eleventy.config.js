@@ -3,7 +3,7 @@ import syntaxHighlight from "@11ty/eleventy-plugin-syntaxhighlight";
 import { chartGeometry } from "./lib/chart.mjs";
 import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/matrix.mjs";
 import { renderCapabilities, renderCapabilityCards } from "./lib/capabilities.mjs";
-import { controlObservation, controlProvenance, regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
+import { controlObservation, controlProvenance, controlSplit, regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
 import { renderSplitEvidence, splitCoverageNote } from "./lib/splits.mjs";
 import { GRADING_CRITERIA_EFFECTIVE, GRADING_VERSION, TARGETS, capClauseOf, configurationOf, coverageShareSentenceOf, distributionOf, fallsShort, gradeForRow, gradeLegendOf, gradeLineOf, gradeOf, gradingCriteriaEffectiveLabel, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
 import { channelIcon } from "./lib/channel-icons.mjs";
@@ -101,6 +101,7 @@ export default function (eleventyConfig) {
   // run that recorded less.
   eleventyConfig.addFilter("controlObservation", (groundTruth) => controlObservation(groundTruth));
   eleventyConfig.addFilter("controlProvenance", (obs) => controlProvenance(obs, dateLabel));
+  eleventyConfig.addFilter("controlSplit", (obs) => controlSplit(obs, dateLabel));
 
   // Whether a target is maintained by the board's own author (a static fact, not
   // a per-run figure), so the conflict-of-interest disclosure renders from the

@@ -578,6 +578,8 @@ When the suite surfaces a divergence in a target and you want to reference it fr
 
 **Disclosure.** This suite is maintained by the same person who maintains Dynoxide, one of the engines it scores. Dynoxide runs through the same automated matrix as every other target, against the same live-AWS ground truth. The tests and the results are in this repo. The grade bands and the coverage weight are hand-picked inputs to a published letter, and moving one regrades targets whose results never changed. So they carry a version. These are grading criteria version 1, and any change to a band, the coverage weight or the A+ gate bumps the version and is dated in the [methodology](https://paritysuite.org/methodology#grading), which is where the effective date lives.
 
+They are not the only hand-picked input. `registry/splits.json` is written by hand by design: it records the behaviours where real DynamoDB's own regions disagree, with the evidence each region returned, and a target matching any recorded answer is scored as conformant rather than wrong. Admitting a row there turns a fail into a pass with no re-run and no results file changing, which is the one thing "a score can't be tuned without changing the published results first" does not cover. So the registry is in this repo, every row carries its captured evidence and the date it was refreshed, and a behaviour enters only once confirmed across regions.
+
 Fill in the bracketed parts. The block is the same whichever engine the finding concerns:
 
 > Found by [Parity Suite, the DynamoDB conformance suite](https://paritysuite.org) (paritysuite.org), an independent project that scores multiple engines against live AWS DynamoDB.

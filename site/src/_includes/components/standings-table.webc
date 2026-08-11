@@ -6,7 +6,7 @@
   function observationOf(summary) {
     return summary?.available ? controlObservation(summary.latest?.groundTruth) : null;
   }
-  function provenanceOf(summary) { return controlProvenance(observationOf(summary)); }
+  function splitOf(summary) { return controlSplit(observationOf(summary)); }
 </script>
 <section class="max-w-6xl mx-auto px-6 py-12 sm:py-16">
   <div class="mb-8">
@@ -41,14 +41,14 @@
            ground-truth page rather than the front of the board. -->
       <div class="text-sm font-medium text-zinc-800 dark:text-zinc-100">
         <span webc:if="observationOf($data.summary)">
-          <span class="tnum" @text="observationOf($data.summary).observed"></span> of <span class="tnum" @text="observationOf($data.summary).suite"></span> tests checked against live AWS
+          <span class="tnum" @text="observationOf($data.summary).suite"></span> tests checked against live AWS
         </span>
         <span webc:else>
           <span class="tnum" @text="baselineOf($data.conformance.latest.standings).count"></span> tests checked against live AWS
         </span>
       </div>
       <div class="mt-0.5 text-xs leading-snug text-zinc-600 dark:text-zinc-400">
-        last measured <time :datetime="$data.conformance.latest.date" @text="dateLabel($data.conformance.latest.date)"></time><span webc:if="baselineOf($data.conformance.latest.standings).regionLabel?.observed"> · <span class="tnum" @text="baselineOf($data.conformance.latest.standings).regionLabel.observed"></span> regions</span> · <a href="/ground-truth" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300">how</a>
+        <span webc:if="splitOf($data.summary)" @text="splitOf($data.summary)"></span><span webc:else>last measured <time :datetime="$data.conformance.latest.date" @text="dateLabel($data.conformance.latest.date)"></time></span><span webc:if="baselineOf($data.conformance.latest.standings).regionLabel?.observed"> · <span class="tnum" @text="baselineOf($data.conformance.latest.standings).regionLabel.observed"></span> regions</span> · <a href="/ground-truth" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300">how</a>
       </div>
     </div>
     <div class="rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3">

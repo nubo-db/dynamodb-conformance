@@ -81,7 +81,11 @@ When a target isn't re-tested in a run, its last measured result is carried forw
 
 This site and the suite are one repository, and the scoring is shared code rather than a copy of it. The target list, the display names, the project links and the pass-rate arithmetic are imported from the suite's own modules, so adding a target or correcting a name happens once and lands in both places. What the site still renders on its own - assembling a scored run into the rows you see - is held to the suite's published per-region summary by a test.
 
-That arrangement exists because the single rule behind the whole site is that no figure is ever typed in by hand. The moment the same number lives in two places it starts to drift, and a number that has quietly drifted is worse than no number at all. When the two lived in separate repositories a new target was added to the suite a day before the site learned its name, and for that day the comparison was wrong. You can clone the repository and run the build yourself, and the figures you get are the figures on this page.
+That arrangement exists because the rule behind the whole site is that a target's figures are derived, never typed. The moment the same number lives in two places it starts to drift, and a number that has quietly drifted is worse than no number at all. When the two lived in separate repositories a new target was added to the suite a day before the site learned its name, and for that day the comparison was wrong.
+
+Two things on the page are not derived, and both are disclosed where they apply. The baseline row is pinned rather than measured until real AWS has been observed across the whole suite - it says so on the [ground truth](/ground-truth) page - and the [grade bands and the split registry](/about#on-independence) are hand-picked inputs.
+
+What you can reproduce is the scoring. Clone the repository, run the scorer over the committed results, and you get the figures published here, test by test. A local build of the site renders a smaller thing: it assembles the timeline by fetching the history of `results/` from the API, and without a token that fetch falls back to a committed snapshot. The deploy sets `FAIL_ON_FALLBACK` so a scheduled build refuses the snapshot rather than quietly publishing a thinner board.
 
 ## Limitations
 

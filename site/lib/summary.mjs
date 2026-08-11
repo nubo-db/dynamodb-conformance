@@ -279,6 +279,24 @@ const LANE_NAMES = { gating: "the main run", integrations: "integrations", gsi: 
 const listOf = (items) =>
   items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 
+/**
+ * The strip's one-line split: how the whole-suite count divides between the run
+ * that reported and the passes that have not.
+ *
+ * The headline counts the suite, not the artefact. "981 of 998 checked against
+ * live AWS" reads as 17 tests nobody validated, which is the opposite of what
+ * the suite guarantees: all 998 run against real AWS, and 17 of them run in
+ * slower passes whose results have not reached this artefact.
+ */
+export function controlSplit(obs, dateLabel = (d) => d) {
+  if (!obs || !obs.shortfall) return "";
+  const main = obs.dated[0];
+  const n = obs.missingLanes.length;
+  const passes = n === 1 ? "one slower pass" : `${n === 2 ? "two" : n} slower passes`;
+  const where = main ? `in the ${dateLabel(main.runDate)} run` : "in this run";
+  return `${obs.observed} ${where}, ${obs.shortfall} in ${passes}`;
+}
+
 /** Which passes have reported, when, and what is still outstanding. */
 export function controlProvenance(obs, dateLabel = (d) => d) {
   if (!obs) return "";
