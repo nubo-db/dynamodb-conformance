@@ -14,15 +14,13 @@
 
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { GROUND_TRUTH_SLUG, isPublishedTarget } from './lib/score.mjs'
+import { GROUND_TRUTH_SLUG, targetResultSlug } from './lib/score.mjs'
 import { failureSet, lineageReport } from './lib/lineage.mjs'
 import { display, projectOf } from './lib/targets.mjs'
 
 const targets = readdirSync('results')
-  .filter((f) => f.endsWith('.json'))
-  .filter((f) => !f.endsWith('.badge.json') && !f.endsWith('.indeterminate.json'))
-  .map((f) => f.replace(/\.json$/, ''))
-  .filter((slug) => isPublishedTarget(slug) && slug !== GROUND_TRUTH_SLUG)
+  .map(targetResultSlug)
+  .filter((slug) => slug && slug !== GROUND_TRUTH_SLUG)
   .map((slug) => ({
     slug,
     failures: failureSet(JSON.parse(readFileSync(join('results', `${slug}.json`), 'utf8'))),

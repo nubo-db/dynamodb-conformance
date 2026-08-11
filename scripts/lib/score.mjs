@@ -31,10 +31,13 @@ export const GROUND_TRUTH_SLUG = 'dynamodb'
 // CONFORMANCE_TARGET - see vitest.config.ts), a scratch file that must not be
 // scored, badged, or listed in the results table. `summary` is the versioned
 // per-region artefact this scoring layer emits (results/summary.json), a
-// product of the pipeline rather than a target's run output. Kept here so the
-// table and the badges agree on what to skip, the same way they share
-// GROUND_TRUTH_SLUG.
-export const RESERVED_SLUGS = new Set(['local', 'summary'])
+// product of the pipeline rather than a target's run output. `tag-manifest` is
+// the capability index (scripts/tag-manifest.mjs), a document with no
+// testResults at all - it was excluded only by the extension filters callers
+// happened to write above this check, which is why testIdentities threw on it.
+// Kept here so the table and the badges agree on what to skip, the same way
+// they share GROUND_TRUTH_SLUG.
+export const RESERVED_SLUGS = new Set(['local', 'summary', 'tag-manifest'])
 
 // The lanes real AWS is observed in, beyond the gating run. Most of the suite
 // runs in one job, but S3 export/import, Kinesis and the UpdateTable GSI
@@ -55,6 +58,37 @@ export function isGroundTruthLane(slug) {
 // reserved scratch slugs above and for the ground-truth lanes.
 export function isPublishedTarget(slug) {
   return !RESERVED_SLUGS.has(slug) && !isGroundTruthLane(slug)
+}
+
+/**
+ * The target slug a results file belongs to, or null if it is not one.
+ *
+ * `results/` holds six kinds of file - a target's run, the ground-truth lane
+ * documents, indeterminate sidecars, badge endpoints, version stamps, and
+ * pipeline artefacts that are not runs at all - and every caller that walked
+ * the directory rebuilt a subset of this rule from memory. Three defects came
+ * from the gaps: a lane document scored as an emulator holding a fraction of
+ * the suite, testIdentities thrown on the tag manifest, and the manifest
+ * passing isPublishedTarget because it was filtered by extension somewhere
+ * else instead.
+ *
+ * Returns the slug rather than a boolean so a caller never re-derives it with
+ * basename and disagrees about where the name ends. `dynamodb.gsi.json` is a
+ * lane, not a target called `dynamodb.gsi`.
+ *
+ * Accepts a path or a bare file name.
+ */
+export function targetResultSlug(path) {
+  const name = String(path).split('/').pop() ?? ''
+  if (!name.endsWith('.json')) return null
+  if (name.endsWith('.badge.json') || name.endsWith('.indeterminate.json')) return null
+  const slug = name.slice(0, -'.json'.length)
+  return isPublishedTarget(slug) ? slug : null
+}
+
+/** Whether a results file is a target's own run document. */
+export function isTargetResultFile(path) {
+  return targetResultSlug(path) !== null
 }
 
 export function tierOf(filePath) {

@@ -46,11 +46,12 @@ import {
   GROUND_TRUTH_SLUG,
   axesOf,
   cohortOf,
-  isPublishedTarget,
+  isTargetResultFile,
   loadScoringContext,
   passRate,
   regionLabel,
   scoreTarget,
+  targetResultSlug,
   verdictsForRegion,
 } from './lib/score.mjs'
 import { classifyResults } from './lib/classify.mjs'
@@ -210,10 +211,8 @@ function withLanes(file, base) {
 export function readTargets(files) {
   const targets = []
   for (const file of files) {
-    if (!file.endsWith('.json')) continue
-    if (file.endsWith('.badge.json') || file.endsWith('.indeterminate.json')) continue
-    const slug = basename(file, '.json')
-    if (!isPublishedTarget(slug)) continue
+    const slug = targetResultSlug(file)
+    if (!slug) continue
 
     const raw = JSON.parse(readFileSync(file, 'utf8'))
     const sidecarFile = file.replace(/\.json$/, '.indeterminate.json')
@@ -762,7 +761,7 @@ function main() {
     try {
       files.push(
         ...readdirSync('results')
-          .filter((f) => f.endsWith('.json'))
+          .filter(isTargetResultFile)
           .map((f) => join('results', f)),
       )
     } catch {

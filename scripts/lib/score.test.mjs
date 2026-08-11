@@ -1,11 +1,16 @@
 import { describe, it, expect } from 'vitest'
+import { readdirSync, readFileSync } from 'node:fs'
+import { basename } from 'node:path'
 import {
   cohortOf,
   GROUND_TRUTH_LANES,
   GROUND_TRUTH_SLUG,
   isPublishedTarget,
+  isTargetResultFile,
   loadScoringContext,
+  RESERVED_SLUGS,
   passRate,
+  targetResultSlug,
   PINNED_REGION,
   regionLabel,
   scoreAcrossRegions,
@@ -476,5 +481,62 @@ describe('cohortOf / regionLabel', () => {
     ])
     expect(label.kind).toBe('all')
     expect(regionLabel(label)).toBe('all regions')
+  })
+})
+
+// ── What counts as a target's results file ──────────────────────────────────
+
+describe('targetResultSlug', () => {
+  it('classifies every kind of file the results directory holds', () => {
+    // Built from the real listing rather than a hand-written sample, so a kind
+    // nobody has classified fails here instead of surprising a caller. Three
+    // defects came from callers rebuilding a subset of this rule from memory.
+    const listing = readdirSync('results')
+    const kinds = {
+      run: (f) => /^[a-z0-9-]+\.json$/.test(f) && !RESERVED_SLUGS.has(basename(f, '.json')),
+      lane: (f) => GROUND_TRUTH_LANES.some((l) => f === `${GROUND_TRUTH_SLUG}.${l}.json`),
+      badge: (f) => f.endsWith('.badge.json'),
+      sidecar: (f) => f.endsWith('.indeterminate.json'),
+      version: (f) => f.endsWith('.version'),
+      reserved: (f) => f.endsWith('.json') && RESERVED_SLUGS.has(basename(f, '.json')),
+    }
+    const unclassified = listing.filter((f) => !Object.values(kinds).some((is) => is(f)))
+    expect(unclassified, 'a file kind nobody has classified is in results/').toEqual([])
+
+    for (const file of listing) {
+      const expected = kinds.lane(file) || !kinds.run(file) ? null : basename(file, '.json')
+      expect(targetResultSlug(file), file).toBe(expected)
+    }
+    // And the directory must actually contain the kinds this is guarding, or
+    // the loop above proves nothing.
+    for (const kind of ['run', 'badge', 'version', 'reserved']) {
+      expect(listing.some(kinds[kind]), `no ${kind} file in results/ to test against`).toBe(true)
+    }
+  })
+
+  it('reads a path or a bare name, and never splits a lane into a target', () => {
+    expect(targetResultSlug('results/dynoxide.json')).toBe('dynoxide')
+    expect(targetResultSlug('dynoxide.json')).toBe('dynoxide')
+    // `dynamodb.gsi.json` is a lane document, not a target called dynamodb.gsi.
+    expect(targetResultSlug('dynamodb.gsi.json')).toBeNull()
+    expect(targetResultSlug('tag-manifest.json')).toBeNull()
+    expect(isTargetResultFile('results/dynalite.json')).toBe(true)
+    expect(isTargetResultFile('results/dynalite.version')).toBe(false)
+  })
+
+  it('nothing enumerates results/ without going through the predicate', () => {
+    // A grep, deliberately. The failure mode is a new caller writing its own
+    // extension filter, which no unit test of this module can see.
+    const sources = ['scripts/summarise.mjs', 'scripts/badges.mjs', 'scripts/lineage.mjs']
+    for (const file of sources) {
+      // Imports stripped first. Checking the whole file only proves the name
+      // was imported, which stays true when a caller stops calling it.
+      const body = readFileSync(file, 'utf8').replace(/^import[\s\S]*?from\s+'[^']+'$/gm, '')
+      if (!/readdirSync\((?:'results'|resultsDir)\)/.test(body)) continue
+      expect(
+        /targetResultSlug|isTargetResultFile/.test(body),
+        `${file} walks results/ without the shared predicate`,
+      ).toBe(true)
+    }
   })
 })

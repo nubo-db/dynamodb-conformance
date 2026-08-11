@@ -37,6 +37,7 @@ import {
   isPublishedTarget,
   loadScoringContext,
   scoreTarget,
+  targetResultSlug,
 } from './lib/score.mjs'
 import { BASELINE_GRADE, gradeOf } from './lib/grade.mjs'
 import { TARGETS } from './lib/targets.mjs'
@@ -104,16 +105,11 @@ export function buildBadge(slug, raw, context) {
 // Sidecar and badge files are companions of a target's results file, not
 // targets, so they are never scored themselves.
 export function writeBadges(resultsDir = RESULTS_DIR, context = loadScoringContext()) {
-  const files = readdirSync(resultsDir).filter(
-    (f) =>
-      f.endsWith('.json') &&
-      !f.endsWith('.badge.json') &&
-      !f.endsWith('.indeterminate.json'),
-  )
   const current = new Set()
   let written = 0
-  for (const file of files) {
-    const slug = basename(file, '.json')
+  for (const file of readdirSync(resultsDir)) {
+    const slug = targetResultSlug(file)
+    if (!slug) continue
     const raw = JSON.parse(readFileSync(join(resultsDir, file), 'utf8'))
     const sidecarFile = join(resultsDir, `${slug}.indeterminate.json`)
     const sidecar = existsSync(sidecarFile)
