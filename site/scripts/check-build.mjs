@@ -18,7 +18,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
-import { gradeOf, gradingCriteriaEffectiveLabel } from "../lib/scoring.mjs";
+import { GRADE_BANDS, gradeOf, gradingCriteriaEffectiveLabel } from "../lib/scoring.mjs";
 import { axesOf } from "dynamodb-conformance/scripts/lib/score.mjs";
 
 const failures = [];
@@ -231,6 +231,30 @@ try {
     if (/NaN%|>undefined<|undefined%/.test(html)) broken.push(path);
   }
   check(broken.length === 0, "no built page renders NaN or undefined as a figure", broken.slice(0, 3).join(", "));
+
+  // Global data does not resolve to a bare name inside a WebC component - it
+  // needs $data - and the failure is silent. The legend rendered the string
+  // "[object Object]" where its six bands belong and the coverage sentence
+  // rendered empty, on the block a reader uses to check a letter, through every
+  // test and every other build check.
+  const unresolved = docs.filter((d) => d.path.endsWith(".html") && d.html.includes("[object Object]"));
+  check(
+    unresolved.length === 0,
+    "no built page renders an object where a value belongs",
+    unresolved.slice(0, 3).map((d) => d.path).join(", "),
+  );
+
+  // And the legend has to carry every band, not merely avoid rendering wrong:
+  // an empty loop leaves valid HTML and no letters at all.
+  const home = docs.find((d) => d.path === "/index.html");
+  const missingBands = GRADE_BANDS.map((b) => b.letter).filter(
+    (letter) => !new RegExp(`grade-chip[^"]*"[^>]*>\\s*${letter}\\s*<`).test(home?.html ?? ""),
+  );
+  check(
+    missingBands.length === 0,
+    "the grade legend renders a chip for every band",
+    missingBands.length ? `missing ${missingBands.join(", ")}` : "",
+  );
 
   // The criteria date is a predicate as well as a caption: the feed reads it to
   // decide which runs predate the criteria. A page stating a different one
