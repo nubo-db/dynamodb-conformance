@@ -1010,9 +1010,9 @@
           }
         },
         "us-east-1": {
-          "rate": 84.6,
-          "passed": 675,
-          "failed": 123,
+          "rate": 84.5,
+          "passed": 674,
+          "failed": 124,
           "skipped": 200,
           "indeterminate": 0,
           "count": 998,
@@ -1030,8 +1030,8 @@
               "i": 0
             },
             "tier3": {
-              "p": 229,
-              "f": 54,
+              "p": 228,
+              "f": 55,
               "s": 41,
               "i": 0
             }
@@ -2822,9 +2822,9 @@
           }
         },
         "us-east-1": {
-          "rate": 99.8,
-          "passed": 982,
-          "failed": 2,
+          "rate": 99.9,
+          "passed": 983,
+          "failed": 1,
           "skipped": 14,
           "indeterminate": 0,
           "count": 998,
@@ -2842,8 +2842,8 @@
               "i": 0
             },
             "tier3": {
-              "p": 322,
-              "f": 2,
+              "p": 323,
+              "f": 1,
               "s": 0,
               "i": 0
             }
@@ -3048,8 +3048,7 @@
           "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-east-1": [
-          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException"
         ],
         "us-east-2": [
           "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
@@ -3859,9 +3858,9 @@
           }
         },
         "us-east-1": {
-          "rate": 99.8,
-          "passed": 863,
-          "failed": 2,
+          "rate": 99.9,
+          "passed": 864,
+          "failed": 1,
           "skipped": 133,
           "indeterminate": 0,
           "count": 998,
@@ -3879,8 +3878,8 @@
               "i": 0
             },
             "tier3": {
-              "p": 287,
-              "f": 2,
+              "p": 288,
+              "f": 1,
               "s": 35,
               "i": 0
             }
@@ -4085,8 +4084,7 @@
           "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-east-1": [
-          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException"
         ],
         "us-east-2": [
           "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",

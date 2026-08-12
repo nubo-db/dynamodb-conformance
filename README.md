@@ -39,7 +39,7 @@ _Scored against real DynamoDB's recorded behaviour in each observed region (`af-
 | ↳ WebAssembly / OPFS | A | 0.0% | 86.7% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 133 | 0.13.0 | 2026-08-11 |
 | [ExtendDB](https://github.com/ExtendDB/extenddb) · PostgreSQL | A | 1.8% | 91.3% | 1 of 32 | 0.4% | 3.0% | 3.1% | 18 | 87 | v0.1.3 | 2026-08-12 |
 | [Ministack](https://github.com/ministackorg/ministack) | B | 11.1% | 100.0% | 1 of 32 | 3.2% | 17.1% | 19.1% | 111 | 0 | 63621de32116 | 2026-08-12 |
-| [Dynalite](https://github.com/architect/dynalite) | C | 12.3% | 80.0% | 26 of 32 | 8.6% | 14.1% | 16.7% | 123 | 200 | 4.0.0 | 2026-08-12 |
+| [Dynalite](https://github.com/architect/dynalite) | C | 12.3% | 80.0% | 25 of 32 | 8.6% | 14.1% | 16.7% | 123 | 200 | 4.0.0 | 2026-08-12 |
 | [LocalStack](https://github.com/localstack/localstack) | C | 15.6% | 99.2% | 26 of 32 | 6.5% | 18.1% | 27.5% | 156 | 8 | 2026.7.3 | 2026-08-12 |
 | [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) | C | 15.9% | 97.9% | 26 of 32 | 7.8% | 16.1% | 27.8% | 159 | 21 | ff89bd48ff32 | 2026-08-12 |
 | [Floci](https://github.com/floci-io/floci) | C | 20.8% | 99.1% | 1 of 32 | 8.6% | 36.7% | 29.0% | 208 | 9 | eab36252ea43 | 2026-08-12 |
