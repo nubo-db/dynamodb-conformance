@@ -1,0 +1,440 @@
+{
+  "baseline": "captures/2026-07-13-empty-set-member.json",
+  "baselineDate": "2026-07-13",
+  "capturedAt": "2026-08-12T13:21:51.577Z",
+  "note": "Wording changes in real DynamoDB between the two captures, for the 142 id-matched probes across the 4 regions both cover. Recorded because none of these moved a verdict: the suite tolerates them, so nothing else in the repo would show they happened. Denominators: 142 probes id-matched, 107 of them negative-input (threw in eu-west-2 at the baseline).",
+  "regionsCompared": [
+    "eu-west-2",
+    "eu-central-1",
+    "us-east-1",
+    "ap-southeast-2"
+  ],
+  "probesCompared": 142,
+  "pairsMoved": 32,
+  "probesMoved": 28,
+  "moved": [
+    {
+      "probe": "c_bw_over25",
+      "note": "BatchWrite 26 requests",
+      "region": "eu-west-2",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '{_conformance_capdrift_h_1783914568316660906=[WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-0, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-1, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-2, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-3, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-4, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-5, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-6, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-7, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-8, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-9, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-10, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-11, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-12, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-13, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-14, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-15, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-16, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-17, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-18, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-19, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-20, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-21, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-22, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-23, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-24, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-25, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '{_conformance_capdrift_h_1786540911581580002=[WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@483470e1}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@483474a2}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48347863}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48347c24}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48347fe5}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@483483a6}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48348767}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48348b28}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48348ee9}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@483492aa}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81beb00}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81beec1}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81bf282}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81bf643}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81bfa04}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81bfdc5}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c0186}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c0547}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c0908}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c0cc9}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c5f5f}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c6320}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c66e1}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c6aa2}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c6e63}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c7224}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]"
+      }
+    },
+    {
+      "probe": "c_ct_3keys",
+      "note": "CreateTable 3 keySchema",
+      "region": "eu-west-2",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '[KeySchemaElement(attributeName=pk, keyType=HASH), KeySchemaElement(attributeName=sk, keyType=RANGE), KeySchemaElement(attributeName=extra, keyType=RANGE)]' at 'keySchema' failed to satisfy constraint: Member must have length less than or equal to 2"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '[com.amazonaws.dynamodb.v20120810.KeySchemaElement@ad28eb1d, com.amazonaws.dynamodb.v20120810.KeySchemaElement@38b9654b, com.amazonaws.dynamodb.v20120810.KeySchemaElement@3e80eb03]' at 'keySchema' failed to satisfy constraint: Member must have length less than or equal to 2"
+      }
+    },
+    {
+      "probe": "c_bw_over25",
+      "note": "BatchWrite 26 requests",
+      "region": "eu-central-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '{_conformance_capdrift_h_1783914587170407348=[WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-0, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-1, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-2, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-3, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-4, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-5, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-6, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-7, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-8, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-9, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-10, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-11, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-12, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-13, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-14, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-15, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-16, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-17, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-18, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-19, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-20, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-21, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-22, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-23, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-24, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-25, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '{_conformance_capdrift_h_1786540968179276402=[WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-0, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-1, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-2, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-3, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-4, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-5, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-6, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-7, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-8, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-9, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-10, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-11, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-12, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-13, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-14, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-15, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-16, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-17, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-18, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-19, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-20, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-21, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-22, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-23, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-24, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-25, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]"
+      }
+    },
+    {
+      "probe": "s_put_table_empty",
+      "note": "PutItem TableName=''",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      }
+    },
+    {
+      "probe": "c_bw_over25",
+      "note": "BatchWrite 26 requests",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '{_conformance_capdrift_h_1783914608126303123=[WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@483470e1}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@483474a2}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48347863}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48347c24}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48347fe5}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@483483a6}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48348767}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48348b28}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@48348ee9}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@483492aa}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81beb00}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81beec1}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81bf282}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81bf643}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81bfa04}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81bfdc5}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c0186}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c0547}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c0908}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c0cc9}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c5f5f}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c6320}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c66e1}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c6aa2}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c6e63}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=com.amazonaws.dynamodb.v20120810.AttributeValue@a81c7224}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '{_conformance_capdrift_h_1786540933627457989=[WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-0, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-1, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-2, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-3, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-4, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-5, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-6, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-7, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-8, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-9, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-10, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-11, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-12, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-13, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-14, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-15, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-16, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-17, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-18, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-19, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-20, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-21, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-22, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-23, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-24, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-25, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]"
+      }
+    },
+    {
+      "probe": "c_ct_3keys",
+      "note": "CreateTable 3 keySchema",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '[com.amazonaws.dynamodb.v20120810.KeySchemaElement@ad28eb1d, com.amazonaws.dynamodb.v20120810.KeySchemaElement@38b9654b, com.amazonaws.dynamodb.v20120810.KeySchemaElement@3e80eb03]' at 'keySchema' failed to satisfy constraint: Member must have length less than or equal to 2"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '[KeySchemaElement(attributeName=pk, keyType=HASH), KeySchemaElement(attributeName=sk, keyType=RANGE), KeySchemaElement(attributeName=extra, keyType=RANGE)]' at 'keySchema' failed to satisfy constraint: Member must have length less than or equal to 2"
+      }
+    },
+    {
+      "probe": "b_put_empty_ss",
+      "note": "empty string set",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "One or more parameter values were invalid: An string set  may not be empty"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: One or more parameter values were invalid: An string set  may not be empty"
+      }
+    },
+    {
+      "probe": "b_put_empty_ns",
+      "note": "empty number set",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "One or more parameter values were invalid: An number set  may not be empty"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: One or more parameter values were invalid: An number set  may not be empty"
+      }
+    },
+    {
+      "probe": "b_put_dup_ss",
+      "note": "duplicate SS",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "One or more parameter values were invalid: Input collection [a, a] contains duplicates."
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: One or more parameter values were invalid: Input collection [\"a\", \"a\"] contains duplicates."
+      }
+    },
+    {
+      "probe": "b_put_mix_expr",
+      "note": "mixing expression and non-expression",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {Expected} Expression parameters: {ConditionExpression}"
+      }
+    },
+    {
+      "probe": "b_put_eav_no_expr",
+      "note": "EAV without expression",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "ExpressionAttributeValues can only be specified when using expressions: ConditionExpression is null"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: ExpressionAttributeValues can only be specified when using expressions"
+      }
+    },
+    {
+      "probe": "b_put_redundant_parens",
+      "note": "redundant parentheses",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "Invalid ConditionExpression: The expression has redundant parentheses;"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Invalid ConditionExpression: The expression has redundant parentheses;"
+      }
+    },
+    {
+      "probe": "b_put_contains_dup",
+      "note": "contains distinct operand",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "Invalid ConditionExpression: The first operand must be distinct from the remaining operands for this operator or function; operator: contains, first operand: [data]"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Invalid ConditionExpression: The first operand must be distinct from the remaining operands for this operator or function; operator: contains, first operand: [data]"
+      }
+    },
+    {
+      "probe": "u_upd_syntax",
+      "note": "invalid UpdateExpression syntax",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "Invalid UpdateExpression: Syntax error; token: \"INVALID\", near: \"INVALID SYNTAX\""
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Invalid UpdateExpression: Syntax error; token: \"INVALID\", near: \"INVALID SYNTAX\""
+      }
+    },
+    {
+      "probe": "u_upd_unused_ean",
+      "note": "unused EAN",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value provided in ExpressionAttributeNames unused in expressions: keys: {#unused}"
+      }
+    },
+    {
+      "probe": "u_upd_unused_eav",
+      "note": "unused EAV",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value provided in ExpressionAttributeValues unused in expressions: keys: {:unused}"
+      }
+    },
+    {
+      "probe": "u_upd_missing_eav",
+      "note": "missing EAV ref",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Invalid UpdateExpression: An expression attribute value used in expression is not defined; attribute value: :v"
+      }
+    },
+    {
+      "probe": "u_upd_mix",
+      "note": "mixing UpdateExpression + AttributeUpdates",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Can not use both expression and non-expression parameters in the same request: Non-expression parameters: {AttributeUpdates} Expression parameters: {UpdateExpression}"
+      }
+    },
+    {
+      "probe": "u_upd_empty",
+      "note": "empty UpdateExpression",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "Invalid UpdateExpression: The expression can not be empty;"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Invalid UpdateExpression: The expression can not be empty;"
+      }
+    },
+    {
+      "probe": "o_put_empty_table_empty_item",
+      "note": "PutItem TableName='' Item={}",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      }
+    },
+    {
+      "probe": "o_put_empty_table_bad_rv",
+      "note": "PutItem TableName='' ReturnValues=INVALID",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      }
+    },
+    {
+      "probe": "o_put_three_bad_enums",
+      "note": "PutItem 3 invalid enums",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "3 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnItemCollectionMetrics' failed to satisfy constraint: Member must satisfy enum value set: [SIZE, NONE]"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "3 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]; Value 'INVALID' at 'returnItemCollectionMetrics' failed to satisfy constraint: Member must satisfy enum value set: [SIZE, NONE]"
+      }
+    },
+    {
+      "probe": "o_del_empty_table",
+      "note": "DeleteItem TableName='' Key={}",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      }
+    },
+    {
+      "probe": "o_del_two_bad_enums",
+      "note": "DeleteItem 2 invalid enums",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
+      }
+    },
+    {
+      "probe": "o_upd_empty_table",
+      "note": "UpdateItem TableName='' Key={}",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+      }
+    },
+    {
+      "probe": "o_upd_two_bad_enums",
+      "note": "UpdateItem 2 invalid enums",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
+      }
+    },
+    {
+      "probe": "esm_put_ns_empty",
+      "note": "PutItem NS ['']",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "The parameter cannot be converted to a numeric value"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: The parameter cannot be converted to a numeric value: "
+      }
+    },
+    {
+      "probe": "esm_put_ss_dup_empty",
+      "note": "PutItem SS ['', ''] (duplicate empty members)",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "One or more parameter values were invalid: Input collection [, ] contains duplicates."
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: One or more parameter values were invalid: Input collection [\"\", \"\"] contains duplicates."
+      }
+    },
+    {
+      "probe": "esm_put_bs_dup_empty",
+      "note": "PutItem BS [zero-length, zero-length] (duplicate empty members)",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "One or more parameter values were invalid: Input collection [, ]of type BS contains duplicates."
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: One or more parameter values were invalid: Input collection [\"\",\"\"]of type BS contains duplicates."
+      }
+    },
+    {
+      "probe": "esm_put_ss_empty_set",
+      "note": "PutItem SS [] (empty-set control)",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "One or more parameter values were invalid: An string set  may not be empty"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: One or more parameter values were invalid: An string set  may not be empty"
+      }
+    },
+    {
+      "probe": "esm_put_bs_empty_set",
+      "note": "PutItem BS [] (empty-set control)",
+      "region": "us-east-1",
+      "was": {
+        "name": "ValidationException",
+        "message": "One or more parameter values were invalid: Binary sets should not be empty"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: One or more parameter values were invalid: Binary sets should not be empty"
+      }
+    },
+    {
+      "probe": "c_bw_over25",
+      "note": "BatchWrite 26 requests",
+      "region": "ap-southeast-2",
+      "was": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '{_conformance_capdrift_h_1783914642306747312=[WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-0, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-1, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-2, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-3, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-4, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-5, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-6, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-7, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-8, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-9, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-10, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-11, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-12, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-13, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-14, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-15, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-16, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-17, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-18, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-19, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-20, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-21, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-22, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-23, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-24, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-25, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]"
+      },
+      "is": {
+        "name": "ValidationException",
+        "message": "1 validation error detected: Value '{_conformance_capdrift_h_1786540989838358419=[WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-0, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-1, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-2, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-3, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-4, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-5, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-6, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-7, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-8, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-9, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-10, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-11, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-12, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-13, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-14, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-15, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-16, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-17, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-18, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-19, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-20, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-21, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-22, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-23, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-24, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null), WriteRequest(putRequest=PutRequest(item={pk=AttributeValue(s=bw-25, n=null, b=null, iNT=null, dECIMAL=null, dOUBLE=null, sS=null, nS=null, bS=null, iNTSET=null, dECIMALSET=null, dOUBLESET=null, m=null, l=null, nULL=null, bOOL=null)}, workloadProfileName=null), deleteRequest=null)]}' at 'requestItems' failed to satisfy constraint: Map value must satisfy constraint: [Member must have length less than or equal to 25, Member must have length greater than or equal to 1]"
+      }
+    }
+  ],
+  "pairsByRegion": {
+    "eu-west-2": 2,
+    "eu-central-1": 1,
+    "us-east-1": 28,
+    "ap-southeast-2": 1
+  },
+  "reconciliation": "Two counts here are both 28, by coincidence rather than duplication. 26 probes moved in one region only, all of them us-east-1, and 2 moved in several (c_bw_over25 in 4, c_ct_3keys in 2). That is 32 probe-region pairs across 28 distinct probes, and us-east-1 appears in 28 of the pairs. So \"28 probes moved\" and \"us-east-1 moved 28\" are different counts that happen to land on the same number."
+}
