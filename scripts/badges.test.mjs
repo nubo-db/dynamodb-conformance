@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { buildBadge, colour, gradeFor } from './badges.mjs'
 import { BASELINE_GRADE } from './lib/grade.mjs'
-import { loadScoringContext } from './lib/score.mjs'
+import { isTargetResultFile, loadScoringContext } from './lib/score.mjs'
 
 const RESULTS_DIR = 'results'
 
@@ -183,10 +183,12 @@ describe('committed badges are fresh', () => {
   // The same committed inputs the CLI writer uses: the split registry and the
   // observed region set, plus each run's indeterminate sidecar if present.
   const context = loadScoringContext()
-  const resultFiles = readdirSync(RESULTS_DIR).filter(
-    (f) =>
-      f.endsWith('.json') && !f.endsWith('.badge.json') && !f.endsWith('.indeterminate.json'),
-  )
+  // The shared predicate, not a hand-rolled filter. Spelling it out here caught
+  // summary.json and tag-manifest.json, which are companions rather than runs
+  // and only ever asserted that they had no badge, and results/local.json,
+  // which is the gitignored scratch slug - so the case count moved depending on
+  // whether the person running the tests had run the suite locally.
+  const resultFiles = readdirSync(RESULTS_DIR).filter(isTargetResultFile)
 
   it.each(resultFiles)('%s matches a fresh build', (file) => {
     const slug = file.replace(/\.json$/, '')

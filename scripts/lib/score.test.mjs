@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
-import { basename } from 'node:path'
+import { basename, join } from 'node:path'
+
+/** Every file under a directory, recursively. */
+const walk = (dir) =>
+  readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)],
+  )
 import {
   cohortOf,
   GROUND_TRUTH_LANES,
@@ -527,12 +533,22 @@ describe('targetResultSlug', () => {
   it('nothing enumerates results/ without going through the predicate', () => {
     // A grep, deliberately. The failure mode is a new caller writing its own
     // extension filter, which no unit test of this module can see.
-    const sources = ['scripts/summarise.mjs', 'scripts/badges.mjs', 'scripts/lineage.mjs']
+    //
+    // The list is discovered rather than written down. It used to name three
+    // files, so a caller that was not one of them was invisible - which is how
+    // badges.test.mjs came to walk results/ with its own filter, pick up the
+    // summary, the tag manifest and the gitignored scratch slug, and change its
+    // own case count depending on whether the suite had been run locally. A
+    // hand-maintained list of callers is the same bug this guard exists to
+    // catch, one level up.
+    const sources = walk('scripts').filter((f) => f.endsWith('.mjs'))
     for (const file of sources) {
       // Imports stripped first. Checking the whole file only proves the name
       // was imported, which stays true when a caller stops calling it.
       const body = readFileSync(file, 'utf8').replace(/^import[\s\S]*?from\s+'[^']+'$/gm, '')
-      if (!/readdirSync\((?:'results'|resultsDir)\)/.test(body)) continue
+      // The constant form too: badges.test.mjs walked `readdirSync(RESULTS_DIR)`
+      // and the pattern did not know the name.
+      if (!/readdirSync\((?:'results'|resultsDir|RESULTS_DIR)\)/.test(body)) continue
       expect(
         /targetResultSlug|isTargetResultFile/.test(body),
         `${file} walks results/ without the shared predicate`,
