@@ -25,7 +25,7 @@ A target that gets 8% of the suite wrong tells you almost nothing on its own. Ei
 
 **Tier 1 - Core.** The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable. The more an emulator diverges here, the more often everyday code will hit a difference.
 
-**Tier 2 - Complete.** Documented but less common features: transactions, PartiQL, LSIs, TTL, streams, tags. A gap here only matters if you actually use that feature.
+**Tier 2 - Complete.** Documented but less common features: transactions, PartiQL, LSIs, TTL, streams, tags, vector search. A gap here only matters if you actually use that feature.
 
 **Tier 3 - Strict.** Validation ordering, error behaviour at a range of strictness - exact where DynamoDB's wording is stable, structural (the type, field and constraint) where its rendering is non-deterministic - limits, and legacy API shapes. Missing some of this is usually fine when you're developing locally, where the exact error string rarely matters. It matters far more in CI: if your own test suite runs against an emulator and asserts on error messages or validation behaviour, a Tier 3 gap is exactly the kind of thing that lets a bug through a green build and only shows up against real DynamoDB in production.
 

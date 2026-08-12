@@ -106,6 +106,48 @@ describe('capabilityLeaks', () => {
     expect(tags(capabilityLeaks(src))).toEqual(['test:mixes them:legacy'])
   })
 
+  it('reports a SearchVectors send on an untagged test', () => {
+    const src = [
+      "describe('Vector', { tags: ['query', 'data-plane'] }, () => {",
+      "  it('searches', async () => {",
+      '    await ddb.send(new SearchVectorsCommand({ TableName: t }))',
+      '  })',
+      '})',
+      '',
+    ].join('\n')
+    expect(tags(capabilityLeaks(src))).toEqual(['test:searches:search-vectors'])
+  })
+
+  it('reports a vector-index table build on an untagged describe', () => {
+    const src = [
+      "describe('CreateTable', { tags: ['create-table', 'control-plane'] }, () => {",
+      '  beforeAll(async () => {',
+      '    await ddb.send(new CreateTableCommand({',
+      '      VectorIndexes: [vix()],',
+      '    }))',
+      '  })',
+      "  it('unrelated', async () => {",
+      '    expect(1).toBe(1)',
+      '  })',
+      '})',
+      '',
+    ].join('\n')
+    expect(tags(capabilityLeaks(src))).toEqual(['describe:CreateTable:vector'])
+  })
+
+  it('ignores marker names on a single-line import', () => {
+    const src = [
+      "import { CreateTableCommand, SearchVectorsCommand } from '@aws-sdk/client-dynamodb'",
+      "describe('Vector', { tags: ['search-vectors', 'vector', 'data-plane'] }, () => {",
+      "  it('searches', async () => {",
+      '    await ddb.send(new SearchVectorsCommand({ TableName: t }))',
+      '  })',
+      '})',
+      '',
+    ].join('\n')
+    expect(capabilityLeaks(src)).toEqual([])
+  })
+
   it('is clean when the tag is on the test', () => {
     const src = [
       "describe('PutItem', { tags: ['put-item', 'data-plane'] }, () => {",

@@ -9,7 +9,7 @@
       "behaviour": "PutItem with an empty TableName and an invalid ReturnValues: part of the 2026-06 validation-framework rollout. New-cohort regions short-circuit at the table name and report one error; old-cohort regions aggregate both.",
       "pinned": "eu-west-2",
       "firstObserved": "2026-06-09",
-      "lastRefreshed": "2026-07-14",
+      "lastRefreshed": "2026-08-12",
       "regions": {
         "eu-west-2": {
           "outcome": "rejected",
@@ -29,7 +29,7 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-southeast-2": {
@@ -218,7 +218,8 @@
       "evidence": [
         "captures/2026-06-09-validation-rewording.json",
         "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29334921301",
-        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29364537167"
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29364537167",
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31586467950"
       ],
       "admitted": {
         "by": "Martin Hicks",
@@ -235,7 +236,7 @@
       "behaviour": "UpdateItem with invalid ReturnValues and ReturnConsumedCapacity: part of the 2026-06 validation-framework rollout. New-cohort regions stop at the first invalid enum and report one error; old-cohort regions aggregate both.",
       "pinned": "eu-west-2",
       "firstObserved": "2026-06-09",
-      "lastRefreshed": "2026-07-14",
+      "lastRefreshed": "2026-08-12",
       "regions": {
         "eu-west-2": {
           "outcome": "rejected",
@@ -255,7 +256,7 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "ap-southeast-2": {
@@ -444,7 +445,8 @@
       "evidence": [
         "captures/2026-06-09-validation-rewording.json",
         "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29334921301",
-        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29364537167"
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29364537167",
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31586467950"
       ],
       "admitted": {
         "by": "Martin Hicks",

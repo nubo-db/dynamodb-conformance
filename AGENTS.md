@@ -46,7 +46,7 @@ headline score is its best-matching region.
 - Commands contributors will use:
   - `npm install`
   - `npm test` (runs vitest)
-  - `npm run test:quick` (faster, skips GSI lifecycle tests)
+  - `npm run test:quick` (faster, skips the online-index lifecycle tests - GSI and vector)
   - `npm run test:tier1` / `tier2` / `tier3` for a single tier
 
 ## Test philosophy

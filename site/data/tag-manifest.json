@@ -267,6 +267,32 @@
         "data-plane"
       ]
     },
+    "tests/tier1/putItem/indexConsumedCapacity.test.ts": {
+      "PutItem — index write capacity": [
+        "put-item",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ],
+      "UpdateItem — index write-capacity ladder": [
+        "update-item",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ],
+      "DeleteItem — index write capacity": [
+        "delete-item",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ],
+      "BatchWriteItem — index write capacity": [
+        "batch",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ]
+    },
     "tests/tier1/putItem/indexKeyValidation.test.ts": {
       "PutItem — index key validation": [
         "put-item",
@@ -841,6 +867,70 @@
         "negative-path"
       ]
     },
+    "tests/tier2/vectorSearch/consumedCapacity.test.ts": {
+      "SearchVectors — ConsumedCapacity shape": [
+        "search-vectors",
+        "data-plane",
+        "vector"
+      ],
+      "PutItem — vector write capacity shape": [
+        "put-item",
+        "data-plane",
+        "vector"
+      ]
+    },
+    "tests/tier2/vectorSearch/lifecycle.test.ts": {
+      "CreateTable — vector index lifecycle": [
+        "create-table",
+        "control-plane",
+        "vector"
+      ]
+    },
+    "tests/tier2/vectorSearch/partiql.test.ts": {
+      "PartiQL — vector indexes are out of reach": [
+        "partiql",
+        "data-plane",
+        "vector"
+      ]
+    },
+    "tests/tier2/vectorSearch/search.test.ts": {
+      "SearchVectors — deterministic search behaviour": [
+        "search-vectors",
+        "data-plane",
+        "vector"
+      ]
+    },
+    "tests/tier2/vectorSearch/updateLifecycle.test.ts": {
+      "UpdateTable — vector index lifecycle": [
+        "update-table",
+        "search-vectors",
+        "control-plane",
+        "vector",
+        "slow"
+      ]
+    },
+    "tests/tier2/vectorSearch/validation.test.ts": {
+      "CreateTable — vector index request validation": [
+        "create-table",
+        "control-plane",
+        "vector",
+        "negative-path"
+      ],
+      "SearchVectors — request validation": [
+        "search-vectors",
+        "data-plane",
+        "vector",
+        "negative-path"
+      ]
+    },
+    "tests/tier2/vectorSearch/writeValidation.test.ts": {
+      "PutItem — vector index write validation": [
+        "put-item",
+        "search-vectors",
+        "data-plane",
+        "vector"
+      ]
+    },
     "tests/tier3/error-messages/batchGetItem.test.ts": {
       "BatchGetItem — exact error messages": [
         "batch",
@@ -972,6 +1062,14 @@
         "negative-path"
       ]
     },
+    "tests/tier3/error-messages/searchVectors.test.ts": {
+      "SearchVectors — exact error messages": [
+        "search-vectors",
+        "data-plane",
+        "vector",
+        "negative-path"
+      ]
+    },
     "tests/tier3/error-messages/transactGetItems.test.ts": {
       "TransactGetItems — exact error messages": [
         "transactions",
@@ -999,6 +1097,22 @@
       "UpdateItem — exact error messages": [
         "update-item",
         "data-plane",
+        "negative-path"
+      ]
+    },
+    "tests/tier3/error-messages/vectorIndexes.test.ts": {
+      "CreateTable vector indexes — exact error messages": [
+        "create-table",
+        "control-plane",
+        "vector",
+        "negative-path"
+      ]
+    },
+    "tests/tier3/error-messages/vectorWrites.test.ts": {
+      "PutItem vector writes — exact error messages": [
+        "put-item",
+        "data-plane",
+        "vector",
         "negative-path"
       ]
     },

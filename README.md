@@ -34,15 +34,15 @@ _Scored against real DynamoDB's recorded behaviour in each observed region (`af-
 
 | Target | Grade | Divergence | Coverage | Regions | Tier 1 | Tier 2 | Tier 3 | Fail | Skip | Version | Date |
 |--------|-------|-----------|----------|---------|--------|--------|--------|------|------|---------|------|
-| [DynamoDB](https://aws.amazon.com/dynamodb/) | baseline | 0.0% | 100.0% | 32 of 32 | 0.0% | 0.0% | 0.0% | 0 | 0 | live (AWS) | 2026-08-09 |
-| [Dynoxide](https://github.com/nubo-db/dynoxide) · native | A | 0.0% | 98.6% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 14 | 0.13.0 | 2026-08-12 |
-| ↳ WebAssembly / OPFS | A | 0.0% | 86.7% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 133 | 0.13.0 | 2026-08-11 |
-| [ExtendDB](https://github.com/ExtendDB/extenddb) · PostgreSQL | A | 1.8% | 91.3% | 1 of 32 | 0.4% | 3.0% | 3.1% | 18 | 87 | v0.1.3 | 2026-08-12 |
-| [Ministack](https://github.com/ministackorg/ministack) | B | 11.1% | 100.0% | 1 of 32 | 3.2% | 17.1% | 19.1% | 111 | 0 | 63621de32116 | 2026-08-12 |
-| [Dynalite](https://github.com/architect/dynalite) | C | 12.3% | 80.0% | 25 of 32 | 8.6% | 14.1% | 16.7% | 123 | 200 | 4.0.0 | 2026-08-12 |
-| [LocalStack](https://github.com/localstack/localstack) | C | 15.6% | 99.2% | 26 of 32 | 6.5% | 18.1% | 27.5% | 156 | 8 | 2026.7.3 | 2026-08-12 |
-| [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) | C | 15.9% | 97.9% | 26 of 32 | 7.8% | 16.1% | 27.8% | 159 | 21 | ff89bd48ff32 | 2026-08-12 |
-| [Floci](https://github.com/floci-io/floci) | C | 20.8% | 99.1% | 1 of 32 | 8.6% | 36.7% | 29.0% | 208 | 9 | eab36252ea43 | 2026-08-12 |
+| [DynamoDB](https://aws.amazon.com/dynamodb/) | baseline | 0.0% | 100.0% | 32 of 32 | 0.0% | 0.0% | 0.0% | 0 | 0 | live (AWS) | 2026-08-12 |
+| [Dynoxide](https://github.com/nubo-db/dynoxide) · native | A | 0.9% | 94.7% | 6 of 32 | 2.0% | 0.0% | 0.0% | 10 | 56 | 0.13.0 | 2026-08-12 |
+| ↳ WebAssembly / OPFS | B | 0.9% | 83.4% | 6 of 32 | 2.0% | 0.0% | 0.0% | 10 | 175 | 0.13.0 | 2026-08-12 |
+| [ExtendDB](https://github.com/ExtendDB/extenddb) · PostgreSQL | B | 1.9% | 87.8% | 1 of 32 | 0.8% | 2.7% | 2.9% | 20 | 129 | v0.1.3 | 2026-08-12 |
+| [Ministack](https://github.com/ministackorg/ministack) | B | 11.8% | 96.0% | 1 of 32 | 5.7% | 15.1% | 18.2% | 124 | 42 | 63621de32116 | 2026-08-12 |
+| [Dynalite](https://github.com/architect/dynalite) | C | 12.8% | 77.0% | 25 of 32 | 10.8% | 12.4% | 15.9% | 135 | 242 | 4.0.0 | 2026-08-12 |
+| [LocalStack](https://github.com/localstack/localstack) | C | 14.8% | 95.3% | 26 of 32 | 6.3% | 16.0% | 26.2% | 156 | 50 | 2026.7.3 | 2026-08-12 |
+| [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) | C | 15.1% | 94.0% | 26 of 32 | 7.6% | 14.2% | 26.5% | 159 | 63 | ff89bd48ff32 | 2026-08-12 |
+| [Floci](https://github.com/floci-io/floci) | C | 20.9% | 95.2% | 1 of 32 | 10.8% | 32.4% | 27.6% | 220 | 51 | eab36252ea43 | 2026-08-12 |
 <!-- results:end -->
 
 **Live results:** [the Parity Suite board](https://paritysuite.org) - the full table for every target, tracked run over run.
@@ -199,6 +199,7 @@ The shared indexed table carries both kinds together, so any test using it is ta
 | `batch` | data-plane | BatchGetItem, BatchWriteItem |
 | `transactions` | data-plane | TransactWriteItems, TransactGetItems |
 | `partiql` | data-plane | ExecuteStatement, BatchExecuteStatement, ExecuteTransaction |
+| `search-vectors` | data-plane | SearchVectors |
 | `create-table` | control-plane | CreateTable |
 | `update-table` | control-plane | UpdateTable |
 | `delete-table` | control-plane | DeleteTable |
@@ -223,6 +224,7 @@ The shared indexed table carries both kinds together, so any test using it is ta
 | `cloud-only` | No emulator implements it; needs real AWS infrastructure, another AWS service, or account/region context |
 | `gsi` | Depends on a Global Secondary Index, whether it queries one, asserts on an index key, or creates a table carrying one |
 | `lsi` | Depends on a Local Secondary Index, on the same terms |
+| `vector` | Depends on a vector index, whether it searches one, writes through one, or creates a table carrying one |
 | `legacy` | Sends a deprecated request parameter (AttributeUpdates, QueryFilter, ScanFilter, Expected, AttributesToGet), wherever the test lives |
 | `slow` | Long-running against real AWS; the set `test:gating` excludes |
 | `negative-path` | Asserts only rejections: every case expects a validation error, conditional-check failure, or transaction cancellation |
@@ -260,17 +262,6 @@ running the shipped `dist/` bundle. Dynoxide ships that shim as a repo script,
 so the suite sees a port like every other target. The script is test-only and
 deliberately undistributed - it is not a way to run dynoxide, and getting it
 means cloning the repo.
-
-`scripts/run-dynoxide-wasm.sh` automates the whole bring-up (build the bundle,
-install the browser, start the shim, wait for the engine to answer) against a
-Dynoxide checkout, and the CI job uses it:
-
-```bash
-DYNOXIDE_DIR=/path/to/dynoxide eval "$(./scripts/run-dynoxide-wasm.sh)"
-CONFORMANCE_TARGET=dynoxide-wasm npm test
-```
-
-To wire it up by hand instead:
 
 ```bash
 # in a dynoxide checkout: build the bundle, then serve it
@@ -376,9 +367,9 @@ npm test
 | Local emulators | ~2-5 seconds | ~2-5 seconds |
 | Real DynamoDB | ~1-3.5 hours | ~20-25 minutes |
 
-The full suite includes 14 UpdateTable GSI lifecycle tests that add and remove Global Secondary Indexes from existing tables. On real DynamoDB, each GSI creation triggers a backfill that usually takes 5-15 minutes even on empty tables, and has been observed taking 25+ on a slow night. These tests are important for conformance but they dominate runtime against real AWS.
+The full suite includes slow online-index lifecycle tests: 14 UpdateTable GSI tests that add and remove Global Secondary Indexes from existing tables, plus the UpdateTable vector index lifecycle test, which backfills on the same machinery. On real DynamoDB, each index creation triggers a backfill that usually takes 5-15 minutes even on small tables, and has been observed taking 25+ on a slow night (a 25-item vector index took ~17). These tests are important for conformance but they dominate runtime against real AWS.
 
-`test:quick` excludes the GSI lifecycle tests for faster local iteration. CI's gating real-DynamoDB job runs `test:gating`, which drops the GSI lifecycle tests *and* the S3 and Kinesis integration suites (see "Operations no emulator implements" below), so a slow async import can't redden the build. Emulator targets run the full `npm test` since GSI creation is instant locally.
+`test:quick` excludes the online-index lifecycle tests (GSI and vector) for faster local iteration. CI's gating real-DynamoDB job runs `test:gating`, which drops those *and* the S3 and Kinesis integration suites (see "Operations no emulator implements" below), so a slow async import can't redden the build. Emulator targets run the full `npm test` since index creation is instant locally.
 
 Nothing is dropped from real AWS by being off the gate, only moved. Real-AWS
 coverage runs in three lanes, split by runtime rather than by importance:
@@ -387,7 +378,7 @@ coverage runs in three lanes, split by runtime rather than by importance:
 |------|-------|-----------------|
 | `test:gating` | the suite minus the two below | yes |
 | `test:integrations` | S3 export/import, Kinesis | no |
-| `test:gsi` | the 14 UpdateTable GSI lifecycle tests | no |
+| `test:gsi` | the UpdateTable online-index lifecycle tests (GSI and vector) | no |
 
 The GSI lane exists because a full green run of that file was measured at
 2h50m against real AWS on a slow backfill night, far longer than the gating
@@ -414,7 +405,7 @@ one thing here that is never allowed to be quiet.
 
 ```
 tests/
-  tier1/                    # ~475 tests
+  tier1/                    # ~489 tests
     createTable/            # basic, gsi, lsi
     putItem/                # basic, conditions, validation, expressions, dataTypes, ...
     getItem/                # basic, validation, projection, consumedCapacity
@@ -428,14 +419,16 @@ tests/
     describeTable/          # basic
     listTables/             # basic
     updateTable/            # basic
-  tier2/                    # ~199 tests
+  tier2/                    # ~225 tests
     transactions/           # transactWrite, transactGet
     partiql/                # executeStatement, batchExecuteStatement, executeTransaction
     ttl/                    # basic
     streams/                # basic
     tags/                   # basic
     updateTable/            # gsi
-  tier3/                    # ~324 tests
+    vectorSearch/           # lifecycle, updateLifecycle, search, validation,
+                            # writeValidation, consumedCapacity, partiql
+  tier3/                    # ~340 tests
     validation-ordering/    # per-operation validation error ordering
     error-messages/         # exact error message strings
     limits/                 # itemSize, batchLimits, responseSize, transactionLimits,
@@ -447,6 +440,7 @@ tests/
 
 - `src/client.ts` - DynamoDB and Streams client, configured from the `DYNAMODB_ENDPOINT` env var
 - `src/helpers.ts` - table lifecycle, assertion helpers (`expectDynamoError`, `cleanupItems`, `waitForGsiConsistency`)
+- `src/vector.ts` - vector search feature probes (`skipUnlessSearchVectors`, `skipUnlessVectorIndexes`) and index-aware waiters (`waitForVectorIndexActive`, `waitForVectorSearchable`)
 - `src/setup.ts` - per-file beforeAll that creates the shared tables the running file declared
 - `src/types.ts` - `TestTableDef` and `KeyDef` types
 
@@ -528,22 +522,23 @@ All test data must be synthetic. Don't use real names, emails, addresses, or any
 
 | Operation | Tier 1 | Tier 2 | Tier 3 |
 |-----------|--------|--------|--------|
-| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, itemCollectionMetrics | | error messages |
+| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, indexConsumedCapacity (GSI/LSI write cost) | vector write validation, vector write capacity | error messages |
 | GetItem | basic, validation, projection, consumedCapacity | | error messages |
-| UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths | | error messages |
-| DeleteItem | basic, conditions (incl. parens), validation | | error messages |
+| UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths, index write-capacity ladder | | error messages |
+| DeleteItem | basic, conditions (incl. parens), validation, index write capacity | | error messages |
 | Query | basic, GSI, LSI, expressions (incl. KeyCondition + Filter parens), select, numericKeys, binaryKeys, pagination | | error messages, validation ordering |
 | Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens | | error messages, validation ordering |
-| BatchWriteItem | basic, validation | | error messages |
+| BatchWriteItem | basic, validation, index write capacity | | error messages |
 | BatchGetItem | basic, validation | | error messages |
-| CreateTable | basic, GSI, LSI | | error messages, validation ordering |
+| CreateTable | basic, GSI, LSI | vector indexes (lifecycle, SearchSchema, validation) | error messages, validation ordering |
 | DeleteTable | basic | | |
 | DescribeTable | basic | | |
 | ListTables | basic | | |
-| UpdateTable | basic (throughput, billing mode) | GSI lifecycle | |
+| UpdateTable | basic (throughput, billing mode) | GSI lifecycle, vector index lifecycle | |
+| SearchVectors | | scores per distance function, projection, capacity shape, request validation | error messages |
 | TransactWriteItems | | basic, conditions (incl. parens, non-existent key branch), idempotency, cancellation | error messages |
 | TransactGetItems | | basic, validation | error messages |
-| ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised, RETURNING | error messages (RETURNING) |
+| ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised, RETURNING, vector index non-reach | error messages (RETURNING) |
 | BatchExecuteStatement | | batch, partial failure, RETURNING honoured | |
 | ExecuteTransaction | | atomic, rollback, RETURNING rejected | error messages (RETURNING) |
 | UpdateTimeToLive | | enable, validation | |
@@ -577,6 +572,16 @@ gate material, so they run in a separate non-gating job via
 `npm run test:integrations` rather than on the gating run. They still run
 against real AWS every scheduled run, and the ground-truth coverage check
 fails if they don't.
+
+Vector search (SearchVectors and the vector index lifecycle) is in the same
+position today for a different reason: the surface shipped on AWS in August
+2026 and no emulator implements it yet, so every current target skips the
+whole family through its support probes. Unlike the list above it is not
+`cloud-only` - it is ordinary DynamoDB surface any emulator can adopt, and the
+skips (and the coverage they cost) should shrink as targets catch up. The
+family carries the `vector` tag, so `--tags-filter='!vector'` drops it. The
+UpdateTable half of the lifecycle backfills on GSI timescales and rides in the
+same slow lane as the GSI lifecycle (`npm run test:gsi`).
 
 Genuinely not covered, with no tests yet:
 

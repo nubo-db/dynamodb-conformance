@@ -256,6 +256,7 @@ export const CAPABILITIES = [
   { key: "streams", label: "Streams", group: "core" },
   { key: "ttl", label: "TTL", group: "core" },
   { key: "legacy", label: "Legacy params", group: "core" },
+  { key: "vector", label: "Vector search", group: "core" },
   { key: "backups", label: "Backups / PITR", group: "wider" },
   { key: "export-import", label: "Export / import", group: "wider" },
   { key: "kinesis", label: "Kinesis", group: "wider" },

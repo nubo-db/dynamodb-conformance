@@ -30,10 +30,10 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "test:quick": "vitest run --exclude 'tests/tier2/updateTable/gsi.test.ts'",
-    "test:gating": "vitest run --exclude 'tests/tier2/updateTable/gsi.test.ts' --exclude 'tests/tier2/export/exportImport.test.ts' --exclude 'tests/tier2/kinesis/streamingDestination.test.ts'",
+    "test:quick": "vitest run --exclude 'tests/tier2/updateTable/gsi.test.ts' --exclude 'tests/tier2/vectorSearch/updateLifecycle.test.ts'",
+    "test:gating": "vitest run --exclude 'tests/tier2/updateTable/gsi.test.ts' --exclude 'tests/tier2/vectorSearch/updateLifecycle.test.ts' --exclude 'tests/tier2/export/exportImport.test.ts' --exclude 'tests/tier2/kinesis/streamingDestination.test.ts'",
     "test:integrations": "vitest run tests/tier2/export/exportImport.test.ts tests/tier2/kinesis/streamingDestination.test.ts",
-    "test:gsi": "vitest run tests/tier2/updateTable/gsi.test.ts",
+    "test:gsi": "vitest run tests/tier2/updateTable/gsi.test.ts tests/tier2/vectorSearch/updateLifecycle.test.ts",
     "test:watch": "vitest",
     "test:tier1": "vitest run --include 'tests/tier1/**/*.test.ts'",
     "test:tier2": "vitest run --include 'tests/tier2/**/*.test.ts'",

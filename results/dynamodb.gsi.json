@@ -1,0 +1,309 @@
+{
+  "numTotalTestSuites": 6,
+  "numPassedTestSuites": 6,
+  "numFailedTestSuites": 0,
+  "numPendingTestSuites": 0,
+  "numTotalTests": 15,
+  "numPassedTests": 15,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "snapshot": {
+    "added": 0,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0,
+    "didUpdate": false
+  },
+  "startTime": 1786531639155,
+  "success": true,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "UpdateTable — add GSI"
+          ],
+          "fullName": "UpdateTable — add GSI adds a hash-only GSI to an existing table",
+          "status": "passed",
+          "title": "adds a hash-only GSI to an existing table",
+          "duration": 630390.785135,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — add GSI"
+          ],
+          "fullName": "UpdateTable — add GSI adds a composite GSI (hash + range) to an existing table",
+          "status": "passed",
+          "title": "adds a composite GSI (hash + range) to an existing table",
+          "duration": 1003726.658021,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — add GSI"
+          ],
+          "fullName": "UpdateTable — add GSI adds a GSI with KEYS_ONLY projection",
+          "status": "passed",
+          "title": "adds a GSI with KEYS_ONLY projection",
+          "duration": 540115.111878,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — add GSI"
+          ],
+          "fullName": "UpdateTable — add GSI adds a GSI with INCLUDE projection and NonKeyAttributes",
+          "status": "passed",
+          "title": "adds a GSI with INCLUDE projection and NonKeyAttributes",
+          "duration": 535723.734929,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — add GSI"
+          ],
+          "fullName": "UpdateTable — add GSI can query a newly created GSI after putting items",
+          "status": "passed",
+          "title": "can query a newly created GSI after putting items",
+          "duration": 1015475.1138129998,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — add GSI"
+          ],
+          "fullName": "UpdateTable — add GSI adds multiple GSIs sequentially",
+          "status": "passed",
+          "title": "adds multiple GSIs sequentially",
+          "duration": 1535935.98232,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — add GSI"
+          ],
+          "fullName": "UpdateTable — add GSI accepts a conflicting redeclaration of an existing key attribute and keeps the stored type",
+          "status": "passed",
+          "title": "accepts a conflicting redeclaration of an existing key attribute and keeps the stored type",
+          "duration": 540837.560203,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — add GSI"
+          ],
+          "fullName": "UpdateTable — add GSI drops an unused AttributeDefinition supplied with a GSI add",
+          "status": "passed",
+          "title": "drops an unused AttributeDefinition supplied with a GSI add",
+          "duration": 630541.8896020008,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — remove GSI"
+          ],
+          "fullName": "UpdateTable — remove GSI removes a GSI from a table",
+          "status": "passed",
+          "title": "removes a GSI from a table",
+          "duration": 21486.752554999664,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — remove GSI"
+          ],
+          "fullName": "UpdateTable — remove GSI base table operations still work after removing a GSI",
+          "status": "passed",
+          "title": "base table operations still work after removing a GSI",
+          "duration": 19761.20563999936,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — GSI validation"
+          ],
+          "fullName": "UpdateTable — GSI validation rejects adding a GSI with a name that already exists",
+          "status": "passed",
+          "title": "rejects adding a GSI with a name that already exists",
+          "duration": 14412.353953999467,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi",
+            "negative-path"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — GSI validation"
+          ],
+          "fullName": "UpdateTable — GSI validation rejects adding a GSI with an attribute not in AttributeDefinitions",
+          "status": "passed",
+          "title": "rejects adding a GSI with an attribute not in AttributeDefinitions",
+          "duration": 5908.753322999924,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi",
+            "negative-path"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — GSI validation"
+          ],
+          "fullName": "UpdateTable — GSI validation rejects a GSI keyed on a table attribute omitted from the request AttributeDefinitions",
+          "status": "passed",
+          "title": "rejects a GSI keyed on a table attribute omitted from the request AttributeDefinitions",
+          "duration": 5900.224992999807,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi",
+            "negative-path"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "UpdateTable — GSI validation"
+          ],
+          "fullName": "UpdateTable — GSI validation rejects removing a non-existent GSI",
+          "status": "passed",
+          "title": "rejects removing a non-existent GSI",
+          "duration": 5909.635857999325,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "control-plane",
+            "slow",
+            "gsi",
+            "negative-path"
+          ]
+        }
+      ],
+      "startTime": 1786531641325,
+      "endTime": 1786538161727.6357,
+      "status": "passed",
+      "message": "",
+      "name": "/home/runner/work/dynamodb-conformance/dynamodb-conformance/tests/tier2/updateTable/gsi.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "UpdateTable — vector index lifecycle"
+          ],
+          "fullName": "UpdateTable — vector index lifecycle adds an index that backfills like a GSI, enforces one online action, then deletes it",
+          "status": "passed",
+          "title": "adds an index that backfills like a GSI, enforces one online action, then deletes it",
+          "duration": 1044498.2715330003,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "update-table",
+            "search-vectors",
+            "control-plane",
+            "vector",
+            "slow"
+          ]
+        }
+      ],
+      "startTime": 1786538187179,
+      "endTime": 1786539231677.2715,
+      "status": "passed",
+      "message": "",
+      "name": "/home/runner/work/dynamodb-conformance/dynamodb-conformance/tests/tier2/vectorSearch/updateLifecycle.test.ts"
+    }
+  ]
+}
