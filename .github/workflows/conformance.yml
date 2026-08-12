@@ -49,13 +49,68 @@ permissions:
   contents: read
 
 jobs:
+  # Whether this push changed anything that could move a measurement against
+  # real DynamoDB. Real DynamoDB's behaviour is AWS's, so what makes the
+  # ground-truth run worth repeating is a change to the tests driving it or the
+  # harness running them, not a dependency bump, a workflow edit or the docs.
+  #
+  # Without this, merging any dependency update started a live AWS run. Those
+  # hold the shared conformance account for their whole duration, and the
+  # account is also what a maintainer probes by hand, so a routine merge could
+  # block someone mid-investigation with no warning. Every dependency PR the
+  # repo has seen touched lockfiles, manifests or workflows and none touched
+  # tests/ or src/, so keying on those two keeps the same-day refresh for real
+  # suite changes and drops it for the rest.
+  changes:
+    name: What changed
+    runs-on: ubuntu-latest
+    outputs:
+      suite: ${{ steps.filter.outputs.suite }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: filter
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          decide() { echo "suite=$1" >>"$GITHUB_OUTPUT"; echo "suite=$1 ($2)"; exit 0; }
+
+          # A schedule or a dispatch is an explicit request to measure.
+          [ "$EVENT" = "push" ] || decide true "$EVENT is not a push"
+
+          # A first push, a force-push, or a parent this checkout cannot see
+          # leaves nothing to diff. Measure rather than guess.
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+            || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+            decide true "no comparable parent"
+          fi
+
+          # tests/ is the assertions, src/ is the harness that drives them, and
+          # vitest.config.ts sets the timeouts, retries and include glob a run
+          # is made under. An SDK bump is deliberately not here: it would match
+          # every dependency PR and so undo this, and the weekly run picks the
+          # new client up within seven days.
+          if git diff --name-only "$BEFORE" "$AFTER" \
+            | grep -qE '^(tests|src)/|^vitest\.config\.ts$'; then
+            decide true "the suite or the harness changed"
+          fi
+          decide false "nothing outside the suite changed"
+
   test-dynamodb:
     name: DynamoDB (ground truth)
     runs-on: ubuntu-latest
-    # Runs on a merge to main, the weekly schedule, and a manual dispatch (on any
-    # ref) - never on a pull request, so PRs stay on the emulator jobs and never
-    # spend real-AWS time. Verify a branch on demand with a dispatch on its ref.
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: changes
+    # The weekly schedule and a manual dispatch (on any ref) always measure. A
+    # merge to main measures only when it touched the suite - see the `changes`
+    # job for why. Never on a pull request, so PRs stay on the emulator jobs and
+    # never spend real-AWS time. Verify a branch on demand with a dispatch on
+    # its ref, which is also how to force a refresh after a merge that skipped.
+    if: >-
+      github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && needs.changes.outputs.suite == 'true')
     # Serialise AWS runs: the suite shares one account and cleanup deletes every
     # _conformance_ table by prefix, so overlapping runs delete each other's
     # tables. Queue rather than cancel — a cancelled run leaves orphan tables.

@@ -35,14 +35,14 @@ _Scored against real DynamoDB's recorded behaviour in each observed region (`af-
 | Target | Grade | Divergence | Coverage | Regions | Tier 1 | Tier 2 | Tier 3 | Fail | Skip | Version | Date |
 |--------|-------|-----------|----------|---------|--------|--------|--------|------|------|---------|------|
 | [DynamoDB](https://aws.amazon.com/dynamodb/) | baseline | 0.0% | 100.0% | 32 of 32 | 0.0% | 0.0% | 0.0% | 0 | 0 | live (AWS) | 2026-08-09 |
-| [Dynoxide](https://github.com/nubo-db/dynoxide) · native | A | 0.0% | 98.6% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 14 | 0.13.0 | 2026-08-09 |
+| [Dynoxide](https://github.com/nubo-db/dynoxide) · native | A | 0.0% | 98.6% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 14 | 0.13.0 | 2026-08-12 |
 | ↳ WebAssembly / OPFS | A | 0.0% | 86.7% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 133 | 0.13.0 | 2026-08-11 |
-| [ExtendDB](https://github.com/ExtendDB/extenddb) · PostgreSQL | A | 2.0% | 91.3% | 32 of 32 | 0.8% | 3.5% | 2.8% | 20 | 87 | v0.1.2 | 2026-08-09 |
-| [Ministack](https://github.com/ministackorg/ministack) | B | 11.2% | 100.0% | 32 of 32 | 3.2% | 17.1% | 19.4% | 112 | 0 | ae248c59e9bf | 2026-08-09 |
-| [Dynalite](https://github.com/architect/dynalite) | C | 12.3% | 80.0% | 26 of 32 | 8.6% | 14.1% | 16.7% | 123 | 200 | 4.0.0 | 2026-08-09 |
-| [LocalStack](https://github.com/localstack/localstack) | C | 15.6% | 99.2% | 26 of 32 | 6.5% | 18.1% | 27.5% | 156 | 8 | 2026.7.2 | 2026-08-09 |
-| [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) | C | 15.9% | 97.9% | 26 of 32 | 7.8% | 16.1% | 27.8% | 159 | 21 | ff89bd48ff32 | 2026-08-09 |
-| [Floci](https://github.com/floci-io/floci) | C | 20.8% | 99.1% | 32 of 32 | 8.6% | 36.2% | 29.3% | 208 | 9 | eab36252ea43 | 2026-08-09 |
+| [ExtendDB](https://github.com/ExtendDB/extenddb) · PostgreSQL | A | 1.9% | 91.3% | 32 of 32 | 0.4% | 3.0% | 3.4% | 19 | 87 | v0.1.3 | 2026-08-12 |
+| [Ministack](https://github.com/ministackorg/ministack) | B | 11.2% | 100.0% | 32 of 32 | 3.2% | 17.1% | 19.4% | 112 | 0 | 63621de32116 | 2026-08-12 |
+| [Dynalite](https://github.com/architect/dynalite) | C | 12.3% | 80.0% | 26 of 32 | 8.6% | 14.1% | 16.7% | 123 | 200 | 4.0.0 | 2026-08-12 |
+| [LocalStack](https://github.com/localstack/localstack) | C | 15.6% | 99.2% | 26 of 32 | 6.5% | 18.1% | 27.5% | 156 | 8 | 2026.7.3 | 2026-08-12 |
+| [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) | C | 15.9% | 97.9% | 26 of 32 | 7.8% | 16.1% | 27.8% | 159 | 21 | ff89bd48ff32 | 2026-08-12 |
+| [Floci](https://github.com/floci-io/floci) | C | 20.9% | 99.1% | 32 of 32 | 8.6% | 36.7% | 29.3% | 209 | 9 | eab36252ea43 | 2026-08-12 |
 <!-- results:end -->
 
 **Live results:** [the Parity Suite board](https://paritysuite.org) - the full table for every target, tracked run over run.
