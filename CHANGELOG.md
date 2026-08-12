@@ -294,6 +294,20 @@ timescales (~17 minutes observed for 25 items) and rides in the GSI lane.
 Sending the new operations needs `@aws-sdk/client-dynamodb` 3.1103.0 or
 later.
 
+**Writes into indexed tables now have their capacity pinned (#124).** Until
+now the suite's only per-index capacity assertion was on a Query, so the
+write side - the half you actually get billed extra for - went unmeasured.
+Fourteen new tier1 tests fix that, taking the suite from 1040 to 1054, with
+every number measured in eu-west-2 rather than lifted from the docs. A
+sub-1KB write costs one unit for the table and one for each index it lands
+in, and LSI units fold into the total just like GSI units do. Moving an item
+to a new GSI key costs two on that index (a delete and an insert), touching
+a projected attribute costs one, and touching a non-projected attribute
+costs nothing - in which case the response has no arm for that index at all,
+rather than a zero. The oddest finding: an overwrite that leaves the item
+unchanged reports no index cost whatsoever. Index replication is delta-based,
+just as the vector indexes above turned out to be.
+
 **The index exclusions create no indexed table (#116).** `!gsi and !lsi` used
 to select the right tests and then build the tables anyway, because
 provisioning ran over a fixed list before any filter applied. An engine with no

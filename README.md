@@ -416,7 +416,7 @@ one thing here that is never allowed to be quiet.
 
 ```
 tests/
-  tier1/                    # ~475 tests
+  tier1/                    # ~489 tests
     createTable/            # basic, gsi, lsi
     putItem/                # basic, conditions, validation, expressions, dataTypes, ...
     getItem/                # basic, validation, projection, consumedCapacity
@@ -533,13 +533,13 @@ All test data must be synthetic. Don't use real names, emails, addresses, or any
 
 | Operation | Tier 1 | Tier 2 | Tier 3 |
 |-----------|--------|--------|--------|
-| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, itemCollectionMetrics | vector write validation, vector write capacity | error messages |
+| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, indexConsumedCapacity (GSI/LSI write cost) | vector write validation, vector write capacity | error messages |
 | GetItem | basic, validation, projection, consumedCapacity | | error messages |
-| UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths | | error messages |
-| DeleteItem | basic, conditions (incl. parens), validation | | error messages |
+| UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths, index write-capacity ladder | | error messages |
+| DeleteItem | basic, conditions (incl. parens), validation, index write capacity | | error messages |
 | Query | basic, GSI, LSI, expressions (incl. KeyCondition + Filter parens), select, numericKeys, binaryKeys, pagination | | error messages, validation ordering |
 | Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens | | error messages, validation ordering |
-| BatchWriteItem | basic, validation | | error messages |
+| BatchWriteItem | basic, validation, index write capacity | | error messages |
 | BatchGetItem | basic, validation | | error messages |
 | CreateTable | basic, GSI, LSI | vector indexes (lifecycle, SearchSchema, validation) | error messages, validation ordering |
 | DeleteTable | basic | | |

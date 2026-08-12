@@ -267,6 +267,32 @@
         "data-plane"
       ]
     },
+    "tests/tier1/putItem/indexConsumedCapacity.test.ts": {
+      "PutItem — index write capacity": [
+        "put-item",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ],
+      "UpdateItem — index write-capacity ladder": [
+        "update-item",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ],
+      "DeleteItem — index write capacity": [
+        "delete-item",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ],
+      "BatchWriteItem — index write capacity": [
+        "batch",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ]
+    },
     "tests/tier1/putItem/indexKeyValidation.test.ts": {
       "PutItem — index key validation": [
         "put-item",
