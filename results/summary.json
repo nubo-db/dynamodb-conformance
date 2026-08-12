@@ -2822,9 +2822,9 @@
           }
         },
         "us-east-1": {
-          "rate": 99.7,
-          "passed": 981,
-          "failed": 3,
+          "rate": 99.8,
+          "passed": 982,
+          "failed": 2,
           "skipped": 14,
           "indeterminate": 0,
           "count": 998,
@@ -2842,8 +2842,8 @@
               "i": 0
             },
             "tier3": {
-              "p": 321,
-              "f": 3,
+              "p": 322,
+              "f": 2,
               "s": 0,
               "i": 0
             }
@@ -3049,7 +3049,6 @@
         ],
         "us-east-1": [
           "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
           "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-east-2": [
@@ -3860,9 +3859,9 @@
           }
         },
         "us-east-1": {
-          "rate": 99.7,
-          "passed": 862,
-          "failed": 3,
+          "rate": 99.8,
+          "passed": 863,
+          "failed": 2,
           "skipped": 133,
           "indeterminate": 0,
           "count": 998,
@@ -3880,8 +3879,8 @@
               "i": 0
             },
             "tier3": {
-              "p": 286,
-              "f": 3,
+              "p": 287,
+              "f": 2,
               "s": 35,
               "i": 0
             }
@@ -4087,7 +4086,6 @@
         ],
         "us-east-1": [
           "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
-          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
           "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
         ],
         "us-east-2": [
@@ -4109,8 +4107,8 @@
     },
     "extenddb": {
       "headline": {
-        "region": "af-south-1",
-        "rate": 97.9
+        "region": "us-east-1",
+        "rate": 98
       },
       "regions": {
         "af-south-1": {
@@ -4898,9 +4896,9 @@
           }
         },
         "us-east-1": {
-          "rate": 97.9,
-          "passed": 892,
-          "failed": 19,
+          "rate": 98,
+          "passed": 893,
+          "failed": 18,
           "skipped": 87,
           "indeterminate": 0,
           "count": 998,
@@ -4918,8 +4916,8 @@
               "i": 0
             },
             "tier3": {
-              "p": 309,
-              "f": 11,
+              "p": 310,
+              "f": 10,
               "s": 4,
               "i": 0
             }
@@ -5015,8 +5013,8 @@
     },
     "floci": {
       "headline": {
-        "region": "af-south-1",
-        "rate": 78.9
+        "region": "us-east-1",
+        "rate": 79
       },
       "regions": {
         "af-south-1": {
@@ -5804,9 +5802,9 @@
           }
         },
         "us-east-1": {
-          "rate": 78.9,
-          "passed": 780,
-          "failed": 209,
+          "rate": 79,
+          "passed": 781,
+          "failed": 208,
           "skipped": 9,
           "indeterminate": 0,
           "count": 998,
@@ -5824,8 +5822,8 @@
               "i": 0
             },
             "tier3": {
-              "p": 229,
-              "f": 95,
+              "p": 230,
+              "f": 94,
               "s": 0,
               "i": 0
             }
@@ -6827,8 +6825,8 @@
     },
     "ministack": {
       "headline": {
-        "region": "af-south-1",
-        "rate": 88.8
+        "region": "us-east-1",
+        "rate": 88.9
       },
       "regions": {
         "af-south-1": {
@@ -7616,9 +7614,9 @@
           }
         },
         "us-east-1": {
-          "rate": 88.8,
-          "passed": 886,
-          "failed": 112,
+          "rate": 88.9,
+          "passed": 887,
+          "failed": 111,
           "skipped": 0,
           "indeterminate": 0,
           "count": 998,
@@ -7636,8 +7634,8 @@
               "i": 0
             },
             "tier3": {
-              "p": 261,
-              "f": 63,
+              "p": 262,
+              "f": 62,
               "s": 0,
               "i": 0
             }
