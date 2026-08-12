@@ -261,6 +261,17 @@ so the suite sees a port like every other target. The script is test-only and
 deliberately undistributed - it is not a way to run dynoxide, and getting it
 means cloning the repo.
 
+`scripts/run-dynoxide-wasm.sh` automates the whole bring-up (build the bundle,
+install the browser, start the shim, wait for the engine to answer) against a
+Dynoxide checkout, and the CI job uses it:
+
+```bash
+DYNOXIDE_DIR=/path/to/dynoxide eval "$(./scripts/run-dynoxide-wasm.sh)"
+CONFORMANCE_TARGET=dynoxide-wasm npm test
+```
+
+To wire it up by hand instead:
+
 ```bash
 # in a dynoxide checkout: build the bundle, then serve it
 npm ci && npm run build:wasm
