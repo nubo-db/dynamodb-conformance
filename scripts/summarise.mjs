@@ -763,34 +763,52 @@ export function tableCaption(regions, groundTruth = null, tableDate = null) {
   // the least of it: the count carries the same weight and the set is in
   // `registry/regions.json`. The exceptions are still named, because that is
   // where naming earns its space.
+  //
+  // One paragraph per idea rather than one block: a column definition a reader
+  // is looking for should be findable by scanning down the left edge, and in a
+  // single block Divergence and Coverage sat mid-sentence three lines apart.
+  // Each paragraph carries its own emphasis marks, because Markdown emphasis
+  // cannot span a blank line.
   const sentences = [
     `Scored against real DynamoDB in each of the ${regions.observed.length} observed ` +
-      `regions, at each target's best-matching region. **Coverage** is how much of ` +
-      `DynamoDB's behaviour a target implements. **Divergence** is how much of it the ` +
-      `target answers differently from real DynamoDB. Both are shares of the whole ` +
-      `suite, and they are never added together: an operation a target declines is ` +
-      `discoverable in minutes, one it answers wrongly is discoverable in production. ` +
-      `**Grade** reads the pair, with divergence setting the letter and coverage only ` +
+      `regions, at each target's best-matching region.`,
+
+    `**Coverage** is how much of DynamoDB's behaviour a target implements.`,
+
+    `**Divergence** is how much of it the target answers differently from real ` +
+      `DynamoDB.`,
+
+    `Both are shares of the whole suite, and they are never added together: an ` +
+      `operation a target declines is discoverable in minutes, one it answers wrongly ` +
+      `is discoverable in production.`,
+
+    `**Grade** reads the pair, with divergence setting the letter and coverage only ` +
       `ever lowering it, under the versioned criteria in the ` +
-      `[methodology](https://paritysuite.org/methodology). Rows are sorted by ` +
-      `divergence. The tier columns are divergence within that tier, so lower is ` +
-      `better in every column but Coverage. **Regions** counts the observed regions a ` +
-      `target's headline matched, as evidence rather than a score: it currently ` +
-      `over-credits a target whose assertion matches a region's answer loosely ` +
+      `[methodology](https://paritysuite.org/methodology).`,
+
+    `**Regions** counts the observed regions a target's headline matched, as evidence ` +
+      `rather than a score: it currently over-credits a target whose assertion matches ` +
+      `a region's answer loosely ` +
       `([#138](https://github.com/paritysuite/dynamodb-conformance/issues/138)). Real ` +
       `DynamoDB does not answer identically everywhere, and the per-region detail is ` +
-      `in \`results/summary.json\`. Behaviour varies by region and over time, so these ` +
-      `are point-in-time figures.`,
+      `in \`results/summary.json\`.`,
+
+    `Rows are sorted by divergence. The tier columns are divergence within that tier, ` +
+      `so lower is better in every column but Coverage. Behaviour varies by region and ` +
+      `over time, so these are point-in-time figures.`,
   ]
+  // The disclosures close the caption as one paragraph rather than one each:
+  // they are what this run could not measure, and a reader wants them together.
+  const notes = []
   if (regions.unresolved.length > 0) {
-    sentences.push(
+    notes.push(
       `${list(regions.unresolved)} did not resolve the latest sweep and ` +
         `${regions.unresolved.length === 1 ? 'carries' : 'carry'} forward the last ` +
         `resolved data.`,
     )
   }
   if (regions.dropped.length > 0) {
-    sentences.push(
+    notes.push(
       `${list(regions.dropped)} ${regions.dropped.length === 1 ? 'has' : 'have'} been ` +
         `dropped from the observed set and ` +
         `${regions.dropped.length === 1 ? 'is' : 'are'} not scored against.`,
@@ -804,7 +822,7 @@ export function tableCaption(regions, groundTruth = null, tableDate = null) {
   const unobserved = Math.max(0, (groundTruth?.suiteSize ?? 0) - (groundTruth?.testsObserved ?? 0))
   if (groundTruth && unobserved > 0) {
     const missing = groundTruth.missingLanes ?? []
-    sentences.push(
+    notes.push(
       `Real DynamoDB is measured in three passes and ${missing.length > 0 ? list(missing) : 'one or more'} ` +
         `${missing.length === 1 ? 'has' : 'have'} not reported, so its row is pinned to its last clean ` +
         `measurement rather than derived from this run: ${groundTruth.testsObserved} of ` +
@@ -814,9 +832,10 @@ export function tableCaption(regions, groundTruth = null, tableDate = null) {
   }
   // Last, because it closes the table rather than qualifying any one column.
   if (tableDate) {
-    sentences.push(`Measured ${tableDate}, except where a row carries its own date.`)
+    notes.push(`Measured ${tableDate}, except where a row carries its own date.`)
   }
-  return `_${sentences.join(' ')}_`
+  if (notes.length > 0) sentences.push(notes.join(' '))
+  return sentences.map((p) => `_${p}_`).join('\n\n')
 }
 
 /** Render the full table block: caption plus Markdown table. */

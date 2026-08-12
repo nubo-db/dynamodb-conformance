@@ -12,6 +12,8 @@ There's no official AWS conformance suite for DynamoDB. The closest thing the co
 
 This suite fixes that by running every test against real DynamoDB first, recording what passes, and using those results as the baseline. An emulator only passes if it gives the same answer DynamoDB does.
 
+**Live results:** [the Parity Suite board](https://paritysuite.org) - the full table for every target, tracked run over run.
+
 ## Quick start
 
 ```bash
@@ -27,10 +29,34 @@ DYNAMODB_ENDPOINT=http://localhost:8000 npm run test:quick
 DYNAMODB_ENDPOINT=http://localhost:8000 npm run test:tier1
 ```
 
+## Contents
+
+**Scores** - [Results](#results) · [Tiers](#tiers) · [Operations covered](#operations-covered) · [Filtering by feature](#filtering-by-feature)
+
+**Running it** - [Running against targets](#running-against-targets) · [Expected runtime](#expected-runtime) · [Generating results](#generating-results)
+
+**How it works** - [Design principles](#design-principles) · [Test organisation](#test-organisation) · [Shared infrastructure](#shared-infrastructure) · [The site](#the-site) · [SDK blindspots](#sdk-blindspots)
+
+**Taking part** - [Contributing](#contributing) · [Citing a finding](#citing-a-finding) · [Community](#community) · [Independence](#independence) · [Licence](#licence)
+
 ## Results
 
 <!-- results:start -->
-_Scored against real DynamoDB in each of the 32 observed regions, at each target's best-matching region. **Coverage** is how much of DynamoDB's behaviour a target implements. **Divergence** is how much of it the target answers differently from real DynamoDB. Both are shares of the whole suite, and they are never added together: an operation a target declines is discoverable in minutes, one it answers wrongly is discoverable in production. **Grade** reads the pair, with divergence setting the letter and coverage only ever lowering it, under the versioned criteria in the [methodology](https://paritysuite.org/methodology). Rows are sorted by divergence. The tier columns are divergence within that tier, so lower is better in every column but Coverage. **Regions** counts the observed regions a target's headline matched, as evidence rather than a score: it currently over-credits a target whose assertion matches a region's answer loosely ([#138](https://github.com/paritysuite/dynamodb-conformance/issues/138)). Real DynamoDB does not answer identically everywhere, and the per-region detail is in `results/summary.json`. Behaviour varies by region and over time, so these are point-in-time figures. `me-central-1`, `me-south-1` have been dropped from the observed set and are not scored against. Measured 2026-08-12, except where a row carries its own date._
+_Scored against real DynamoDB in each of the 32 observed regions, at each target's best-matching region._
+
+_**Coverage** is how much of DynamoDB's behaviour a target implements._
+
+_**Divergence** is how much of it the target answers differently from real DynamoDB._
+
+_Both are shares of the whole suite, and they are never added together: an operation a target declines is discoverable in minutes, one it answers wrongly is discoverable in production._
+
+_**Grade** reads the pair, with divergence setting the letter and coverage only ever lowering it, under the versioned criteria in the [methodology](https://paritysuite.org/methodology)._
+
+_**Regions** counts the observed regions a target's headline matched, as evidence rather than a score: it currently over-credits a target whose assertion matches a region's answer loosely ([#138](https://github.com/paritysuite/dynamodb-conformance/issues/138)). Real DynamoDB does not answer identically everywhere, and the per-region detail is in `results/summary.json`._
+
+_Rows are sorted by divergence. The tier columns are divergence within that tier, so lower is better in every column but Coverage. Behaviour varies by region and over time, so these are point-in-time figures._
+
+_`me-central-1`, `me-south-1` have been dropped from the observed set and are not scored against. Measured 2026-08-12, except where a row carries its own date._
 
 | Target | Grade | Version | Divergence | Coverage | Fail | Skip | Tier 1 | Tier 2 | Tier 3 | Regions | Measured |
 |--------|-------|---------|-----------|----------|------|------|--------|--------|--------|---------|----------|
@@ -44,8 +70,6 @@ _Scored against real DynamoDB in each of the 32 observed regions, at each target
 | [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) | C | ff89bd48ff32 | 15.1% | 94.0% | 159 | 63 | 7.6% | 14.2% | 26.5% | 25 of 32 |  |
 | [Floci](https://github.com/floci-io/floci) | C | eab36252ea43 | 21.0% | 95.2% | 221 | 51 | 10.8% | 32.4% | 27.9% | 27 of 32 |  |
 <!-- results:end -->
-
-**Live results:** [the Parity Suite board](https://paritysuite.org) - the full table for every target, tracked run over run.
 
 **Divergence** is `Fail / Total` and **Coverage** is `(Pass + Fail) / Total`,
 and they are never added together: an operation a target declines is one you
@@ -93,29 +117,6 @@ automatically when a Conformance Tests run finishes on `main`, and on demand
 from the Actions tab. It fills each row's Version from the run (npm version,
 container image digest, release tag, or `live` for real AWS). Run
 `npm run results:table` to preview it locally.
-
-## Independence
-
-This suite is maintained by the same person who maintains Dynoxide, one of the
-engines it scores. Dynoxide runs through the same automated matrix as every
-other target, against the same live-AWS ground truth, and the tests and the
-results are both in this repo.
-
-Two inputs are hand-picked rather than measured. The grade bands and the
-coverage weight decide a published letter, and moving either regrades targets
-whose results never changed, so they carry a version: these are grading criteria
-version 1, and any change to a band, the coverage weight or the A+ gate bumps
-the version and is dated in the
-[methodology](https://paritysuite.org/methodology#grading).
-
-`registry/splits.json` is the other, and it is written by hand by design. It
-records the behaviours where real DynamoDB's own regions disagree, with the
-evidence each region returned, and a target matching any recorded answer is
-scored as conformant rather than wrong. Admitting a row turns a fail into a pass
-with no re-run and no results file changing, which is the one thing "a score
-can't be tuned without changing the published results first" does not cover. So
-the registry is in this repo, every row carries its captured evidence and the
-date it was refreshed, and a behaviour enters only once confirmed across regions.
 
 ## Tiers
 
@@ -293,6 +294,14 @@ The shared indexed table carries both kinds together, so any test using it is ta
 
 ## Running against targets
 
+### Dynalite
+
+```bash
+npx dynalite --port 8002 &
+DYNAMODB_ENDPOINT=http://localhost:8002 npm test
+kill %1
+```
+
 ### DynamoDB Local
 
 ```bash
@@ -349,41 +358,6 @@ the run clean, but it means the conformance path does not exercise OPFS
 persistence, which is the wasm build's actual storage layer. Dynoxide covers
 persistence in its own browser tests.
 
-### Dynalite
-
-```bash
-npx dynalite --port 8002 &
-DYNAMODB_ENDPOINT=http://localhost:8002 npm test
-kill %1
-```
-
-### LocalStack
-
-LocalStack requires a free account. Sign up at [localstack.cloud](https://www.localstack.cloud) and set your auth token.
-
-```bash
-export LOCALSTACK_AUTH_TOKEN=your-token-here
-docker run -d --name localstack -p 4566:4566 -e LOCALSTACK_AUTH_TOKEN localstack/localstack
-DYNAMODB_ENDPOINT=http://localhost:4566 npm test
-docker stop localstack && docker rm localstack
-```
-
-### Ministack
-
-```bash
-docker run -d --name ministack -p 4566:4566 ministackorg/ministack:latest
-DYNAMODB_ENDPOINT=http://localhost:4566 npm test
-docker stop ministack && docker rm ministack
-```
-
-### Floci
-
-```bash
-docker run -d --name floci -p 4566:4566 floci/floci:latest
-DYNAMODB_ENDPOINT=http://localhost:4566 npm test
-docker stop floci && docker rm floci
-```
-
 ### ExtendDB
 
 ExtendDB is heavier than the other local targets: it builds from source
@@ -413,6 +387,33 @@ CONFORMANCE_TARGET=extenddb npm test            # writes results/extenddb.json
 
 Use `127.0.0.1` or `localhost` (both are in the cert's SANs). ExtendDB does
 not implement PartiQL, so those Tier 2 tests skip.
+
+### Floci
+
+```bash
+docker run -d --name floci -p 4566:4566 floci/floci:latest
+DYNAMODB_ENDPOINT=http://localhost:4566 npm test
+docker stop floci && docker rm floci
+```
+
+### LocalStack
+
+LocalStack requires a free account. Sign up at [localstack.cloud](https://www.localstack.cloud) and set your auth token.
+
+```bash
+export LOCALSTACK_AUTH_TOKEN=your-token-here
+docker run -d --name localstack -p 4566:4566 -e LOCALSTACK_AUTH_TOKEN localstack/localstack
+DYNAMODB_ENDPOINT=http://localhost:4566 npm test
+docker stop localstack && docker rm localstack
+```
+
+### Ministack
+
+```bash
+docker run -d --name ministack -p 4566:4566 ministackorg/ministack:latest
+DYNAMODB_ENDPOINT=http://localhost:4566 npm test
+docker stop ministack && docker rm ministack
+```
 
 ### Real DynamoDB
 
@@ -621,6 +622,29 @@ Real AWS DynamoDB is the ground truth here as everywhere: the "expected" line is
 - [Code of Conduct](CODE_OF_CONDUCT.md) - the Contributor Covenant.
 - [Security policy](SECURITY.md) - how to report a vulnerability or a leaked credential privately.
 - [Support](SUPPORT.md) - where to ask for help.
+
+## Independence
+
+This suite is maintained by the same person who maintains Dynoxide, one of the
+engines it scores. Dynoxide runs through the same automated matrix as every
+other target, against the same live-AWS ground truth, and the tests and the
+results are both in this repo.
+
+Two inputs are hand-picked rather than measured. The grade bands and the
+coverage weight decide a published letter, and moving either regrades targets
+whose results never changed, so they carry a version: these are grading criteria
+version 1, and any change to a band, the coverage weight or the A+ gate bumps
+the version and is dated in the
+[methodology](https://paritysuite.org/methodology#grading).
+
+`registry/splits.json` is the other, and it is written by hand by design. It
+records the behaviours where real DynamoDB's own regions disagree, with the
+evidence each region returned, and a target matching any recorded answer is
+scored as conformant rather than wrong. Admitting a row turns a fail into a pass
+with no re-run and no results file changing, which is the one thing "a score
+can't be tuned without changing the published results first" does not cover. So
+the registry is in this repo, every row carries its captured evidence and the
+date it was refreshed, and a behaviour enters only once confirmed across regions.
 
 ## Licence
 
