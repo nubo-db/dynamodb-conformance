@@ -42,6 +42,20 @@ export default defineConfig({
     // fails collection rather than silently mis-filtering. Tags are an axis
     // orthogonal to the tier directories; see src/tags.ts.
     tags: [...TAGS],
+    // The failure message IS the evidence, so it must survive serialisation.
+    // Chai truncates a diff at 40 characters by default, which turns a real
+    // answer into "1 validation error detected: Value at…". Every failure the
+    // sweep records is that shape, so the weekly cross-region run could prove
+    // that four regions disagreed on a behaviour while recording nothing about
+    // what any of them said - and a split candidate cannot be admitted to the
+    // registry from a verdict alone, only from the answer. That is the wrong
+    // way round: a test recorded its answer only once it was already a split.
+    //
+    // Bounded rather than unlimited. 1000 clears the longest real validation
+    // message by a wide margin (the two-error aggregation form is under 300),
+    // while still capping the pathological ones - a rejected BatchWriteItem
+    // echoes all 26 request items back and runs to several kilobytes.
+    chaiConfig: { truncateThreshold: 1000 },
     reporters: ['verbose', 'json'],
     outputFile: `results/${resultTarget}.json`,
     include: ['tests/**/*.test.ts'],

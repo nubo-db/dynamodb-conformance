@@ -706,3 +706,25 @@ describe('the CLI, end to end on fixtures', () => {
     expect(report.drift[0]).toMatchObject({ kind: 'converged', convergedOn: 'off-pinned' })
   })
 })
+
+describe('the evidence a candidate is admitted from', () => {
+  it('survives serialisation: the suite does not truncate failure messages', () => {
+    // buildCandidateIssue quotes failureMessages verbatim, and a row is
+    // admitted from what a region answered, never from the verdict alone.
+    // Chai truncates a diff at 40 characters by default, which recorded every
+    // answer as "1 validation error detected: Value at…" - so the sweep could
+    // prove four regions disagreed while describing what none of them said,
+    // and the candidate it raised could not be acted on. A grep, because the
+    // failure mode is silent: nothing errors, the evidence is just absent.
+    const config = readFileSync('vitest.config.ts', 'utf8')
+    const threshold = config.match(/truncateThreshold:\s*(\d+)/)
+    expect(
+      threshold,
+      'vitest.config.ts sets no chaiConfig.truncateThreshold, so chai cuts every recorded answer to 40 characters',
+    ).not.toBeNull()
+    expect(
+      Number(threshold[1]),
+      'truncateThreshold is below the length of a real validation message, so the evidence is still being cut',
+    ).toBeGreaterThanOrEqual(500)
+  })
+})
