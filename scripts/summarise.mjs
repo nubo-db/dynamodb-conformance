@@ -56,6 +56,7 @@ import {
 } from './lib/score.mjs'
 import { classifyResults } from './lib/classify.mjs'
 import { relativeTestPath, testIdentities } from './ground-truth-coverage.mjs'
+import { suiteIdentities, suiteSizeOf } from './suite-manifest.mjs'
 import { isObserved, observedRegions } from './lib/observed.mjs'
 import { BASELINE_LABEL, gradeOf } from './lib/grade.mjs'
 import {
@@ -288,7 +289,7 @@ const cohortCount = (matched, summary, rate) => {
  * and nothing here stamps a "generated at" time - the run dates come from the
  * result files, so a re-run over the same inputs is byte-identical.
  */
-export function buildSummary(targets, { registry, health }) {
+export function buildSummary(targets, { registry, health, suite = suiteIdentities() }) {
   const standing = regionStanding(health)
 
   const summary = {
@@ -312,7 +313,7 @@ export function buildSummary(targets, { registry, health }) {
       runDate: '-',
       derived: false,
       testsObserved: 0,
-      suiteSize: 0,
+      suiteSize: suite.size,
       lanes: [],
       missingLanes: [...GROUND_TRUTH_LANES],
       counts: null,
@@ -360,10 +361,8 @@ export function buildSummary(targets, { registry, health }) {
     }
   }
 
-  // After the targets: the suite size the baseline is checked against is the
-  // largest full run on the board, and the board is only complete here.
   if (baseline) {
-    recordGroundTruth(summary, baseline, targets, { registry, observed: standing.observed })
+    recordGroundTruth(summary, baseline, { registry, observed: standing.observed, suite })
   }
 
   return summary
@@ -413,7 +412,7 @@ function regionFailuresOf(target, scored, registry, observed) {
  * missing and how far the observation fell short. A disclosed pin is honest;
  * a measurement quietly narrower than the row it fills is not.
  */
-function recordGroundTruth(summary, baseline, targets, context) {
+function recordGroundTruth(summary, baseline, context) {
   const gt = summary.groundTruth
   const observedTests = testIdentities(baseline.raw)
   gt.testsObserved = observedTests.size
@@ -424,23 +423,10 @@ function recordGroundTruth(summary, baseline, targets, context) {
   ]
   gt.missingLanes = baseline.missingLanes ?? []
 
-  // What the suite contains, by test identity, taken from the widest emulator
-  // run: every emulator runs the whole suite, so the largest identity set on
-  // the board is the closest thing to an inventory of it. Second-hand, and
-  // worth knowing as such - the tag manifest records describes and tags, not
-  // one entry per test, so there is no first-hand enumeration to check against.
-  const suite = new Set()
-  for (const t of targets) {
-    // A companion file (the tag manifest) rides in the same namespace and is
-    // not a run, so it carries no identities to compare against.
-    if (t.slug === GROUND_TRUTH_SLUG || !Array.isArray(t.raw?.testResults)) continue
-    const ids = testIdentities(t.raw)
-    if (ids.size > suite.size) {
-      suite.clear()
-      for (const id of ids) suite.add(id)
-    }
-  }
-  gt.suiteSize = suite.size
+  // What the suite contains, by test identity, from the suite's own manifest.
+  // This used to be the widest emulator run on the board, which put one of the
+  // measured things in charge of the denominator every other figure divides by.
+  const { suite } = context
 
   // Spanning, not counting. A cardinality check passes on the right number of
   // the wrong tests, and the three lanes have independently changing test sets,
@@ -480,27 +466,62 @@ function recordGroundTruth(summary, baseline, targets, context) {
  * rejected.
  *
  * A target that scored nothing publishes "-" rather than a shrunken figure and
- * is not in scope. Everything else is measured against the widest run, which
- * also catches a carried row whose count went stale while the suite grew.
+ * is not in scope. Everything else is measured against the suite manifest,
+ * which also catches a carried row whose count went stale while the suite grew.
+ * A row above the manifest is the same check read the other way: no target can
+ * run more tests than the suite defines, so the manifest needs regenerating
+ * before anything published divides by it.
  */
-export function assertOneDenominator(summary) {
+export function assertOneDenominator(summary, size = suiteSizeOf()) {
   const counts = Object.entries(summary.targets).map(([slug, t]) => [
     slug,
     t.regions[t.headline.region]?.count ?? 0,
   ])
-  const size = Math.max(0, ...counts.map(([, c]) => c))
-  const short = counts.filter(([, c]) => c !== 0 && c !== size)
-  if (short.length === 0) return
-  const detail = short.map(([slug, c]) => `${slug} scored ${c}`).join(', ')
+  const wrong = counts.filter(([, c]) => c !== 0 && c !== size)
+  if (wrong.length === 0) return
+  const detail = wrong.map(([slug, c]) => `${slug} scored ${c}`).join(', ')
   throw new Error(
     `refusing to publish: every row divides by the ${size}-test suite, but ${detail}. ` +
-      'A short results file lowers divergence and raises coverage at the same time.',
+      (wrong.some(([, c]) => c > size)
+        ? 'registry/suite-manifest.json is stale. Run: node scripts/suite-manifest.mjs'
+        : 'A short results file lowers divergence and raises coverage at the same time.'),
+  )
+}
+
+/**
+ * Every published row measures the tests the suite actually has, or the
+ * artefact is not written.
+ *
+ * The count check above passes on the right number of the wrong tests, and
+ * that is not a hypothetical: a results file carried from before a test was
+ * moved or renamed keeps its old total while naming tests that no longer
+ * exist. Its divergence and coverage then divide by the right denominator over
+ * the wrong population, and nothing in the file says so - it reads as a target
+ * that ran everything. This was invisible while the suite size came from the
+ * widest run, because the widest run had nothing to disagree with.
+ */
+export function assertMeasuredSuite(targets, suite = suiteIdentities()) {
+  const stale = []
+  for (const t of targets) {
+    if (!Array.isArray(t.raw?.testResults)) continue
+    const stray = [...testIdentities(t.raw)].filter((id) => !suite.has(id)).sort()
+    if (stray.length > 0) stale.push([t.slug, stray])
+  }
+  if (stale.length === 0) return
+  const detail = stale
+    .map(([slug, stray]) => `${slug} ran ${stray.length} (${stray[0]})`)
+    .join('; ')
+  throw new Error(
+    `refusing to publish: some rows name tests the suite no longer defines - ${detail}. ` +
+      'Those results predate a change to the tests, so they are measured over a population ' +
+      'the suite no longer has. Re-run the target, or drop its results file until it is re-run.',
   )
 }
 
 /** Write the summary artefact (results/summary.json). */
-export function writeSummaryFile(summary, path = SUMMARY_PATH) {
+export function writeSummaryFile(summary, targets, path = SUMMARY_PATH) {
   assertOneDenominator(summary)
+  assertMeasuredSuite(targets)
   writeFileSync(path, JSON.stringify(summary, null, 2) + '\n')
 }
 
@@ -623,14 +644,7 @@ export function tableRows(summary) {
   rows.length = 0
   rows.push(...parents)
 
-  // Suite size: the largest test count seen, i.e. a full-suite run. Over
-  // parents and their nested variants both - by this point `rows` holds only
-  // parents, and a build can carry the newest (largest) run when its project
-  // was not re-tested.
-  const suiteSize = Math.max(
-    0,
-    ...rows.flatMap((r) => [r.count, ...(r.variants ?? []).map((v) => v.count)]),
-  )
+  const suiteSize = summary.groundTruth.suiteSize
   // The baseline's counts are measured when the real-AWS lanes together span
   // the suite (buildSummary sets `counts` then) and pinned to the suite size
   // when they fall short, which is the one case where the pin is the honest
@@ -775,7 +789,8 @@ function main() {
     process.exit(1)
   }
 
-  const summary = buildSummary(readTargets(files), loadScoringContext())
+  const targets = readTargets(files)
+  const summary = buildSummary(targets, loadScoringContext())
   const table = renderTable(summary)
 
   if (write) {
@@ -791,7 +806,7 @@ function main() {
     }
     const updated = `${md.slice(0, s + start.length)}\n${table}\n${md.slice(e)}`
     writeFileSync(path, updated)
-    writeSummaryFile(summary)
+    writeSummaryFile(summary, targets)
     console.error(`Updated the results table in ${path} and wrote ${SUMMARY_PATH}.`)
   } else {
     console.log(table)

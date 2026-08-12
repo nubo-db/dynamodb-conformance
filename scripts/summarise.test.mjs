@@ -9,11 +9,13 @@ import { GROUND_TRUTH_SLUG, axesOf, loadScoringContext, scoreTarget, verdictsFor
 import { classifyResults } from './lib/classify.mjs'
 import { splitFor } from './lib/registry.mjs'
 import { BASELINE_LABEL, gradeOf } from './lib/grade.mjs'
+import { suiteIdentities, suiteSizeOf } from './suite-manifest.mjs'
 import {
   DISPLAY,
   REPO,
   SUMMARY_PATH,
   SUMMARY_SCHEMA_VERSION,
+  assertOneDenominator,
   buildSummary,
   display,
   label,
@@ -342,8 +344,7 @@ describe('the ground truth as three lanes', () => {
   const gating = rawDoc(under('/gate', LANE_TESTS.gating), Date.UTC(2026, 6, 6))
   const integrations = rawDoc(under('/int', LANE_TESTS.integrations), Date.UTC(2026, 6, 7))
   const gsi = rawDoc(under('/gsi', LANE_TESTS.gsi), Date.UTC(2026, 6, 8))
-  // What an emulator runs in one go, and so the suite size the baseline row is
-  // measured against.
+  // Every test the fixture's suite contains, standing in for the manifest.
   const whole = rawDoc(
     under('/repo', { ...LANE_TESTS.gating, ...LANE_TESTS.integrations, ...LANE_TESTS.gsi }),
   )
@@ -356,7 +357,10 @@ describe('the ground truth as three lanes', () => {
     }
     return readTargets(readdirSync(dir).map((f) => join(dir, f)))
   }
-  const summaryOf = (targets) => buildSummary(targets, { registry: REGISTRY, health: HEALTHY })
+  // `whole` is this fixture's suite manifest: the four tests the lanes divide
+  // between them.
+  const summaryOf = (targets) =>
+    buildSummary(targets, { registry: REGISTRY, health: HEALTHY, suite: testIdentities(whole) })
   const baselineRow = (summary) => tableRows(summary).find((r) => r.slug === GROUND_TRUTH_SLUG)
 
   it('unions the lanes into one document, with no test counted twice', () => {
@@ -461,7 +465,7 @@ describe('tableRows / renderTable', () => {
   }
   const summary = buildSummary(
     Object.entries(docs).map(([slug, doc]) => target(slug, doc)),
-    { registry: REGISTRY, health: HEALTHY },
+    { registry: REGISTRY, health: HEALTHY, suite: testIdentities(suiteDoc('passed')) },
   )
   const rows = tableRows(summary)
 
@@ -479,7 +483,7 @@ describe('tableRows / renderTable', () => {
       divergence: '0.0%',
       coverage: '100.0%',
       failed: 0,
-      passed: 3, // the suite size: the largest count seen in a full run
+      passed: 3, // the suite size, from the manifest
     })
   })
 
@@ -793,19 +797,20 @@ describe('committed results pipeline', () => {
     // asserted, not assumed.
     //
     // Carried rows are in scope without a fixture of their own. Every file in
-    // results/ is measured against the widest one, so a target that missed a
-    // run while the suite grew keeps its old count and fails here, which is
+    // results/ is measured against the suite manifest, so a target that missed
+    // a run while the suite grew keeps its old count and fails here, which is
     // the stale-denominator case: it would otherwise publish a letter earned
     // over a smaller suite and outrank a re-tested peer.
-    const size = Math.max(
-      0,
-      ...Object.values(fresh.targets).map((t) => t.regions[t.headline.region]?.count ?? 0),
+    //
+    // This calls the publishing gate rather than restating it, so the assertion
+    // and the thing that runs before every write cannot drift apart.
+    expect(() => assertOneDenominator(fresh)).not.toThrow()
+    expect(suiteSizeOf()).toBe(
+      Math.max(
+        0,
+        ...Object.values(fresh.targets).map((t) => t.regions[t.headline.region]?.count ?? 0),
+      ),
     )
-    for (const [slug, t] of Object.entries(fresh.targets)) {
-      const count = t.regions[t.headline.region]?.count ?? 0
-      if (count === 0) continue // a target that scored nothing publishes "-", not a shrunken figure
-      expect(count, `${slug} scored ${count} of the ${size}-test suite`).toBe(size)
-    }
   })
 
   it('a zero-divergence headline stays honest across regions (the A+ tripwire)', () => {
@@ -905,9 +910,10 @@ describe('committed results pipeline', () => {
     const hash = (f) => createHash('sha256').update(readFileSync(f)).digest('hex')
     const before = Object.fromEntries(files.map((f) => [f, hash(f)]))
 
-    const summary = buildSummary(readTargets(files), context)
+    const read = readTargets(files)
+    const summary = buildSummary(read, context)
     renderTable(summary)
-    writeSummaryFile(summary, join(mkdtempSync(join(tmpdir(), 'summarise-')), 'summary.json'))
+    writeSummaryFile(summary, read, join(mkdtempSync(join(tmpdir(), 'summarise-')), 'summary.json'))
 
     for (const f of files) {
       expect(hash(f), `${f} was modified by the results pipeline`).toBe(before[f])

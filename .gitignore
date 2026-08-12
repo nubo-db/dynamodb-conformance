@@ -34,3 +34,4 @@ site/_site/
 # scripts/lib/score.mjs RESERVED_SLUGS.
 /results/local.json
 /results/local.badge.json
+/results/local.indeterminate.json

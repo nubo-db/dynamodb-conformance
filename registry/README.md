@@ -11,6 +11,17 @@ a complete result set, and how many consecutive sweeps it has failed to. A
 region that misses two consecutive sweeps is dropped from scoring and a
 maintainer is paged, in the same act.
 
+`suite-manifest.json` lists every test the suite defines, by file path and
+full test name. Divergence and coverage are both measured over the whole
+suite, and this is what "the whole suite" means: the denominator under every
+published figure, and the population the ground-truth row must span before it
+derives. It used to be inferred from whichever target had run the most tests,
+which left one of the measured things deciding what it was measured against.
+
+Unlike `splits.json` this one is generated, by `npm run suite:manifest`, and
+CI fails if it drifts from the tests. Regenerate it in the same commit as any
+test you add, move, or rename.
+
 ## What a row means
 
 A row is a claim of the form "on this behaviour, these named regions returned

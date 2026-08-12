@@ -34,6 +34,11 @@ jobs:
       - run: npm ci
       - name: Typecheck
         run: npm run typecheck
+      # Every published figure divides by the manifest, so a test added without
+      # regenerating it would silently move the whole board. Runs before the
+      # tooling tests, which assert against the committed copy.
+      - name: Suite manifest matches the tests
+        run: npm run suite:manifest:check
       - name: Tooling unit tests
         run: npm run test:tooling
 
