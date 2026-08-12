@@ -1,0 +1,64 @@
+{
+  "capturedAt": "2026-08-12",
+  "kind": "documentation",
+  "issue": 125,
+  "subject": "What AWS documents happens when SearchVectors is called against a backfilling vector index",
+  "note": "Not an API response. This is a fixed record of AWS developer-guide prose, captured because the suite asserts a behaviour the documentation states two different ways. The measured behaviour is in tests/tier2/vectorSearch/updateLifecycle.test.ts; this file is the evidence that the documentation disagrees with itself, so the claim is checkable without trusting a changelog sentence.",
+  "observed": {
+    "behaviour": "SearchVectors rejects for the whole pre-ready window, with two distinct messages depending on how far the index has progressed.",
+    "messages": [
+      "ValidationException: The table does not have the specified index: <indexName>",
+      "ValidationException: Cannot search backfilling vector index: <indexName>"
+    ],
+    "region": "eu-west-2",
+    "characterisedOn": "2026-08-11"
+  },
+  "sides": {
+    "callFails": [
+      {
+        "page": "Data synchronization between tables and vector indexes",
+        "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/VectorSearchDataSync.html",
+        "anchor": "VectorSearchDataSync.Backfilling",
+        "quote": "New writes to the base table are replicated to the index during this phase, but SearchVectors returns an error until backfilling finishes. Use DescribeTable and wait until IndexStatus is ACTIVE and Backfilling is false before you search."
+      },
+      {
+        "page": "Creating and searching vector indexes",
+        "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/VectorSearchWorkingWith.html",
+        "anchor": "VectorSearchWorkingWith.Create.ExistingTable",
+        "quote": "You can't search while the index is backfilling. SearchVectors returns an error while a vector index is backfilling. Use DescribeTable to check both the IndexStatus and the Backfilling flag, and wait until IndexStatus is ACTIVE and Backfilling is false before you search. There is no BACKFILLING index status value."
+      },
+      {
+        "page": "Troubleshooting vector indexes",
+        "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/VectorSearchTroubleshooting.html",
+        "anchor": "VectorSearchTroubleshooting",
+        "form": "A row in the symptom/cause/resolution table, quoted cell by cell rather than run together as prose.",
+        "symptom": "SearchVectors returns an error while the index is backfilling",
+        "cause": "The vector index is not yet ready for search. Either IndexStatus is CREATING, or IndexStatus is ACTIVE with Backfilling set to true. You can't search a vector index until backfilling completes.",
+        "resolution": "Use DescribeTable and wait until Backfilling is false, then retry the search."
+      }
+    ],
+    "resultsIncomplete": [
+      {
+        "page": "Tutorial: Your first vector search",
+        "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/VectorSearchTutorial.html",
+        "anchor": "VectorSearchTutorial",
+        "callout": "Wait for the index, not just the table",
+        "quote": "Searching an index that is not yet ACTIVE fails, and searching during backfill can return incomplete results.",
+        "secondQuote": "Backfilling is reported for a vector index that you add to an existing table with UpdateTable. In that case, wait until IndexStatus is ACTIVE and Backfilling is false before you rely on complete search results."
+      }
+    ],
+    "silent": [
+      {
+        "page": "SearchVectors API reference",
+        "url": "https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_SearchVectors.html",
+        "quote": "The index must be in the ACTIVE state.",
+        "note": "Silent on backfill, not on readiness. The IndexName parameter requires ACTIVE and ResourceNotFoundException notes that a resource's status might not be ACTIVE, but neither mentions backfilling or the Backfilling flag. ACTIVE alone is not sufficient: the developer guide's own account has the index ACTIVE with Backfilling true, a state in which the call fails, and the errors listed here do not include the ValidationException that state actually returns."
+      }
+    ]
+  },
+  "adjacent": {
+    "note": "The tutorial also instructs readers to use IndexStatus alone as the readiness signal on the CreateTable path, where Backfilling is not reported. The suite found that insufficient: DescribeTable can report the index ACTIVE a beat before the search plane agrees, so readiness is proven by a search returning the full expected count, never by the description.",
+    "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/VectorSearchTutorial.html",
+    "quote": "For an index created as part of CreateTable, as in this tutorial, Backfilling is not reported and the command returns null for it. Use IndexStatus alone as your signal in that case."
+  }
+}

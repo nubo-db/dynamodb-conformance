@@ -27,6 +27,19 @@ baseline lives in the dated snapshot below instead, and the scheduled-run drift
 verdict flags when it needs refreshing. Currently seeded from the 2026-06-09
 capture until the first scheduled run overwrites it.
 
+## 2026-08-12-vector-backfill-docs.json
+
+The one capture that is not an API response. AWS's developer guide states two
+different things about calling `SearchVectors` against a backfilling vector
+index: three pages (DataSync, WorkingWith, Troubleshooting) say the call
+returns an error, the tutorial page says searching during backfill "can return
+incomplete results", and the API reference is silent. The suite asserts the
+error, so this file fixes the prose on both sides with its URLs and anchors,
+dated, rather than leaving the claim resting on a changelog sentence. Measured
+behaviour lives in `tests/tier2/vectorSearch/updateLifecycle.test.ts`; this is
+the evidence for the disagreement it settles. Re-check it if AWS edits either
+side.
+
 ## 2026-07-21-null-false-envelope.json
 
 The `{ NULL: false }` rejection message, captured in every region the sweep

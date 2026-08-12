@@ -65,9 +65,12 @@ validation on each plane, rejection wording, write-path validation, search on a
 fixture where the nearest neighbour is unambiguous, the two new capacity shapes,
 and PartiQL's inability to reach a vector index. Every pinned value was
 characterised against real DynamoDB in eu-west-2 before it was asserted. Two
-findings worth naming: searching during a backfill is an error whatever AWS's own
-documentation says, and an overwrite leaving the stored vector unchanged reports
-no vector write capacity at all, because index replication is delta-based. No
+findings worth naming: searching during a backfill is an error, which settles
+which side of a contradiction in AWS's own documentation is right - three
+developer-guide pages say the call fails, the tutorial page says results can be
+incomplete - and an overwrite leaving the stored vector unchanged reports no
+vector write capacity at all, because index replication is delta-based. Both
+sides are captured in `captures/2026-08-12-vector-backfill-docs.json`. No
 emulator implements the family yet, so every target skips it and every coverage
 figure drops with this release while divergence is untouched. Sending the new
 operations needs `@aws-sdk/client-dynamodb` 3.1103.0 or later.
