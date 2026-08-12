@@ -157,6 +157,17 @@ and a message assertion whose strictness fits the message:
   and float the rest. This is the same idea as `createTable.test.ts`'s
   backend-variant handling.
 
+`limits/` makes the same exact-or-structural choice, on the same grounds.
+It had no stated rule until a nesting-depth message gained a
+`N validation error detected:` envelope in the pinned region and nothing
+noticed: the test matched on an unanchored regex that both wordings
+satisfy, so no verdict moved and the weekly sweep saw nothing. A tolerant
+assertion is often the right call, but it means the test cannot detect
+regional drift on that behaviour, so the per-region answers have to be
+recorded in `registry/splits.json` and the row has to say the assertion
+does not enforce them. Tolerance that nothing writes down is
+indistinguishable from agreement.
+
 Don't use the `expectDynamoError` helper in `error-messages/` - it always
 routes the message through `toContain`, so it can't express the exact
 rung; use it (or a direct `toContain`) in `validation-ordering/`.
