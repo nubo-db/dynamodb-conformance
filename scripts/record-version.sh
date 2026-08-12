@@ -31,7 +31,11 @@ case "$target" in
   extenddb)   ver="${EXTENDDB_REF:-}" ;;
   dynoxide)   ver=$(npm view dynoxide version 2>/dev/null) ;;
   dynoxide-wasm)
+    # The ref is a release tag (v0.13.0) while the native row reads its version
+    # from npm (0.13.0). They are the same release on two adjacent rows, so the
+    # prefix goes rather than having the board render it two ways.
     ver="${DYNOXIDE_WASM_REF:-}"
+    ver="${ver#v}"
     [ -z "$ver" ] && ver=$(npm view dynoxide version 2>/dev/null)
     ;;
   dynalite)   ver=$(npm view dynalite version 2>/dev/null) ;;

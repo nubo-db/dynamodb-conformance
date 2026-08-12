@@ -31,6 +31,10 @@ on:
         description: "ExtendDB git ref to build (blank = latest release)"
         required: false
         default: ""
+      dynoxide_wasm_ref:
+        description: "Dynoxide git ref to build the wasm engine from (blank = latest release)"
+        required: false
+        default: ""
   # No repository_dispatch. A `[dynoxide-release, extenddb-release]` trigger
   # sat here and nothing ever fired it - the sending repo dispatches to its own
   # docs site, not to this one - so it read as a live path and was not one, and
@@ -596,6 +600,97 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: results-dynoxide
+          path: results/
+
+  test-dynoxide-wasm:
+    name: Dynoxide (wasm)
+    # A separate engine from the native build above, scored as its own row.
+    # It is the only target reachable by neither a container image nor an npm
+    # binary: the wasm engine answers a postMessage RPC in a browser, and the
+    # shim that puts a DynamoDB endpoint in front of it is unpublished. So this
+    # builds it from a Dynoxide checkout, which makes it as heavy as ExtendDB
+    # and it skips PRs for the same reason.
+    #
+    # Until this job existed the row was refreshed by hand, and it went three
+    # weeks without a run while tests moved between files underneath it. Its
+    # count still matched the suite, so nothing noticed.
+    if: github.event_name != 'pull_request'
+    continue-on-error: true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Resolve the engine's repository and ref
+        id: ref
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The organisation comes from the target registry, where a target's
+          # project URL is data. Writing it here would have the workflow name a
+          # vendor, which scripts/public-tree.test.mjs refuses and which is the
+          # difference between a neutral board and somebody's marketing. The
+          # registry module has no imports, so this runs before npm ci.
+          REPO=$(node --input-type=module -e "
+            import { repoUrl } from './scripts/lib/targets.mjs'
+            process.stdout.write(new URL(repoUrl('dynoxide')).pathname.slice(1))
+          ")
+          REF='${{ github.event.inputs.dynoxide_wasm_ref }}'
+          if [ -z "$REF" ]; then
+            REF=$(gh release view -R "$REPO" --json tagName --jq .tagName)
+          fi
+          echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "Building the wasm engine from $REPO at $REF"
+
+      - name: Checkout the engine
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ steps.ref.outputs.repo }}
+          ref: ${{ steps.ref.outputs.ref }}
+          path: dynoxide
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: dynoxide
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # From npm rather than the upstream shell installer, so the version is
+      # pinned by a lockfile-shaped thing and nothing pipes curl into sh.
+      - name: Install wasm-pack
+        run: npm install -g wasm-pack@0.15.0
+
+      - name: Build and start the wasm engine
+        env:
+          DYNOXIDE_DIR: ${{ github.workspace }}/dynoxide
+        run: ./scripts/run-dynoxide-wasm.sh
+
+      - name: Run conformance suite
+        continue-on-error: true # a preview: PartiQL, transactions, tags and TTL skip
+        env:
+          CONFORMANCE_TARGET: dynoxide-wasm
+        run: npm test
+
+      - name: Record target version
+        continue-on-error: true
+        env:
+          DYNOXIDE_WASM_REF: ${{ steps.ref.outputs.ref }}
+        run: scripts/record-version.sh dynoxide-wasm
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: results-dynoxide-wasm
           path: results/
 
   test-floci:
