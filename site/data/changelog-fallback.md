@@ -72,7 +72,17 @@ figures rather than the letter if it matters to you.
 - The README table gains a Grade column, and the data endpoints (schema 4)
   carry each target's grade plus the full criteria in `metrics.grade`. Each
   grade carries `capAt`, the ceiling a letter is sitting at, alongside the
-  `capped` flag that says whether reaching it moved the letter.
+  `capped` flag that says whether reaching it moved the letter. `capAt` is that
+  letter whenever `capped` is true and null otherwise: test one, read the other.
+- Every endpoint's envelope gains `baseline.observation`: how much of the suite
+  the live-AWS row is actually standing on, which of the three real-AWS passes
+  have reported and when, and how many tests are carried rather than
+  re-observed. The pages have always disclosed this; without it in the JSON a
+  consumer could not tell a fully measured baseline from a pinned one.
+- `/data/index.json` lists the split registry alongside the other endpoints.
+  It is what a zero-divergence row's out-of-region failures are checked
+  against, so anyone recomputing a grade needs it to check the same premise the
+  build does.
 - The board leads with the highest-graded engine, because the baseline moved
   out of the standings and into a panel above them. Today that puts the
   board author's own engine in the top card, with the conflict-of-interest
@@ -108,7 +118,11 @@ figures rather than the letter if it matters to you.
   entry's summary with a grade the run never had, while leaving `<updated>`
   alone so no subscriber re-notified: the one artefact built to be archived by
   other people was restating its own history quietly. Expect the letters to
-  start appearing from the first run measured after the criteria date.
+  start appearing from the first run measured after the criteria date. An
+  ungraded entry says so in its summary and carries
+  `<category term="ungraded"/>`, because a feed is read one entry at a time and
+  a missing clause is otherwise indistinguishable from a field that failed to
+  populate.
 
 The board publishes two figures now instead of one, and the index exclusions
 started meaning what they said. No target was re-run for this and no
