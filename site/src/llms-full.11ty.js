@@ -13,9 +13,17 @@ function body(md) {
 
 // Pull a hand-authored prose page's body, absolutising its root-relative links
 // so the corpus stands alone when read away from the site.
-function page(file, siteUrl) {
+//
+// The body goes through the template engine first. These pages carry the same
+// interpolations the HTML build resolves - the grading criteria version, its
+// effective date, the coverage-weighting sentence - and reading them straight
+// off disk shipped the raw `{{ ... }}` source instead. This corpus is the one
+// surface an agent reading text rather than JSON gets the criteria from, so it
+// was the one place they were unreadable.
+async function page(render, file, siteUrl, data) {
   const raw = readFileSync(join(HERE, file), "utf8");
-  return body(raw).replace(/\]\(\//g, `](${siteUrl}/`);
+  const rendered = await render(body(raw), "njk", data);
+  return rendered.trim().replace(/\]\(\//g, `](${siteUrl}/`);
 }
 
 // The latest standings rendered as plain text, derived from the same model the
@@ -51,8 +59,9 @@ export default class {
     return { permalink: "/llms-full.txt", eleventyExcludeFromCollections: true };
   }
 
-  render(data) {
+  async render(data) {
     const { site, conformance } = data;
+    const render = this.renderTemplate.bind(this);
     const header = [
       `# Parity Suite`,
       "",
@@ -74,9 +83,9 @@ export default class {
 
     return [
       header,
-      page("about.md", site.url),
-      page("methodology.md", site.url),
-      page("for-agents.md", site.url),
+      await page(render, "about.md", site.url, data),
+      await page(render, "methodology.md", site.url, data),
+      await page(render, "for-agents.md", site.url, data),
       latestResults(conformance),
       data_footer,
     ].join("\n\n---\n\n") + "\n";

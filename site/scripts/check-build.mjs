@@ -89,6 +89,22 @@ try {
   }
   check(dead.size === 0, "every internal link resolves to a built page", [...dead].slice(0, 5).join("; "));
 
+  // No page ships the source of an interpolation instead of its value.
+  //
+  // llms-full.txt concatenated the prose pages by reading them off disk, so the
+  // moment those pages gained their first `{{ }}` the corpus started shipping
+  // four of them raw - the criteria version, its effective date and the
+  // coverage-weighting sentence, in the one place an agent reading text rather
+  // than JSON goes for them. The HTML was fine, which is why nothing noticed.
+  const unrendered = docs
+    .filter((d) => d.html.includes("{{"))
+    .map((d) => `${d.path} (${d.html.match(/\{\{[^}]*\}\}/)?.[0] ?? "{{"})`);
+  check(
+    unrendered.length === 0,
+    "no built page ships an unrendered template expression",
+    unrendered.slice(0, 5).join("; "),
+  );
+
   // The house style has no em dashes. Test titles come from the suite carrying
   // them, so they are normalised on the way out; this is what proves it.
   const dashed = docs.filter((d) => d.html.includes("—")).map((d) => d.path);

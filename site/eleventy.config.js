@@ -1,3 +1,4 @@
+import { RenderPlugin } from "@11ty/eleventy";
 import pluginWebc from "@11ty/eleventy-plugin-webc";
 import anchor from "markdown-it-anchor";
 import syntaxHighlight from "@11ty/eleventy-plugin-syntaxhighlight";
@@ -29,6 +30,10 @@ export default function (eleventyConfig) {
   });
 
   eleventyConfig.addPlugin(syntaxHighlight);
+  // Lets llms-full.txt run the prose pages through the template engine before
+  // concatenating them. Without it the corpus shipped the raw {{ }} source of
+  // every interpolation those pages carry.
+  eleventyConfig.addPlugin(RenderPlugin);
 
   // Every heading gets an id, so any section can be linked to without someone
   // hand-writing an anchor first. The two that already exist stay: they are
