@@ -42,21 +42,23 @@ DYNAMODB_ENDPOINT=http://localhost:8000 npm run test:tier1
 ## Results
 
 <!-- results:start -->
-_Scored against real DynamoDB in each of the 32 observed regions, at each target's best-matching region._
+Scored against real DynamoDB in each of the 32 observed regions, at each target's best-matching region.
 
-_**Coverage** is how much of DynamoDB's behaviour a target implements._
+**Coverage** is how much of DynamoDB's behaviour a target implements.
 
-_**Divergence** is how much of it the target answers differently from real DynamoDB._
+**Divergence** is how much of it the target answers differently from real DynamoDB.
 
-_Both are shares of the whole suite, and they are never added together: an operation a target declines is discoverable in minutes, one it answers wrongly is discoverable in production._
+Both are shares of the whole suite, and they are never added together: an operation a target declines is discoverable in minutes, one it answers wrongly is discoverable in production.
 
-_**Grade** reads the pair, with divergence setting the letter and coverage only ever lowering it, under the versioned criteria in the [methodology](https://paritysuite.org/methodology)._
+**Grade** reads the pair, with divergence setting the letter and coverage only ever lowering it, under the versioned criteria in the [methodology](https://paritysuite.org/methodology).
 
-_**Regions** counts the observed regions a target's headline matched, as evidence rather than a score: it currently over-credits a target whose assertion matches a region's answer loosely ([#138](https://github.com/paritysuite/dynamodb-conformance/issues/138)). Real DynamoDB does not answer identically everywhere, and the per-region detail is in `results/summary.json`._
+**Regions** counts the observed regions a target's headline matched, as evidence rather than a score: it currently over-credits a target whose assertion matches a region's answer loosely ([#138](https://github.com/paritysuite/dynamodb-conformance/issues/138)). Real DynamoDB does not answer identically everywhere, and the per-region detail is in `results/summary.json`.
 
-_Rows are sorted by divergence. The tier columns are divergence within that tier, so lower is better in every column but Coverage. Behaviour varies by region and over time, so these are point-in-time figures._
+Rows are sorted by divergence. The tier columns are divergence within that tier, so lower is better in every column but Coverage. Behaviour varies by region and over time, so these are point-in-time figures.
 
-_`me-central-1`, `me-south-1` have been dropped from the observed set and are not scored against. Measured 2026-08-12, except where a row carries its own date._
+`me-central-1`, `me-south-1` have been dropped from the observed set and are not scored against.
+
+_Measured 2026-08-12, except where a row carries its own date._
 
 | Target | Grade | Version | Divergence | Coverage | Fail | Skip | Tier 1 | Tier 2 | Tier 3 | Regions | Measured |
 |--------|-------|---------|-----------|----------|------|------|--------|--------|--------|---------|----------|

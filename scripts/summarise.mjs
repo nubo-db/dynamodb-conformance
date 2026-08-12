@@ -767,8 +767,9 @@ export function tableCaption(regions, groundTruth = null, tableDate = null) {
   // One paragraph per idea rather than one block: a column definition a reader
   // is looking for should be findable by scanning down the left edge, and in a
   // single block Divergence and Coverage sat mid-sentence three lines apart.
-  // Each paragraph carries its own emphasis marks, because Markdown emphasis
-  // cannot span a blank line.
+  // The paragraphs are set plain. Italicising the whole caption fought the bold
+  // column names inside it and read as an aside, when it defines what the table
+  // means.
   const sentences = [
     `Scored against real DynamoDB in each of the ${regions.observed.length} observed ` +
       `regions, at each target's best-matching region.`,
@@ -830,12 +831,14 @@ export function tableCaption(regions, groundTruth = null, tableDate = null) {
         `${unobserved === 1 ? 'is' : 'are'} carried.`,
     )
   }
-  // Last, because it closes the table rather than qualifying any one column.
-  if (tableDate) {
-    notes.push(`Measured ${tableDate}, except where a row carries its own date.`)
-  }
   if (notes.length > 0) sentences.push(notes.join(' '))
-  return sentences.map((p) => `_${p}_`).join('\n\n')
+  // Last and on its own line, because it dates the table rather than qualifying
+  // any one column. It keeps the emphasis the rest of the caption dropped, so it
+  // reads as a footer under the definitions instead of another one of them.
+  if (tableDate) {
+    sentences.push(`_Measured ${tableDate}, except where a row carries its own date._`)
+  }
+  return sentences.join('\n\n')
 }
 
 /** Render the full table block: caption plus Markdown table. */
