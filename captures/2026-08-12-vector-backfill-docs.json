@@ -56,6 +56,36 @@
       }
     ]
   },
+  "stateMachine": {
+    "note": "A second mismatch, on neither side of the backfill contradiction: the documented sequence is not the observed one. Three pages describe an ACTIVE-plus-Backfilling-true state and build their waiting advice around it. The suite never observed the index occupying it.",
+    "documented": {
+      "quote": "The index first transitions to IndexStatus CREATING while DynamoDB sets up the index infrastructure. It then moves to IndexStatus ACTIVE with Backfilling set to true while DynamoDB populates the index from existing base table data.",
+      "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/VectorSearchDataSync.html",
+      "alsoStatedIn": [
+        "VectorSearchWorkingWith.html - numbered walk, step 2: 'IndexStatus is ACTIVE with Backfilling set to true — DynamoDB is populating the index with existing data from the base table.'",
+        "VectorSearchTroubleshooting.html - cause cell: 'Either IndexStatus is CREATING, or IndexStatus is ACTIVE with Backfilling set to true.'"
+      ]
+    },
+    "observed": {
+      "updateTablePath": [
+        "CREATING with Backfilling: false",
+        "CREATING with Backfilling: true",
+        "ACTIVE with the Backfilling field absent"
+      ],
+      "createTablePath": [
+        "CREATING with the Backfilling field absent throughout",
+        "ACTIVE with the Backfilling field absent"
+      ],
+      "region": "eu-west-2",
+      "characterisedOn": "2026-08-11",
+      "consequence": "The ACTIVE-plus-backfilling state the advice is built around is never occupied on either path. Backfilling is a CREATING-time field that disappears rather than settling to false, so a readiness check written literally from the guidance - poll until Backfilling === false - never fires on the UpdateTable path, and has nothing to read at all on the CreateTable path.",
+      "hedging": "Only VectorSearchWorkingWith.html allows for the field being gone, in step 3: 'IndexStatus is ACTIVE with Backfilling set to false (or absent)'. VectorSearchDataSync.html, VectorSearchTroubleshooting.html and the tutorial all say to wait for false without the absent case."
+    },
+    "assertionStatus": {
+      "createTablePath": "Pinned. tests/tier2/vectorSearch/lifecycle.test.ts asserts expect(ix?.Backfilling).toBeUndefined() on every poll, and that seen statuses stay within CREATING and ACTIVE.",
+      "updateTablePath": "Recorded in a comment, not pinned. updateLifecycle.test.ts asserts only that statuses stay within CREATING and ACTIVE and that the Backfilling field was seen at least once; it does not assert that Backfilling: true occurs solely while CREATING. Worth an assertion that pins the pairing, so a change in the sequence fails rather than passing quietly."
+    }
+  },
   "adjacent": {
     "note": "The tutorial also instructs readers to use IndexStatus alone as the readiness signal on the CreateTable path, where Backfilling is not reported. The suite found that insufficient: DescribeTable can report the index ACTIVE a beat before the search plane agrees, so readiness is proven by a search returning the full expected count, never by the description.",
     "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/VectorSearchTutorial.html",
