@@ -94,11 +94,34 @@ from the Actions tab. It fills each row's Version from the run (npm version,
 container image digest, release tag, or `live` for real AWS). Run
 `npm run results:table` to preview it locally.
 
+## Independence
+
+This suite is maintained by the same person who maintains Dynoxide, one of the
+engines it scores. Dynoxide runs through the same automated matrix as every
+other target, against the same live-AWS ground truth, and the tests and the
+results are both in this repo.
+
+Two inputs are hand-picked rather than measured. The grade bands and the
+coverage weight decide a published letter, and moving either regrades targets
+whose results never changed, so they carry a version: these are grading criteria
+version 1, and any change to a band, the coverage weight or the A+ gate bumps
+the version and is dated in the
+[methodology](https://paritysuite.org/methodology#grading).
+
+`registry/splits.json` is the other, and it is written by hand by design. It
+records the behaviours where real DynamoDB's own regions disagree, with the
+evidence each region returned, and a target matching any recorded answer is
+scored as conformant rather than wrong. Admitting a row turns a fail into a pass
+with no re-run and no results file changing, which is the one thing "a score
+can't be tuned without changing the published results first" does not cover. So
+the registry is in this repo, every row carries its captured evidence and the
+date it was refreshed, and a behaviour enters only once confirmed across regions.
+
 ## Tiers
 
 **Tier 1 - Core.** The operations and behaviours that 90% of DynamoDB users rely on. CRUD, queries, scans, batch operations, GSIs, UpdateTable. If an emulator fails Tier 1, it's not usable.
 
-**Tier 2 - Complete.** Less common but documented features. Transactions, PartiQL, LSIs, TTL, streams, tags. An emulator that passes Tier 1 but fails some Tier 2 is usable with caveats.
+**Tier 2 - Complete.** Less common but documented features. Transactions, PartiQL, LSIs, TTL, streams, tags, vector search. An emulator that passes Tier 1 but fails some Tier 2 is usable with caveats.
 
 **Tier 3 - Strict.** Validation ordering, error behaviour at a range of strictness (exact where DynamoDB's wording is stable, structural where its rendering is non-deterministic), edge cases around limits, legacy API compatibility (ScanFilter, QueryFilter). An emulator that passes Tier 1 and Tier 2 but fails some Tier 3 is production-quality for local dev.
 
@@ -114,6 +137,76 @@ Tier 3 splits into four sub-directories by what each test asserts:
 - `legacy-api/` - the older request shapes (`AttributeUpdates`, `QueryFilter`, `ScanFilter`, `Expected`, `AttributesToGet`) for backwards compatibility.
 
 A new test goes in whichever sub-directory matches what it asserts. If you care about the message the service returns, that's `error-messages/`. If you only care which error fires, that's `validation-ordering/`.
+
+## Operations covered
+
+| Operation | Tier 1 | Tier 2 | Tier 3 |
+|-----------|--------|--------|--------|
+| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, indexConsumedCapacity (GSI/LSI write cost) | vector write validation, vector write capacity | error messages |
+| GetItem | basic, validation, projection, consumedCapacity | | error messages |
+| UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths, index write-capacity ladder | | error messages |
+| DeleteItem | basic, conditions (incl. parens), validation, index write capacity | | error messages |
+| Query | basic, GSI, LSI, expressions (incl. KeyCondition + Filter parens), select, numericKeys, binaryKeys, pagination | | error messages, validation ordering |
+| Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens | | error messages, validation ordering |
+| BatchWriteItem | basic, validation, index write capacity | | error messages |
+| BatchGetItem | basic, validation | | error messages |
+| CreateTable | basic, GSI, LSI | vector indexes (lifecycle, SearchSchema, validation) | error messages, validation ordering |
+| DeleteTable | basic | | |
+| DescribeTable | basic | | |
+| ListTables | basic | | |
+| UpdateTable | basic (throughput, billing mode) | GSI lifecycle, vector index lifecycle | |
+| SearchVectors | | scores per distance function, projection, capacity shape, request validation | error messages |
+| TransactWriteItems | | basic, conditions (incl. parens, non-existent key branch), idempotency, cancellation | error messages |
+| TransactGetItems | | basic, validation | error messages |
+| ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised, RETURNING, vector index non-reach | error messages (RETURNING) |
+| BatchExecuteStatement | | batch, partial failure, RETURNING honoured | |
+| ExecuteTransaction | | atomic, rollback, RETURNING rejected | error messages (RETURNING) |
+| UpdateTimeToLive | | enable, validation | |
+| DescribeTimeToLive | | describe | |
+| TagResource | | add, list, remove, validation | |
+| DynamoDB Streams | | ListStreams, DescribeStream, GetRecords, view types | |
+| Backups | | on-demand, continuous (PITR) | |
+| ExportTableToPointInTime / ImportTable | | S3 export and import | |
+| Kinesis streaming destination | | enable, describe, disable | |
+| UpdateContributorInsights | | enable, describe, list | |
+| Resource policies | | put, get, delete | |
+| DescribeLimits / DescribeEndpoints | | account reads | |
+
+### Operations every emulator skips
+
+A handful of operations only exist on real AWS or reach into another AWS
+service, so no emulator implements them and each one skips on every target. The
+suite still exercises them against real DynamoDB - characterising AWS's own
+behaviour has value - and they all carry the `cloud-only` tag, so
+`--tags-filter='!cloud-only'` drops the lot:
+
+- Import/Export to S3
+- Kinesis Data Streams integration (streaming destinations)
+- On-demand backups and Point-in-Time Recovery
+- Contributor Insights
+- Resource-based policies
+- Account reads (DescribeLimits, DescribeEndpoints)
+
+Import/Export and Kinesis lean on slow async control-plane calls that make poor
+gate material, so they run in a separate non-gating job via
+`npm run test:integrations` rather than on the gating run. They still run
+against real AWS every scheduled run, and the ground-truth coverage check
+fails if they don't.
+
+Vector search (SearchVectors and the vector index lifecycle) is in the same
+position today for a different reason: the surface shipped on AWS in August
+2026 and no emulator implements it yet, so every current target skips the
+whole family through its support probes. Unlike the list above it is not
+`cloud-only` - it is ordinary DynamoDB surface any emulator can adopt, and the
+skips (and the coverage they cost) should shrink as targets catch up. The
+family carries the `vector` tag, so `--tags-filter='!vector'` drops it. The
+UpdateTable half of the lifecycle backfills on GSI timescales and rides in the
+same slow lane as the GSI lifecycle (`npm run test:gsi`).
+
+Genuinely not covered, with no tests yet:
+
+- Global Tables
+- DynamoDB Accelerator (DAX)
 
 ## Filtering by feature
 
@@ -337,7 +430,7 @@ npm test
 
 The full suite includes slow online-index lifecycle tests: 14 UpdateTable GSI tests that add and remove Global Secondary Indexes from existing tables, plus the UpdateTable vector index lifecycle test, which backfills on the same machinery. On real DynamoDB, each index creation triggers a backfill that usually takes 5-15 minutes even on small tables, and has been observed taking 25+ on a slow night (a 25-item vector index took ~17). These tests are important for conformance but they dominate runtime against real AWS.
 
-`test:quick` excludes the online-index lifecycle tests (GSI and vector) for faster local iteration. CI's gating real-DynamoDB job runs `test:gating`, which drops those *and* the S3 and Kinesis integration suites (see "Operations no emulator implements" below), so a slow async import can't redden the build. Emulator targets run the full `npm test` since index creation is instant locally.
+`test:quick` excludes the online-index lifecycle tests (GSI and vector) for faster local iteration. CI's gating real-DynamoDB job runs `test:gating`, which drops those *and* the S3 and Kinesis integration suites (see "Operations every emulator skips" above), so a slow async import can't redden the build. Emulator targets run the full `npm test` since index creation is instant locally.
 
 Nothing is dropped from real AWS by being off the gate, only moved. Real-AWS
 coverage runs in three lanes, split by runtime rather than by importance:
@@ -414,7 +507,7 @@ tests/
 
 ## The site
 
-[paritysuite.org](https://paritysuite.org) is built from `site/`, an npm workspace in this repository. It renders the files in `results/` as current standings, a page per target with its score over time, and a browsable archive of every recorded run. It imports the suite's own target maps and pass-rate arithmetic, so the board and the table above can't disagree about a target's name, its link, or its score.
+[paritysuite.org](https://paritysuite.org) is built from `site/`, an npm workspace in this repository. It renders the files in `results/` as current standings, a page per target with its score over time, and a browsable archive of every recorded run. It imports the suite's own target maps and the same divergence, coverage and grading arithmetic, so the board and the table above can't disagree about a target's name, its link, or its score.
 
 ```bash
 npm run site:dev     # http://localhost:8080
@@ -478,7 +571,9 @@ the first such target), two extra steps apply: trust its certificate with
 `NODE_EXTRA_CA_CERTS=/path/to/cert.pem` (the JS SDK does **not** read
 `AWS_CA_BUNDLE`), and pass a real `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`
 whose policy allows the operations the suite exercises. Before committing the
-results JSON, grep it for your key to be sure no credential leaked into it.
+results JSON, grep it for your key to be sure no credential leaked into it, and
+run `npm run results:check-leaks`, which catches account IDs and the machine
+paths Vitest records.
 
 If the engine doesn't speak DynamoDB HTTP at all - a browser or embedded engine
 reached over its own RPC - it can still be tracked, provided the vendor fronts
@@ -496,83 +591,13 @@ operation is scored as a failure instead of a skip.
 
 All test data must be synthetic. Don't use real names, emails, addresses, or any personally identifiable information in test fixtures.
 
-## Operations covered
-
-| Operation | Tier 1 | Tier 2 | Tier 3 |
-|-----------|--------|--------|--------|
-| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, indexConsumedCapacity (GSI/LSI write cost) | vector write validation, vector write capacity | error messages |
-| GetItem | basic, validation, projection, consumedCapacity | | error messages |
-| UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths, index write-capacity ladder | | error messages |
-| DeleteItem | basic, conditions (incl. parens), validation, index write capacity | | error messages |
-| Query | basic, GSI, LSI, expressions (incl. KeyCondition + Filter parens), select, numericKeys, binaryKeys, pagination | | error messages, validation ordering |
-| Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens | | error messages, validation ordering |
-| BatchWriteItem | basic, validation, index write capacity | | error messages |
-| BatchGetItem | basic, validation | | error messages |
-| CreateTable | basic, GSI, LSI | vector indexes (lifecycle, SearchSchema, validation) | error messages, validation ordering |
-| DeleteTable | basic | | |
-| DescribeTable | basic | | |
-| ListTables | basic | | |
-| UpdateTable | basic (throughput, billing mode) | GSI lifecycle, vector index lifecycle | |
-| SearchVectors | | scores per distance function, projection, capacity shape, request validation | error messages |
-| TransactWriteItems | | basic, conditions (incl. parens, non-existent key branch), idempotency, cancellation | error messages |
-| TransactGetItems | | basic, validation | error messages |
-| ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised, RETURNING, vector index non-reach | error messages (RETURNING) |
-| BatchExecuteStatement | | batch, partial failure, RETURNING honoured | |
-| ExecuteTransaction | | atomic, rollback, RETURNING rejected | error messages (RETURNING) |
-| UpdateTimeToLive | | enable, validation | |
-| DescribeTimeToLive | | describe | |
-| TagResource | | add, list, remove, validation | |
-| DynamoDB Streams | | ListStreams, DescribeStream, GetRecords, view types | |
-| Backups | | on-demand, continuous (PITR) | |
-| ExportTableToPointInTime / ImportTable | | S3 export and import | |
-| Kinesis streaming destination | | enable, describe, disable | |
-| UpdateContributorInsights | | enable, describe, list | |
-| Resource policies | | put, get, delete | |
-| DescribeLimits / DescribeEndpoints | | account reads | |
-
-### Operations every emulator skips
-
-A handful of operations only exist on real AWS or reach into another AWS
-service, so no emulator implements them and each one skips on every target. The
-suite still exercises them against real DynamoDB - characterising AWS's own
-behaviour has value - and they all carry the `cloud-only` tag, so
-`--tags-filter='!cloud-only'` drops the lot:
-
-- Import/Export to S3
-- Kinesis Data Streams integration (streaming destinations)
-- On-demand backups and Point-in-Time Recovery
-- Contributor Insights
-- Resource-based policies
-- Account reads (DescribeLimits, DescribeEndpoints)
-
-Import/Export and Kinesis lean on slow async control-plane calls that make poor
-gate material, so they run in a separate non-gating job via
-`npm run test:integrations` rather than on the gating run. They still run
-against real AWS every scheduled run, and the ground-truth coverage check
-fails if they don't.
-
-Vector search (SearchVectors and the vector index lifecycle) is in the same
-position today for a different reason: the surface shipped on AWS in August
-2026 and no emulator implements it yet, so every current target skips the
-whole family through its support probes. Unlike the list above it is not
-`cloud-only` - it is ordinary DynamoDB surface any emulator can adopt, and the
-skips (and the coverage they cost) should shrink as targets catch up. The
-family carries the `vector` tag, so `--tags-filter='!vector'` drops it. The
-UpdateTable half of the lifecycle backfills on GSI timescales and rides in the
-same slow lane as the GSI lifecycle (`npm run test:gsi`).
-
-Genuinely not covered, with no tests yet:
-
-- Global Tables
-- DynamoDB Accelerator (DAX)
-
 ## Citing a finding
 
-When the suite surfaces a divergence in a target and you want to reference it from that target's own issue tracker, cite the suite as the independent source it is. The reference carries weight precisely because the suite is not the engine's own test harness: it scores every target against the same live-AWS baseline, so "the conformance suite flags this" says more than a self-written test can.
-
-**Disclosure.** This suite is maintained by the same person who maintains Dynoxide, one of the engines it scores. Dynoxide runs through the same automated matrix as every other target, against the same live-AWS ground truth. The tests and the results are in this repo. The grade bands and the coverage weight are hand-picked inputs to a published letter, and moving one regrades targets whose results never changed. So they carry a version. These are grading criteria version 1, and any change to a band, the coverage weight or the A+ gate bumps the version and is dated in the [methodology](https://paritysuite.org/methodology#grading), which is where the effective date lives.
-
-They are not the only hand-picked input. `registry/splits.json` is written by hand by design: it records the behaviours where real DynamoDB's own regions disagree, with the evidence each region returned, and a target matching any recorded answer is scored as conformant rather than wrong. Admitting a row there turns a fail into a pass with no re-run and no results file changing, which is the one thing "a score can't be tuned without changing the published results first" does not cover. So the registry is in this repo, every row carries its captured evidence and the date it was refreshed, and a behaviour enters only once confirmed across regions.
+When the suite surfaces a divergence in a target and you want to raise it on that
+target's own issue tracker, the reference carries weight because the suite is not
+the engine's own test harness: every target is scored against the same live-AWS
+baseline, so "the conformance suite flags this" says more than a self-written
+test can.
 
 Fill in the bracketed parts. The block is the same whichever engine the finding concerns:
 
@@ -586,7 +611,7 @@ Fill in the bracketed parts. The block is the same whichever engine the finding 
 Two details keep the citation honest:
 
 - **Link the specific test, and pin it.** Use a commit SHA or tag (`.../blob/<sha>/...`), never `.../blob/main/...`: a `main` link rots the moment the file is reformatted or the lines shift, while a pinned link points at the exact assertion for good. Link the test itself, not a bare in-repo path, so it resolves for anyone reading the issue.
-- **Pinned test for a specific finding; site row only for a general claim.** The pinned test is durable evidence that this exact case diverged. The row on [Parity Suite, the DynamoDB conformance suite](https://paritysuite.org) (paritysuite.org) is a live score that moves with every run, so it answers "how does this engine do overall", not "what broke here". Don't cite a moving score as evidence for a fixed bug.
+- **Pinned test for a specific finding; site row only for a general claim.** The pinned test is durable evidence that this exact case diverged. A row on [the board](https://paritysuite.org) is a live score that moves with every run, so it answers "how does this engine do overall", not "what broke here". Don't cite a moving score as evidence for a fixed bug.
 
 Real AWS DynamoDB is the ground truth here as everywhere: the "expected" line is what AWS does, captured against a named region, not what any emulator does. If the behaviour is one where regions disagree, say so and name the regions on each side - the admitted cases are in `registry/splits.json`.
 
