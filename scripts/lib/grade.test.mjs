@@ -203,12 +203,12 @@ describe('gradeOf', () => {
   })
 
   it('the board matches the criteria, row by row', () => {
-    // The published board as of the 9 August 2026 run. A letter here moving
+    // The published board, each row as of its own run. A letter here moving
     // without a figure moving means the criteria moved.
     const board = [
       ['dynoxide', 0.0, 98.6, 'A', true],
+      ['dynoxide-wasm', 0.0, 86.7, 'A', true],
       ['extenddb', 2.0, 91.3, 'A', false],
-      ['dynoxide-wasm', 0.0, 78.7, 'B', true],
       ['ministack', 11.2, 100.0, 'B', false],
       ['dynalite', 12.3, 80.0, 'C', true],
       ['localstack', 15.6, 99.2, 'C', false],
@@ -254,7 +254,7 @@ describe('gradeOf', () => {
     const CHEAPEST_BUY_TODAY = 14
     const ORDER = ['A+', 'A', 'B', 'C', 'D', 'F']
     const board = [
-      ['dynoxide', 0, 14], ['dynoxide-wasm', 0, 213], ['extenddb', 20, 87],
+      ['dynoxide', 0, 14], ['dynoxide-wasm', 0, 133], ['extenddb', 20, 87],
       ['dynalite', 123, 200], ['localstack', 156, 8], ['dynamodb-local', 159, 21],
       ['ministack', 112, 0], ['floci', 208, 9],
     ]

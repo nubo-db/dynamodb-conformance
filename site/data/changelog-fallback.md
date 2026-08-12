@@ -44,8 +44,9 @@ figures rather than the letter if it matters to you.
 
 - Dynoxide reads `A` where it read `0.0% diverges, 98.6% covered` - both
   figures stay printed beside the letter. It diverges nowhere, and the
-  1.4-point coverage gap is what denies it A+. Its WebAssembly build reads `B`
-  on the same zero divergence over 78.7% coverage. Two rows sit lower than the
+  1.4-point coverage gap is what denies it A+. Its WebAssembly build reads `A`
+  on the same zero divergence over 86.7% coverage, so neither reaches A+
+  without running everything. Two rows sit lower than the
   stepped draft would have put them: Dynoxide, which is the board author's own,
   and Dynalite, which is not.
 - Real DynamoDB reads `baseline`, not a letter. A grade measures how far a
@@ -96,6 +97,12 @@ figures rather than the letter if it matters to you.
 - A movement reads `4.9pp less` where it read `-4.9pp`. A down arrow beside a
   negative number said the direction twice and whether it was good not at all,
   which on an inverted metric is the wrong way round.
+- Every heading on the prose pages carries an id, so any section can be linked
+  to directly. The two anchors that were already hand-written keep their
+  published slugs.
+- A badge whose target is still on the board but has no results this run reads
+  `no data` rather than disappearing. The URL sits in other people's READMEs,
+  where a 404 reads as the project having vanished.
 - The Atom feed carries no letter on any run measured before criteria version 1
   took effect, which today is every run in it. The feed had been rewriting each
   entry's summary with a grade the run never had, while leaving `<updated>`
@@ -222,7 +229,7 @@ across six regions and one earned across every region rendered identically.
 measuring divergence over the whole suite stops an emulator implementing a
 sliver from posting a perfect score on a thin surface. It doesn't: zero fails
 is 0.0% at any coverage, and the Dynoxide WebAssembly build is a live
-counterexample at 0.0% over 78.7%. A second formulation - that whole-suite
+counterexample at 0.0% over 86.7%. A second formulation - that whole-suite
 measurement stops a target lowering its divergence by attempting less - was
 false too, so the page now states the identity that does hold rather than
 claiming an immunity the arithmetic never gave. A test going from failing to

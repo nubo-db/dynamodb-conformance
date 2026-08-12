@@ -36,7 +36,7 @@ _Scored against real DynamoDB's recorded behaviour in each observed region (`af-
 |--------|-------|-----------|----------|---------|--------|--------|--------|------|------|---------|------|
 | [DynamoDB](https://aws.amazon.com/dynamodb/) | baseline | 0.0% | 100.0% | 32 of 32 | 0.0% | 0.0% | 0.0% | 0 | 0 | live (AWS) | 2026-08-09 |
 | [Dynoxide](https://github.com/nubo-db/dynoxide) · native | A | 0.0% | 98.6% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 14 | 0.13.0 | 2026-08-09 |
-| ↳ WebAssembly / OPFS | B | 0.0% | 78.7% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 213 | 0.12.0 | 2026-07-24 |
+| ↳ WebAssembly / OPFS | A | 0.0% | 86.7% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 133 | 0.13.0 | 2026-08-11 |
 | [ExtendDB](https://github.com/ExtendDB/extenddb) · PostgreSQL | A | 2.0% | 91.3% | 32 of 32 | 0.8% | 3.5% | 2.8% | 20 | 87 | v0.1.2 | 2026-08-09 |
 | [Ministack](https://github.com/ministackorg/ministack) | B | 11.2% | 100.0% | 32 of 32 | 3.2% | 17.1% | 19.4% | 112 | 0 | ae248c59e9bf | 2026-08-09 |
 | [Dynalite](https://github.com/architect/dynalite) | C | 12.3% | 80.0% | 26 of 32 | 8.6% | 14.1% | 16.7% | 123 | 200 | 4.0.0 | 2026-08-09 |
