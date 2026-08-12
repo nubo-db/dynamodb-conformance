@@ -119,9 +119,9 @@ date it was refreshed, and a behaviour enters only once confirmed across regions
 
 ## Tiers
 
-**Tier 1 - Core.** The operations and behaviours that 90% of DynamoDB users rely on. CRUD, queries, scans, batch operations, GSIs, UpdateTable. If an emulator fails Tier 1, it's not usable.
+**Tier 1 - Core.** The operations and behaviours that 90% of DynamoDB users rely on. CRUD, queries, scans, batch operations, secondary indexes (GSI and LSI), UpdateTable. If an emulator fails Tier 1, it's not usable.
 
-**Tier 2 - Complete.** Less common but documented features. Transactions, PartiQL, LSIs, TTL, streams, tags, vector search. An emulator that passes Tier 1 but fails some Tier 2 is usable with caveats.
+**Tier 2 - Complete.** Less common but documented features. Transactions, PartiQL, TTL, streams, tags, vector search, the online index lifecycle (adding and removing a GSI or a vector index on a live table), and the `cloud-only` surfaces below: backups and PITR, S3 export and import, Kinesis, Contributor Insights, resource policies, account reads. An emulator that passes Tier 1 but fails some Tier 2 is usable with caveats.
 
 **Tier 3 - Strict.** Validation ordering, error behaviour at a range of strictness (exact where DynamoDB's wording is stable, structural where its rendering is non-deterministic), edge cases around limits, legacy API compatibility (ScanFilter, QueryFilter). An emulator that passes Tier 1 and Tier 2 but fails some Tier 3 is production-quality for local dev.
 

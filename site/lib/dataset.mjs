@@ -76,8 +76,8 @@ export const DATA_SCHEMA_VERSION = 4;
 
 // Tier metadata, surfaced so a consumer doesn't have to hard-code the names.
 export const TIERS = [
-  { key: "tier1", name: "Core", description: "The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable." },
-  { key: "tier2", name: "Complete", description: "Documented but less common features: transactions, PartiQL, LSIs, TTL, streams, tags, vector search." },
+  { key: "tier1", name: "Core", description: "The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, secondary indexes (GSI and LSI), UpdateTable." },
+  { key: "tier2", name: "Complete", description: "Documented but less common features: transactions, PartiQL, TTL, streams, tags, vector search, the online index lifecycle, and the surfaces only real AWS implements (backups, S3 export and import, Kinesis, Contributor Insights, resource policies, account reads)." },
   { key: "tier3", name: "Strict", description: "Validation ordering, error behaviour, limits, and legacy API shapes." },
 ];
 
