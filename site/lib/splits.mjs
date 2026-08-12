@@ -29,7 +29,11 @@ export function shapeSplit(s, pinned = PINNED) {
   const groups = [...byAnswer.values()]
     .map((g) => ({ ...g, regions: g.regions.sort(), count: g.regions.length, hasPinned: g.regions.includes(pinned) }))
     .sort((a, b) => b.count - a.count);
-  return { id: s.id, behaviour: s.behaviour ?? "", firstObserved: s.firstObserved ?? null, pinned: s.pinned ?? pinned, groups };
+  // The test identity travels with the row. It is what makes a split a fact
+  // about a specific assertion rather than a paragraph, and the A+ premise
+  // check matches on it - without it here that check has to read the registry
+  // file directly, which is the wrong source on a live build.
+  return { id: s.id, test: s.test ?? null, behaviour: s.behaviour ?? "", firstObserved: s.firstObserved ?? null, pinned: s.pinned ?? pinned, groups };
 }
 
 export function buildSplitsModel(raw, { pinned = PINNED } = {}) {

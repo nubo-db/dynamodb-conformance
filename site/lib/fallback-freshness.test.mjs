@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
+import { axesOf } from "./scoring.mjs";
+
 // The committed fallback stores a *derived* model, not raw upstream data: each
 // row carries figures and a movement object computed by lib/. So a change to
 // how any of those are derived leaves the fallback serving the old values until
@@ -23,11 +25,17 @@ import { dirname, join } from "node:path";
 const here = dirname(fileURLToPath(import.meta.url));
 const model = JSON.parse(readFileSync(join(here, "..", "data", "conformance-history.json"), "utf8"));
 
-const divergenceOf = (row) => {
-  const implemented = (row.passed ?? 0) + (row.failed ?? 0);
-  if (!row.count || implemented === 0) return null;
-  return (row.failed / row.count) * 100;
-};
+// Through the suite's own axesOf, not a local copy of the formula. A test that
+// re-implements the thing it is checking shares any drift it exists to catch:
+// this one would have kept agreeing with a stale fallback if both had dropped
+// the same guard.
+const divergenceOf = (row) =>
+  axesOf({
+    passed: row.passed ?? 0,
+    failed: row.failed ?? 0,
+    count: row.count ?? 0,
+    indeterminate: row.indeterminate ?? 0,
+  }).divergence;
 
 const scored = (row) => !row.synthesised && row.count > 0 && row.passed + row.failed > 0;
 
@@ -129,7 +137,13 @@ test("committed fallback: stored tier divergence matches that tier's own counts"
       if (!scored(row)) continue;
       for (const [key, tier] of Object.entries(row.tiers ?? {})) {
         if (!tier || tier.divergenceValue == null || !tier.total) continue;
-        const derived = (tier.failed / tier.total) * 100;
+        const derived = axesOf({
+          passed: tier.passed ?? 0,
+          failed: tier.failed ?? 0,
+          count: tier.total,
+          indeterminate: tier.indeterminate ?? 0,
+        }).divergence;
+        if (derived == null) continue;
         if (Math.abs(derived - tier.divergenceValue) > 0.05) {
           wrong.push(`${run.date}/${row.slug}/${key}: stored ${tier.divergenceValue} vs ${derived}`);
         }
@@ -187,17 +201,26 @@ test("the summary fallback carries the fields the pages and the guard read", () 
   }
 });
 
-test("a zero-divergence row in the fallback still names its failures by identity", () => {
-  // The build's A+ check joins these against the split registry. A fallback
-  // predating the identity change carries bare titles, and the check reports
-  // that it cannot verify rather than passing - but it fails the build either
-  // way, so catch it here instead.
+test("every named regional failure in the fallback is a test identity, not a bare title", () => {
+  // The build's A+ check joins these against the split registry by identity,
+  // so a fallback predating the identity change fails the build.
+  //
+  // This used to look only at zero-divergence rows, which is the subset the A+
+  // check runs on - and since 2026-08-12 there are none, so it checked nothing
+  // and passed. The shape claim holds for every row that names failures at all,
+  // which is both a wider net and one that does not go quiet the moment the
+  // board stops holding an A+ candidate. The rule itself is exercised by
+  // lib/premise.test.mjs against fixtures.
+  let checked = 0;
   for (const [slug, t] of Object.entries(summaryFallback.latest.targets)) {
-    if (t.divergenceBest !== 0 || !t.regionFailures) continue;
-    for (const [region, names] of Object.entries(t.regionFailures)) {
+    for (const [region, names] of Object.entries(t.regionFailures ?? {})) {
       for (const id of names) {
+        checked++;
         assert.match(id, /^tests\/.+\.test\.ts::.+/, `${slug}/${region} carries a bare title: ${id}`);
       }
     }
   }
+  // Said out loud rather than passing silently, so "clean" and "nothing to
+  // look at" are not the same green tick.
+  if (checked === 0) console.log("    (no row in the fallback names a regional failure)");
 });

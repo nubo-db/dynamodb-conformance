@@ -7,6 +7,7 @@
 // one target's row. Like everything else on the site these are derived from the
 // suite's own results at build time, so they can't drift from what's on screen.
 
+import { controlObservation } from "./summary.mjs";
 import {
   A_PLUS,
   BASELINE_GRADE,
@@ -27,8 +28,11 @@ import {
 
 // Where a target's badge lives. Served from the suite repo rather than the
 // site, so this is the raw path and not a site URL.
-const BADGE_URL_TEMPLATE =
-  "https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/paritysuite/dynamodb-conformance/main/results/{slug}.badge.json";
+const RAW_BASE = "https://raw.githubusercontent.com/paritysuite/dynamodb-conformance/main";
+const BADGE_URL_TEMPLATE = `https://img.shields.io/endpoint?url=${RAW_BASE}/results/{slug}.badge.json`;
+// Served from the suite repo for the same reason as the badges: it is the
+// suite's artefact, and the site renders it rather than owning it.
+const SPLITS_URL = `${RAW_BASE}/registry/splits.json`;
 
 // The two published figures for any {passed, failed, total}-shaped tally, from
 // the suite's own axesOf so the endpoints cannot compute either differently
@@ -63,7 +67,11 @@ const coverageOf = (a) => axesFor(a).coverage;
 // 4 adds the letter grade: a `grade` object on every target row and the
 // grading criteria in the envelope's metrics, versioned separately from this
 // schema (a criteria change regrades targets that changed nothing, so it
-// carries its own version). Additive - a schema 3 consumer keeps working.
+// carries its own version). It also adds `baseline.observation`, which says
+// how much of the suite the baseline row is currently standing on and which
+// real-AWS passes have reported - the pages disclose that, and without it
+// here an agent could not tell a fully measured baseline from a pinned one.
+// Additive - a schema 3 consumer keeps working.
 export const DATA_SCHEMA_VERSION = 4;
 
 // Tier metadata, surfaced so a consumer doesn't have to hard-code the names.
@@ -273,7 +281,14 @@ const METRICS = {
 
 // Self-describing header shared by every endpoint: schema version, provenance,
 // licence and the baseline's identity, so any single file stands on its own.
-function envelope(conformance, site) {
+function envelope(conformance, site, summary = null) {
+  // What the baseline row is standing on. It is synthesised at zero divergence
+  // across the whole suite, which is only honest while every real-AWS pass has
+  // reported; when one has not, the row is pinned rather than derived and the
+  // shortfall is tests nobody has re-observed yet. The homepage and
+  // /ground-truth both say so, and this is the same fact for a reader who is
+  // not a person.
+  const obs = controlObservation(summary?.latest?.groundTruth);
   return {
     schemaVersion: DATA_SCHEMA_VERSION,
     metrics: METRICS,
@@ -287,16 +302,31 @@ function envelope(conformance, site) {
       slug: GROUND_TRUTH_SLUG,
       region: "all",
       description: "Live AWS DynamoDB. The ground truth: it agrees with itself by definition, so it diverges nowhere in every region, and it is what every other target is measured against.",
+      ...(obs
+        ? {
+            observation: {
+              suiteSize: obs.suite,
+              testsObserved: obs.observed,
+              unobserved: obs.shortfall,
+              // One capture date per pass: three passes under a single date
+              // would read as one measurement.
+              lanes: obs.dated,
+              missingLanes: obs.missingLanes,
+              description:
+                "Real AWS is measured in three passes, split for runtime. `lanes` is what has reported and when; `missingLanes` names any that have not, and `unobserved` counts the tests still carried on the last clean measurement rather than re-observed this run.",
+            },
+          }
+        : {}),
     },
   };
 }
 
 // Discovery manifest: a neutral map of the data surface, the tier and capability
 // vocabularies, and where the documentation lives.
-export function buildIndex(conformance, site) {
+export function buildIndex(conformance, site, summary = null) {
   const { latest, runs = [] } = conformance;
   return {
-    ...envelope(conformance, site),
+    ...envelope(conformance, site, summary),
     name: "DynamoDB emulator conformance results",
     description:
       "Divergence and coverage for DynamoDB-compatible emulators, overall and per tier, measured against live AWS DynamoDB and recorded run over run. Divergence is failed / total and coverage is implemented / total, reported apart and never summed. Identical schema for every target, including the live-AWS baseline. Use these endpoints instead of scraping the pages.",
@@ -324,17 +354,23 @@ export function buildIndex(conformance, site) {
       // leaving them out made the manifest disagree with the page it points at.
       { name: "Target badge", format: "application/json", url: BADGE_URL_TEMPLATE, description: "Per-target shields.io endpoint badge carrying the letter grade under a `parity` label, or `baseline` for live AWS. Substitute the target's slug; the path is the contract, and shields' own `schemaVersion` says nothing about this project's." },
       { name: "Corpus", format: "text/plain", url: site.url + "/llms.txt", description: "The site as plain text for language models, with the full corpus at /llms-full.txt." },
+      // The registry the A+ premise is checked against. /ground-truth renders
+      // it as cards, and the methodology's grading section leans on it, but it
+      // was reachable only by knowing the raw URL - so a consumer told to
+      // recompute a grade could not see the evidence behind the one guard that
+      // qualifies the top of the scale.
+      { name: "Split registry", format: "application/json", url: SPLITS_URL, description: "Behaviours where real AWS regions genuinely disagree, with each region's recorded answer and the pinned one. A target passes such a test by matching any observed region, and a zero-divergence row may only fail tests recorded here." },
     ],
   };
 }
 
 // The latest run in full: per target, divergence and coverage per tier, plus the per-capability
 // and per-operation-area state the matrix and capability grid are built from.
-export function buildLatest(conformance, site) {
+export function buildLatest(conformance, site, summary = null) {
   const { latest, perTarget = {} } = conformance;
-  if (!latest) return { ...envelope(conformance, site), run: null, tiers: TIERS, regionHealth: null, targets: [] };
+  if (!latest) return { ...envelope(conformance, site, summary), run: null, tiers: TIERS, regionHealth: null, targets: [] };
   return {
-    ...envelope(conformance, site),
+    ...envelope(conformance, site, summary),
     run: { id: latest.id, date: latest.date, suiteSize: latest.suiteSize, emulatorCount: latest.emulatorCount },
     tiers: TIERS,
     // Which regions scored this run: observed count towards scores, unresolved
@@ -367,10 +403,10 @@ export function buildLatest(conformance, site) {
 // The full history: every run's standings, newest first. Tier divergence, coverage
 // and movement per target; the per-capability and per-area detail lives on the
 // latest endpoint, since the model only carries it for the latest snapshot.
-export function buildRuns(conformance, site) {
+export function buildRuns(conformance, site, summary = null) {
   const { runs = [], latest } = conformance;
   return {
-    ...envelope(conformance, site),
+    ...envelope(conformance, site, summary),
     tiers: TIERS,
     latestRun: latest?.id ?? null,
     runs: runs.map((r) => ({

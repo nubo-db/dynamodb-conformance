@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { buildSummaryModel, cohortOf, regionLabel, regionCount, groupRegionsByDivergence, renderRegionGroups, controlObservation, controlProvenance, controlSplit } from "./summary.mjs";
-import { GRADING_CRITERIA_EFFECTIVE, METRIC_CHANGED_ON } from "./scoring.mjs";
+import { GRADING_CRITERIA_EFFECTIVE, scoredOnCorrectness } from "./scoring.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const raw = JSON.parse(readFileSync(join(here, "..", "test", "fixtures", "regions", "summary.json"), "utf8"));
@@ -335,8 +335,21 @@ test("nothing outstanding means no split line", () => {
 });
 
 
-test("the metric change and the criteria take effect on the same day", () => {
-  // Set apart, the runs in between are published under the retired metric and
-  // carry no notice saying so, which is the disclosure this release is about.
-  assert.equal(METRIC_CHANGED_ON, GRADING_CRITERIA_EFFECTIVE);
+test("a run is read under the retired metric only before the criteria took effect", () => {
+  // The two dates being equal is structural - METRIC_CHANGED_ON is defined as
+  // GRADING_CRITERIA_EFFECTIVE - so asserting it could never fail. What is
+  // worth pinning is the boundary it draws: a run on the day the criteria took
+  // effect is graded, not retired, and getting that off by a day would relabel
+  // every run of that sweep.
+  const day = GRADING_CRITERIA_EFFECTIVE;
+  const before = new Date(Date.parse(`${day}T00:00:00Z`) - 86400000).toISOString().slice(0, 10);
+  const after = new Date(Date.parse(`${day}T00:00:00Z`) + 86400000).toISOString().slice(0, 10);
+
+  assert.equal(scoredOnCorrectness(before), true, "the day before is under the retired metric");
+  assert.equal(scoredOnCorrectness(day), false, "the day itself is graded");
+  assert.equal(scoredOnCorrectness(after), false);
+  // An undated run cannot be placed either side of the line, so it is not
+  // claimed for the retired metric.
+  assert.equal(scoredOnCorrectness(null), false);
+  assert.equal(scoredOnCorrectness(""), false);
 });

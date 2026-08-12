@@ -236,3 +236,65 @@ test("targets carry the maintainer disclosure, derived from the slug", () => {
   assert.equal(latest.targets.find((t) => t.slug === "dynoxide").maintainedByAuthor, true);
   assert.equal(latest.targets.find((t) => t.slug === "dynalite").maintainedByAuthor, false);
 });
+
+// The baseline row is synthesised at zero divergence across the whole suite,
+// which is only honest while every real-AWS pass has reported. The homepage and
+// /ground-truth disclose when one has not; without the same fact here, an agent
+// reading the endpoints could not tell a fully measured baseline from a pinned
+// one, and would have to know about a build-time file that is not a site path.
+const summaryWith = (groundTruth) => ({ latest: { groundTruth } });
+
+test("every endpoint discloses how much of the suite the baseline was measured on", () => {
+  const summary = summaryWith({
+    suiteSize: 1000,
+    testsObserved: 983,
+    lanes: [
+      { name: "gating", runDate: "2026-08-09", tests: 983 },
+      { name: "gsi", runDate: "2026-08-10", tests: 0 },
+    ],
+    missingLanes: ["integrations"],
+  });
+
+  for (const [name, doc] of [
+    ["index", buildIndex(model, site, summary)],
+    ["latest", buildLatest(model, site, summary)],
+    ["runs", buildRuns(model, site, summary)],
+  ]) {
+    const obs = doc.baseline.observation;
+    assert.ok(obs, `${name} carries no baseline observation`);
+    assert.equal(obs.suiteSize, 1000);
+    assert.equal(obs.testsObserved, 983);
+    assert.equal(obs.unobserved, 17, `${name} must publish the shortfall, not just the counts`);
+    assert.deepEqual(obs.missingLanes, ["integrations"]);
+    // One capture date per pass: three passes under a single date would read
+    // as one measurement.
+    assert.deepEqual(
+      obs.lanes.map((l) => l.name),
+      ["gating", "gsi"],
+    );
+    assert.equal(obs.lanes[0].runDate, "2026-08-09");
+  }
+});
+
+test("a fully observed baseline reports nothing outstanding rather than omitting the block", () => {
+  const doc = buildLatest(
+    model,
+    site,
+    summaryWith({
+      suiteSize: 1000,
+      testsObserved: 1000,
+      lanes: [{ name: "gating", runDate: "2026-08-12", tests: 1000 }],
+      missingLanes: [],
+    }),
+  );
+  assert.equal(doc.baseline.observation.unobserved, 0);
+  assert.deepEqual(doc.baseline.observation.missingLanes, []);
+});
+
+test("the split registry is discoverable from the data index", () => {
+  // The methodology's grading section leans on it and the A+ premise is checked
+  // against it, but it was reachable only by knowing the raw URL.
+  const endpoint = buildIndex(model, site).endpoints.find((e) => /split/i.test(e.name));
+  assert.ok(endpoint, "the index does not name the split registry");
+  assert.match(endpoint.url, /registry\/splits\.json$/);
+});

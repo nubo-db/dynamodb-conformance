@@ -17,7 +17,15 @@ eleventyExcludeFromCollections: true
     <link href="{{ site.url }}/runs/{{ r.id }}"/>
     <id>{{ site.url }}/runs/{{ r.id }}</id>
     <updated>{{ r.startTime | isoDateTime }}</updated>
-    <summary>{{ r.emulatorCount }} emulators scored against live AWS DynamoDB ({{ r.suiteSize }} tests). Closest match: {{ r.headline.topDisplay }}{% if r.headline.graded %} at grade {{ r.headline.topGrade }}{% endif %}, diverging on {{ r.headline.topDivergence }} of the suite and covering {{ r.headline.topCoverage }}.</summary>
+    {#-
+      A run predating the grading criteria says so, rather than just omitting
+      the letter. A feed is read one entry at a time, so a missing clause is
+      indistinguishable from a field that failed to populate - and the two
+      figures are published either way, which is the point the sentence makes.
+      /data/runs.json carries the same fact as `gradedUnderCriteria`.
+    -#}
+    <category term="{% if r.headline.graded %}graded{% else %}ungraded{% endif %}"/>
+    <summary>{{ r.emulatorCount }} emulators scored against live AWS DynamoDB ({{ r.suiteSize }} tests). Closest match: {{ r.headline.topDisplay }}{% if r.headline.graded %} at grade {{ r.headline.topGrade }}{% else %} (no letter: this run predates grading criteria version {{ gradingCriteria.version }}, in effect from {{ gradingCriteria.effectiveLabel }}){% endif %}, diverging on {{ r.headline.topDivergence }} of the suite and covering {{ r.headline.topCoverage }}.</summary>
   </entry>
   {%- endfor %}
 </feed>

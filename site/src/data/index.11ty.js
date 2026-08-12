@@ -8,6 +8,6 @@ export default class {
   }
 
   render(data) {
-    return JSON.stringify(buildIndex(data.conformance, data.site), null, 2);
+    return JSON.stringify(buildIndex(data.conformance, data.site, data.summary), null, 2);
   }
 }
