@@ -27,6 +27,7 @@ import {
   renderTable,
   repoUrl,
   tableCaption,
+  tableDateOf,
   tableRows,
   writeSummaryFile,
 } from './summarise.mjs'
@@ -554,8 +555,40 @@ describe('tableRows / renderTable', () => {
     expect(order.indexOf('alpha')).toBeLessThan(order.indexOf('beta'))
   })
 
-  it('names the observed regions in the caption', () => {
-    expect(tableCaption(summary.regions)).toContain('`eu-west-2`, `us-east-1`')
+  it('counts the observed regions in the caption rather than naming every one', () => {
+    // Naming all of them was most of the caption's length, and the set is in
+    // registry/regions.json. The exceptions are still named - the unresolved
+    // and dropped cases above assert exactly that - because a name earns its
+    // space where it marks something out.
+    const caption = tableCaption(summary.regions)
+    expect(caption).toContain('each of the 2 observed regions')
+    expect(caption).not.toContain('`eu-west-2`, `us-east-1`')
+  })
+
+  it('states the known defect in the Regions column rather than publishing it bare', () => {
+    expect(tableCaption(summary.regions)).toMatch(/over-credits.*issues\/138/s)
+  })
+
+  it('dates the table from the newest row, and only carried rows carry a date', () => {
+    // Repeating one date down every row hid the rows worth spotting. The
+    // caption states the run's date; a row that shows one is carried from an
+    // earlier run.
+    const carried = [{ runDate: '2026-08-12' }, { runDate: '2026-07-24' }, { runDate: '-' }]
+    expect(tableDateOf(carried)).toBe('2026-08-12')
+    expect(tableDateOf([{ runDate: '-' }])).toBe(null)
+
+    const table = renderTable(summary)
+    expect(table).toContain('Measured 2026-07-06, except where a row carries its own date.')
+    // Every row here was measured in the same run, so no row restates it.
+    for (const line of table.split('\n').filter((l) => l.startsWith('| ') && !l.startsWith('| Target'))) {
+      expect(line.endsWith('|  |') || line.endsWith('| - |')).toBe(true)
+    }
+  })
+
+  it('orders the columns identity, headline, counts, tiers, then evidence', () => {
+    expect(renderTable(summary)).toContain(
+      '| Target | Grade | Version | Divergence | Coverage | Fail | Skip | Tier 1 | Tier 2 | Tier 3 | Regions | Measured |',
+    )
   })
 
   it('badge and table cannot disagree: every grade equals the badge letter', () => {

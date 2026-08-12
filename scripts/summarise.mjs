@@ -751,27 +751,35 @@ export function tableRows(summary) {
  * able to mistake an unresolved region for an agreeing one, so absence is
  * spelled out rather than implied.
  */
-export function tableCaption(regions, groundTruth = null) {
+export function tableCaption(regions, groundTruth = null, tableDate = null) {
   const list = (rs) => rs.map((r) => `\`${r}\``).join(', ')
+  // Two figures, said plainly. The long form spent a paragraph on what they
+  // measure before a reader reached a number, when the pair is simple:
+  // coverage is how much of DynamoDB a target implements, divergence is how
+  // much of it the target gets wrong. What genuinely needs saying is why they
+  // are never added together, and everything the table cannot show on its own -
+  // which regions dropped out, which lanes were carried, which column is known
+  // to be wrong. Naming all 32 observed regions inline was the bulk of it and
+  // the least of it: the count carries the same weight and the set is in
+  // `registry/regions.json`. The exceptions are still named, because that is
+  // where naming earns its space.
   const sentences = [
-    `Scored against real DynamoDB's recorded behaviour in each observed region ` +
-      `(${list(regions.observed)}), at each target's best-matching region. ` +
-      `**Divergence** is the share of the whole suite a target answers differently ` +
-      `from real DynamoDB - the operations it implements and gets wrong. ` +
-      `**Coverage** is the share it implements at all. They are reported apart ` +
-      `because they carry opposite risks: a declined operation is discoverable in ` +
-      `minutes, a wrong one in production. **Grade** is a reading of the pair: ` +
-      `divergence sets the letter and coverage can only lower it, never raise it, ` +
-      `under the versioned criteria in the ` +
-      `[methodology](https://paritysuite.org/methodology). Sorted by divergence, so the order ranks ` +
-      `risk rather than declaring a winner - a target with no divergences over a ` +
-      `narrow surface is exactly what its two figures say it is. Regions is how many ` +
-      `of the observed regions the headline was measured against. The tier columns ` +
-      `are divergence too, within each tier, so lower is better in every column ` +
-      `but Coverage. Real DynamoDB does ` +
-      `not behave identically in every region, so each target is measured in every ` +
-      `region above and scored against its best match; the per-region detail is in ` +
-      `\`results/summary.json\`. Behaviour varies by region and over time, so these ` +
+    `Scored against real DynamoDB in each of the ${regions.observed.length} observed ` +
+      `regions, at each target's best-matching region. **Coverage** is how much of ` +
+      `DynamoDB's behaviour a target implements. **Divergence** is how much of it the ` +
+      `target answers differently from real DynamoDB. Both are shares of the whole ` +
+      `suite, and they are never added together: an operation a target declines is ` +
+      `discoverable in minutes, one it answers wrongly is discoverable in production. ` +
+      `**Grade** reads the pair, with divergence setting the letter and coverage only ` +
+      `ever lowering it, under the versioned criteria in the ` +
+      `[methodology](https://paritysuite.org/methodology). Rows are sorted by ` +
+      `divergence. The tier columns are divergence within that tier, so lower is ` +
+      `better in every column but Coverage. **Regions** counts the observed regions a ` +
+      `target's headline matched, as evidence rather than a score: it currently ` +
+      `over-credits a target whose assertion matches a region's answer loosely ` +
+      `([#138](https://github.com/paritysuite/dynamodb-conformance/issues/138)). Real ` +
+      `DynamoDB does not answer identically everywhere, and the per-region detail is ` +
+      `in \`results/summary.json\`. Behaviour varies by region and over time, so these ` +
       `are point-in-time figures.`,
   ]
   if (regions.unresolved.length > 0) {
@@ -804,6 +812,10 @@ export function tableCaption(regions, groundTruth = null) {
         `${unobserved === 1 ? 'is' : 'are'} carried.`,
     )
   }
+  // Last, because it closes the table rather than qualifying any one column.
+  if (tableDate) {
+    sentences.push(`Measured ${tableDate}, except where a row carries its own date.`)
+  }
   return `_${sentences.join(' ')}_`
 }
 
@@ -815,17 +827,33 @@ export function tableCaption(regions, groundTruth = null) {
 // as a rival. This replaces a footnote keyed off a bracket in the display name.
 const VARIANT_PREFIX = '↳ '
 
+/**
+ * The date the table as a whole was measured: the newest date any row carries.
+ * Rows older than it are carried from an earlier run, and only those state a
+ * date of their own.
+ */
+export const tableDateOf = (rows) =>
+  rows.map((r) => r.runDate).filter((d) => d && d !== '-').sort().pop() ?? null
+
 export function renderTable(summary) {
   const rows = tableRows(summary)
+  const tableDate = tableDateOf(rows)
+  // Identity first (what was measured), then the two headline figures, then the
+  // counts behind them, then the tier breakdown, and the evidence columns last.
+  // Regions sat fourth, where a reader met `4 of 32` beside `27 of 32` and read
+  // it as quality: it counts the regions whose recorded wording a target
+  // matched, and the target on 4 diverges least of any of them.
+  //
+  // Measured is an exception column, not a date column. It carried the same
+  // date on every row on a re-measure of everything and a mix of two or three
+  // otherwise, so a column of repeats hid the only rows worth spotting. A row
+  // with a date in it is carried from an earlier run; the caption states the
+  // date the rest were measured on.
   const fmt = (r, name) =>
-    `| ${name} | ${r.grade} | ${r.divergence} | ${r.coverage} | ${r.cohort ?? '-'} | ${r.tier1} | ${r.tier2} | ${r.tier3} | ${r.failed} | ${r.skipped} | ${r.version} | ${r.runDate} |`
+    `| ${name} | ${r.grade} | ${r.version} | ${r.divergence} | ${r.coverage} | ${r.failed} | ${r.skipped} | ${r.tier1} | ${r.tier2} | ${r.tier3} | ${r.cohort ?? '-'} | ${r.runDate === tableDate ? '' : r.runDate} |`
   const body = [
-    // Regions is the cohort the headline was measured against, as a count. The
-    // Region column this replaces named the cohort, which read as breadth: a
-    // target equally wrong in all 33 showed "all regions" while one perfect in 6
-    // showed "6 regions". A count out of the observed total cannot.
-    '| Target | Grade | Divergence | Coverage | Regions | Tier 1 | Tier 2 | Tier 3 | Fail | Skip | Version | Date |',
-    '|--------|-------|-----------|----------|---------|--------|--------|--------|------|------|---------|------|',
+    '| Target | Grade | Version | Divergence | Coverage | Fail | Skip | Tier 1 | Tier 2 | Tier 3 | Regions | Measured |',
+    '|--------|-------|---------|-----------|----------|------|------|--------|--------|--------|---------|----------|',
     ...rows.flatMap((r) => [
       // The parent's figures are its reference configuration's, so name that
       // configuration inline when the project has more than one shape. Without
@@ -837,7 +865,7 @@ export function renderTable(summary) {
       ),
     ]),
   ].join('\n')
-  return `${tableCaption(summary.regions, summary.groundTruth)}\n\n${body}`
+  return `${tableCaption(summary.regions, summary.groundTruth, tableDate)}\n\n${body}`
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
