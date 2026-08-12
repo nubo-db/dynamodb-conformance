@@ -10,6 +10,14 @@
   // The gating run's own date, so the label dates the observation rather than
   // the site's latest run, which are the same today but need not be.
   function mainDateOf(summary) { return observationOf(summary)?.mainRun?.runDate ?? null; }
+  // The run page to hang the measured date on, when the board's newest run is
+  // the run that measured. Most days it is, and then one linked date says both
+  // things. When it is not - real AWS runs weekly, the emulators every merge -
+  // the measured date belongs to an earlier run, so linking it here would point
+  // at a run that did not take the measurement.
+  function measuredRunId(summary, latest) {
+    return mainDateOf(summary) && mainDateOf(summary) === latest.date ? latest.id : null;
+  }
 </script>
 <section class="max-w-6xl mx-auto px-6 py-12 sm:py-16">
   <div class="mb-8">
@@ -35,30 +43,21 @@
        earn its way into. The strip also carries the run's vitals (suite
        size, date, region health), so the standings below hold only the
        things actually being measured. -->
-  <div class="mb-6 grid gap-3 sm:grid-cols-3" webc:if="baselineOf($data.conformance.latest.standings)">
+  <div class="mb-6 grid gap-3 sm:grid-cols-2" webc:if="baselineOf($data.conformance.latest.standings)">
+    <!-- The suite and its provenance in one panel. These were two, and between
+         them they printed the size twice, the date twice and the region count
+         that the Regions panel owns. The size now comes from the run rather
+         than the ground-truth observation: the observation is absent whenever
+         the summary is, and the old panel rendered a blank where the number
+         should be. Which lanes are outstanding stays a question for the
+         ground-truth page rather than the front of the board. -->
     <div class="rounded-xl border border-brand-200 dark:border-brand-500/30 bg-brand-50 dark:bg-brand-500/10 px-4 py-3">
-      <div class="text-[0.7rem] uppercase tracking-wide font-medium text-brand-700 dark:text-brand-300 mb-1">Ground truth</div>
-      <!-- The count is what the real-AWS run observed, not the baseline row,
-           which stays pinned at the full suite until every lane reports. Which
-           lanes, and which tests are still outstanding, is a question for the
-           ground-truth page rather than the front of the board. -->
+      <div class="text-[0.7rem] uppercase tracking-wide font-medium text-brand-700 dark:text-brand-300 mb-1">Suite</div>
       <div class="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-        <span webc:if="observationOf($data.summary)">
-          <span class="tnum" @text="observationOf($data.summary).suite"></span> tests checked against live AWS
-        </span>
-        <span webc:else>
-          <span class="tnum" @text="baselineOf($data.conformance.latest.standings).count"></span> tests checked against live AWS
-        </span>
+        <span class="tnum" @text="$data.conformance.latest.suiteSize"></span> tests · three tiers, checked against live AWS
       </div>
       <div class="mt-0.5 text-xs leading-snug text-zinc-600 dark:text-zinc-400">
-        last measured <time :datetime="mainDateOf($data.summary) ?? $data.conformance.latest.date" @text="dateLabel(mainDateOf($data.summary) ?? $data.conformance.latest.date)"></time><span webc:if="splitOf($data.summary)"> · <span @text="splitOf($data.summary)"></span></span><span webc:if="baselineOf($data.conformance.latest.standings).regionLabel?.observed"> · <span class="tnum" @text="baselineOf($data.conformance.latest.standings).regionLabel.observed"></span> regions</span> · <a href="/ground-truth" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300">how</a>
-      </div>
-    </div>
-    <div class="rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3">
-      <div class="text-[0.7rem] uppercase tracking-wide font-medium text-zinc-500 dark:text-zinc-400 mb-1">Suite</div>
-      <div class="text-sm font-medium text-zinc-800 dark:text-zinc-100"><span class="tnum" @text="$data.conformance.latest.suiteSize"></span> tests · three tiers</div>
-      <div class="mt-0.5 text-xs leading-snug text-zinc-600 dark:text-zinc-400">
-        latest run <a :href="'/runs/' + $data.conformance.latest.id" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300"><time :datetime="$data.conformance.latest.date" @text="dateLabel($data.conformance.latest.date)"></time></a>
+        <span webc:if="mainDateOf($data.summary)">last measured <a webc:if="measuredRunId($data.summary, $data.conformance.latest)" :href="'/runs/' + measuredRunId($data.summary, $data.conformance.latest)" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300 whitespace-nowrap"><time :datetime="mainDateOf($data.summary)" @text="dateLabel(mainDateOf($data.summary))"></time></a><time webc:else class="whitespace-nowrap" :datetime="mainDateOf($data.summary)" @text="dateLabel(mainDateOf($data.summary))"></time><span webc:if="splitOf($data.summary)"> · <span @text="splitOf($data.summary)"></span></span> · </span><a href="/ground-truth" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300">how</a><span webc:if="!measuredRunId($data.summary, $data.conformance.latest)"> · latest run <a :href="'/runs/' + $data.conformance.latest.id" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300 whitespace-nowrap"><time :datetime="$data.conformance.latest.date" @text="dateLabel($data.conformance.latest.date)"></time></a></span>
       </div>
     </div>
     <!-- Region health, panel-shaped: a dropped or unresolved region is named,
@@ -71,12 +70,16 @@
         <span webc:else><span class="tnum" @text="baselineOf($data.conformance.latest.standings).regionLabel?.observed ?? '–'"></span> real regions scored</span>
       </div>
       <div webc:if="$data.summary.available" class="mt-0.5 text-xs leading-snug text-zinc-600 dark:text-zinc-400 space-y-0.5">
-        <div webc:if="$data.summary.latest.regions.unresolved.length" class="flex items-center gap-1.5">
-          <span class="h-1.5 w-1.5 rounded-full bg-partial-500 dark:bg-partial-400 shrink-0" aria-hidden="true"></span>
+        <!-- items-start, not items-center: these lines wrap, and a centred dot
+             floats to the middle of the block instead of sitting against the
+             region it marks. The em-relative offset drops it onto the first
+             line's centre and follows the font size rather than pinning to one. -->
+        <div webc:if="$data.summary.latest.regions.unresolved.length" class="flex items-start gap-1.5">
+          <span class="h-1.5 w-1.5 mt-[0.4em] rounded-full bg-partial-500 dark:bg-partial-400 shrink-0" aria-hidden="true"></span>
           <span><span class="tnum" @text="$data.summary.latest.regions.unresolved.length"></span> unresolved, still trusted: <span class="font-mono" @text="$data.summary.latest.regions.unresolved.join(', ')"></span></span>
         </div>
-        <div webc:if="$data.summary.latest.regions.dropped.length" class="flex items-center gap-1.5">
-          <span class="h-1.5 w-1.5 rounded-full bg-fail-500 dark:bg-fail-400 shrink-0" aria-hidden="true"></span>
+        <div webc:if="$data.summary.latest.regions.dropped.length" class="flex items-start gap-1.5">
+          <span class="h-1.5 w-1.5 mt-[0.4em] rounded-full bg-fail-500 dark:bg-fail-400 shrink-0" aria-hidden="true"></span>
           <span><span class="tnum" @text="$data.summary.latest.regions.dropped.length"></span> dropped until <span @text="$data.summary.latest.regions.dropped.length === 1 ? 'it returns' : 'they return'"></span>: <span class="font-mono" @text="$data.summary.latest.regions.dropped.join(', ')"></span></span>
         </div>
         <div webc:if="!$data.summary.latest.regions.unresolved.length && !$data.summary.latest.regions.dropped.length">every observed region resolved this sweep</div>
