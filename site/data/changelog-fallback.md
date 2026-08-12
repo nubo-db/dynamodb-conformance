@@ -266,6 +266,28 @@ named on the row and in the JSON.
   is the same in every region. Divergence is the figure a region decides, which
   is why it is the one the headline region governs.
 
+**The suite counts its own tests.** Divergence and coverage both divide by the
+whole suite, and until now "the whole suite" meant whichever target had run the
+most tests. One of the measured things was setting the denominator every other
+figure used. `registry/suite-manifest.json` lists all 1054 by file and full
+name, generated from the suite rather than inferred from a run, and CI fails if
+it drifts from the tests. Publishing now refuses a row whose count or whose test
+population disagrees with it, which is a stronger check than the count alone: a
+results file carried across a rename keeps its old total while naming tests that
+no longer exist. Dynoxide's WebAssembly row was doing exactly that, 35 tests out
+of date at the right total, and is re-measured.
+
+- The WebAssembly engine runs in CI like every other target. It was the only one
+  reachable by neither a container image nor an npm binary, so its row was
+  refreshed by hand and had sat three weeks stale. It builds from a Dynoxide
+  release the way ExtendDB builds from source.
+- Two more regional splits are admitted, both `BatchGetItem` with an empty
+  `RequestItems` map. Five regions answer with the validation framework's
+  generic constraint message where 27 keep the bespoke sentence. The
+  nesting-depth row was rewritten from a full 32-region capture: it had been
+  written from four regions, so seven strict regions were recorded as one, and
+  the pinned wording had drifted without moving a verdict.
+
 **Vector search coverage lands with the release (#125).** DynamoDB shipped
 vector search in August 2026 and the suite now covers its deterministic
 surface: 42 new tests taking the suite from 998 to 1040. The family spans the
