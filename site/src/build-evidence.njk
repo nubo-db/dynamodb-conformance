@@ -1,0 +1,22 @@
+---
+permalink: /build-evidence.json
+eleventyExcludeFromCollections: true
+---
+{#
+  What this build was rendered from, for the publish gate to check against.
+
+  scripts/check-build.mjs asserts things about the board that only mean
+  something if the data it reads is the data the pages were rendered from. It
+  used to read the committed fallbacks directly, which is right for its own
+  hermetic build and wrong for the deploy, where the pages come from a live
+  fetch: every content check then gated a board that was not the one shipping.
+
+  Emitted as a build artefact rather than a published endpoint. It is not
+  linked, carries nothing /data/latest.json does not already say in a
+  supported shape, and is not part of the data contract - the schema-versioned
+  endpoints are.
+#}
+{
+  "summary": {{ summary.latest | dump | safe }},
+  "splits": {{ splits.splits | dump | safe }}
+}

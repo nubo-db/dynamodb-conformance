@@ -35,28 +35,27 @@ concurrency:
   group: deploy-site
   cancel-in-progress: false
 
-jobs:
-  # The publish gate. site:check-build asserts the things the methodology
-  # promises about what ships - the baseline carries no letter, a
-  # zero-divergence target fails only on confirmed splits, the legend renders
-  # every band - and it used to run only in ci.yml, which is a sibling workflow
-  # on its own triggers. deploy.yml publishes on push, dispatch and a daily
-  # cron, and on the cron path ci.yml does not run at all, so nothing checked
-  # what the cron published.
-  guard:
-    runs-on: ubuntu-latest
-    if: github.repository == 'paritysuite/dynamodb-conformance'
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run site:check-build
+# The floor. Only the deploy job needs more than this, and it asks for it
+# itself; without a workflow-level default the guard job ran on whatever the
+# repository hands out, which is more than a job that checks out and builds
+# has any use for.
+permissions:
+  contents: read
 
+jobs:
+  # The publish gate runs inside the deploy, against the build that is about to
+  # be synced.
+  #
+  # It used to be a job of its own, and check-build builds hermetically - every
+  # data file takes its committed-fallback path. The deploy builds from a live
+  # fetch. So the gate asserted the methodology's promises about a board
+  # assembled from the committed snapshot and then shipped a different one,
+  # assembled from data the checks never saw. Building once and checking that
+  # artefact is also one build rather than two.
+  #
+  # The hermetic run still happens, in ci.yml on every pull request. That is
+  # where it belongs: it is the only thing exercising the fallback path.
   deploy:
-    needs: guard
     runs-on: ubuntu-latest
     if: github.repository == 'paritysuite/dynamodb-conformance'
     permissions:
@@ -93,6 +92,11 @@ jobs:
         run: |
           npm ci
           npm run site:build
+
+      # Against the directory just built, before anything reaches the bucket.
+      - name: Check what is about to be published
+        working-directory: site
+        run: node scripts/check-build.mjs --built _site
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6

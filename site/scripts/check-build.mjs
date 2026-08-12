@@ -5,12 +5,21 @@
 // page is therefore invisible to it. Two bugs shipped on this branch were plain
 // in the built HTML and green in the test suite the whole time.
 //
-// The build here is hermetic. `fetch` is stubbed to reject, so every data file
-// takes its committed-fallback path and the result depends on the repo alone,
-// never on GitHub being reachable. That keeps this usable as a gate: a red run
-// means the code broke, not that an API had a bad minute.
+// Two ways to run it.
 //
-// Run with `npm run check:build`.
+// `npm run check:build` builds hermetically: `fetch` is stubbed to reject, so
+// every data file takes its committed-fallback path and the result depends on
+// the repo alone, never on GitHub being reachable. That keeps it usable as a
+// pull-request gate - a red run means the code broke, not that an API had a bad
+// minute - and it is the only thing that exercises the fallback path at all.
+//
+// `node scripts/check-build.mjs --built <dir>` checks a directory that has
+// already been built, which is how the deploy uses it. The deploy builds from a
+// live fetch, so a hermetic build there would assert everything about a board
+// assembled from the committed snapshot and then ship a different one.
+//
+// The build under test names its own inputs in build-evidence.json, so the
+// data-level checks read what these pages were rendered from either way.
 
 import { mkdtemp, readFile, rm, glob } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -28,17 +37,26 @@ const check = (ok, label, detail = "") => {
   console.log(`  FAIL  ${label}${detail ? ` - ${detail}` : ""}`);
 };
 
-// The two published artefacts the A+ premise is checked from, loaded the way
-// the build loads them. This build is hermetic, so both take their committed
-// fallback and this reads what the pages above were rendered from.
-async function loadPublishedData() {
-  const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-  const summary = JSON.parse(await readFile(join(root, "data", "summary-history.json"), "utf8"));
-  const splits = JSON.parse(await readFile(join(root, "data", "splits-fallback.json"), "utf8"));
-  return { summary: summary.latest, splits: splits.splits ?? [] };
+// The two artefacts the A+ premise is checked from, read out of the build
+// itself rather than off disk. build-evidence.json is written by the build
+// under test and names the data those pages were rendered from, so this reads
+// the live fetch on the deploy and the committed fallback on a hermetic run,
+// without either path having to know which it is.
+async function loadPublishedData(dir) {
+  const evidence = JSON.parse(await readFile(join(dir, "build-evidence.json"), "utf8"));
+  return { summary: evidence.summary, splits: evidence.splits ?? [] };
 }
 
-const out = await mkdtemp(join(tmpdir(), "paritysuite-build-"));
+// `--built <dir>`: check a directory somebody else built. Otherwise build one.
+const builtAt = process.argv.includes("--built")
+  ? process.argv[process.argv.indexOf("--built") + 1]
+  : null;
+if (process.argv.includes("--built") && !builtAt) {
+  console.error("--built needs a directory");
+  process.exit(1);
+}
+
+const out = builtAt ?? (await mkdtemp(join(tmpdir(), "paritysuite-build-")));
 
 let pages = [];
 try {
@@ -46,10 +64,14 @@ try {
   // `dir: { output: "_site" }`, which wins over the API's output argument, and
   // building into _site would clobber whatever someone is serving locally.
   // `--output` does override it. The preload is what removes the network.
-  execFileSync("npx", ["@11ty/eleventy", "--output", out], {
-    stdio: ["ignore", "inherit", "inherit"],
-    env: { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ""} --import ./scripts/no-network.mjs`.trim() },
-  });
+  if (!builtAt) {
+    execFileSync("npx", ["@11ty/eleventy", "--output", out], {
+      stdio: ["ignore", "inherit", "inherit"],
+      env: { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ""} --import ./scripts/no-network.mjs`.trim() },
+    });
+  } else {
+    console.log(`Checking the build already at ${out}.`);
+  }
 
   for await (const f of glob("**/*.html", { cwd: out })) pages.push(f);
   // The text outputs too: llms.txt and llms-full.txt are built for machine
@@ -61,7 +83,11 @@ try {
   const read = async (f) => ({ path: `/${f}`, html: await readFile(join(out, f), "utf8") });
   const docs = await Promise.all(pages.map(read));
 
-  console.log(`\nBuilt ${docs.length} pages from the committed fallback.\n`);
+  console.log(
+    builtAt
+      ? `\nChecking ${docs.length} pages as built.\n`
+      : `\nBuilt ${docs.length} pages from the committed fallback.\n`,
+  );
 
   // Every check below reads from `docs`, so an empty collection would let all of
   // them pass by vacuous truth. Stop here instead of reporting a green run.
@@ -400,7 +426,7 @@ try {
   // push, dispatch and cron alike. The tooling copy stays and reads the
   // committed tree, so a breach surfaces while someone is working as well as
   // when it ships.
-  const { summary, splits } = await loadPublishedData();
+  const { summary, splits } = await loadPublishedData(out);
   const unconfirmed = [];
   const uncheckable = [];
   let guarded = 0;
@@ -490,7 +516,9 @@ try {
     console.log("  ok    the A+ premise check is vacuous: no zero-divergence row on this board");
   }
 } finally {
-  await rm(out, { recursive: true, force: true });
+  // Only clean up a directory this script made. In --built mode `out` is the
+  // caller's, and the deploy is about to sync it to the bucket.
+  if (!builtAt) await rm(out, { recursive: true, force: true });
 }
 
 if (failures.length) {

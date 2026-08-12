@@ -63,16 +63,48 @@ jobs:
         id: run
         env:
           GH_TOKEN: ${{ github.token }}
+          # Through the environment: this job holds a contents-write token, and
+          # a dispatch input spliced into the script would run in it.
+          REQUESTED_RUN_ID: ${{ github.event.inputs.run_id }}
+          AUTO_RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
-          RID="${{ github.event.inputs.run_id }}"
-          [ -z "$RID" ] && RID="${{ github.event.workflow_run.id }}"
-          [ -z "$RID" ] && RID=$(gh run list --workflow conformance.yml --status completed -L 1 --json databaseId --jq '.[0].databaseId')
+          RID="$REQUESTED_RUN_ID"
+          [ -z "$RID" ] && RID="$AUTO_RUN_ID"
+          if [ -z "$RID" ]; then
+            # The latest completed run on main, not simply the latest completed
+            # run - which on any day with an open pull request is that pull
+            # request's.
+            RID=$(gh run list --workflow conformance.yml --status completed --branch main -L 1 \
+              --json databaseId --jq '.[0].databaseId')
+          fi
           if [ -z "$RID" ]; then
             echo "No completed Conformance Tests run found." >&2
             exit 1
           fi
+
+          # Whatever route produced the id, the run it names has to be one this
+          # repository's own code produced on main.
+          #
+          # The job's `if:` above checks exactly this for the automatic path,
+          # and says why: a pull request from a fork runs the fork's workflow
+          # and test code and uploads results-* artefacts under its own branch
+          # name. But `workflow_dispatch` short-circuits that condition, and
+          # nothing then constrained the run id - so a manual run given a fork
+          # pull request's id would download that fork's artefacts, commit them
+          # to main and publish the badges. The id is only known once resolved,
+          # so the check belongs here rather than in the `if:`.
+          META=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/$RID" \
+            --jq '[.head_repository.full_name, .head_branch, .conclusion] | @tsv')
+          HEAD_REPO=$(cut -f1 <<<"$META")
+          BRANCH=$(cut -f2 <<<"$META")
+          CONCLUSION=$(cut -f3 <<<"$META")
+          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || [ "$BRANCH" != "main" ] || [ "$CONCLUSION" != "success" ]; then
+            echo "::error::Run $RID is $CONCLUSION on $BRANCH in $HEAD_REPO, not a successful run on main in $GITHUB_REPOSITORY. Refusing to publish its artefacts."
+            exit 1
+          fi
+
           echo "id=$RID" >> "$GITHUB_OUTPUT"
-          echo "Pulling results from conformance run $RID"
+          echo "Pulling results from conformance run $RID ($HEAD_REPO@$BRANCH)"
 
       - name: Overlay result artifacts
         env:

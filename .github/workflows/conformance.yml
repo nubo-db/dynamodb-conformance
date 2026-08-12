@@ -668,6 +668,10 @@ jobs:
         id: ref
         env:
           GH_TOKEN: ${{ github.token }}
+          # Through the environment, not spliced into the script. A dispatch
+          # input is caller-supplied text, and interpolating it directly would
+          # let a quote in the value end the string and run the rest.
+          REQUESTED_REF: ${{ github.event.inputs.dynoxide_wasm_ref }}
         run: |
           # The organisation comes from the target registry, where a target's
           # project URL is data. Writing it here would have the workflow name a
@@ -678,20 +682,28 @@ jobs:
             import { repoUrl } from './scripts/lib/targets.mjs'
             process.stdout.write(new URL(repoUrl('dynoxide')).pathname.slice(1))
           ")
-          REF='${{ github.event.inputs.dynoxide_wasm_ref }}'
+          REF="$REQUESTED_REF"
           if [ -z "$REF" ]; then
             REF=$(gh release view -R "$REPO" --json tagName --jq .tagName)
           fi
+          # Build the commit, not the name. A release tag can be moved after it
+          # is published, so checking out the tag means this job builds whatever
+          # that name points at on the day - from a repository this one does not
+          # control, whose output is scored and committed to main. Resolving it
+          # once here pins the build and records what actually ran.
+          SHA=$(gh api "repos/$REPO/commits/$REF" --jq .sha)
           echo "repo=$REPO" >> "$GITHUB_OUTPUT"
           echo "ref=$REF" >> "$GITHUB_OUTPUT"
-          echo "Building the wasm engine from $REPO at $REF"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "Building the wasm engine from $REPO at $REF ($SHA)"
 
       - name: Checkout the engine
         uses: actions/checkout@v7
         with:
           repository: ${{ steps.ref.outputs.repo }}
-          ref: ${{ steps.ref.outputs.ref }}
+          ref: ${{ steps.ref.outputs.sha }}
           path: dynoxide
+          persist-credentials: false
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -890,20 +902,27 @@ jobs:
         id: ref
         env:
           GH_TOKEN: ${{ github.token }}
+          # Through the environment rather than spliced into the script, and
+          # resolved to a commit rather than built by name, for the same two
+          # reasons as the wasm engine above.
+          REQUESTED_REF: ${{ github.event.inputs.extenddb_ref }}
         run: |
-          REF='${{ github.event.inputs.extenddb_ref }}'
+          REF="$REQUESTED_REF"
           if [ -z "$REF" ]; then
             REF=$(gh release view -R ExtendDB/extenddb --json tagName --jq .tagName)
           fi
+          SHA=$(gh api "repos/ExtendDB/extenddb/commits/$REF" --jq .sha)
           echo "ref=$REF" >> "$GITHUB_OUTPUT"
-          echo "Building ExtendDB at $REF"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "Building ExtendDB at $REF ($SHA)"
 
       - name: Checkout ExtendDB
         uses: actions/checkout@v7
         with:
           repository: ExtendDB/extenddb
-          ref: ${{ steps.ref.outputs.ref }}
+          ref: ${{ steps.ref.outputs.sha }}
           path: extenddb
+          persist-credentials: false
 
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
