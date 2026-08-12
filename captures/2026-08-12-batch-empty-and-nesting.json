@@ -1,0 +1,884 @@
+{
+  "capturedAt": "2026-08-12T13:21:51.577Z",
+  "note": "Evidence for registry rows update-item-nesting-depth-expression-value, batch-get-item-empty-request-items-message and batch-get-item-empty-request-items-ordering (issues #113, #126, #127). Scoped to the two probes those rows cite; the full 144-probe sweep of the same run is not committed.",
+  "regions": {
+    "eu-west-2": {
+      "region": "eu-west-2",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit",
+          "n": 1,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "us-east-1": {
+      "region": "us-east-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit",
+          "n": 1,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "eu-central-1": {
+      "region": "eu-central-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "RequestItems"
+          ],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit",
+          "n": 1,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-southeast-2": {
+      "region": "ap-southeast-2",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "af-south-1": {
+      "region": "af-south-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-east-1": {
+      "region": "ap-east-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-east-2": {
+      "region": "ap-east-2",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit",
+          "n": 1,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-northeast-1": {
+      "region": "ap-northeast-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-northeast-2": {
+      "region": "ap-northeast-2",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit",
+          "n": 1,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-northeast-3": {
+      "region": "ap-northeast-3",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-south-1": {
+      "region": "ap-south-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-south-2": {
+      "region": "ap-south-2",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-southeast-1": {
+      "region": "ap-southeast-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "RequestItems"
+          ],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit",
+          "n": 1,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-southeast-3": {
+      "region": "ap-southeast-3",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "RequestItems"
+          ],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-southeast-4": {
+      "region": "ap-southeast-4",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-southeast-5": {
+      "region": "ap-southeast-5",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-southeast-6": {
+      "region": "ap-southeast-6",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ap-southeast-7": {
+      "region": "ap-southeast-7",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ca-central-1": {
+      "region": "ca-central-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "ca-west-1": {
+      "region": "ca-west-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "eu-central-2": {
+      "region": "eu-central-2",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "eu-north-1": {
+      "region": "eu-north-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "RequestItems"
+          ],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit",
+          "n": 1,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "eu-south-1": {
+      "region": "eu-south-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "eu-south-2": {
+      "region": "eu-south-2",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "eu-west-1": {
+      "region": "eu-west-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "eu-west-3": {
+      "region": "eu-west-3",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "il-central-1": {
+      "region": "il-central-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1",
+          "n": 1,
+          "fields": [
+            "RequestItems"
+          ],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "mx-central-1": {
+      "region": "mx-central-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "sa-east-1": {
+      "region": "sa-east-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "us-east-2": {
+      "region": "us-east-2",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "us-west-1": {
+      "region": "us-west-1",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    },
+    "us-west-2": {
+      "region": "us-west-2",
+      "probes": [
+        {
+          "id": "o_bg_empty_requestitems",
+          "family": "ordering",
+          "note": "BatchGetItem RequestItems={}",
+          "threw": true,
+          "name": "ValidationException",
+          "message": "The requestItems parameter is required for BatchGetItem",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        },
+        {
+          "id": "o_upd_nested_32_eav",
+          "family": "ordering",
+          "note": "UpdateItem 32-level ExpressionAttributeValue",
+          "threw": true,
+          "name": "ConditionalCheckFailedException",
+          "message": "The conditional request failed",
+          "n": null,
+          "fields": [],
+          "cancellationReasons": null
+        }
+      ]
+    }
+  },
+  "probeNotes": {
+    "o_bg_empty_requestitems": "BatchGetItem with RequestItems={}. Mirrors both cited tests exactly.",
+    "o_upd_nested_32_eav": "UpdateItem carrying a 32-level ExpressionAttributeValue, conditioned on '#d = :deep' against a key never written to a table the capture creates fresh per region. The item is absent everywhere by construction, so the condition is false in every region and cannot vary with regional state. ConditionalCheckFailedException therefore means the 32-level value passed validation and reached condition evaluation; the nesting ValidationException means it did not. 32 is the documented limit, so this is a boundary disagreement rather than a violation."
+  }
+}

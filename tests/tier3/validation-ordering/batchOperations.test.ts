@@ -4,6 +4,7 @@ import {
   DynamoDBServiceException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
+import { observeSplit } from '../../../src/observation-sink.js'
 import { declareTables, hashTableDef } from '../../../src/helpers.js'
 
 declareTables(hashTableDef)
@@ -25,12 +26,17 @@ describe('Batch operations — validation ordering', { tags: ['batch', 'data-pla
     }
   })
 
-  it('BatchGetItem rejects empty RequestItems', async () => {
+  it('BatchGetItem rejects empty RequestItems', async (ctx) => {
+    // Split behaviour (registry row batch-get-item-empty-request-items-ordering):
+    // the answer differs by region, so what the target actually returned is
+    // recorded for per-region scoring.
     try {
-      await ddb.send(
-        new BatchGetItemCommand({
-          RequestItems: {},
-        }),
+      await observeSplit(ctx.task, () =>
+        ddb.send(
+          new BatchGetItemCommand({
+            RequestItems: {},
+          }),
+        ),
       )
       expect.unreachable('should have thrown')
     } catch (e: unknown) {

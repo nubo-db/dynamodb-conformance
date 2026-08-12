@@ -42,6 +42,13 @@ const DEFAULT_REGIONS = ['eu-west-2', 'eu-central-1', 'us-east-1', 'ap-southeast
 const regions = process.argv.slice(2).length ? process.argv.slice(2) : DEFAULT_REGIONS
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
+/** A value nested `depth` maps deep. Mirrors deepMap in the nesting-depth test. */
+function deepMap(depth) {
+  let v = { S: 'leaf' }
+  for (let i = 0; i < depth; i++) v = { M: { n: v } }
+  return v
+}
+
 function parse(message) {
   if (typeof message !== 'string') return { n: null, fields: [] }
   const m = message.match(/^(\d+) validation error(?:s)? detected:/)
@@ -191,6 +198,17 @@ async function captureRegion(region) {
     await p('o_del_two_bad_enums', 'ordering', 'DeleteItem 2 invalid enums', () => ddb.send(new DeleteItemCommand({ TableName: '_conformance_valid_table_name', Key: { pk: { S: 'test' } }, ReturnValues: 'INVALID', ReturnConsumedCapacity: 'INVALID' })))
     await p('o_upd_empty_table', 'ordering', "UpdateItem TableName='' Key={}", () => ddb.send(new UpdateItemCommand({ TableName: '', Key: {} })))
     await p('o_upd_two_bad_enums', 'ordering', 'UpdateItem 2 invalid enums', () => ddb.send(new UpdateItemCommand({ TableName: '_conformance_valid_table_name', Key: { pk: { S: 'test' } }, ReturnValues: 'INVALID', ReturnConsumedCapacity: 'INVALID' })))
+    // Two behaviours the weekly sweep raised as split candidates and could not
+    // then admit, because a row records what a region answered and nothing
+    // captured that. Both mirror their test's request exactly, so the answer
+    // recorded here is the one the committed assertion compares against.
+    await p('o_bg_empty_requestitems', 'ordering', 'BatchGetItem RequestItems={}', () => ddb.send(new BatchGetItemCommand({ RequestItems: {} })))
+    // No seed: a region that rejects the 32-level value answers with the
+    // nesting ValidationException whether the item is there or not, and one
+    // that accepts it evaluates the condition and answers
+    // ConditionalCheckFailedException either way. The two answers are what
+    // separate the cohorts, and both survive an absent item.
+    await p('o_upd_nested_32_eav', 'ordering', 'UpdateItem 32-level ExpressionAttributeValue', () => ddb.send(new UpdateItemCommand({ TableName: H, Key: { pk: { S: 'capdrift-nest-cond' } }, UpdateExpression: 'SET touched = :t', ConditionExpression: '#d = :deep', ExpressionAttributeNames: { '#d': 'data' }, ExpressionAttributeValues: { ':t': { S: 'y' }, ':deep': deepMap(32) } })))
 
     // Invalid key-VALUE coverage for the batch / lookup / transact paths.
     // batch-key: real AWS collapses wrong-type and non-scalar table keys to the

@@ -4,14 +4,18 @@ import {
   ResourceNotFoundException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
+import { observeSplit } from '../../../src/observation-sink.js'
 import { declareTables, hashTableDef, hashBTableDef, compositeTableDef } from '../../../src/helpers.js'
 
 declareTables(hashTableDef, hashBTableDef, compositeTableDef)
 
 describe('BatchGetItem — exact error messages', { tags: ['batch', 'data-plane', 'negative-path'] }, () => {
-  it('empty RequestItems: full required-parameter error', async () => {
+  it('empty RequestItems: full required-parameter error', async (ctx) => {
+    // Split behaviour (registry row batch-get-item-empty-request-items-message):
+    // the answer differs by region, so what the target actually returned is
+    // recorded for per-region scoring.
     try {
-      await ddb.send(new BatchGetItemCommand({ RequestItems: {} }))
+      await observeSplit(ctx.task, () => ddb.send(new BatchGetItemCommand({ RequestItems: {} })))
       expect.unreachable('should have thrown')
     } catch (err) {
       expect(err).toBeInstanceOf(DynamoDBServiceException)
