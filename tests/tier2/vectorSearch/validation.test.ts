@@ -7,8 +7,8 @@ import {
 } from '../../../src/helpers.js'
 import {
   skipUnlessVectorIndexes,
-  skipUnlessSearchVectors,
-  supportsSearchVectors,
+  skipUnlessVectorSearch,
+  supportsVectorSearch,
   waitForVectorIndexActive,
 } from '../../../src/vector.js'
 
@@ -39,37 +39,43 @@ function vectorTableInput(name: string): CreateTableCommandInput {
 describe('CreateTable — vector index request validation', { tags: ['create-table', 'control-plane', 'vector', 'negative-path'] }, () => {
   skipUnlessVectorIndexes()
 
+  // On a lenient target an "invalid" create can be accepted; delete the
+  // table before failing so the assertion doesn't leak a table per run
+  // (same shape as the tier3 vectorIndexes file).
+  async function expectCreateRejected(
+    input: CreateTableCommandInput,
+    fragment: string,
+  ): Promise<void> {
+    await expectDynamoError(async () => {
+      await ddb.send(new CreateTableCommand(input))
+      await deleteTable(input.TableName!)
+    }, 'ValidationException', fragment)
+  }
+
   it('rejects Dimensions of 0 at the request model layer', async () => {
     const input = vectorTableInput(uniqueTableName('vec_val'))
     input.VectorIndexes![0].Dimensions = 0
-    await expectDynamoError(
-      () => ddb.send(new CreateTableCommand(input)),
-      'ValidationException',
-      'greater than or equal to 1',
-    )
+    await expectCreateRejected(input, 'greater than or equal to 1')
   })
 
   it('rejects an index name shorter than 3 characters', async () => {
     const input = vectorTableInput(uniqueTableName('vec_val'))
     input.VectorIndexes![0].IndexName = 'ab'
-    await expectDynamoError(
-      () => ddb.send(new CreateTableCommand(input)),
-      'ValidationException',
-      'length greater than or equal to 3',
-    )
+    await expectCreateRejected(input, 'length greater than or equal to 3')
   })
 })
 
 describe('SearchVectors — request validation', { tags: ['search-vectors', 'data-plane', 'vector', 'negative-path'] }, () => {
-  skipUnlessSearchVectors()
+  skipUnlessVectorSearch()
 
   const tableName = uniqueTableName('vec_sval')
   let created = false
 
   beforeAll(async () => {
-    if (!(await supportsSearchVectors())) return
-    await ddb.send(new CreateTableCommand(vectorTableInput(tableName)))
+    if (!(await supportsVectorSearch())) return
+    // Registered before the create so a partial setup still gets torn down.
     created = true
+    await ddb.send(new CreateTableCommand(vectorTableInput(tableName)))
     await waitForVectorIndexActive(tableName, 'vix')
   })
 

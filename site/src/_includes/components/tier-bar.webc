@@ -15,7 +15,7 @@
   // TIERS vocabulary the data endpoints publish.
   const TIER_META = {
     "Tier 1": { label: "Core", description: "The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable." },
-    "Tier 2": { label: "Complete", description: "Documented but less common features: transactions, PartiQL, LSIs, TTL, streams, tags." },
+    "Tier 2": { label: "Complete", description: "Documented but less common features: transactions, PartiQL, LSIs, TTL, streams, tags, vector search." },
     "Tier 3": { label: "Strict", description: "Validation ordering, error behaviour, limits, and legacy API shapes." },
   };
   function tierTitle(name) { return TIER_META[name]?.description ?? ""; }

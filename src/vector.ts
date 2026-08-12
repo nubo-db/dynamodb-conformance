@@ -15,10 +15,12 @@ import {
   CreateTableCommand,
   SearchVectorsCommand,
   DescribeTableCommand,
+  DynamoDBServiceException,
   type AttributeValue,
   type VectorIndexDescription,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from './client.js'
+import { region } from './aws-config.js'
 import { uniqueTableName, waitUntilActive, deleteTable } from './helpers.js'
 import { IndeterminateError } from './indeterminate.js'
 import { isUnsupportedFault } from './unsupported.js'
@@ -114,7 +116,7 @@ export async function supportsVectorIndexes(): Promise<boolean> {
   } catch (e) {
     if (isUnsupportedFault(e)) {
       vectorIndexesSupport = false
-    } else if ((e as { name?: string }).name === 'ValidationException') {
+    } else if (e instanceof DynamoDBServiceException && e.name === 'ValidationException') {
       // The probe's arguments are verified valid against real AWS, so a
       // ValidationException here is a target rejecting a parameter it does
       // not model. Lenience wins: absent support is scope, not divergence.
@@ -126,7 +128,12 @@ export async function supportsVectorIndexes(): Promise<boolean> {
       vectorIndexesSupport = true
     }
   } finally {
-    await deleteTable(name)
+    // The probe table may still be CREATING, where DeleteTable answers
+    // ResourceInUseException and deleteTable's swallow would quietly leave
+    // the table behind until the next run's sweep. Wait for ACTIVE first;
+    // both steps are best-effort — cleanup must never fail the probe.
+    await waitUntilActive(name).catch(() => {})
+    await deleteTable(name).catch(() => {})
   }
   return vectorIndexesSupport
 }
@@ -140,6 +147,32 @@ export function skipUnlessVectorIndexes(): void {
   let supported = true
   beforeAll(async () => {
     supported = await supportsVectorIndexes()
+  })
+  beforeEach(({ skip }) => {
+    if (!supported) skip()
+  })
+}
+
+// ── Combined gate ───────────────────────────────────────────────────────────
+
+/**
+ * Whether the target implements both planes. Files whose data-plane tests
+ * must first PROVISION a vector-indexed table depend on both: a target with
+ * SearchVectors but no CreateTable-with-VectorIndexes would otherwise fail
+ * table creation in beforeAll — divergence — when the honest answer is scope.
+ */
+export async function supportsVectorSearch(): Promise<boolean> {
+  return (await supportsSearchVectors()) && (await supportsVectorIndexes())
+}
+
+/**
+ * Feature-probe skip for describe blocks that provision a vector-indexed
+ * table and exercise it through the data plane.
+ */
+export function skipUnlessVectorSearch(): void {
+  let supported = true
+  beforeAll(async () => {
+    supported = await supportsVectorSearch()
   })
   beforeEach(({ skip }) => {
     if (!supported) skip()
@@ -170,7 +203,7 @@ export async function waitForVectorIndexActive(
   indexName: string,
   opts: { timeoutMs?: number } = {},
 ): Promise<void> {
-  const timeoutMs = opts.timeoutMs ?? ceilingsFor().tableActiveMs
+  const timeoutMs = opts.timeoutMs ?? ceilingsFor(region).tableActiveMs
   const start = Date.now()
   let delay = 0
   while (Date.now() - start < timeoutMs) {
@@ -200,7 +233,7 @@ export async function waitForVectorSearchable(opts: {
   expressionAttributeValues?: Record<string, AttributeValue>
   timeoutMs?: number
 }): Promise<void> {
-  const timeoutMs = opts.timeoutMs ?? ceilingsFor().gsiConsistencyMs
+  const timeoutMs = opts.timeoutMs ?? ceilingsFor(region).gsiConsistencyMs
   const start = Date.now()
   let delay = 0
   while (Date.now() - start < timeoutMs) {

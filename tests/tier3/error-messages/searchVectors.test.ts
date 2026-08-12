@@ -7,8 +7,8 @@ import {
 import { ddb } from '../../../src/client.js'
 import { uniqueTableName, deleteTable } from '../../../src/helpers.js'
 import {
-  skipUnlessSearchVectors,
-  supportsSearchVectors,
+  skipUnlessVectorSearch,
+  supportsVectorSearch,
   waitForVectorIndexActive,
 } from '../../../src/vector.js'
 
@@ -42,12 +42,14 @@ async function expectExactRejection(
 }
 
 describe('SearchVectors — exact error messages', { tags: ['search-vectors', 'data-plane', 'vector', 'negative-path'] }, () => {
-  skipUnlessSearchVectors()
+  skipUnlessVectorSearch()
 
   let created = false
 
   beforeAll(async () => {
-    if (!(await supportsSearchVectors())) return
+    if (!(await supportsVectorSearch())) return
+    // Registered before the create so a partial setup still gets torn down.
+    created = true
     await ddb.send(
       new CreateTableCommand({
         TableName: tableName,
@@ -80,7 +82,6 @@ describe('SearchVectors — exact error messages', { tags: ['search-vectors', 'd
         ],
       }),
     )
-    created = true
     await waitForVectorIndexActive(tableName, 'plain')
     await waitForVectorIndexActive(tableName, 'schema')
   })

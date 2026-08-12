@@ -1,6 +1,9 @@
 import { CreateTableCommand, type VectorIndex } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
+import { region } from '../../../src/aws-config.js'
 import { uniqueTableName, deleteTable } from '../../../src/helpers.js'
+import { ceilingsFor } from '../../../src/regions.js'
+import { IndeterminateError } from '../../../src/indeterminate.js'
 import {
   skipUnlessVectorIndexes,
   describeVectorIndex,
@@ -50,13 +53,19 @@ describe('CreateTable — vector index lifecycle', { tags: ['create-table', 'con
     // is CREATING -> ACTIVE with no BACKFILLING or UPDATING status value,
     // and the Backfilling field never appears on this creation path.
     const seenStatuses = new Set<string>()
-    const deadline = Date.now() + 120_000
+    const deadline = Date.now() + ceilingsFor(region).tableActiveMs
     for (;;) {
       const ix = await describeVectorIndex(tableName, 'vix')
       if (ix?.IndexStatus) seenStatuses.add(ix.IndexStatus)
       expect(ix?.Backfilling).toBeUndefined()
       if (ix?.IndexStatus === 'ACTIVE') break
-      expect(Date.now()).toBeLessThan(deadline)
+      if (Date.now() > deadline) {
+        // A ceiling expiring is a failed observation, never a divergence.
+        throw new IndeterminateError(
+          'vector-index-timeout',
+          `Vector index vix on ${tableName} never became ACTIVE within its ceiling`,
+        )
+      }
       await new Promise((r) => setTimeout(r, 1000))
     }
     expect([...seenStatuses].every((s) => s === 'CREATING' || s === 'ACTIVE')).toBe(true)

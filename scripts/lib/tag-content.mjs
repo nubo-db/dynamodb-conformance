@@ -246,6 +246,10 @@ export function capabilityLeaks(src, { markers = CAPABILITY_MARKERS } = {}) {
   const leaks = []
 
   stripped.forEach((line, i) => {
+    // Only an import's OPENING line is skipped: a multi-line import whose
+    // continuation lines carry a marker token (e.g. SearchVectorsCommand)
+    // still fires. Files importing marker-named symbols therefore keep that
+    // import on a single line - see tests/tier2/vectorSearch/*.test.ts.
     if (/^\s*import\b/.test(line)) return
     for (const marker of markers) {
       const hit = line.match(marker.pattern)

@@ -2,8 +2,8 @@ import { CreateTableCommand, PutItemCommand, ExecuteStatementCommand } from '@aw
 import { ddb } from '../../../src/client.js'
 import { uniqueTableName, deleteTable, expectDynamoError } from '../../../src/helpers.js'
 import {
-  skipUnlessSearchVectors,
-  supportsSearchVectors,
+  skipUnlessVectorSearch,
+  supportsVectorSearch,
   waitForVectorIndexActive,
 } from '../../../src/vector.js'
 
@@ -16,7 +16,9 @@ const tableName = uniqueTableName('vec_pq')
 let created = false
 
 beforeAll(async () => {
-  if (!(await supportsSearchVectors())) return
+  if (!(await supportsVectorSearch())) return
+  // Registered before the create so a partial setup still gets torn down.
+  created = true
   await ddb.send(
     new CreateTableCommand({
       TableName: tableName,
@@ -34,7 +36,6 @@ beforeAll(async () => {
       ],
     }),
   )
-  created = true
   await waitForVectorIndexActive(tableName, 'vix')
   await ddb.send(
     new PutItemCommand({
@@ -49,7 +50,7 @@ afterAll(async () => {
 })
 
 describe('PartiQL — vector indexes are out of reach', { tags: ['partiql', 'data-plane', 'vector'] }, () => {
-  skipUnlessSearchVectors()
+  skipUnlessVectorSearch()
 
   it('rejects a PartiQL read of a vector index', async () => {
     await expectDynamoError(

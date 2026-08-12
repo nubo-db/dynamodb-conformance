@@ -2,7 +2,8 @@ import { CreateTableCommand, DescribeTableCommand, UpdateTableCommand, PutItemCo
 import { ddb } from '../../../src/client.js'
 import { uniqueTableName, waitUntilActive, deleteTable, expectDynamoError } from '../../../src/helpers.js'
 import { skipUnlessVectorIndexes, describeVectorIndex } from '../../../src/vector.js'
-import { IndeterminateError } from '../../../src/indeterminate.js'
+import { isUnsupportedFault } from '../../../src/unsupported.js'
+import { IndeterminateError, indeterminateFrom } from '../../../src/indeterminate.js'
 
 // The UpdateTable path of the vector index lifecycle. Separated from
 // lifecycle.test.ts because index creation here runs on GSI timescales
@@ -29,7 +30,7 @@ describe('UpdateTable — vector index lifecycle', { tags: ['update-table', 'sea
   // backfilling vector index". DescribeTable flipping to ACTIVE can lead the
   // search plane by a beat, so readiness is proven by a search succeeding,
   // never by the description alone.
-  it('adds an index that backfills like a GSI, enforces one online action, then deletes it', async () => {
+  it('adds an index that backfills like a GSI, enforces one online action, then deletes it', async ({ skip }) => {
     const tableName = uniqueTableName('vec_upd')
     tablesToCleanup.push(tableName)
     await ddb.send(
@@ -53,26 +54,41 @@ describe('UpdateTable — vector index lifecycle', { tags: ['update-table', 'sea
       )
     }
 
-    await ddb.send(
-      new UpdateTableCommand({
-        TableName: tableName,
-        VectorIndexUpdates: [
-          {
-            Create: {
-              IndexName: 'vix',
-              VectorAttribute: { AttributeName: 'embedding' },
-              Dimensions: 3,
-              DistanceFunction: 'COSINE',
-              Projection: { ProjectionType: 'ALL' },
+    // A target can implement vector indexes at CreateTable (which is what the
+    // control-plane probe checks) without implementing VectorIndexUpdates;
+    // an unsupported answer here is scope, not divergence.
+    try {
+      await ddb.send(
+        new UpdateTableCommand({
+          TableName: tableName,
+          VectorIndexUpdates: [
+            {
+              Create: {
+                IndexName: 'vix',
+                VectorAttribute: { AttributeName: 'embedding' },
+                Dimensions: 3,
+                DistanceFunction: 'COSINE',
+                Projection: { ProjectionType: 'ALL' },
+              },
             },
-          },
-        ],
-      }),
-    )
+          ],
+        }),
+      )
+    } catch (err) {
+      if (
+        isUnsupportedFault(err) ||
+        (err instanceof DynamoDBServiceException && err.name === 'ValidationException')
+      ) {
+        return skip()
+      }
+      throw err
+    }
 
     // Walk to searchable: statuses stay within CREATING/ACTIVE, Backfilling
     // is reported on this path, and every pre-ready search failure is one of
-    // the two characterised rejections. Readiness is a successful search.
+    // the two characterised rejections. Readiness is a successful search that
+    // reflects every seeded item — a search can succeed with a partial view
+    // for a beat, so a short response keeps polling rather than asserting.
     const seenStatuses = new Set<string>()
     let sawBackfillingField = false
     const deadline = Date.now() + 2_400_000
@@ -80,6 +96,7 @@ describe('UpdateTable — vector index lifecycle', { tags: ['update-table', 'sea
       const ix = await describeVectorIndex(tableName, 'vix')
       if (ix?.IndexStatus) seenStatuses.add(ix.IndexStatus)
       if (ix?.Backfilling !== undefined) sawBackfillingField = true
+      let ready = false
       try {
         const res = await ddb.send(
           new SearchVectorsCommand({
@@ -89,15 +106,20 @@ describe('UpdateTable — vector index lifecycle', { tags: ['update-table', 'sea
             TopK: 5,
           }),
         )
-        expect(res.SearchResults).toHaveLength(5)
-        break
+        ready = (res.SearchResults ?? []).length === 5
       } catch (err) {
+        // A throttle or transport fault mid-poll is a failed observation,
+        // not an answer; anything else must be one of the two characterised
+        // pre-ready rejections.
+        const indeterminate = indeterminateFrom(err)
+        if (indeterminate) throw indeterminate
         expect(err).toBeInstanceOf(DynamoDBServiceException)
         expect((err as DynamoDBServiceException).name).toBe('ValidationException')
         expect((err as DynamoDBServiceException).message).toMatch(
           /The table does not have the specified index: vix|Cannot search backfilling vector index: vix/,
         )
       }
+      if (ready) break
       if (Date.now() > deadline) {
         throw new IndeterminateError(
           'vector-index-timeout',
@@ -155,5 +177,9 @@ describe('UpdateTable — vector index lifecycle', { tags: ['update-table', 'sea
     const table = await ddb.send(new DescribeTableCommand({ TableName: tableName }))
     expect(table.Table?.TableStatus).toBe('ACTIVE')
     expect(table.Table?.VectorIndexes ?? []).toHaveLength(0)
-  }, 2_460_000)
+    // Timeout: the searchable ceiling (2,400s) plus the delete ceiling (300s)
+    // plus setup/seeding margin — the outer bound must exceed the summed
+    // internal deadlines or vitest kills the test as a failure before either
+    // internal ceiling can type the expiry as indeterminate.
+  }, 2_820_000)
 })

@@ -2,8 +2,8 @@ import { CreateTableCommand, PutItemCommand, GetItemCommand, SearchVectorsComman
 import { ddb } from '../../../src/client.js'
 import { uniqueTableName, deleteTable } from '../../../src/helpers.js'
 import {
-  skipUnlessSearchVectors,
-  supportsSearchVectors,
+  skipUnlessVectorSearch,
+  supportsVectorSearch,
   waitForVectorIndexActive,
   waitForVectorSearchable,
 } from '../../../src/vector.js'
@@ -48,7 +48,9 @@ async function scoresFor(indexName: string): Promise<Record<string, number>> {
 let created = false
 
 beforeAll(async () => {
-  if (!(await supportsSearchVectors())) return
+  if (!(await supportsVectorSearch())) return
+  // Registered before the create so a partial setup still gets torn down.
+  created = true
   await ddb.send(
     new CreateTableCommand({
       TableName: tableName,
@@ -70,7 +72,6 @@ beforeAll(async () => {
       })),
     }),
   )
-  created = true
   for (const index of ['cosine', 'euclidean', 'dot']) {
     await waitForVectorIndexActive(tableName, index)
   }
@@ -97,7 +98,7 @@ afterAll(async () => {
 })
 
 describe('SearchVectors — deterministic search behaviour', { tags: ['search-vectors', 'data-plane', 'vector'] }, () => {
-  skipUnlessSearchVectors()
+  skipUnlessVectorSearch()
 
   it('COSINE: identical vector scores 0, opposite scores 2, lower is closer', async () => {
     const scores = await scoresFor('cosine')

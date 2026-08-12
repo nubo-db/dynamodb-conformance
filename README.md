@@ -378,9 +378,9 @@ npm test
 | Local emulators | ~2-5 seconds | ~2-5 seconds |
 | Real DynamoDB | ~1-3.5 hours | ~20-25 minutes |
 
-The full suite includes 14 UpdateTable GSI lifecycle tests that add and remove Global Secondary Indexes from existing tables. On real DynamoDB, each GSI creation triggers a backfill that usually takes 5-15 minutes even on empty tables, and has been observed taking 25+ on a slow night. These tests are important for conformance but they dominate runtime against real AWS.
+The full suite includes slow online-index lifecycle tests: 14 UpdateTable GSI tests that add and remove Global Secondary Indexes from existing tables, plus the UpdateTable vector index lifecycle test, which backfills on the same machinery. On real DynamoDB, each index creation triggers a backfill that usually takes 5-15 minutes even on small tables, and has been observed taking 25+ on a slow night (a 25-item vector index took ~17). These tests are important for conformance but they dominate runtime against real AWS.
 
-`test:quick` excludes the GSI lifecycle tests for faster local iteration. CI's gating real-DynamoDB job runs `test:gating`, which drops the GSI lifecycle tests *and* the S3 and Kinesis integration suites (see "Operations no emulator implements" below), so a slow async import can't redden the build. Emulator targets run the full `npm test` since GSI creation is instant locally.
+`test:quick` excludes the online-index lifecycle tests (GSI and vector) for faster local iteration. CI's gating real-DynamoDB job runs `test:gating`, which drops those *and* the S3 and Kinesis integration suites (see "Operations no emulator implements" below), so a slow async import can't redden the build. Emulator targets run the full `npm test` since index creation is instant locally.
 
 Nothing is dropped from real AWS by being off the gate, only moved. Real-AWS
 coverage runs in three lanes, split by runtime rather than by importance:
@@ -389,7 +389,7 @@ coverage runs in three lanes, split by runtime rather than by importance:
 |------|-------|-----------------|
 | `test:gating` | the suite minus the two below | yes |
 | `test:integrations` | S3 export/import, Kinesis | no |
-| `test:gsi` | the 14 UpdateTable GSI lifecycle tests | no |
+| `test:gsi` | the UpdateTable online-index lifecycle tests (GSI and vector) | no |
 
 The GSI lane exists because a full green run of that file was measured at
 2h50m against real AWS on a slow backfill night, far longer than the gating
@@ -430,7 +430,7 @@ tests/
     describeTable/          # basic
     listTables/             # basic
     updateTable/            # basic
-  tier2/                    # ~229 tests
+  tier2/                    # ~225 tests
     transactions/           # transactWrite, transactGet
     partiql/                # executeStatement, batchExecuteStatement, executeTransaction
     ttl/                    # basic
@@ -439,7 +439,7 @@ tests/
     updateTable/            # gsi
     vectorSearch/           # lifecycle, updateLifecycle, search, validation,
                             # writeValidation, consumedCapacity, partiql
-  tier3/                    # ~336 tests
+  tier3/                    # ~340 tests
     validation-ordering/    # per-operation validation error ordering
     error-messages/         # exact error message strings
     limits/                 # itemSize, batchLimits, responseSize, transactionLimits,
@@ -451,6 +451,7 @@ tests/
 
 - `src/client.ts` - DynamoDB and Streams client, configured from the `DYNAMODB_ENDPOINT` env var
 - `src/helpers.ts` - table lifecycle, assertion helpers (`expectDynamoError`, `cleanupItems`, `waitForGsiConsistency`)
+- `src/vector.ts` - vector search feature probes (`skipUnlessSearchVectors`, `skipUnlessVectorIndexes`) and index-aware waiters (`waitForVectorIndexActive`, `waitForVectorSearchable`)
 - `src/setup.ts` - per-file beforeAll that creates the shared tables the running file declared
 - `src/types.ts` - `TestTableDef` and `KeyDef` types
 

@@ -1082,6 +1082,14 @@
         "negative-path"
       ]
     },
+    "tests/tier3/error-messages/vectorWrites.test.ts": {
+      "PutItem vector writes — exact error messages": [
+        "put-item",
+        "data-plane",
+        "vector",
+        "negative-path"
+      ]
+    },
     "tests/tier3/legacy-api/attributeUpdates.test.ts": {
       "Legacy API — AttributeUpdates (legacy UpdateExpression)": [
         "update-item",

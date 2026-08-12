@@ -2,8 +2,8 @@ import { CreateTableCommand, PutItemCommand, SearchVectorsCommand } from '@aws-s
 import { ddb } from '../../../src/client.js'
 import { uniqueTableName, deleteTable } from '../../../src/helpers.js'
 import {
-  skipUnlessSearchVectors,
-  supportsSearchVectors,
+  skipUnlessVectorSearch,
+  supportsVectorSearch,
   waitForVectorIndexActive,
   waitForVectorSearchable,
 } from '../../../src/vector.js'
@@ -30,7 +30,9 @@ const vec = (...ns: number[]) => ns.map((n) => ({ N: String(n) }))
 let created = false
 
 beforeAll(async () => {
-  if (!(await supportsSearchVectors())) return
+  if (!(await supportsVectorSearch())) return
+  // Registered before the create so a partial setup still gets torn down.
+  created = true
   await ddb.send(
     new CreateTableCommand({
       TableName: tableName,
@@ -48,7 +50,6 @@ beforeAll(async () => {
       ],
     }),
   )
-  created = true
   await waitForVectorIndexActive(tableName, 'vix')
   await ddb.send(
     new PutItemCommand({
@@ -69,7 +70,7 @@ afterAll(async () => {
 })
 
 describe('SearchVectors — ConsumedCapacity shape', { tags: ['search-vectors', 'data-plane', 'vector'] }, () => {
-  skipUnlessSearchVectors()
+  skipUnlessVectorSearch()
 
   it('reports VectorSearchRequestBytes with no classic capacity fields', async () => {
     const res = await ddb.send(
@@ -123,7 +124,7 @@ describe('SearchVectors — ConsumedCapacity shape', { tags: ['search-vectors', 
 })
 
 describe('PutItem — vector write capacity shape', { tags: ['put-item', 'data-plane', 'vector'] }, () => {
-  skipUnlessSearchVectors()
+  skipUnlessVectorSearch()
 
   it('INDEXES adds a per-index VectorWriteRequestBytes map beside the classic fields', async () => {
     const res = await ddb.send(

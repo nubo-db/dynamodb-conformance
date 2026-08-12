@@ -1,46 +1,35 @@
-import { CreateTableCommand, PutItemCommand, GetItemCommand, UpdateItemCommand, SearchVectorsCommand, DynamoDBServiceException } from '@aws-sdk/client-dynamodb'
+import { CreateTableCommand, PutItemCommand, GetItemCommand, UpdateItemCommand, SearchVectorsCommand } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { uniqueTableName, deleteTable } from '../../../src/helpers.js'
 import {
-  skipUnlessSearchVectors,
-  supportsSearchVectors,
+  skipUnlessVectorSearch,
+  supportsVectorSearch,
   waitForVectorIndexActive,
   waitForVectorSearchable,
 } from '../../../src/vector.js'
 import { IndeterminateError } from '../../../src/indeterminate.js'
 
-// Write-path validation on a vector-indexed table, characterised against real
+// Write-path behaviour on a vector-indexed table, characterised against real
 // DynamoDB in eu-west-2 (2026-08-11, issue #125). Two indexes on the same
 // vector attribute: 'plain' (no SearchSchema) and 'schema' (HASH tenant +
 // INLINE_FILTER category). The split matters for the silent de-index case: an
 // item written without the HASH attribute still lands in 'plain', and is only
-// unreachable through 'schema' — the write-rejection messages cite whichever
-// index the violated constraint belongs to.
+// unreachable through 'schema'. The exact wording of the write rejections
+// lives in tests/tier3/error-messages/vectorWrites.test.ts, per the tier
+// split.
 
 const tableName = uniqueTableName('vec_write')
 const vec = (...ns: number[]) => ns.map((n) => ({ N: String(n) }))
 
-async function expectExactRejection(
-  fn: () => Promise<unknown>,
-  message: string,
-): Promise<void> {
-  try {
-    await fn()
-    expect.unreachable('should have thrown')
-  } catch (err) {
-    expect(err).toBeInstanceOf(DynamoDBServiceException)
-    expect((err as DynamoDBServiceException).name).toBe('ValidationException')
-    expect((err as DynamoDBServiceException).message).toBe(message)
-  }
-}
-
 describe('PutItem — vector index write validation', { tags: ['put-item', 'search-vectors', 'data-plane', 'vector'] }, () => {
-  skipUnlessSearchVectors()
+  skipUnlessVectorSearch()
 
   let created = false
 
   beforeAll(async () => {
-    if (!(await supportsSearchVectors())) return
+    if (!(await supportsVectorSearch())) return
+    // Registered before the create so a partial setup still gets torn down.
+    created = true
     await ddb.send(
       new CreateTableCommand({
         TableName: tableName,
@@ -73,7 +62,6 @@ describe('PutItem — vector index write validation', { tags: ['put-item', 'sear
         ],
       }),
     )
-    created = true
     await waitForVectorIndexActive(tableName, 'plain')
     await waitForVectorIndexActive(tableName, 'schema')
     // Two well-formed items; positive evidence for the de-index assertions.
@@ -107,62 +95,6 @@ describe('PutItem — vector index write validation', { tags: ['put-item', 'sear
     if (created) await deleteTable(tableName)
   })
 
-  it('rejects a vector with the wrong dimension count', async () => {
-    await expectExactRejection(
-      () =>
-        ddb.send(
-          new PutItemCommand({
-            TableName: tableName,
-            Item: { pk: { S: 'bad-dims' }, tenant: { S: 't1' }, embedding: { L: vec(1, 0) } },
-          }),
-        ),
-      'One or more parameter values were invalid. Invalid size for parameter embedding, Expected: 3, Actual: 2 IndexName: plain',
-    )
-  })
-
-  it('rejects a vector whose element is not a number, naming the element', async () => {
-    await expectExactRejection(
-      () =>
-        ddb.send(
-          new PutItemCommand({
-            TableName: tableName,
-            Item: {
-              pk: { S: 'bad-type' },
-              tenant: { S: 't1' },
-              embedding: { L: [{ N: '1' }, { S: 'oops' }, { N: '0' }] },
-            },
-          }),
-        ),
-      'One or more parameter values were invalid. Invalid type for parameter embedding[1], Expected: 32-bit floating point number, Actual: S. IndexName: plain',
-    )
-  })
-
-  it('rejects a vector attribute that is not a list', async () => {
-    await expectExactRejection(
-      () =>
-        ddb.send(
-          new PutItemCommand({
-            TableName: tableName,
-            Item: { pk: { S: 'bad-shape' }, tenant: { S: 't1' }, embedding: { S: 'not-a-vector' } },
-          }),
-        ),
-      'One or more parameter values were invalid. Invalid type for parameter embedding, Expected: 32-bit floating point number list IndexName: plain',
-    )
-  })
-
-  it('rejects an empty string in the SearchSchema HASH attribute', async () => {
-    await expectExactRejection(
-      () =>
-        ddb.send(
-          new PutItemCommand({
-            TableName: tableName,
-            Item: { pk: { S: 'bad-hash' }, tenant: { S: '' }, embedding: { L: vec(0, 0, 1) } },
-          }),
-        ),
-      'One or more parameter values are not valid. A value specified for a secondary index key is not supported. The AttributeValue for a key attribute cannot contain an empty string value. IndexName: schema, IndexKey: tenant',
-    )
-  })
-
   it('accepts a write missing the HASH attribute but leaves it unreachable through that index', async () => {
     // The documented silent de-index: the write succeeds on the base table
     // and the item still lands in indexes whose constraints it satisfies.
@@ -173,7 +105,11 @@ describe('PutItem — vector index write validation', { tags: ['put-item', 'sear
       }),
     )
     const got = await ddb.send(
-      new GetItemCommand({ TableName: tableName, Key: { pk: { S: 'no-tenant' } } }),
+      new GetItemCommand({
+        TableName: tableName,
+        Key: { pk: { S: 'no-tenant' } },
+        ConsistentRead: true,
+      }),
     )
     expect(got.Item?.pk?.S).toBe('no-tenant')
 
@@ -203,6 +139,19 @@ describe('PutItem — vector index write validation', { tags: ['put-item', 'sear
   })
 
   it('removes an item from the index when its vector attribute is removed', async () => {
+    // Positive evidence first: 'b' is reachable through the plain index
+    // before the removal, so the absence asserted below proves the removal
+    // rather than inheriting state from an earlier test.
+    const before = await ddb.send(
+      new SearchVectorsCommand({
+        TableName: tableName,
+        IndexName: 'plain',
+        SearchVector: vec(0, 1, 0),
+        TopK: 10,
+      }),
+    )
+    expect((before.SearchResults ?? []).map((r) => r.Item?.pk?.S)).toContain('b')
+
     await ddb.send(
       new UpdateItemCommand({
         TableName: tableName,
