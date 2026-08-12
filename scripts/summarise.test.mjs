@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { buildBadge, writeBadges } from './badges.mjs'
 import { testIdentities } from './ground-truth-coverage.mjs'
-import { GROUND_TRUTH_SLUG, axesOf, loadScoringContext, scoreTarget, verdictsForRegion } from './lib/score.mjs'
+import { GROUND_TRUTH_SLUG, axesOf, isTargetResultFile, loadScoringContext, scoreTarget, verdictsForRegion } from './lib/score.mjs'
 import { classifyResults } from './lib/classify.mjs'
 import { splitFor } from './lib/registry.mjs'
 import { BASELINE_LABEL, gradeOf } from './lib/grade.mjs'
@@ -271,7 +271,7 @@ describe('buildSummary', () => {
       const summary = buildSummary(
         readTargets(
           readdirSync('results')
-            .filter((f) => f.endsWith('.json'))
+            .filter(isTargetResultFile)
             .map((f) => join('results', f)),
         ),
         context,
@@ -759,7 +759,7 @@ describe('renderTable variant nesting', () => {
 describe('committed results pipeline', () => {
   const context = loadScoringContext()
   const files = readdirSync('results')
-    .filter((f) => f.endsWith('.json'))
+    .filter(isTargetResultFile)
     .map((f) => join('results', f))
   const targets = readTargets(files)
   const fresh = buildSummary(targets, context)

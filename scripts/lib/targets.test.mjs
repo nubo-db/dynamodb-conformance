@@ -12,7 +12,7 @@ import {
   projectOf,
   repoUrl,
 } from './targets.mjs'
-import { GROUND_TRUTH_SLUG, isPublishedTarget } from './score.mjs'
+import { GROUND_TRUTH_SLUG, isPublishedTarget, isTargetResultFile } from './score.mjs'
 
 // The registry is hand-maintained, unlike every figure the board publishes, so
 // what can be checked about it is checked here: that its relationships are
@@ -71,17 +71,12 @@ describe('the target registry', () => {
   it('has a row for every target the results directory publishes', () => {
     // A results file with no registry entry renders under a hyphen-stripped
     // slug with no link, which is how a new target reaches the board unnamed.
-    // Filtered on being a Vitest run rather than on a filename denylist, which
-    // is the same criterion the pipeline applies: results/ also holds derived
-    // artefacts (the tag manifest, the summary) that are not targets.
+    // Through the shared predicate, which is the criterion the pipeline
+    // applies: results/ also holds derived artefacts (the tag manifest, the
+    // summary) and the gitignored scratch slug, none of which are targets.
     const published = readdirSync('results')
-      .filter((f) => f.endsWith('.json'))
-      .filter((f) => !f.endsWith('.badge.json') && !f.endsWith('.indeterminate.json'))
-      .filter((f) =>
-        Array.isArray(JSON.parse(readFileSync(join('results', f), 'utf8')).testResults),
-      )
+      .filter(isTargetResultFile)
       .map((f) => f.replace(/\.json$/, ''))
-      .filter((slug) => isPublishedTarget(slug))
     const missing = published.filter((slug) => !TARGETS[slug])
     expect(missing, `results files with no registry entry: ${missing}`).toEqual([])
   })
