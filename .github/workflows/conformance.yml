@@ -409,30 +409,18 @@ jobs:
         with:
           node-version: 24
 
-      # The emulator targets are the reference: they run the full `npm test`,
-      # so between them they define the suite size the published row claims.
-      - name: Download every run artefact
+      # Only the real-AWS lanes are needed. The suite itself comes from the
+      # committed manifest, which is what the published row's denominator is;
+      # this used to reconcile against whichever emulator run was widest, so a
+      # truncated emulator run could shrink the population and hide a gap.
+      - name: Download the real-AWS lane artefacts
         uses: actions/download-artifact@v8
         with:
           path: /tmp/artifacts
 
-      - name: Reconcile real-AWS coverage against the published suite size
+      - name: Reconcile real-AWS coverage against the suite manifest
         run: |
           shopt -s nullglob
-          refs=()
-          # Each results-<target> artefact carries that target's fresh file plus
-          # stale committed copies of every other target, so take only each
-          # artefact's own - the same rule the Update Results Table overlay
-          # applies. A stale copy would still be a full-suite run and so would
-          # not move the max, but reconciling against last week's file is not a
-          # thing to leave to luck.
-          for d in /tmp/artifacts/results-*/; do
-            target=$(basename "$d"); target=${target#results-}
-            # results-dynamodb is ground truth, not a reference full-suite run.
-            [ "$target" = "dynamodb" ] && continue
-            [ -f "$d$target.json" ] && refs+=(--reference "$d$target.json")
-          done
-
           observed=()
           for f in /tmp/artifacts/results-dynamodb/dynamodb.json \
                    /tmp/artifacts/integration-results/dynamodb.json \
@@ -447,12 +435,12 @@ jobs:
           if [ ${#observed[@]} -lt 3 ]; then
             echo "::warning::Only ${#observed[@]} of 3 real-AWS lanes produced results."
           fi
-          if [ ${#refs[@]} -eq 0 ] || [ ${#observed[@]} -eq 0 ]; then
-            echo "::error::No reference or no real-AWS results to reconcile."
+          if [ ${#observed[@]} -eq 0 ]; then
+            echo "::error::No real-AWS results to reconcile."
             exit 1
           fi
 
-          node scripts/ground-truth-coverage.mjs "${refs[@]}" "${observed[@]}"
+          node scripts/ground-truth-coverage.mjs "${observed[@]}"
 
   capture-cross-region:
     name: Cross-region drift capture (non-gating)

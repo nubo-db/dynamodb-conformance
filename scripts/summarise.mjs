@@ -55,7 +55,7 @@ import {
   verdictsForRegion,
 } from './lib/score.mjs'
 import { classifyResults } from './lib/classify.mjs'
-import { relativeTestPath, testIdentities } from './ground-truth-coverage.mjs'
+import { relativeTestPath, testIdentities } from './lib/identity.mjs'
 import { suiteIdentities, suiteSizeOf } from './suite-manifest.mjs'
 import { isObserved, observedRegions } from './lib/observed.mjs'
 import { BASELINE_LABEL, gradeOf } from './lib/grade.mjs'
@@ -473,16 +473,23 @@ function recordGroundTruth(summary, baseline, context) {
  * before anything published divides by it.
  */
 export function assertOneDenominator(summary, size = suiteSizeOf()) {
-  const counts = Object.entries(summary.targets).map(([slug, t]) => [
-    slug,
-    t.regions[t.headline.region]?.count ?? 0,
-  ])
+  // A headline naming a region the row has no results for is a bug in the
+  // scorer, not a target that scored nothing, so it is reported rather than
+  // exempted. `?? 0` used to collapse the two into the same silent pass.
+  const counts = Object.entries(summary.targets).map(([slug, t]) => {
+    const region = t.regions[t.headline.region]
+    return [slug, region ? region.count : null]
+  })
   const wrong = counts.filter(([, c]) => c !== 0 && c !== size)
   if (wrong.length === 0) return
-  const detail = wrong.map(([slug, c]) => `${slug} scored ${c}`).join(', ')
+  const detail = wrong
+    .map(([slug, c]) =>
+      c === null ? `${slug} has no results for its headline region` : `${slug} scored ${c}`,
+    )
+    .join(', ')
   throw new Error(
     `refusing to publish: every row divides by the ${size}-test suite, but ${detail}. ` +
-      (wrong.some(([, c]) => c > size)
+      (wrong.some(([, c]) => c !== null && c > size)
         ? 'registry/suite-manifest.json is stale. Run: node scripts/suite-manifest.mjs'
         : 'A short results file lowers divergence and raises coverage at the same time.'),
   )
@@ -499,23 +506,76 @@ export function assertOneDenominator(summary, size = suiteSizeOf()) {
  * the wrong population, and nothing in the file says so - it reads as a target
  * that ran everything. This was invisible while the suite size came from the
  * widest run, because the widest run had nothing to disagree with.
+ *
+ * Checking for strays alone still left the population forgeable, because
+ * identities are a set and a repeated one collapses into it: drop a failing
+ * result, duplicate a passing one, and the file keeps the right total, names no
+ * test the suite lacks, and reports a lower divergence. So repetition is
+ * counted too. A file with no strays, no repeats and the whole-suite total from
+ * `assertOneDenominator` can only be the suite itself - a subset of the right
+ * size with nothing counted twice leaves nothing out.
+ *
+ * Repetition is checked on every target, including the deliberately partial
+ * ground-truth lanes, since no run has cause to report one test twice.
  */
 export function assertMeasuredSuite(targets, suite = suiteIdentities()) {
   const stale = []
+  const repeated = []
   for (const t of targets) {
     if (!Array.isArray(t.raw?.testResults)) continue
-    const stray = [...testIdentities(t.raw)].filter((id) => !suite.has(id)).sort()
+    const ids = testIdentities(t.raw)
+    const stray = [...ids].filter((id) => !suite.has(id)).sort()
     if (stray.length > 0) stale.push([t.slug, stray])
+    const reported = t.raw.testResults.reduce(
+      (n, tr) => n + (tr.assertionResults?.length ?? 0),
+      0,
+    )
+    if (reported !== ids.size) repeated.push([t.slug, reported - ids.size])
   }
-  if (stale.length === 0) return
-  const detail = stale
-    .map(([slug, stray]) => `${slug} ran ${stray.length} (${stray[0]})`)
-    .join('; ')
+  if (stale.length > 0) {
+    const detail = stale
+      .map(([slug, stray]) => `${slug} ran ${stray.length} (${stray[0]})`)
+      .join('; ')
+    throw new Error(
+      `refusing to publish: some rows name tests the suite no longer defines - ${detail}. ` +
+        'Those results predate a change to the tests, so they are measured over a population ' +
+        'the suite no longer has. Re-run the target, or drop its results file until it is re-run.',
+    )
+  }
+  if (repeated.length === 0) return
+  const detail = repeated.map(([slug, n]) => `${slug} reports ${n} twice`).join('; ')
   throw new Error(
-    `refusing to publish: some rows name tests the suite no longer defines - ${detail}. ` +
-      'Those results predate a change to the tests, so they are measured over a population ' +
-      'the suite no longer has. Re-run the target, or drop its results file until it is re-run.',
+    `refusing to publish: some rows count a test more than once - ${detail}. ` +
+      'A repeated result fills the suite total without measuring the test it stands in for, ' +
+      'so the row divides by the right denominator over a population it did not run. ' +
+      'Re-run the target.',
   )
+}
+
+/**
+ * Publish the board: the README table and the summary artefact, in that order,
+ * and neither unless both guards pass.
+ *
+ * The guards used to run inside writeSummaryFile, which is called after the
+ * README has already been spliced to disk. A refusal then left the rejected
+ * table published and the artefact it belongs to missing - the half-written
+ * state the guards exist to prevent. Nothing published may be touched until
+ * the whole board has been checked, so they run here, first.
+ */
+export function publish(summary, targets, { readmePath = 'README.md', summaryPath = SUMMARY_PATH } = {}) {
+  assertOneDenominator(summary)
+  assertMeasuredSuite(targets)
+
+  const start = '<!-- results:start -->'
+  const end = '<!-- results:end -->'
+  const md = readFileSync(readmePath, 'utf8')
+  const s = md.indexOf(start)
+  const e = md.indexOf(end)
+  if (s === -1 || e === -1) {
+    throw new Error(`Could not find ${start} / ${end} markers in ${readmePath}`)
+  }
+  writeFileSync(readmePath, `${md.slice(0, s + start.length)}\n${renderTable(summary)}\n${md.slice(e)}`)
+  writeSummaryFile(summary, targets, summaryPath)
 }
 
 /** Write the summary artefact (results/summary.json). */
@@ -533,11 +593,11 @@ const pct = (rate) => (rate === null ? '-' : `${rate.toFixed(1)}%`)
 // headline. The tier columns used to be correctness over what the tier
 // attempted, so on a row sorted by divergence a rising tier figure was the
 // target getting better and the two columns read in opposite directions.
-const tierDivergence = (t) => {
-  const total = t.p + t.f + t.s + t.i
-  const implemented = t.p + t.f
-  return total === 0 || implemented === 0 ? null : (t.f / total) * 100
-}
+// Through axesOf rather than restating it, so a tier carrying indeterminates
+// withholds its figure exactly as the headline above it does. Restated, a row
+// whose headline read "-" still printed three per-tier percentages.
+const tierDivergence = (t) =>
+  axesOf({ passed: t.p, failed: t.f, count: t.p + t.f + t.s + t.i, indeterminate: t.i }).divergence
 
 /**
  * The table's rows, structured: the ground-truth row first, then targets by
@@ -794,20 +854,8 @@ function main() {
   const table = renderTable(summary)
 
   if (write) {
-    const path = 'README.md'
-    const start = '<!-- results:start -->'
-    const end = '<!-- results:end -->'
-    const md = readFileSync(path, 'utf8')
-    const s = md.indexOf(start)
-    const e = md.indexOf(end)
-    if (s === -1 || e === -1) {
-      console.error(`Could not find ${start} / ${end} markers in ${path}`)
-      process.exit(1)
-    }
-    const updated = `${md.slice(0, s + start.length)}\n${table}\n${md.slice(e)}`
-    writeFileSync(path, updated)
-    writeSummaryFile(summary, targets)
-    console.error(`Updated the results table in ${path} and wrote ${SUMMARY_PATH}.`)
+    publish(summary, targets)
+    console.error(`Updated the results table in README.md and wrote ${SUMMARY_PATH}.`)
   } else {
     console.log(table)
   }

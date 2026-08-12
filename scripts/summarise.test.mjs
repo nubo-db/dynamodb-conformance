@@ -4,7 +4,7 @@ import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { buildBadge, writeBadges } from './badges.mjs'
-import { testIdentities } from './ground-truth-coverage.mjs'
+import { testIdentities } from './lib/identity.mjs'
 import { GROUND_TRUTH_SLUG, axesOf, isTargetResultFile, loadScoringContext, scoreTarget, verdictsForRegion } from './lib/score.mjs'
 import { classifyResults } from './lib/classify.mjs'
 import { splitFor } from './lib/registry.mjs'
@@ -15,11 +15,13 @@ import {
   REPO,
   SUMMARY_PATH,
   SUMMARY_SCHEMA_VERSION,
+  assertMeasuredSuite,
   assertOneDenominator,
   buildSummary,
   display,
   label,
   mergeLanes,
+  publish,
   readTargets,
   regionStanding,
   renderTable,
@@ -88,6 +90,11 @@ const suiteDoc = (splitStatus) =>
     ],
     '/repo/tests/tier3/split.test.ts': [['suite splits', splitStatus]],
   })
+
+// These fixtures are their own suite. Derived from the doc rather than written
+// out, so a change to suiteDoc cannot leave the guards measuring against a
+// population the fixtures no longer have.
+const FIXTURE_SUITE = testIdentities(suiteDoc('passed'))
 
 describe('regionStanding', () => {
   it('keeps healthy regions observed with nothing unresolved or dropped', () => {
@@ -574,7 +581,7 @@ describe('tableRows / renderTable', () => {
     writeFileSync(join(dir, 'alpha.json'), JSON.stringify(suiteDoc('passed')))
     writeFileSync(join(dir, 'departed.badge.json'), '{"message":"A"}\n')
 
-    const { written, pruned } = writeBadges(dir, context)
+    const { written, pruned } = writeBadges(dir, context, FIXTURE_SUITE)
 
     expect(written).toBe(1)
     expect(pruned).toBe(1)
@@ -587,7 +594,7 @@ describe('tableRows / renderTable', () => {
     writeFileSync(join(dir, 'alpha.json'), JSON.stringify(suiteDoc('passed')))
     writeFileSync(join(dir, 'alpha.badge.json'), '{"message":"stale"}\n')
 
-    const { pruned } = writeBadges(dir, context)
+    const { pruned } = writeBadges(dir, context, FIXTURE_SUITE)
 
     expect(pruned).toBe(0)
     expect(JSON.parse(readFileSync(join(dir, 'alpha.badge.json'), 'utf8')).message).not.toBe('stale')
@@ -987,5 +994,69 @@ describe('the shared target surface', () => {
     expect(display('some-new-thing')).toBe('some new thing')
     expect(repoUrl('some-new-thing')).toBeNull()
     expect(label('some-new-thing')).toBe('some new thing')
+  })
+})
+
+describe('the publishing gate refuses a forged population', () => {
+  // Every check here works on a copy of a real committed run, because the
+  // attacks these guards exist to stop are edits to a results file, not
+  // synthetic shapes. A fixture that only looks like a run would let the guard
+  // pass on the fixture and fail on the thing.
+  const genuine = () => JSON.parse(readFileSync('results/dynoxide.json', 'utf8'))
+
+  it('rejects a result counted twice, which keeps the total and lowers divergence', () => {
+    // The cheapest forgery there is: drop a failing result, put a passing one
+    // in its place. The file still reports 1054 results and still names only
+    // tests the suite defines, so the count check and the stray check both
+    // pass - the population is wrong only in its multiplicity.
+    const raw = genuine()
+    const file = raw.testResults.find((tr) => (tr.assertionResults?.length ?? 0) >= 2)
+    file.assertionResults[1] = { ...file.assertionResults[0] }
+
+    const before = testIdentities(genuine()).size
+    expect(testIdentities(raw).size).toBe(before - 1)
+    expect(
+      raw.testResults.reduce((n, tr) => n + tr.assertionResults.length, 0),
+      'the forgery must keep the total, or the count check would catch it first',
+    ).toBe(suiteSizeOf())
+
+    expect(() => assertMeasuredSuite([{ slug: 'dynoxide', raw }])).toThrow(/twice/)
+  })
+
+  it('rejects a test the suite no longer defines', () => {
+    const raw = genuine()
+    raw.testResults[0].assertionResults[0].fullName = 'a test that was renamed away'
+    expect(() => assertMeasuredSuite([{ slug: 'dynoxide', raw }])).toThrow(/no longer defines/)
+  })
+
+  it('accepts the committed board, including the deliberately partial lanes', () => {
+    // The repeat check runs on every target, so the ground-truth lanes - which
+    // legitimately carry a handful of tests each - have to pass it.
+    const files = readdirSync('results').filter(isTargetResultFile).map((f) => join('results', f))
+    expect(() => assertMeasuredSuite(readTargets(files))).not.toThrow()
+  })
+
+  it('rejects a headline naming a region the row has no results for', () => {
+    // Previously `?? 0` read this as a target that scored nothing and waved it
+    // through, so a scorer bug could publish a row with no denominator at all.
+    const summary = {
+      targets: { dynoxide: { headline: { region: 'eu-west-2' }, regions: {} } },
+    }
+    expect(() => assertOneDenominator(summary)).toThrow(/no results for its headline region/)
+  })
+
+  it('leaves README.md untouched when the board is refused', () => {
+    // The ordering is the point: the guards run before anything published is
+    // written, so a refusal is a no-op rather than a half-published board.
+    const dir = mkdtempSync(join(tmpdir(), 'publish-gate-'))
+    const readme = join(dir, 'README.md')
+    const original = '# Board\n\n<!-- results:start -->\nold table\n<!-- results:end -->\n'
+    writeFileSync(readme, original)
+
+    const summary = {
+      targets: { dynoxide: { headline: { region: 'eu-west-2' }, regions: { 'eu-west-2': { count: 3 } } } },
+    }
+    expect(() => publish(summary, [], { readmePath: readme, summaryPath: join(dir, 's.json') })).toThrow()
+    expect(readFileSync(readme, 'utf8')).toBe(original)
   })
 })

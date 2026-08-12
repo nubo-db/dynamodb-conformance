@@ -10,7 +10,7 @@
 // the same day supersedes the earlier result), and a target not re-tested in a
 // run is carried forward at its last measured value.
 
-import { dynamodbRow, gradeOf, label, display, repoUrl, sortRows, suiteSizeOf, CAPABILITIES, GRADING_CRITERIA_EFFECTIVE, GROUND_TRUTH_SLUG } from "./scoring.mjs";
+import { axesOf, dynamodbRow, gradeOf, label, display, repoUrl, sortRows, suiteSizeOf, CAPABILITIES, GRADING_CRITERIA_EFFECTIVE, GROUND_TRUTH_SLUG } from "./scoring.mjs";
 
 /**
  * Whether a run may carry a letter: measured on or after the day the criteria
@@ -96,11 +96,19 @@ function withGradeShift(mv, cur, prev, dates = {}) {
  * would disagree with the figure printed beside it.
  */
 function figuresOf(s) {
-  const implemented = (s.passed ?? 0) + (s.failed ?? 0);
-  const count = s.count ?? 0;
-  const derived = count === 0 || implemented === 0 ? null : (s.failed / count) * 100;
-  const divergenceValue = typeof s.divergenceValue === "number" ? s.divergenceValue : derived;
-  const coverageValue = count === 0 ? null : (implemented / count) * 100;
+  const derived = axesOf({
+    passed: s.passed ?? 0,
+    failed: s.failed ?? 0,
+    count: s.count ?? 0,
+    indeterminate: s.indeterminate ?? 0,
+  });
+  // `in`, not a typeof check. The overlay resolves divergence to null on
+  // purpose for a run the suite refuses to score, and reading that null as
+  // "field absent" fell through to the derived figure - which is how a
+  // partially observed run came to publish a number and a letter here while
+  // the README printed "-" for the same run.
+  const divergenceValue = "divergenceValue" in s ? s.divergenceValue : derived.divergence;
+  const coverageValue = derived.coverage;
   return {
     divergenceValue,
     divergence: divergenceValue == null ? "-" : `${divergenceValue.toFixed(1)}%`,
@@ -204,8 +212,12 @@ function enrichSnapshot(s, summary) {
   if (!best || !best.count) return s;
 
   const implemented = best.passed + best.failed;
-  const divergenceValue = best.count === 0 || implemented === 0 ? null : (best.failed / best.count) * 100;
-  const coverageValue = best.count === 0 ? null : (implemented / best.count) * 100;
+  const { divergence: divergenceValue, coverage: coverageValue } = axesOf({
+    passed: best.passed,
+    failed: best.failed,
+    count: best.count,
+    indeterminate: best.indeterminate ?? 0,
+  });
   const correctness = implemented === 0 ? null : (best.passed / implemented) * 100;
 
   return {

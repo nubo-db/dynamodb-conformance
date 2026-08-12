@@ -37,6 +37,12 @@ import {
 
 export { DISPLAY, REPO, TARGETS, CHANNELS_SHOWN, GROUND_TRUTH_SLUG, configurationOf, display, distributionOf, isVariant, projectOf, repoUrl, label, tierOf };
 
+// The two published figures, from the suite's own definition. Re-exported so
+// every site module derives them from one place: each surface that restated
+// the formula inline also quietly dropped the guard axesOf applies to a run
+// carrying indeterminates.
+export { axesOf };
+
 // The letter grade, imported from the suite like the rest of the scoring so
 // the board, the README table and the badges grade from one definition. The
 // grade is derived from a row's two published values at the point of use -

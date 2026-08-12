@@ -41,6 +41,8 @@ import {
 } from './lib/score.mjs'
 import { BASELINE_GRADE, gradeOf } from './lib/grade.mjs'
 import { TARGETS } from './lib/targets.mjs'
+import { assertMeasuredSuite } from './summarise.mjs'
+import { suiteIdentities } from './suite-manifest.mjs'
 
 const RESULTS_DIR = 'results'
 
@@ -104,9 +106,13 @@ export function buildBadge(slug, raw, context) {
 //
 // Sidecar and badge files are companions of a target's results file, not
 // targets, so they are never scored themselves.
-export function writeBadges(resultsDir = RESULTS_DIR, context = loadScoringContext()) {
-  const current = new Set()
-  let written = 0
+export function writeBadges(resultsDir = RESULTS_DIR, context = loadScoringContext(), suite = suiteIdentities()) {
+  // Read every target first, then apply the same population guard the summary
+  // does, then write. A badge is the one figure this project puts inside other
+  // people's READMEs, so it must not be able to outrun the artefact it mirrors:
+  // without this, a results file that summarise.mjs refuses to publish still
+  // shipped its letter to every README embedding the badge URL.
+  const scored = []
   for (const file of readdirSync(resultsDir)) {
     const slug = targetResultSlug(file)
     if (!slug) continue
@@ -115,6 +121,13 @@ export function writeBadges(resultsDir = RESULTS_DIR, context = loadScoringConte
     const sidecar = existsSync(sidecarFile)
       ? JSON.parse(readFileSync(sidecarFile, 'utf8'))
       : null
+    scored.push({ slug, raw, sidecar })
+  }
+  assertMeasuredSuite(scored, suite)
+
+  const current = new Set()
+  let written = 0
+  for (const { slug, raw, sidecar } of scored) {
     const badge = buildBadge(slug, raw, { ...context, sidecar })
     // A results file that exists keeps its badge even when this run produced
     // no letter. A run-level indeterminate - one provisioning timeout - makes

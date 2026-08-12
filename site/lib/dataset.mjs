@@ -17,6 +17,7 @@ import {
   GRADING_VERSION,
   GROUND_TRUTH_SLUG,
   asPct,
+  axesOf,
   configurationOf,
   gradeOf,
   isSelfMaintained,
@@ -29,15 +30,23 @@ import {
 const BADGE_URL_TEMPLATE =
   "https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/paritysuite/dynamodb-conformance/main/results/{slug}.badge.json";
 
-// The two published figures for any {passed, failed, total}-shaped tally, on the
-// same terms and with the same null-guard as everywhere else: divergence is
-// undefined when nothing was implemented, coverage is undefined when nothing ran.
-// A tier or area names its denominator `total`; a region row names it `count`.
-const implementedOf = (a) => (a.passed ?? 0) + (a.failed ?? 0);
-const totalOf = (a) => a.total ?? a.count ?? 0;
-const divergenceOf = (a) =>
-  !totalOf(a) || implementedOf(a) === 0 ? null : ((a.failed ?? 0) / totalOf(a)) * 100;
-const coverageOf = (a) => (!totalOf(a) ? null : (implementedOf(a) / totalOf(a)) * 100);
+// The two published figures for any {passed, failed, total}-shaped tally, from
+// the suite's own axesOf so the endpoints cannot compute either differently
+// from the board. A tier or area names its denominator `total`; a region row
+// names it `count`.
+//
+// This used to restate the formula inline, which lost the guard axesOf applies
+// to a run carrying indeterminates: a partially observed run then published
+// figures and a letter here while the suite itself withheld both.
+const axesFor = (a) =>
+  axesOf({
+    passed: a.passed ?? 0,
+    failed: a.failed ?? 0,
+    count: a.total ?? a.count ?? 0,
+    indeterminate: a.indeterminate ?? 0,
+  });
+const divergenceOf = (a) => axesFor(a).divergence;
+const coverageOf = (a) => axesFor(a).coverage;
 
 // 2 adds the per-region dimension (each target's headline region and, on the
 // latest endpoint, its full per-region breakdown and the run's region health),

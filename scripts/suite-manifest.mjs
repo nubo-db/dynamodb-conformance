@@ -44,7 +44,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { testIdentities } from './ground-truth-coverage.mjs'
+import { testIdentities } from './lib/identity.mjs'
 
 export const MANIFEST_PATH = 'registry/suite-manifest.json'
 

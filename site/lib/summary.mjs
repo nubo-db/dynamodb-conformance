@@ -18,7 +18,7 @@
 // This never disagrees with the suite on a figure - the rate is the suite's
 // headline rate - only on how the matched region is described.
 
-import { asPct, pct } from "./scoring.mjs";
+import { asPct, axesOf, pct } from "./scoring.mjs";
 import { GATING_LANE } from "dynamodb-conformance/scripts/summarise.mjs";
 
 const PINNED = "eu-west-2";
@@ -38,9 +38,12 @@ function tierOf(t) {
   const skipped = t?.s ?? 0;
   const indeterminate = t?.i ?? 0;
   const total = passed + failed + skipped + indeterminate;
-  const implemented = passed + failed;
-  const divergenceValue = total === 0 || implemented === 0 ? null : (failed / total) * 100;
-  const coverageValue = total === 0 ? null : (implemented / total) * 100;
+  const { divergence: divergenceValue, coverage: coverageValue } = axesOf({
+    passed,
+    failed,
+    count: total,
+    indeterminate,
+  });
   return {
     passed,
     failed,
@@ -60,14 +63,16 @@ function tierOf(t) {
 // `rate` stays as the suite published it (correctness in that region); the
 // divergence beside it is what the drilldown now shows.
 function regionEntry(region, r) {
-  const count = r?.count ?? 0;
-  const failed = r?.failed ?? 0;
-  const implemented = (r?.passed ?? 0) + failed;
-  // The same guard every other divergence figure carries: diverging nowhere
-  // because you attempted nothing is the absence of a score, not a good one.
-  // Without it this row read 0.0% while the tier directly beneath it, which does
-  // guard, read "-" for the identical target.
-  const divergenceValue = count === 0 || implemented === 0 ? null : (failed / count) * 100;
+  // Every guard the board applies, because it is the board's own function:
+  // diverging nowhere because you attempted nothing is the absence of a score
+  // rather than a good one, and a region carrying indeterminates has no score
+  // to publish at all. Restating the formula here dropped the second of those.
+  const { divergence: divergenceValue } = axesOf({
+    passed: r?.passed ?? 0,
+    failed: r?.failed ?? 0,
+    count: r?.count ?? 0,
+    indeterminate: r?.indeterminate ?? 0,
+  });
   return {
     region,
     rate: r?.rate ?? null,
