@@ -464,6 +464,16 @@ DYNAMODB_ENDPOINT=http://localhost:8000 npx vitest run --reporter=json --outputF
 
 # Generate the comparison table from all saved results
 npm run results:table
+
+# Re-enumerate the suite after adding, moving or renaming a test. This is the
+# count every published figure divides by, and CI fails a PR that leaves it
+# stale.
+npm run suite:manifest
+
+# Which targets look like they share an implementation, measured by how much
+# of their failure set they have in common. A prompt to go and check, not a
+# published artefact: it writes nothing and feeds nothing on the board.
+npm run results:lineage
 ```
 
 ## SDK blindspots

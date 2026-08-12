@@ -20,6 +20,7 @@
 
 import { asPct, axesOf, pct } from "./scoring.mjs";
 import { GATING_LANE } from "dynamodb-conformance/scripts/summarise.mjs";
+import { cohortOf, regionLabel } from "dynamodb-conformance/scripts/lib/score.mjs";
 
 const PINNED = "eu-west-2";
 
@@ -95,55 +96,12 @@ function regionEntry(region, r) {
 // rates. `entries` is every observed region's entry; `pinned` is the historical
 // baseline region (eu-west-2). Returns the structured label; regionLabel() turns
 // it into display text. See the module header for the three kinds.
-export function cohortOf(entries, pinned = PINNED) {
-  const rated = entries.filter((e) => e.rate != null);
-  if (rated.length === 0) return { kind: "none", regions: [], rate: null, others: 0, observed: 0 };
+// cohortOf and regionLabel come from the suite. Both used to be defined here
+// too, each carrying a comment saying it mirrored the other - a duplicate with
+// a note attached. The board and the README have to label a headline
+// identically or one of them is wrong, so there is one of each now.
+export { cohortOf, regionLabel };
 
-  const top = Math.max(...rated.map((e) => e.rate));
-  const cohort = rated
-    .filter((e) => e.rate === top)
-    .map((e) => e.region)
-    .sort();
-
-  // Every observed region ties at the top: the target conforms equally
-  // everywhere, so no region is worth singling out.
-  if (cohort.length === rated.length) {
-    return { kind: "all", regions: cohort, rate: top, others: cohort.length - 1, observed: rated.length };
-  }
-  // eu-west-2 is among the best: anchor on it (the reader knows it as the
-  // historical baseline) and count the rest of the cohort.
-  if (cohort.includes(pinned)) {
-    return { kind: "pinned-plus", regions: cohort, rate: top, others: cohort.length - 1, pinned, observed: rated.length };
-  }
-  // The best cohort excludes eu-west-2: the target genuinely matches a real
-  // region eu-west-2 disagrees with. Name it and carry the pinned rate so the
-  // display can show the gap.
-  const pinnedEntry = rated.find((e) => e.region === pinned);
-  return { kind: "beats-pinned", regions: cohort, rate: top, others: cohort.length - 1, pinned, pinnedRate: pinnedEntry?.rate ?? null, observed: rated.length };
-}
-
-// Display text for a cohort label. Kept here (not in a template) so the phrasing
-// is unit-tested and identical across the standings, run and target pages.
-export function regionLabel(label) {
-  if (!label || label.kind === "none") return "-";
-  switch (label.kind) {
-    case "all":
-      return "all regions";
-    case "pinned-plus":
-      return label.others === 0 ? label.pinned : `${label.pinned} + ${label.others} region${label.others === 1 ? "" : "s"}`;
-    case "beats-pinned":
-      // One region is named; a larger beating cohort is a count, since no single
-      // region in it is more representative than the rest.
-      return label.regions.length === 1 ? label.regions[0] : `${label.regions.length} regions`;
-    default:
-      return "-";
-  }
-}
-
-// How many of the observed regions a target matches, as a count rather than a
-// label. "all regions" reads as breadth when it can equally mean no region can
-// tell the target apart - a count next to a divergence figure cannot. The
-// cohort label stays alongside it, naming which regions those are.
 export function regionCount(label) {
   if (!label || label.kind === "none" || !label.observed) return null;
   return `${label.regions.length} of ${label.observed}`;

@@ -306,12 +306,16 @@ export const PINNED_REGION = 'eu-west-2'
  *   - beats-pinned  the top cohort excludes it    -> the region, or "N regions"
  *
  * Ties are decided on the rates as published (rounded), so this reads the same
- * numbers a viewer sees. Mirrors paritysuite.org's cohortOf so the board and
- * the README label a headline identically.
+ * numbers a viewer sees.
+ *
+ * The site imports this rather than keeping its own copy. Both existed, and the
+ * comments on each said it mirrored the other, which is a duplicate with a note
+ * attached: the board and the README have to label a headline identically or
+ * one of them is wrong.
  */
 export function cohortOf(entries, pinned = PINNED_REGION) {
   const rated = entries.filter((e) => e.rate != null)
-  if (rated.length === 0) return { kind: 'none', regions: [], rate: null, others: 0 }
+  if (rated.length === 0) return { kind: 'none', regions: [], rate: null, others: 0, observed: 0 }
 
   const top = Math.max(...rated.map((e) => e.rate))
   const cohort = rated
@@ -319,16 +323,32 @@ export function cohortOf(entries, pinned = PINNED_REGION) {
     .map((e) => e.region)
     .sort()
 
+  // Every observed region ties at the top: the target conforms equally
+  // everywhere, so no region is worth singling out.
   if (cohort.length === rated.length) {
-    return { kind: 'all', regions: cohort, rate: top, others: cohort.length - 1 }
+    return { kind: 'all', regions: cohort, rate: top, others: cohort.length - 1, observed: rated.length }
   }
+  // The pinned region is among the best: anchor on it (the reader knows it as
+  // the historical baseline) and count the rest of the cohort.
   if (cohort.includes(pinned)) {
-    return { kind: 'pinned-plus', regions: cohort, rate: top, others: cohort.length - 1, pinned }
+    return { kind: 'pinned-plus', regions: cohort, rate: top, others: cohort.length - 1, pinned, observed: rated.length }
   }
-  return { kind: 'beats-pinned', regions: cohort, rate: top, others: cohort.length - 1, pinned }
+  // The best cohort excludes the pinned region: the target genuinely matches a
+  // real region the pin disagrees with. Name it and carry the pinned rate so a
+  // display can show the gap.
+  const pinnedEntry = rated.find((e) => e.region === pinned)
+  return {
+    kind: 'beats-pinned',
+    regions: cohort,
+    rate: top,
+    others: cohort.length - 1,
+    pinned,
+    pinnedRate: pinnedEntry?.rate ?? null,
+    observed: rated.length,
+  }
 }
 
-/** Display text for a cohort label. Mirrors paritysuite.org's regionLabel. */
+/** Display text for a cohort label. */
 export function regionLabel(label) {
   if (!label || label.kind === 'none') return '-'
   switch (label.kind) {

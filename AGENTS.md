@@ -102,6 +102,11 @@ Before opening a PR that adds or modifies a test:
    boundary is incomplete. Put the error-code assertion in the
    operation's own tier (or `tests/tier3/validation-ordering/`) and the
    exact message, where it's stable, in `tests/tier3/error-messages/`.
+5. **Required if you added, moved or renamed a test: regenerate the
+   suite manifest in the same commit.** `node scripts/suite-manifest.mjs`
+   rewrites `registry/suite-manifest.json`, which is what every published
+   figure divides by. CI fails the PR if it is stale, because a board
+   grading against a suite it no longer has is worse than a red build.
 
 Regenerating the published results table across all tracked targets
 (DynamoDB, Dynoxide, Dynoxide (wasm), DynamoDB Local, Dynalite,

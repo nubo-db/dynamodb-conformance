@@ -23,14 +23,23 @@
 // median plus a multiple of the median absolute deviation - which recalibrates
 // as targets come and go instead of encoding today's numbers as a constant.
 
-/** Every test a target got wrong, as `file::fullName`. */
+import { classifyResults } from './classify.mjs'
+import { relativeTestPath } from './identity.mjs'
+
+/**
+ * Every test a target got wrong, as `file::fullName`.
+ *
+ * Through the classifier, not `assertionResults[].status`. An indeterminate
+ * records `status: "failed"` too, and two targets timing out on the same slow
+ * test is a fact about the run rather than a shared implementation - which is
+ * the only thing this report is looking for.
+ */
 export function failureSet(doc) {
   const out = new Set()
-  for (const file of doc?.testResults ?? []) {
-    const path = String(file.name ?? '').replace(/.*\/tests\//, 'tests/')
-    for (const a of file.assertionResults ?? []) {
-      if (a.status === 'failed') out.add(`${path}::${a.fullName ?? a.title}`)
-    }
+  if (!Array.isArray(doc?.testResults)) return out
+  for (const v of classifyResults(doc, null)) {
+    if (v.verdict !== 'fail') continue
+    out.add(`${relativeTestPath(String(v.file ?? ''))}::${v.fullName ?? v.title}`)
   }
   return out
 }

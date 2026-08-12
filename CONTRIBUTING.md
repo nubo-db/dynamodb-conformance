@@ -52,6 +52,11 @@ Before opening a PR that adds or modifies a test:
    from DynamoDB. Put the error-code check in the operation's own tier
    (or `tests/tier3/validation-ordering/`) and the exact message, where
    it's stable, in `tests/tier3/error-messages/`.
+5. **Required if you added, moved or renamed a test:** regenerate the
+   suite manifest in the same commit with
+   `node scripts/suite-manifest.mjs`. It rewrites
+   `registry/suite-manifest.json`, the count every published figure
+   divides by, and CI fails the PR if it is stale.
 
 Regenerating the published results table across every tracked target
 is a maintainer task and does not block your PR.

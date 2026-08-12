@@ -22,6 +22,7 @@ import {
   label,
 } from "dynamodb-conformance/scripts/summarise.mjs";
 import { GROUND_TRUTH_SLUG, axesOf, passRate, scoreResults, tierOf } from "dynamodb-conformance/scripts/lib/score.mjs";
+import { classifyResults } from "dynamodb-conformance/scripts/lib/classify.mjs";
 import {
   A_PLUS,
   BASELINE_GRADE,
@@ -157,23 +158,26 @@ export const areaOf = (filePath) => {
 // size of the gap. Used on target pages; not part of the README parity table.
 export function breakdownOf(raw) {
   const map = new Map();
+  const verdicts = verdictsOf(raw);
   for (const tr of raw?.testResults ?? []) {
     const area = areaOf(tr.name);
     if (!area) continue;
     if (!map.has(area.key)) {
-      map.set(area.key, { key: area.key, tier: area.tier, group: area.group, passed: 0, failed: 0, skipped: 0, failures: [], skips: [] });
+      map.set(area.key, { key: area.key, tier: area.tier, group: area.group, passed: 0, failed: 0, skipped: 0, indeterminate: 0, failures: [], skips: [] });
     }
     const e = map.get(area.key);
     for (const ar of tr.assertionResults ?? []) {
       const title = ar.fullName || ar.title || "(unnamed test)";
-      if (ar.status === "passed") e.passed++;
-      else if (ar.status === "failed") { e.failed++; e.failures.push(title); }
+      const verdict = verdictFor(verdicts, ar);
+      if (verdict === "pass") e.passed++;
+      else if (verdict === "fail") { e.failed++; e.failures.push(title); }
+      else if (verdict === "indeterminate") e.indeterminate++;
       else { e.skipped++; e.skips.push(title); }
     }
   }
   return [...map.values()]
     .filter((e) => e.failed + e.skipped > 0)
-    .map((e) => ({ ...e, total: e.passed + e.failed + e.skipped }))
+    .map((e) => ({ ...e, total: e.passed + e.failed + e.skipped + e.indeterminate }))
     .sort((a, b) => b.failed + b.skipped - (a.failed + a.skipped) || a.key.localeCompare(b.key));
 }
 
@@ -205,6 +209,36 @@ export const notAttempted = (breakdown) =>
 // an area that mostly passes reads as partial, so the matrix distinguishes
 // "works, with gaps" from "implemented but wholly wrong". `failing` is reserved
 // for the genuinely broken case where nothing the target runs passes.
+// Verdicts for a raw document, keyed by test identity.
+//
+// Every tally below reads these rather than `assertionResults[].status`.
+// classify.mjs is the chokepoint and its own docstring forbids reading the raw
+// status, for a reason that bites here: an indeterminate test still records
+// `status: "failed"`, so a provisioning timeout was counted as a divergence in
+// a table that now says "diverges on X% of it". No sidecar is passed - the site
+// reads historical results one file at a time and has no run-level document to
+// go with them - so only per-test markers are honoured, which is the same input
+// scoreEmulator uses.
+// Keyed on the assertion object itself, paired up by traversal order, because
+// classifyResults walks testResults and assertionResults in exactly this order.
+// Keying on `file::fullName` instead would collapse every assertion in a file
+// that reports no fullName onto one entry.
+const verdictsOf = (raw) => {
+  const by = new Map();
+  if (!Array.isArray(raw?.testResults)) return by;
+  const list = classifyResults(raw, null);
+  let i = 0;
+  for (const tr of raw.testResults) {
+    for (const ar of tr.assertionResults ?? []) by.set(ar, list[i++]?.verdict ?? "skip");
+  }
+  return by;
+};
+
+// One assertion's verdict, defaulting to a skip for anything the classifier did
+// not see (it cannot happen from the same document, and counting an unknown as
+// a pass would be the wrong direction if it ever did).
+const verdictFor = (verdicts, ar) => verdicts.get(ar) ?? "skip";
+
 export function areaState({ passed, failed, skipped }) {
   if (passed === 0 && failed === 0) return "unsupported"; // nothing implemented (all skipped)
   if (failed === 0 && skipped === 0) return "supported"; // every test passes
@@ -217,21 +251,24 @@ export function areaState({ passed, failed, skipped }) {
 // (supported areas) and the matrix (all areas) can both build from it.
 export function areaTallies(raw) {
   const map = new Map();
+  const verdicts = verdictsOf(raw);
   for (const tr of raw?.testResults ?? []) {
     const area = areaOf(tr.name);
     if (!area) continue;
     if (!map.has(area.key)) {
-      map.set(area.key, { key: area.key, tier: area.tier, group: area.group, passed: 0, failed: 0, skipped: 0 });
+      map.set(area.key, { key: area.key, tier: area.tier, group: area.group, passed: 0, failed: 0, skipped: 0, indeterminate: 0 });
     }
     const e = map.get(area.key);
     for (const ar of tr.assertionResults ?? []) {
-      if (ar.status === "passed") e.passed++;
-      else if (ar.status === "failed") e.failed++;
+      const verdict = verdictFor(verdicts, ar);
+      if (verdict === "pass") e.passed++;
+      else if (verdict === "fail") e.failed++;
+      else if (verdict === "indeterminate") e.indeterminate++;
       else e.skipped++;
     }
   }
   return [...map.values()]
-    .map((e) => ({ ...e, total: e.passed + e.failed + e.skipped, state: areaState(e) }))
+    .map((e) => ({ ...e, total: e.passed + e.failed + e.skipped + e.indeterminate, state: areaState(e) }))
     .sort((a, b) => a.tier.localeCompare(b.tier) || a.group.localeCompare(b.group));
 }
 
@@ -301,7 +338,8 @@ const testsKey = (file) => {
 export function capabilityTallies(raw, manifest) {
   const describes = manifest?.describes ?? {};
   const perTest = manifest?.tests ?? {};
-  const tally = Object.fromEntries(CAPABILITIES.map((c) => [c.key, { passed: 0, failed: 0, skipped: 0 }]));
+  const tally = Object.fromEntries(CAPABILITIES.map((c) => [c.key, { passed: 0, failed: 0, skipped: 0, indeterminate: 0 }]));
+  const verdicts = verdictsOf(raw);
   for (const tr of raw?.testResults ?? []) {
     const key = testsKey(tr.name);
     const byTitle = describes[key] ?? {};
@@ -315,15 +353,17 @@ export function capabilityTallies(raw, manifest) {
       for (const c of CAPABILITIES) {
         if (!tags.includes(c.key)) continue;
         const e = tally[c.key];
-        if (ar.status === "passed") e.passed++;
-        else if (ar.status === "failed") e.failed++;
+        const verdict = verdictFor(verdicts, ar);
+        if (verdict === "pass") e.passed++;
+        else if (verdict === "fail") e.failed++;
+        else if (verdict === "indeterminate") e.indeterminate++;
         else e.skipped++;
       }
     }
   }
   return CAPABILITIES.map((c) => {
     const e = tally[c.key];
-    return { key: c.key, label: c.label, ...e, total: e.passed + e.failed + e.skipped, state: areaState(e) };
+    return { key: c.key, label: c.label, ...e, total: e.passed + e.failed + e.skipped + e.indeterminate, state: areaState(e) };
   });
 }
 
@@ -494,7 +534,14 @@ export function dynamodbRow(suiteSize, date) {
   };
 }
 
-// Largest emulator count in a set of scored rows - the full-suite size.
+// Largest emulator count in a set of scored rows - that run's full-suite size.
+//
+// This looks like the inference registry/suite-manifest.json replaced in the
+// suite, and is not: the manifest says how big the suite is now, while the site
+// renders every run ever recorded, and a run from before a test was added had a
+// genuinely smaller suite. Reading today's manifest onto a historical run would
+// restate history. The publish guard holds every row of a given run to one
+// denominator, so the max over a run's rows is that run's size.
 export const suiteSizeOf = (rows) => Math.max(0, ...rows.map((r) => r.count));
 
 // Sort emulators by divergence ascending, then coverage descending, exactly as
@@ -530,6 +577,13 @@ const byRisk = (a, b) =>
 // and the JSON endpoints all need every scored target, and returning only
 // parents silently dropped the variants from those surfaces. Only the standings
 // renders the nesting, by skipping rows that are a build of something above.
+//
+// This assigns `variants` onto the caller's rows rather than returning copies,
+// which is deliberate and not an oversight to tidy: history.mjs relies on a
+// standings row and the matching `perTarget[].current` being the same object
+// (see the note where it back-fills a version), so handing back copies here
+// would quietly break that. The assignment always overwrites, so sorting the
+// same rows twice gives the same answer.
 export function sortRows(rows) {
   const byProject = new Map();
   for (const row of rows) {

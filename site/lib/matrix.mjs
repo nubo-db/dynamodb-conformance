@@ -14,6 +14,8 @@
 //                since the same WebC nesting limit rules out a card template.
 // `ncols` is the column count (targets + the operation column).
 
+import { axesOf } from "./scoring.mjs";
+
 const TIER_LABEL = { tier1: "Tier 1 - Core", tier2: "Tier 2 - Complete", tier3: "Tier 3 - Strict" };
 const TIER_SHORT = { tier1: "Tier 1", tier2: "Tier 2", tier3: "Tier 3" };
 
@@ -177,12 +179,16 @@ export function renderTargetOperations(areas) {
         .map((a) => {
           const s = STATE[a.state] || STATE_FALLBACK;
           const impl = a.passed + a.failed;
-          const rate = impl === 0 || !a.total ? "n/a" : `${((a.failed / a.total) * 100).toFixed(1)}%`;
-          const cover = !a.total ? "n/a" : `${((impl / a.total) * 100).toFixed(1)}%`;
+          // `divergence`, not `rate`. It held a divergence figure under a name
+          // the board used for the retired pass rate, so the one variable read
+          // as the opposite direction to the number in it.
+          const axes = axesOf({ passed: a.passed, failed: a.failed, count: a.total, indeterminate: a.indeterminate ?? 0 });
+          const divergence = axes.divergence == null ? "n/a" : `${axes.divergence.toFixed(1)}%`;
+          const cover = axes.coverage == null ? "n/a" : `${axes.coverage.toFixed(1)}%`;
           const counts = cellCounts(a);
           // An area a target implements none of has no divergence to read out,
           // so the description says that rather than "diverges on n/a".
-          const figures = rate === "n/a" ? `implements none of it` : `diverges on ${rate} of it, covers ${cover}`;
+          const figures = divergence === "n/a" ? `implements none of it` : `diverges on ${divergence} of it, covers ${cover}`;
           const describe = `${a.group}: ${s.label}, ${figures}${counts ? ` (${counts})` : ""}`;
           return `
           <li class="flex items-center justify-between gap-3 py-1.5">
@@ -192,7 +198,7 @@ export function renderTargetOperations(areas) {
             </span>
             <span class="flex items-center gap-3 shrink-0 text-xs tnum" title="${esc(describe)}">
               <span class="text-zinc-500 dark:text-zinc-400">${a.failed}/${a.total}${a.skipped ? ` · ${a.skipped} skip` : ""}</span>
-              <span class="w-14 text-right font-mono font-medium text-zinc-700 dark:text-zinc-200">${rate}</span>
+              <span class="w-14 text-right font-mono font-medium text-zinc-700 dark:text-zinc-200">${divergence}</span>
               <span class="w-14 text-right font-mono text-zinc-500 dark:text-zinc-400">${cover}</span>
               <span class="sr-only">${esc(describe)}</span>
             </span>

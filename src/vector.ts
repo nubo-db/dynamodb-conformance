@@ -210,7 +210,9 @@ export async function waitForVectorIndexActive(
     const ix = await describeVectorIndex(tableName, indexName)
     if (ix?.IndexStatus === 'ACTIVE' && ix.Backfilling !== true) return
     if (delay > 0) await sleep(delay)
-    delay = Math.min(delay || 500, 2000)
+    // Grows: `delay || 500` re-evaluated to 500 on every pass, so this polled
+    // at a flat 500ms and the 2000ms ceiling was unreachable.
+    delay = delay === 0 ? 500 : Math.min(delay * 2, 2000)
   }
   throw new IndeterminateError(
     'vector-index-timeout',
@@ -249,7 +251,9 @@ export async function waitForVectorSearchable(opts: {
     )
     if ((res.SearchResults ?? []).length >= opts.expectedCount) return
     if (delay > 0) await sleep(delay)
-    delay = Math.min(delay || 500, 2000)
+    // Grows: `delay || 500` re-evaluated to 500 on every pass, so this polled
+    // at a flat 500ms and the 2000ms ceiling was unreachable.
+    delay = delay === 0 ? 500 : Math.min(delay * 2, 2000)
   }
   throw new IndeterminateError(
     'vector-consistency-timeout',

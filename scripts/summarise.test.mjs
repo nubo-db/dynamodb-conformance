@@ -1060,3 +1060,37 @@ describe('the publishing gate refuses a forged population', () => {
     expect(readFileSync(readme, 'utf8')).toBe(original)
   })
 })
+
+describe('the table discloses a pinned baseline', () => {
+  // The site's control strip says when the baseline row is carried rather than
+  // measured. The README table rendered a pinned row and a fully measured one
+  // identically - same 0.0% over the same coverage - so the one surface this
+  // script generates was the one that did not disclose it.
+  const regions = { observed: ['eu-west-2'], unresolved: [], dropped: [] }
+
+  it('says so when a real-AWS pass has not reported', () => {
+    const caption = tableCaption(regions, {
+      suiteSize: 1054,
+      testsObserved: 1036,
+      missingLanes: ['integrations', 'gsi'],
+    })
+    expect(caption).toContain('pinned to its last clean measurement')
+    expect(caption).toContain('1036 of 1054')
+    expect(caption).toContain('the other 18 are carried')
+    expect(caption).toContain('`integrations`, `gsi`')
+  })
+
+  it('stays quiet when every pass has reported', () => {
+    const caption = tableCaption(regions, {
+      suiteSize: 1054,
+      testsObserved: 1054,
+      missingLanes: [],
+    })
+    expect(caption).not.toContain('pinned')
+  })
+
+  it('stays quiet for a summary with no ground truth at all', () => {
+    expect(tableCaption(regions)).not.toContain('pinned')
+    expect(tableCaption(regions, null)).not.toContain('pinned')
+  })
+})
