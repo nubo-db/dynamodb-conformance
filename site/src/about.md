@@ -1,7 +1,7 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-07-17"
+lastmod: "2026-08-11"
 meta:
   title: About
   description: "Why an independent DynamoDB conformance suite exists, how it scores emulators against live AWS, and what the tiers mean."
@@ -11,7 +11,7 @@ meta:
 
 There's no official conformance suite for DynamoDB. AWS doesn't publish one, so every emulator author ends up guessing at how the real thing behaves and testing against their own assumptions. The closest the community had was Dynalite's test suite, and by the start of 2026 over half of its tests had drifted out of step with current DynamoDB. DynamoDB Local ships with no test suite at all.
 
-That's the gap the [conformance suite](https://github.com/paritysuite/dynamodb-conformance) fills. It runs every test against real DynamoDB on AWS first, records what passes, and treats that as the baseline. An emulator only passes a test if it gives the same answer DynamoDB does. Real DynamoDB is the ground truth, which is why it sits at the top of every table at a flat 100% - not because it scored well, but because it's the thing everything else is measured against. DynamoDB doesn't always behave the same way in every region, so the suite records the answer in each region and scores a target against all of them; the [methodology](/methodology) has the detail.
+That's the gap the [conformance suite](https://github.com/paritysuite/dynamodb-conformance) fills. It runs every test against real DynamoDB on AWS first, records what passes, and treats that as the baseline. An emulator only passes a test if it gives the same answer DynamoDB does. Real DynamoDB is the ground truth, which is why it sits at the top of every table diverging from itself nowhere - not because it scored well, but because it's the thing everything else is measured against. DynamoDB doesn't always behave the same way in every region, so the suite records the answer in each region and scores a target against all of them; the [methodology](/methodology) has the detail.
 
 ## "Works with the SDK" isn't the same as "behaves like DynamoDB"
 
@@ -21,21 +21,21 @@ So the suite tests observable behaviour and nothing else. It drives the standard
 
 ## Three tiers, because one number hides too much
 
-A single "92%" tells you almost nothing. Ninety-two percent of *what*? Miss 8% of the core operations and you'll feel it constantly; miss 8% of the strictest edge cases and it's likely still fine for local development. Those are very different situations behind the same number, so the suite splits its tests into three tiers.
+A target that gets 8% of the suite wrong tells you almost nothing on its own. Eight percent of *what*? Get 8% of the core operations wrong and you'll feel it constantly; get 8% of the strictest edge cases wrong and it's likely still fine for local development. Those are very different situations behind the same number, so the suite splits its tests into three tiers and reports divergence within each.
 
-**Tier 1 - Core.** The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable. The lower an emulator scores here, the more often everyday code will hit a difference.
+**Tier 1 - Core.** The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable. The more an emulator diverges here, the more often everyday code will hit a difference.
 
 **Tier 2 - Complete.** Documented but less common features: transactions, PartiQL, LSIs, TTL, streams, tags. A gap here only matters if you actually use that feature.
 
 **Tier 3 - Strict.** Validation ordering, error behaviour at a range of strictness - exact where DynamoDB's wording is stable, structural (the type, field and constraint) where its rendering is non-deterministic - limits, and legacy API shapes. Missing some of this is usually fine when you're developing locally, where the exact error string rarely matters. It matters far more in CI: if your own test suite runs against an emulator and asserts on error messages or validation behaviour, a Tier 3 gap is exactly the kind of thing that lets a bug through a green build and only shows up against real DynamoDB in production.
 
-"100% Tier 1, 95% Tier 2, 80% Tier 3" tells you far more than "92%" ever could.
+So a target diverging 8% over the whole suite might be right about every core operation and wrong about a fifth of Tier 3, or the other way round. The tier columns say which, and only one of those two is a problem for most people.
 
 ## Skips are scope, fails are bugs
 
-Skips here are deliberate, not flakiness. Each test file probes for feature support up front and skips itself if the target doesn't implement that operation at all. That is a different thing from a failure, and the score treats it differently. A skip says "I don't do this"; a fail says "I do this, but I get it wrong". So the percentage is correctness over the operations a target actually implements - passed divided by passed plus failed - and skips are left out of it, reported separately as scope rather than held against the score.
+Skips here are deliberate. Each test file probes for feature support up front and skips itself if the target doesn't implement that operation at all. A skip says "I don't do this"; a fail says "I do this, but I get it wrong". Those are different problems for whoever is relying on the thing: an operation a target declines is something you find in minutes and plan around, and one it quietly gets wrong is something you find in production.
 
-That keeps an unimplemented operation honest as a boundary, not a black mark. It does mean a target that implements a narrow slice and gets it right can score highly, so every score on this site is shown next to how much of the suite the target attempts. Correctness tells you whether what it does is right; coverage tells you how much it does. You need both, and a high percentage on a thin surface reads as exactly that.
+So the board reports them apart. **Divergence** counts the fails against the whole suite. **Coverage** says how much of the suite the target implements. A target with a narrow surface that gets it right shows a low divergence and a low coverage, and both are true at once. Because the denominator is the whole suite either way, a fail that turns into a skip leaves both figures together: divergence and coverage fall by exactly the same amount, so a target that stops attempting something it got wrong cannot improve one without paying for it in the other. The letter grade on each row is a reading of the pair: divergence sets the letter and coverage can only lower it, never raise it, under [criteria the methodology publishes in full](/methodology#grading). The letter is weaker than the figures under a withdrawal, and the methodology says by how much. The [methodology](/methodology) works the rest through.
 
 ## Why a whole site for it
 
@@ -47,4 +47,10 @@ Every figure here is derived from the suite's own results at build time. None of
 
 ## On independence
 
-The suite and this site are built and maintained by [Martin Hicks](https://martinhicks.dev), who also maintains Dynoxide - one of the targets scored here. That's why the no-figure-by-hand rule matters for more than drift: it's what keeps the scoring honest. Every number is derived from the suite's own results at build time, and the [scoring logic is shared with the suite](/methodology) rather than restated here. A target's score can't be tuned without changing the suite's published results first, in the open, and the code that turns those results into the numbers on this page is in the same public repository as the tests that produced them. Clone it and run the build, and you get what you see here. Real DynamoDB is the baseline, every figure carries the region and date it was measured, and [anyone can suggest a target](https://github.com/paritysuite/dynamodb-conformance/issues). There's more for programmatic consumers, and the raw data, on the [agent guide](/for-agents).
+The suite and this site are built and maintained by [Martin Hicks](https://martinhicks.dev), who also maintains Dynoxide - one of the targets scored here. That's why the no-figure-by-hand rule matters for more than drift: it's what keeps the scoring honest. Every number is derived from the suite's own results at build time, and the [scoring logic is shared with the suite](/methodology) rather than restated here. A target's score can't be tuned without changing the suite's published results first, in the open, and the code that turns those results into the numbers on this page is in the same public repository as the tests that produced them. Real DynamoDB is the baseline, every figure carries the region and date it was measured, and [anyone can suggest a target](https://github.com/paritysuite/dynamodb-conformance/issues). There's more for programmatic consumers, and the raw data, on the [agent guide](/for-agents).
+
+What is reproducible is the scoring, not the site. Clone the repository and you can rerun the scorer over the committed results and get the figures published here, test by test. A local build of the site itself renders a smaller thing: the pages assemble a timeline by fetching the history of `results/` from the API, and without a token that fetch falls back to a committed snapshot. The deploy sets `FAIL_ON_FALLBACK` precisely so a scheduled build refuses the snapshot rather than quietly publishing a thinner board.
+
+The letter grades need a second answer, because that argument only covers the figures. Where the bands sit was a choice, and moving one regrades targets whose results never changed - no run required, nothing to notice. So the [criteria are versioned and dated](/methodology#grading): they are grading criteria version {{ gradingCriteria.version }}, and any change to a band, the coverage weight or the A+ gate bumps the version and is dated on that page. Both figures print beside the letter on every surface the board controls, so you can recompute a grade yourself and check it, and a retune leaves a record rather than a quietly different board.
+
+The bands are not the only hand-picked input, and the other one deserves naming. The [split registry](/ground-truth) is written by hand by design: it records the behaviours where real DynamoDB's own regions disagree, with the evidence each region returned, and a target matching any recorded answer is scored as conformant rather than wrong. Admitting a row there can turn a fail into a pass with no re-run and no results file changing, which is the one thing "a score can't be tuned without changing the published results first" does not cover. So the registry is public, every row carries the captured evidence and the date it was refreshed, and a behaviour enters only once confirmed across regions. It currently holds three rows, and they are the three tests behind every zero-divergence target's regional residue.

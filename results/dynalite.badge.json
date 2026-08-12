@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "label": "conformance",
-  "message": "84.6%",
-  "color": "yellow"
+  "label": "parity",
+  "message": "C",
+  "color": "orange"
 }

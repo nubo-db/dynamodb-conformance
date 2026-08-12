@@ -11,20 +11,133 @@
 import {
   DISPLAY,
   REPO,
+  TARGETS,
+  CHANNELS_SHOWN,
+  configurationOf,
   display,
+  distributionOf,
+  isVariant,
+  projectOf,
   repoUrl,
   label,
 } from "dynamodb-conformance/scripts/summarise.mjs";
-import { passRate, scoreResults, tierOf } from "dynamodb-conformance/scripts/lib/score.mjs";
+import { GROUND_TRUTH_SLUG, axesOf, passRate, scoreResults, tierOf } from "dynamodb-conformance/scripts/lib/score.mjs";
+import {
+  A_PLUS,
+  BASELINE_GRADE,
+  BASELINE_LABEL,
+  COVERAGE_DIVISOR,
+  GRADE_BANDS,
+  GRADING_CRITERIA_EFFECTIVE,
+  GRADING_VERSION,
+  bandOf,
+  gradeOf,
+  gradingCriteriaEffectiveLabel,
+} from "dynamodb-conformance/scripts/lib/grade.mjs";
 
-export { DISPLAY, REPO, display, repoUrl, label, tierOf };
+export { DISPLAY, REPO, TARGETS, CHANNELS_SHOWN, GROUND_TRUTH_SLUG, configurationOf, display, distributionOf, isVariant, projectOf, repoUrl, label, tierOf };
+
+// The letter grade, imported from the suite like the rest of the scoring so
+// the board, the README table and the badges grade from one definition. The
+// grade is derived from a row's two published values at the point of use -
+// never stored on the row - so every surface that shows a letter shows the
+// one implied by the figures beside it.
+export { A_PLUS, BASELINE_GRADE, BASELINE_LABEL, COVERAGE_DIVISOR, GRADE_BANDS, GRADING_CRITERIA_EFFECTIVE, GRADING_VERSION, bandOf, gradeOf, gradingCriteriaEffectiveLabel };
+
+// The one-line reading beside a grade chip: the qualifier in words, the
+// exact figure after it. The percentage stays for anyone who wants the
+// number, but it no longer carries the meaning alone - "0.0% diverges" reads
+// as a zero, "no divergence" reads as what it is. Shared by every surface
+// that prints the phrase (standings rows, variant rows, the target page's
+// other-builds cards), so a build cannot read differently from the board.
+export function gradeLineOf(row) {
+  const grade = gradeOf(row.divergenceValue, row.coverageValue);
+  const div = grade.letter === null || row.divergenceValue === 0 ? "" : ` (${row.divergence})`;
+  return grade.qualifier + div;
+}
+
+// The grade for a row, and the call every rendering surface should make: the
+// baseline's exemption travels with the data rather than being a rule each
+// template has to remember. `gradeOf` stays exported for callers that hold only
+// the pair, like the legend and the tier bars.
+//
+// `slug` is for surfaces whose rows are run points: a point carries figures and
+// a date but not the identity of the target it belongs to, and without it the
+// baseline's definitional 0.0/100.0 grades like any other row.
+export function gradeForRow(row, slug) {
+  if (!row) return gradeOf(null, null);
+  const id = slug ?? row.slug;
+  const isBaseline = row.baseline || row.synthesised || id === GROUND_TRUTH_SLUG;
+  return isBaseline ? BASELINE_GRADE : gradeOf(row.divergenceValue, row.coverageValue);
+}
+
+// The board's grade legend, derived from the criteria rather than typed beside
+// them. It is where a reader goes to check a letter, so it is the one place on
+// the board that must not be able to drift from what the grader does.
+export function gradeLegendOf() {
+  return [
+    { letter: "A+", bound: "0% at full coverage", band: bandOf("A+") },
+    ...GRADE_BANDS.map((b) => ({ letter: b.letter, bound: `<${b.under}%`, band: bandOf(b.letter) })),
+    { letter: "F", bound: "beyond", band: bandOf("F") },
+  ];
+}
+
+// The legend's second sentence: what coverage does to the letter, as arithmetic
+// a reader can repeat on the two figures printed on any row. Derived from the
+// divisor so it cannot fall behind a retune.
+const SHARES = { 2: "half", 3: "a third", 4: "a quarter" };
+export function coverageShareSentenceOf() {
+  const share = SHARES[COVERAGE_DIVISOR] ?? `one ${COVERAGE_DIVISOR}th`;
+  return `Coverage can only lower a letter, never raise it: ${share} of whatever a target leaves unimplemented is added to its divergence before the bands are read.`;
+}
+
+// What coverage is doing to a row's letter, or "" when it is doing nothing.
+// Shown wherever a letter is read, because a letter held down by scope and one
+// earned outright are different facts and the coverage figure alone does not
+// separate them.
+export function capClauseOf(row, slug) {
+  const { capAt } = gradeForRow(row, slug);
+  return capAt ? `coverage lowers this row to ${capAt}` : "";
+}
+
+// The regional distribution, always with the figures attached: "in all 33
+// regions", or "in 6 regions · up to 0.3% in the other 27". A bare count
+// read inverted - a target failing identically everywhere showed "33 of 33"
+// while one perfect in six showed "6 of 33", so the bigger number read as
+// the better target - but paired with its figure the count says what it
+// means. "Up to", because the remainder need not be uniform. Empty when the
+// row carries no regional data (runs before the per-region overlay).
+export function regionClauseOf(row) {
+  const cohort = row.regionLabel?.regions?.length;
+  const observed = row.regionLabel?.observed;
+  if (!cohort || !observed) return "";
+  const rest = observed - cohort;
+  if (rest === 0) return `in all ${observed} regions`;
+  if (!row.divergenceWorstLabel) return `in ${cohort} of ${observed} regions`;
+  return `in ${cohort} regions · up to ${row.divergenceWorstLabel} in the other ${rest}`;
+}
 
 // Targets maintained by the person who also runs this board. The conflict of
 // interest is disclosed at the score itself, because that disclosure is the
 // board's credibility: the number is produced by the same automated tests as
 // every other engine, not adjusted by hand.
+// The run on which the board stopped publishing correctness and started
+// publishing divergence and coverage. Every earlier run is rebuilt from its own
+// results and restated in the new figures, which is right - the results didn't
+// change - but someone who cited "Dynalite 84.6%, 22 Jul" can no longer find
+// that number anywhere, so runs before this date say so.
+// The board stopped publishing correctness on the day the criteria took
+// effect, not before it. Pinned to the same constant: set three runs early,
+// the runs in between were published under the retired metric and said
+// nothing about it.
+export const METRIC_CHANGED_ON = GRADING_CRITERIA_EFFECTIVE;
+export const scoredOnCorrectness = (date) => !!date && date < METRIC_CHANGED_ON;
+
+// Keyed by project, not slug: a build of a self-maintained engine is the
+// same conflict of interest as the engine, and an exact-slug lookup let the
+// wasm build's page and its maintainedByAuthor field claim otherwise.
 export const SELF_MAINTAINED = new Set(["dynoxide"]);
-export const isSelfMaintained = (slug) => SELF_MAINTAINED.has(slug);
+export const isSelfMaintained = (slug) => SELF_MAINTAINED.has(projectOf(slug));
 
 // The operation group within a tier, e.g. tier2/transactions, taken from the
 // test file's directory. Stable across the suite's growth (unlike test titles).
@@ -57,6 +170,23 @@ export function breakdownOf(raw) {
     .map((e) => ({ ...e, total: e.passed + e.failed + e.skipped }))
     .sort((a, b) => b.failed + b.skipped - (a.failed + a.skipped) || a.key.localeCompare(b.key));
 }
+
+// A breakdown split into the two questions a reader actually has, which the
+// single "where it falls short" list ran together. An operation a target
+// implements and gets wrong is a defect you find in production; one it never
+// attempts is scope you plan around. They were listed together, distinguished
+// only by a badge, so a target's gaps read as one undifferentiated pile.
+//
+// Anything with a failure is a divergence, whatever else it also skips: the
+// failure is the part that matters and it belongs in the first list.
+export const fallsShort = (breakdown) => (breakdown ?? []).filter((a) => a.failed > 0);
+
+// The rest: nothing wrong, but tests that never ran. `whole` marks an operation
+// the target implements none of, as against one it implements in part.
+export const notAttempted = (breakdown) =>
+  (breakdown ?? [])
+    .filter((a) => a.failed === 0 && a.skipped > 0)
+    .map((a) => ({ ...a, whole: a.passed === 0 }));
 
 // The support state of an operation area, shared by the badges and the matrix:
 //   supported   - passes everything it runs, nothing skipped (fully implemented)
@@ -225,6 +355,40 @@ const NOTHING_SCORED = {
 
 const tierTotal = (t) => t.p + t.f + t.s + t.i;
 
+// A percentage as published, or "-" when there was nothing to measure. Exported
+// so the per-region model formats figures identically rather than restating it.
+export const asPct = (v) => (v == null ? "-" : `${v.toFixed(1)}%`);
+
+// One tier's figures, on the same two axes as the headline: divergence over the
+// whole tier, coverage beside it. Correctness is kept under its own name rather
+// than left as the unqualified percentage it used to be, so a consumer reading
+// a tier figure cannot get the old meaning from a field that changed under it.
+export function tierFigures(t) {
+  const total = tierTotal(t);
+  const implemented = t.p + t.f;
+  // The suite's axes, not a local copy: a tier figure and a headline figure
+  // that drifted apart would put two different divergences on one page.
+  const { divergence: divergenceValue, coverage: coverageValue } = axesOf({
+    passed: t.p,
+    failed: t.f,
+    count: total,
+    indeterminate: t.i,
+  });
+  return {
+    passed: t.p,
+    failed: t.f,
+    skipped: t.s,
+    indeterminate: t.i,
+    total,
+    divergenceValue,
+    divergence: asPct(divergenceValue),
+    coverageValue,
+    coverage: asPct(coverageValue),
+    correctnessValue: passRate(t.p, t.f),
+    correctness: pct(t.p, t.f),
+  };
+}
+
 // Score one target's Vitest JSON into the canonical row the rest of the site
 // builds on. Not used for the synthesised DynamoDB ground-truth row.
 //
@@ -244,22 +408,21 @@ export function scoreEmulator(slug, raw, version) {
   const scored = scoreResults(raw, null) ?? NOTHING_SCORED;
   const s = scored.summary;
 
-  const tier = (t) => ({
-    passed: t.p,
-    failed: t.f,
-    skipped: t.s,
-    indeterminate: t.i,
-    total: tierTotal(t),
-    pct: pct(t.p, t.f),
-    value: value(t.p, t.f),
-  });
+  const tier = tierFigures;
 
   const { passed, failed, skipped, indeterminate, count } = scored;
-  // Scope axis, distinct from correctness: how much of the suite the target
-  // actually implements. Always shown beside the correctness percentage so a
-  // high score on a narrow surface can't read as broad conformance.
   const implemented = passed + failed;
-  const coverageValue = count === 0 ? null : (implemented / count) * 100;
+  // Coverage is the scope axis: how much of the suite the target implements at
+  // all. Divergence is the risk axis, over the whole suite rather than over
+  // what the target attempts. They are kept apart because the consequences
+  // differ - a declined operation is discoverable in minutes, a wrong one in
+  // production - and one figure would price them the same.
+  //
+  // Divergence is null when the target implemented nothing: diverging nowhere
+  // because you attempted nothing is the absence of a score, and a zero would
+  // sort an empty target above every real engine. Both come from the suite's
+  // axesOf so the site cannot compute either differently from the board.
+  const { divergence: divergenceValue, coverage: coverageValue } = axesOf(scored);
 
   return {
     slug,
@@ -276,6 +439,8 @@ export function scoreEmulator(slug, raw, version) {
     unsupported: skipped,
     coverageValue,
     coverage: coverageValue === null ? "-" : `${coverageValue.toFixed(1)}%`,
+    divergenceValue,
+    divergence: divergenceValue === null ? "-" : `${divergenceValue.toFixed(1)}%`,
     total: pct(passed, failed),
     totalValue: value(passed, failed),
     version: version || "-",
@@ -288,14 +453,16 @@ export function scoreEmulator(slug, raw, version) {
 // runs that never exercised AWS. suiteSize is the largest emulator count seen.
 export function dynamodbRow(suiteSize, date) {
   return {
-    slug: "dynamodb",
-    target: label("dynamodb"),
-    display: display("dynamodb"),
-    repoUrl: repoUrl("dynamodb"),
+    slug: GROUND_TRUTH_SLUG,
+    target: label(GROUND_TRUTH_SLUG),
+    display: display(GROUND_TRUTH_SLUG),
+    repoUrl: repoUrl(GROUND_TRUTH_SLUG),
+    // Derived the same way every other row's tiers are, so the baseline can't
+    // carry a hand-written shape that drifts from the scored one.
     tiers: {
-      tier1: { passed: suiteSize, failed: 0, skipped: 0, total: suiteSize, pct: "100%", value: 100 },
-      tier2: { passed: suiteSize, failed: 0, skipped: 0, total: suiteSize, pct: "100%", value: 100 },
-      tier3: { passed: suiteSize, failed: 0, skipped: 0, total: suiteSize, pct: "100%", value: 100 },
+      tier1: tierFigures({ p: suiteSize, f: 0, s: 0, i: 0 }),
+      tier2: tierFigures({ p: suiteSize, f: 0, s: 0, i: 0 }),
+      tier3: tierFigures({ p: suiteSize, f: 0, s: 0, i: 0 }),
     },
     passed: suiteSize,
     failed: 0,
@@ -304,8 +471,10 @@ export function dynamodbRow(suiteSize, date) {
     implemented: suiteSize,
     unsupported: 0,
     coverageValue: 100,
-    coverage: "100%",
-    total: "100%",
+    coverage: "100.0%",
+    divergenceValue: 0,
+    divergence: "0.0%",
+    total: "100.0%",
     totalValue: 100,
     version: "live (AWS)",
     runDate: date,
@@ -321,22 +490,53 @@ export function dynamodbRow(suiteSize, date) {
 // Largest emulator count in a set of scored rows - the full-suite size.
 export const suiteSizeOf = (rows) => Math.max(0, ...rows.map((r) => r.count));
 
-// Sort emulators by total descending ("-" last), then by display name, exactly
-// as summarise.mjs does. The tie-break compares the plain name, not the
-// `[name](url)` label: comparing the label sorts on the first character after
-// the name - a "]" for a bare name, a space for a parenthetical one - so
-// "Dynoxide (wasm)" would sort above "Dynoxide" on an equal total, putting the
-// preview above the engine it is a variant of. Comparing names makes a base
-// engine a prefix of its variant, so "Dynoxide" sorts above "Dynoxide (wasm)".
-const numTotal = (t) => (t === "-" ? -1 : parseFloat(t));
+// Sort emulators by divergence ascending, then coverage descending, exactly as
+// summarise.mjs does. The order is a risk ranking, not a verdict on which
+// engine is better: a target that diverges nowhere over a narrow surface sits
+// high and is described by its own coverage figure, so no minimum-coverage
+// floor is needed to keep the order honest.
+//
+// The tie-break compares the plain name, not the `[name](url)` label:
+// comparing the label sorts on the first character after the name - a "]" for
+// a bare name, a space for a parenthetical one - so "Dynoxide (wasm)" would
+// sort above "Dynoxide" on an equal figure, putting the preview above the
+// engine it is a variant of. Comparing names makes a base engine a prefix of
+// its variant, so "Dynoxide" sorts above "Dynoxide (wasm)".
+const asc = (v) => (v == null ? Number.POSITIVE_INFINITY : v);
+const desc = (v) => (v == null ? Number.NEGATIVE_INFINITY : v);
 const sortName = (row) => {
   const m = row.target.match(/^\[([^\]]+)\]/);
   return m ? m[1] : row.target;
 };
+const byRisk = (a, b) =>
+  asc(a.divergenceValue) - asc(b.divergenceValue) ||
+  desc(b.coverageValue) - desc(a.coverageValue) ||
+  sortName(a).localeCompare(sortName(b));
+
+// Only projects compete for a place in the order; a build of one travels with
+// it as a nested row. Seating variants in the same list would put builds of one
+// engine in consecutive top slots, which reads as a project occupying the board
+// rather than as one engine with two shapes. Mirrors summarise.mjs.
+// Every row is returned, in project order with each project's builds directly
+// behind it, and each parent additionally carrying its builds on `variants`.
+// The list stays complete on purpose: the target index, the per-target pages
+// and the JSON endpoints all need every scored target, and returning only
+// parents silently dropped the variants from those surfaces. Only the standings
+// renders the nesting, by skipping rows that are a build of something above.
 export function sortRows(rows) {
-  return [...rows].sort(
-    (a, b) => numTotal(b.total) - numTotal(a.total) || sortName(a).localeCompare(sortName(b)),
-  );
+  const byProject = new Map();
+  for (const row of rows) {
+    const project = projectOf(row.slug);
+    if (!byProject.has(project)) byProject.set(project, []);
+    byProject.get(project).push(row);
+  }
+  const groups = [];
+  for (const group of byProject.values()) {
+    const parent = group.find((r) => !isVariant(r.slug)) ?? group[0];
+    parent.variants = group.filter((r) => r !== parent).sort(byRisk);
+    groups.push(parent);
+  }
+  return groups.sort(byRisk).flatMap((parent) => [parent, ...parent.variants]);
 }
 
 // The site used to carry a second markdown-table renderer here, reproducing the

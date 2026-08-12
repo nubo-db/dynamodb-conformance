@@ -30,10 +30,18 @@
         <span>as measured in this run</span>
       </p>
     </div>
+    <!-- The same grade-led hero as the target's own page, graded from this
+         run's figures, so a dated view and the current one read alike. -->
     <div class="shrink-0 text-left sm:text-right">
-      <div class="text-4xl font-bold tnum text-zinc-900 dark:text-white" @text="$data.point.total"></div>
-      <div class="text-sm text-zinc-500 dark:text-zinc-400">
-        correct, across <span class="tnum" @text="$data.point.passed + $data.point.failed"></span> of <span class="tnum" @text="$data.point.count"></span> operations<span webc:if="$data.point.skipped"> · <span class="tnum" @text="$data.point.skipped"></span> unsupported</span>
+      <grade-chip :row="$data.point" :slug="$data.pair.slug" :size="'text-3xl'"></grade-chip>
+      <div class="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
+        <span @text="gradeForRow($data.point, $data.pair.slug).qualifier"></span><span webc:if="capClause($data.point, $data.pair.slug)" class="font-normal text-zinc-500 dark:text-zinc-400" @text="' · ' + capClause($data.point, $data.pair.slug)"></span>
+      </div>
+      <div class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        answers <span class="font-mono tnum" @text="$data.point.divergence"></span> of the suite differently from real DynamoDB
+      </div>
+      <div class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <span class="font-mono tnum" @text="$data.point.coverage"></span> covered<span webc:if="$data.point.skipped"> · <span class="tnum" @text="$data.point.skipped"></span> unsupported</span>
       </div>
     </div>
   </div>
@@ -41,9 +49,37 @@
   <!-- This run's tier breakdown, rendered by the same component the target page
        uses, so a figure means the same thing on both. -->
   <div class="grid grid-cols-3 gap-4 sm:gap-6 mb-12 p-5 rounded-xl bg-zinc-50/70 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10">
-    <tier-bar :name="'Tier 1'" :display="$data.target.display" :tier="$data.point.tiers.tier1"></tier-bar>
-    <tier-bar :name="'Tier 2'" :display="$data.target.display" :tier="$data.point.tiers.tier2"></tier-bar>
-    <tier-bar :name="'Tier 3'" :display="$data.target.display" :tier="$data.point.tiers.tier3"></tier-bar>
+    <tier-bar :detail="true" :name="'Tier 1'" :display="$data.target.display" :tier="$data.point.tiers.tier1"></tier-bar>
+    <tier-bar :detail="true" :name="'Tier 2'" :display="$data.target.display" :tier="$data.point.tiers.tier2"></tier-bar>
+    <tier-bar :detail="true" :name="'Tier 3'" :display="$data.target.display" :tier="$data.point.tiers.tier3"></tier-bar>
+  </div>
+
+  <!-- Runs before the metric changed were published as a single correctness
+       percentage. They are rebuilt from their own results and restated here in
+       divergence and coverage, so a figure quoted from this page at the time
+       will not match what it shows now. -->
+  <p webc:if="scoredOnCorrectness($data.pair.date)" class="mb-6 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3 text-sm text-zinc-600 dark:text-zinc-300 max-w-2xl">
+    When this run was published the board led with a single correctness percentage. The figures
+    here are that run's own results restated as divergence and coverage, so they read differently
+    from what this page showed at the time. The <a href="/changelog" class="underline hover:text-brand-700 dark:hover:text-brand-300">changelog</a> has the change.
+  </p>
+
+  <!-- How it got to this run. The same two plots as the target page, truncated at
+       this date: a historical run page stated its figures but drew no trend, so a
+       reader had no way to see whether the run was a step forward or a
+       regression without navigating away. -->
+  <div webc:if="$data.seriesTo.length > 1" class="mb-12">
+    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">How it got here</h2>
+    <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4 max-w-2xl">
+      <span @text="$data.target.display"></span>'s history up to this run, ending on the figures above.
+      Both are plotted because neither reads correctly alone: divergence falls when a target stops
+      attempting an operation it used to get wrong, so a fall in the first plot is only an improvement
+      if the second one holds. The <a :href="'/targets/' + $data.pair.slug" class="underline hover:text-brand-700 dark:hover:text-brand-300">target's own page</a> carries the full history.
+    </p>
+    <div class="space-y-8">
+      <target-chart :geo="chartGeometry($data.seriesTo, { metric: 'divergence', H: 215 })" :charttitle="$data.target.display + ' divergence up to ' + $data.pair.date"></target-chart>
+      <target-chart :geo="chartGeometry($data.seriesTo, { metric: 'coverage', H: 215 })" :charttitle="$data.target.display + ' coverage up to ' + $data.pair.date"></target-chart>
+    </div>
   </div>
 
   <!-- What this run found. Same list treatment as the target page's gaps, so a

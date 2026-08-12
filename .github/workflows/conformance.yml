@@ -31,8 +31,15 @@ on:
         description: "ExtendDB git ref to build (blank = latest release)"
         required: false
         default: ""
-  repository_dispatch:
-    types: [dynoxide-release, extenddb-release]
+  # No repository_dispatch. A `[dynoxide-release, extenddb-release]` trigger
+  # sat here and nothing ever fired it - the sending repo dispatches to its own
+  # docs site, not to this one - so it read as a live path and was not one, and
+  # the ground-truth jobs excluded the event anyway. Wiring it up is the wrong
+  # fix rather than the missing one: two named targets would refresh the whole
+  # board within minutes of their own release while the other six waited for
+  # Sunday, and one of the two is the board author's engine. Every target's row
+  # is refreshed together, by the weekly cron or by a merge to main, or the
+  # dates in the table stop meaning the same thing per row.
 
 permissions:
   contents: read

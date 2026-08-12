@@ -17,7 +17,7 @@ eleventyExcludeFromCollections: true
     <link href="{{ site.url }}/runs/{{ r.id }}"/>
     <id>{{ site.url }}/runs/{{ r.id }}</id>
     <updated>{{ r.startTime | isoDateTime }}</updated>
-    <summary>{{ r.emulatorCount }} emulators scored against live AWS DynamoDB ({{ r.suiteSize }} tests). Top emulator: {{ r.headline.topDisplay }} at {{ r.headline.topTotal }}.</summary>
+    <summary>{{ r.emulatorCount }} emulators scored against live AWS DynamoDB ({{ r.suiteSize }} tests). Closest match: {{ r.headline.topDisplay }}{% if r.headline.graded %} at grade {{ r.headline.topGrade }}{% endif %}, diverging on {{ r.headline.topDivergence }} of the suite and covering {{ r.headline.topCoverage }}.</summary>
   </entry>
   {%- endfor %}
 </feed>

@@ -31,15 +31,64 @@ export const GROUND_TRUTH_SLUG = 'dynamodb'
 // CONFORMANCE_TARGET - see vitest.config.ts), a scratch file that must not be
 // scored, badged, or listed in the results table. `summary` is the versioned
 // per-region artefact this scoring layer emits (results/summary.json), a
-// product of the pipeline rather than a target's run output. Kept here so the
-// table and the badges agree on what to skip, the same way they share
-// GROUND_TRUTH_SLUG.
-export const RESERVED_SLUGS = new Set(['local', 'summary'])
+// product of the pipeline rather than a target's run output. `tag-manifest` is
+// the capability index (scripts/tag-manifest.mjs), a document with no
+// testResults at all - it was excluded only by the extension filters callers
+// happened to write above this check, which is why testIdentities threw on it.
+// Kept here so the table and the badges agree on what to skip, the same way
+// they share GROUND_TRUTH_SLUG.
+export const RESERVED_SLUGS = new Set(['local', 'summary', 'tag-manifest'])
+
+// The lanes real AWS is observed in, beyond the gating run. Most of the suite
+// runs in one job, but S3 export/import, Kinesis and the UpdateTable GSI
+// backfills are far too slow for its credential window and run in jobs of
+// their own (package.json's test:integrations and test:gsi). Their documents
+// land beside the ground-truth results file as `<ground truth>.<lane>.json`,
+// where scripts/summarise.mjs folds them into it.
+export const GROUND_TRUTH_LANES = ['integrations', 'gsi']
+
+// Whether a result-file slug is one of those lane documents. They are evidence
+// behind the ground-truth row, not runs of their own, so nothing may score,
+// badge or seat them as a target.
+export function isGroundTruthLane(slug) {
+  return GROUND_TRUTH_LANES.some((lane) => slug === `${GROUND_TRUTH_SLUG}.${lane}`)
+}
 
 // Whether a result-file slug is a published conformance target. False for the
-// reserved scratch slugs above.
+// reserved scratch slugs above and for the ground-truth lanes.
 export function isPublishedTarget(slug) {
-  return !RESERVED_SLUGS.has(slug)
+  return !RESERVED_SLUGS.has(slug) && !isGroundTruthLane(slug)
+}
+
+/**
+ * The target slug a results file belongs to, or null if it is not one.
+ *
+ * `results/` holds six kinds of file - a target's run, the ground-truth lane
+ * documents, indeterminate sidecars, badge endpoints, version stamps, and
+ * pipeline artefacts that are not runs at all - and every caller that walked
+ * the directory rebuilt a subset of this rule from memory. Three defects came
+ * from the gaps: a lane document scored as an emulator holding a fraction of
+ * the suite, testIdentities thrown on the tag manifest, and the manifest
+ * passing isPublishedTarget because it was filtered by extension somewhere
+ * else instead.
+ *
+ * Returns the slug rather than a boolean so a caller never re-derives it with
+ * basename and disagrees about where the name ends. `dynamodb.gsi.json` is a
+ * lane, not a target called `dynamodb.gsi`.
+ *
+ * Accepts a path or a bare file name.
+ */
+export function targetResultSlug(path) {
+  const name = String(path).split('/').pop() ?? ''
+  if (!name.endsWith('.json')) return null
+  if (name.endsWith('.badge.json') || name.endsWith('.indeterminate.json')) return null
+  const slug = name.slice(0, -'.json'.length)
+  return isPublishedTarget(slug) ? slug : null
+}
+
+/** Whether a results file is a target's own run document. */
+export function isTargetResultFile(path) {
+  return targetResultSlug(path) !== null
 }
 
 export function tierOf(filePath) {
@@ -95,6 +144,35 @@ export function scoreResults(raw, sidecar = null) {
 // percentage. Null when nothing ran, so callers render "-".
 export function passRate(passed, failed) {
   return passed + failed === 0 ? null : (passed / (passed + failed)) * 100
+}
+
+// The two published axes over one set of counts, both against the whole
+// suite so neither can hide behind the other. Divergence is null when the
+// target implemented nothing: diverging nowhere because you attempted
+// nothing is the absence of a score, not a good one, and a zero would rank
+// an empty target above every real engine. One definition, shared by the
+// results table, the badges and the site, so the axes behind a published
+// grade cannot drift between surfaces.
+export function axesOf({ passed, failed, count, indeterminate = 0 }) {
+  const implemented = passed + failed
+  // A run that did not observe the whole suite is not scored at all.
+  //
+  // An indeterminate is a failed observation: nobody knows what the target
+  // would have answered. Holding it against coverage let an infrastructure
+  // timeout move a published letter, and taking it out of the denominator was
+  // worse - divergence then fell further than coverage, so converting a fail
+  // into an indeterminate bought a better letter than withdrawing it would,
+  // and a target can induce one by answering 503 (see isTransport in
+  // src/indeterminate.ts). Both readings grade a partial run.
+  //
+  // So neither figure is published for one. The row falls back to its last
+  // clean measurement, carried and dated like any other untested row, which
+  // is what the board already does for a run-level indeterminate.
+  if (indeterminate > 0) return { divergence: null, coverage: null }
+  return {
+    divergence: count === 0 || implemented === 0 ? null : (failed / count) * 100,
+    coverage: count === 0 ? null : (implemented / count) * 100,
+  }
 }
 
 // ── Per-region scoring ───────────────────────────────────────────────────────

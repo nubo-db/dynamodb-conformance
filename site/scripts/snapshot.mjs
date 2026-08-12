@@ -18,7 +18,7 @@
 // write is guarded: a fetch that fails or returns something unusable leaves the
 // committed copy alone, because a stale fallback beats an empty one.
 
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -37,7 +37,23 @@ const log = (msg) => console.error(`[snapshot] ${msg}`);
 
 // The per-region overlay first, so buildModel can join it into the conformance
 // fallback and the committed model matches what a live build produces.
-const summarySnaps = await fetchSummaries({ token, timeoutMs, log });
+//
+// The checkout's own results/summary.json leads the fetched history, which all
+// comes from main. On a branch that changes the artefact the fallback would
+// otherwise mirror a shape the branch has moved past, and the hermetic build
+// check renders that fallback. assemble() keeps the first snapshot it sees for
+// a run date, so on main this changes nothing.
+async function localSummarySnapshot() {
+  try {
+    const raw = JSON.parse(await readFile(join(root, "..", "results", "summary.json"), "utf8"));
+    return [{ sha: "working-tree", raw }];
+  } catch (err) {
+    log(`no local results/summary.json to lead the history (${err.message})`);
+    return [];
+  }
+}
+
+const summarySnaps = [...(await localSummarySnapshot()), ...(await fetchSummaries({ token, timeoutMs, log }))];
 const summary = assemble(summarySnaps);
 if (!summary.latest) {
   console.error("[snapshot] no summary snapshots reconstructed - refusing to write an empty overlay");
@@ -116,12 +132,25 @@ const mirrors = [
   },
 ];
 
+// Each mirrored file lives in this repository, so the checkout is the better
+// source: fetching from main mirrors what is published rather than what the
+// branch holds, and a branch that edits one of these ships a fallback
+// contradicting its own canonical copy. Falls back to the fetch when the file
+// is missing locally, which keeps this working from a partial checkout.
+async function mirrorBody(path) {
+  try {
+    return await readFile(join(root, "..", path), "utf8");
+  } catch {
+    const res = await fetch(`${RAW_BASE}/${path}`, { signal: AbortSignal.timeout(timeoutMs) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.text();
+  }
+}
+
 let failed = 0;
 for (const { path, into, check } of mirrors) {
   try {
-    const res = await fetch(`${RAW_BASE}/${path}`, { signal: AbortSignal.timeout(timeoutMs) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const body = await res.text();
+    const body = await mirrorBody(path);
 
     const verdict = check(body);
     if (typeof verdict === "string") throw new Error(verdict);

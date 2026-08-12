@@ -3,6 +3,329 @@
 A dated log of how the conformance test suite has grown: tests added, tiers
 broadened, and targets brought into the run. Newest first.
 
+## 2026-08-12 (3.0.0)
+
+**Read this first if you consume the JSON.** The data endpoints go from schema
+2 to schema 4 in this one release. Schema 3 was never published on its own, so
+there is no intermediate version to have been running: everything on 2 crosses
+both steps at once. Schema 3 is breaking in four ways and they are listed under
+"Everything else that was a percentage follows the headline down" below. Schema
+4 is additive on top of it. The one that fails silently is `movement.state`,
+whose values changed from `up`/`down` to `improved`/`regressed` - the old names
+still parse and now mean the opposite direction. `movement.delta` inverts the
+same way without changing shape: it was computed from correctness and is now
+computed from divergence, so the sign of a delta means the opposite of what it
+did and nothing in the data says so.
+
+Every target now wears a letter grade, read from the two published figures.
+Divergence sets the letter - A under 5%, B under 15%, C under 25%, D under 35%,
+F beyond - and coverage can only lower it, never raise it: a third of whatever
+a target leaves unimplemented is added to its divergence before the bands are
+read, so a target implementing the whole suite is graded on divergence alone.
+A+ is exactly zero divergence at full coverage, and nothing on the board holds
+it. No measurement changed. The 5% and 25% boundaries carry over the numbers of
+the colour bands the board has always published, though those sat on
+correctness and these sit on divergence, so the same numbers cut a different
+line at anything below full coverage; 15%, 35% and the coverage weight are new.
+The criteria are versioned (v1) and dated in the methodology, because where a
+threshold sits is a hand-picked input to a letter and moving one regrades
+targets whose results never changed.
+
+The coverage weight rolls rather than stepping. An earlier draft of these
+criteria capped in three jumps, at 90%, 70% and 50% covered, and between two
+steps a target could decline the operations it failed, cross a band, and never
+come near the step that would have held it. Pricing every withdrawal instead of
+three of them removes that cliff. It does not make withdrawal unprofitable: the
+effective figure still falls by two thirds of whatever is withdrawn, so a
+target that declines what it fails still gains, it just pays more. Only
+weighting a declined test exactly as heavily as a failed one would remove the
+gain, and that distinction is what the board is built on. Rank on the two
+figures rather than the letter if it matters to you.
+
+- Dynoxide reads `A` where it read `0.0% diverges, 98.6% covered` - both
+  figures stay printed beside the letter. It diverges nowhere, and the
+  1.4-point coverage gap is what denies it A+. Its WebAssembly build reads `A`
+  on the same zero divergence over 86.7% coverage, so neither reaches A+
+  without running everything. Two rows sit lower than the
+  stepped draft would have put them: Dynoxide, which is the board author's own,
+  and Dynalite, which is not.
+- Real DynamoDB reads `baseline`, not a letter. A grade measures how far a
+  target sits from real DynamoDB, so grading the yardstick against itself would
+  seat it in a band an engine had to earn its way into. Its two figures still
+  publish.
+- A row says where coverage is holding its letter, whether or not it had to
+  lower one. Dynalite diverges 12.3%, which is the B band on its own, over
+  80.0% coverage, and the third of that shortfall reads it up to an effective
+  19.0 and grades it `C`. Without the clause a capped row looks identical to
+  one with room above it, and a reader comparing Dynalite's **C** with
+  LocalStack's **C** could not see that only one of the two is boxed in.
+- `maintainedByAuthor` now reads `true` for `dynoxide-wasm`. It is keyed on the
+  project rather than the exact slug, because a build of a self-maintained
+  engine is the same conflict of interest as the engine. The flag was
+  understating the disclosure, so this widens it.
+- The per-target badges show the grade under a `parity` label. They had still
+  been publishing the correctness percentage the board retired, under a
+  `conformance` label, so a badge could disagree with the table it cited. The
+  endpoint URL is unchanged and is now documented on the agent guide, which is
+  where a badge's only version channel lives: shields pins its own
+  `schemaVersion` to 1, so the path is all there is.
+- The README table gains a Grade column, and the data endpoints (schema 4)
+  carry each target's grade plus the full criteria in `metrics.grade`. Each
+  grade carries `capAt`, the ceiling a letter is sitting at, alongside the
+  `capped` flag that says whether reaching it moved the letter.
+- The board leads with the highest-graded engine, because the baseline moved
+  out of the standings and into a panel above them. Today that puts the
+  board author's own engine in the top card, with the conflict-of-interest
+  disclosure on the card itself.
+- `results/summary.json` gains `regionFailures`: for a target that diverges
+  nowhere in its headline region, the tests it fails elsewhere, by name. The
+  site build reads them against the split registry to check the top grade's
+  premise by identity rather than by count. Additive, and `schemaVersion` stays
+  1, so an existing reader is unaffected.
+- The baseline row is measured rather than pinned once real AWS has been
+  observed across the whole suite. It runs in three passes and only the main
+  one reached the published artefact, so the row claimed 998 of 998 on a run
+  that recorded 981. The passes are merged before scoring now, each with its own
+  capture date, and the row stays pinned and says so until all three report.
+- The A+ premise is checked in the site build rather than beside it. It lived
+  in a test suite no publishing path depended on, while the methodology called
+  it a build-time guard.
+- The grading criteria's effective date comes from one constant. Five surfaces
+  stated it in prose, and the feed reads it to decide which runs may carry a
+  letter, so a page disagreeing with it would date history differently from the
+  way the feed treats it.
+- A movement reads `4.9pp less` where it read `-4.9pp`. A down arrow beside a
+  negative number said the direction twice and whether it was good not at all,
+  which on an inverted metric is the wrong way round.
+- Every heading on the prose pages carries an id, so any section can be linked
+  to directly. The two anchors that were already hand-written keep their
+  published slugs.
+- A badge whose target is still on the board but has no results this run reads
+  `no data` rather than disappearing. The URL sits in other people's READMEs,
+  where a 404 reads as the project having vanished.
+- The Atom feed carries no letter on any run measured before criteria version 1
+  took effect, which today is every run in it. The feed had been rewriting each
+  entry's summary with a grade the run never had, while leaving `<updated>`
+  alone so no subscriber re-notified: the one artefact built to be archived by
+  other people was restating its own history quietly. Expect the letters to
+  start appearing from the first run measured after the criteria date.
+
+The board publishes two figures now instead of one, and the index exclusions
+started meaning what they said. No target was re-run for this and no
+pass, fail or skip changed: what moved is how the same counts are expressed, so
+a figure that looks different here is the same measurement described more
+honestly. Divergence puts skips in the denominator where correctness left them out, so
+the two metrics can order the board differently where one target declines much
+more than another. On this run they do not: every row sits where correctness
+would have put it.
+
+**A score is now divergence and coverage, never one number.** Divergence is
+the share of the whole suite a target answers differently from real DynamoDB.
+Coverage is the share it implements at all. They are reported apart because a
+skip and a fail are different problems: an operation a target declines is
+something you find in minutes and plan around, and one it gets quietly wrong is
+something you find in production. Summing them would price them the same.
+
+- The standings are ordered by divergence. That ranks how much a target gets
+  wrong; it is not a verdict on which emulator to pick, which depends on the
+  operations you need. A target with no divergences over a narrow surface sits
+  high, and its coverage figure says how narrow.
+- Dynoxide reads `0.0% diverges, 98.6% covered` where it used to read `100%`.
+  Ministack reads `11.2% diverges, 100.0% covered` where it used to read
+  `88.8%`. Neither engine changed.
+- The Region column is gone. It named the cohort a target matched at its best
+  rate, which read as breadth: a target equally wrong in every region showed
+  `all regions` while one perfect in 6 showed `6 regions`, even though the
+  second diverges less in its worst region than the first does in its best.
+  Regional disagreement moves a figure by at most 0.3 points, across three
+  tests of about a thousand, so the detail sits in `results/summary.json` and
+  on each target's page instead.
+- Movement follows divergence, where lower is better. The states are
+  `improved` and `regressed` rather than `up` and `down`, because a rise is now
+  the bad direction and the old names would have coloured a regression green.
+  **Anything reading `movement.state` from the JSON needs updating.**
+- `latest.json` and `runs.json` gain `divergence`, and `project`,
+  `configuration` and `isVariant` so a consumer can tell a build of an engine
+  from a rival without parsing display names. The raw counts stay beside every
+  figure, so anyone preferring their own arithmetic has it.
+- A build of an engine nests under it rather than taking a row beside it. You
+  choose between projects; which build you want follows from where your code
+  runs. Dynoxide (wasm) keeps its own figures, its own page and its own link.
+- Each target lists how it is actually distributed - Docker, npx, cargo, a JAR
+  and so on - with the project's own page for each. These are the only claims
+  on the board the suite does not measure, so each one carries the link that
+  backs it.
+
+**Everything else that was a percentage follows the headline down.** The
+headline changed first and the rest of the page did not, so a target's page ran
+in two directions at once: a falling divergence figure above a rising
+correctness chart, with nothing saying they were different measurements.
+
+- Tier figures are divergence within each tier - that tier's fails over its
+  whole size - with coverage beside them. Dynalite's Tier 2 reads `14.1%
+  diverges, 20.1% covered` where it read `30.0%`; the engine is unchanged, and
+  the second pair says the thing the single figure hid, which is that Dynalite
+  attempts a fifth of Tier 2. Correctness is still there under its own name.
+- The colour bands inverted with the figures. A tier bar was green at 95% and
+  above; left alone, a target diverging on 2% of a tier would have rendered
+  red. Bar length is that tier's coverage and its colour is that tier's
+  divergence, the same encoding the standings row already used.
+- A target's history is two plots now, divergence and coverage, where it was
+  one chart headed "Conformance over time". Both are needed because divergence
+  falls when a target stops attempting an operation it used to get wrong, so a
+  divergence line alone can show an improvement that is really a withdrawal.
+  Dynalite is the live case: 88 failing tests became skips on 24 July, dropping
+  its divergence 8.8 points and its coverage 8.8 points in the same run, and the
+  single plot rendered that as the engine getting markedly better. This is the same reason the board
+  publishes two figures instead of summing them, applied to the time axis.
+- Each plot keeps its own orientation, so a regression always moves away from
+  the pinned edge: divergence pins zero to the bottom axis and rises for a
+  regression, coverage pins 100 to the top and falls for one. Neither is
+  squashed onto a shared axis with the other, and each names its own sense
+  down the side of the plot, because a reader can't be expected to assume which
+  way is good for either. The caption reads off the worst run for that metric -
+  the highest divergence, the lowest coverage - which stopped being the same
+  run once the headline changed.
+- The old heading was wrong as well as incomplete. A line sitting at 0% under
+  "Conformance over time" invites reading as no conformance at all, when 0%
+  divergence is the best result there is.
+- The per-region drilldown is divergence too, ordered best first. Best first
+  means lowest first now, so a descending sort would have put a target's worst
+  regions at the top under a heading that reads as its best.
+- Each tier states its coverage as a figure, not only as the length of its bar.
+  Divergence is paired with a number everywhere else it is published, and a
+  tier whose coverage lived solely in a bar was the one place a thin surface
+  stopped being stated: Dynalite's Tier 2 diverges on 14.1%, which reads
+  unremarkable until you know it attempts a fifth of the tier.
+- The per-operation table on a target page is divergence and coverage too, with
+  the counts as fails over each operation's whole size. It was a pass rate over
+  what the operation attempted, which left the most detailed table on the page
+  running opposite to every figure above it.
+- **These are schema 3's four breaking changes, and every consumer was on
+  schema 2, so all four land at once.** A tier no
+  longer carries `pct` and `value`; it carries `divergence`, `coverage` and
+  `correctness`, each with a `pct` and a `value` of its own. The whole-suite
+  correctness percentage is `correctness`, not `total`: `total` also names the
+  raw test count inside `counts`, so the same word meant a count in one place
+  and a percentage in another. Anything reading a tier's `pct`, or `total` as a
+  percentage, has to be updated - read as-is, both now invert or vanish. The
+  last two are `movement.state` and `movement.delta`, whose values are named
+  above; they are listed here too so a consumer counting the breaks against the
+  version gets all of them in one place. They are the dangerous ones, because
+  `up` and `down` still parse and a delta keeps its shape, and both now mean the
+  opposite thing.
+
+**A headline says how many regions it came from.** Each target is scored
+against every observed region and headlines its best-matching cohort, and the
+size of that cohort only appeared on the target's own page. A figure earned
+across six regions and one earned across every region rendered identically.
+
+- The board and the targets index show the count beside the figure - `6 of 32
+  regions` - for the same reason coverage sits beside divergence: the number
+  that qualifies a headline belongs with it, not a click away. The full cohort
+  listing stays on the target page, where a reader has asked for that detail.
+
+**A methodology claim was wrong, and is corrected.** The page said that
+measuring divergence over the whole suite stops an emulator implementing a
+sliver from posting a perfect score on a thin surface. It doesn't: zero fails
+is 0.0% at any coverage, and the Dynoxide WebAssembly build is a live
+counterexample at 0.0% over 86.7%. A second formulation - that whole-suite
+measurement stops a target lowering its divergence by attempting less - was
+false too, so the page now states the identity that does hold rather than
+claiming an immunity the arithmetic never gave. A test going from failing to
+skipped leaves the divergence numerator and the coverage numerator together over
+the same unchanged denominator, so both figures fall by exactly the same amount.
+Withdrawal is disclosed rather than silent: it costs precisely as much coverage
+as it gains divergence. Dynalite is the live case. On 24 July, 88 of its failing
+tests became skips, nothing was fixed, and its divergence and coverage each fell
+8.8 points - both of them exactly 88/998. The correctness figure this replaced
+rose 8.4 points on that same act, because those 88 tests left its denominator as
+well as its numerator and no second figure remained to record it.
+
+**Every figure on a row now comes from one region.** A target's headline is its
+best-matching region, but only the headline was taken from that region: the tier
+split and the raw counts stayed on the baseline region's basis. Under correctness
+that never had to reconcile, because each tier had its own denominator.
+Divergence is additive, so it does: the tiers stopped decomposing the headline,
+`failed / total` from a row's own published counts stopped equalling its
+published divergence, and this table disagreed with the board about three
+targets' Tier 3 figures. The whole region entry is applied now, and the region is
+named on the row and in the JSON.
+
+- The overlay is also matched to the run it describes. It was keyed on the date
+  real AWS was last swept, while each target entry inside carries its own run
+  date, so a summary committed after a later run put that later run's figures on
+  an earlier run's page. Four rows on the 22 July run published a divergence from
+  the 24 July run: Dynalite read 12.3% beside its own count of 213 fails in 998.
+  Those four rows now read what that run measured - Dynalite 21.3%, ExtendDB
+  15.3%, Dynoxide 5.2%, DynamoDB Local 16.8% - and 22 other rows' fail counts
+  move by one or two, to the headline region's count. No target was re-run for
+  any of it.
+- Coverage is unaffected, and can't be affected: scoring a target against a
+  region only ever turns a pass into a fail or back, so what a target implements
+  is the same in every region. Divergence is the figure a region decides, which
+  is why it is the one the headline region governs.
+
+**The index exclusions create no indexed table (#116).** `!gsi and !lsi` used
+to select the right tests and then build the tables anyway, because
+provisioning ran over a fixed list before any filter applied. An engine with no
+secondary-index support died in setup whatever it had asked for.
+
+- Shared tables are created on demand: a test file declares what it needs, and
+  setup creates only what the running file declared. A tag filter skips tests
+  but still imports the file, so scoping declarations to the file is what makes
+  the exclusion real.
+- The shared composite table split. The plain name carries no index; a second
+  variant carries the same LSIs and GSIs under their existing names. Tests
+  depending on an index moved into files of their own, so a file's declaration
+  says whether it needs one.
+- The `gsi` and `lsi` tags now mark index dependency wherever it occurs,
+  including the tests that never name an index and are only rejected because
+  the attribute they write is an index key. Both columns grow. No score moves;
+  tags never fed it.
+- Three guards: a file must declare the shared tables it uses, a test writing
+  an index-key attribute must carry an index tag, and a file using the
+  index-bearing table must carry both.
+
+## 2026-07-21 (2.1.0)
+
+Grew to 982 tests, up 28, all characterised against real DynamoDB across the
+per-region ground truth 2.0.0 put in place. New coverage is PartiQL's
+RETURNING clause; the GSI lifecycle also joins the ground truth, and the
+sweep's drift classifier gains a converged case.
+
+- PartiQL RETURNING (#103, #105): the clause pinned across every PartiQL
+  surface. DELETE accepts only `RETURNING ALL OLD *` and rejects the other
+  three variants with a 400, the message pinned; UPDATE accepts all four
+  ALL/MODIFIED x OLD/NEW forms, where MODIFIED returns just the changed
+  attribute and drops the key. The empty-projection edges are pinned too: a
+  MODIFIED projection that resolves to nothing - a nested leaf, a list index,
+  a batch statement - returns `Items: []` rather than a keyed row.
+  BatchExecuteStatement honours RETURNING; ExecuteTransaction rejects it. The
+  non-upsert paths round it out: INSERT on an existing item, and UPDATE or
+  DELETE behind a false predicate, fail ConditionalCheckFailed and leave the
+  item untouched.
+- PartiQL RETURNING over list indices (#102): the MODIFIED projection shapes
+  for a list-index `SET` or `REMOVE`, pinned against real AWS. The projection
+  reads the literal index against the resulting list (`MODIFIED NEW *`) or the
+  prior list (`MODIFIED OLD *`): an in-range index returns its element, an
+  out-of-range one returns nothing, and multiple changed indices pack into a
+  dense list in ascending index order. So a non-zero index collapses to one
+  element, an append projects only when the index lands inside the new list,
+  and removing the last index yields nothing under NEW while a middle REMOVE
+  returns the shifted element. Setting an index on an absent attribute is
+  rejected, not auto-created. In BatchExecuteStatement a member that fails to
+  parse surfaces per-statement with the short `Code: ValidationError`, the same
+  Code as an execution failure, and does not fail the batch.
+- GSI lifecycle in the ground truth (#100): the 14 UpdateTable GSI lifecycle
+  tests are now observed by the weekly sweep and recorded as per-region ground
+  truth. They are the one slice the gating run drops for runtime, so they were
+  the one slice without a real-AWS answer; the sweep records them without
+  slowing the gate.
+- Drift classification (#104): a drift where every region moves off the pinned
+  answer at once is now classified as converged rather than moved, with the
+  converged path covered end to end.
+
 ## 2026-07-17 (2.0.0)
 
 Per-region scoring lands complete. 2.0.0-pre put the scoring logic in place,

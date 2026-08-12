@@ -30,10 +30,43 @@
         <a webc:else href="#run-history" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300" @text="$data.target.series.length + ' recorded runs'"></a>
       </p>
     </div>
+    <!-- The grade leads, derived from the two figures printed under it at
+         render time (gradeOf) so the letter can never disagree with them.
+         The bare percentage used to stand here alone, and its best value
+         read worst: a reader who takes "0.0%" as "scores nothing" has it
+         exactly backwards. -->
     <div class="shrink-0 text-left sm:text-right">
-      <div class="text-4xl font-bold tnum text-zinc-900 dark:text-white" @text="$data.target.current.total"></div>
-      <div class="text-sm text-zinc-500 dark:text-zinc-400">
-        correct, across <span class="tnum" @text="$data.target.current.implemented"></span> of <span class="tnum" @text="$data.target.current.count"></span> operations<span webc:if="$data.target.current.unsupported"> · <span class="tnum" @text="$data.target.current.unsupported"></span> unsupported</span>
+      <grade-chip :row="$data.target.current" :slug="$data.target.slug" :size="'text-3xl'"></grade-chip>
+      <div class="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
+        <span @text="gradeForRow($data.target.current, $data.target.slug).qualifier"></span><span webc:if="capClause($data.target.current, $data.target.slug)" class="font-normal text-zinc-500 dark:text-zinc-400" @text="' · ' + capClause($data.target.current, $data.target.slug)"></span>
+      </div>
+      <div class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        answers <span class="font-mono tnum" @text="$data.target.current.divergence"></span> of the suite differently from real DynamoDB
+      </div>
+      <!-- Stated rather than left to be inferred from the letter. Qualified by
+           the cohort, because the headline is the best of the observed regions:
+           unhedged, it read as unconditional on the three rows that carry it,
+           two of which are this board author's own builds. -->
+      <div webc:if="$data.target.current.divergenceValue === 0 && $data.target.current.implemented > 0"
+        class="mt-1 text-sm font-medium text-pass-700 dark:text-pass-400">
+        <span webc:if="!$data.target.current.divergenceWorstLabel">Conforms on everything it implements</span>
+        <span webc:else>
+          Conforms on everything it implements in
+          <span @text="regionCount($data.target.current.regionLabel)"></span> regions
+        </span>
+      </div>
+      <!-- And what it does in the rest of them, so the range is on the page next
+           to the figure rather than only in the drilldown below. For a target
+           at zero headline divergence the residue has a provable shape:
+           per-region scoring only changes a verdict on a confirmed split, so
+           its differences elsewhere can only be behaviours where real
+           DynamoDB's own regions disagree - an ordinary bug would fail in
+           every region, the headline included. -->
+      <div webc:if="$data.target.current.divergenceWorstLabel" class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400 max-w-xs sm:ml-auto">
+        up to <span class="font-mono tnum" @text="$data.target.current.divergenceWorstLabel"></span> in the others<span webc:if="$data.target.current.divergenceValue === 0">, only on <a href="/ground-truth" class="underline decoration-dotted underline-offset-2 hover:text-brand-700 dark:hover:text-brand-300">behaviours where real DynamoDB itself disagrees between regions</a></span>
+      </div>
+      <div class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <span class="font-mono tnum" @text="$data.target.current.coverage"></span> of the suite implemented<span webc:if="$data.target.current.unsupported"> · <span class="tnum" @text="$data.target.current.unsupported"></span> tests it doesn't attempt</span>
       </div>
     </div>
   </div>
@@ -51,17 +84,83 @@
 
   <!-- Current tier breakdown -->
   <div class="grid grid-cols-3 gap-4 sm:gap-6 mb-12 p-5 rounded-xl bg-zinc-50/70 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10">
-    <tier-bar :name="'Tier 1'" :display="$data.target.display" :tier="$data.target.current.tiers.tier1"></tier-bar>
-    <tier-bar :name="'Tier 2'" :display="$data.target.display" :tier="$data.target.current.tiers.tier2"></tier-bar>
-    <tier-bar :name="'Tier 3'" :display="$data.target.display" :tier="$data.target.current.tiers.tier3"></tier-bar>
+    <tier-bar :detail="true" :name="'Tier 1'" :display="$data.target.display" :tier="$data.target.current.tiers.tier1"></tier-bar>
+    <tier-bar :detail="true" :name="'Tier 2'" :display="$data.target.display" :tier="$data.target.current.tiers.tier2"></tier-bar>
+    <tier-bar :detail="true" :name="'Tier 3'" :display="$data.target.display" :tier="$data.target.current.tiers.tier3"></tier-bar>
+  </div>
+
+  <!-- Other builds of this project. Nesting them in the standings keeps a
+       project to one row, but it also takes away the row a reader would have
+       clicked, so the parent page has to carry the way through. -->
+  <div webc:if="$data.target.current.variants && $data.target.current.variants.length" class="mb-12">
+    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Other builds</h2>
+    <p class="text-sm text-zinc-600 dark:text-zinc-300 mb-4 max-w-2xl">
+      Same project, built for a different place to run. Each is measured separately, because what a
+      build implements can differ from what the project does.
+    </p>
+    <!-- The same grade-led reading as the build's row on the board, through
+         the same shared phrasing: this card carried a bare "0.0% diverges"
+         after every other surface had stopped making unqualified zero
+         claims. -->
+    <ul class="grid gap-2 sm:grid-cols-2">
+      <li webc:for="v of $data.target.current.variants">
+        <a :href="'/targets/' + v.slug"
+          class="group flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3 hover:border-brand-300 dark:hover:border-brand-500/40 transition-colors">
+          <grade-chip :row="v" :size="'text-sm shrink-0'"></grade-chip>
+          <span class="min-w-0">
+            <span class="block text-sm font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-brand-700 dark:group-hover:text-brand-300"
+              @text="configurationOf(v.slug) || v.display"></span>
+            <span class="block text-xs leading-snug text-zinc-500 dark:text-zinc-400">
+              <span class="font-medium text-zinc-600 dark:text-zinc-300" @text="gradeLine(v)"></span><span webc:if="regionClause(v)" @text="' ' + regionClause(v)"></span> · covers <span class="tnum" @text="v.coverage"></span><span webc:if="capClause(v)" @text="' · ' + capClause(v)"></span>
+            </span>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- How to run it. The standings show these as marks, for shape at a glance;
+       here each one is named and links to the page documenting it. Unlike every
+       figure on this page these are asserted rather than measured - nothing in
+       the suite can observe that a project ships a Docker image - so the source
+       link is the point, not decoration: a reader checks the claim rather than
+       taking it. -->
+  <div webc:if="channels($data.target.slug).length" class="mb-12">
+    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">How to run it</h2>
+    <p class="text-sm text-zinc-600 dark:text-zinc-300 mb-4 max-w-2xl">
+      Every way <span @text="$data.target.display"></span> is distributed, each linking to the project's own
+      documentation for it. These are the project's claims, not the suite's measurements.
+    </p>
+
+    <p webc:if="requires($data.target.slug)" class="mb-4 text-sm text-zinc-600 dark:text-zinc-300 max-w-2xl">
+      <span class="font-medium text-zinc-700 dark:text-zinc-200">Needs:</span>
+      <span @text="requires($data.target.slug)"></span>
+    </p>
+
+    <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      <li webc:for="c of channels($data.target.slug)">
+        <a :href="c.url" target="_blank" rel="noopener noreferrer nofollow"
+          class="group flex items-center gap-2.5 rounded-lg border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-3 py-2 hover:border-brand-300 dark:hover:border-brand-500/40 transition-colors">
+          <svg class="w-4 h-4 shrink-0 text-zinc-500 dark:text-zinc-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+            <path :d="c.path" />
+          </svg>
+          <span class="text-sm text-zinc-700 dark:text-zinc-200" @text="c.label"></span>
+          <svg class="w-3 h-3 ml-auto shrink-0 text-zinc-300 dark:text-zinc-600 group-hover:text-brand-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7m0 0H8m9 0v9" /></svg>
+        </a>
+      </li>
+    </ul>
+
+    <p webc:if="runNote($data.target.slug)" class="mt-4 rounded-lg border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3 text-sm text-zinc-600 dark:text-zinc-300 max-w-2xl">
+      <span @text="runNote($data.target.slug)"></span>
+    </p>
   </div>
 
   <!-- Per-region drilldown: how this target scores across the observed regions,
        grouped by rate. Hidden when the per-region overlay isn't available. -->
   <div webc:if="$data.target.hasRegions" class="mb-12">
-    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Per-region conformance</h2>
+    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Per-region divergence</h2>
     <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4 max-w-2xl">
-      The headline is <span class="font-medium text-zinc-600 dark:text-zinc-300" @text="regionLabel($data.target.regionLabel)"></span>. Real DynamoDB doesn't behave identically in every region, so a target can match some regions more closely than others. eu-west-2 is marked as the historical baseline, and a region that couldn't be resolved this sweep is flagged rather than counted as a disagreement.
+      The headline is <span class="font-medium text-zinc-600 dark:text-zinc-300" @text="regionLabel($data.target.regionLabel)"></span>, measured against <span class="font-medium text-zinc-600 dark:text-zinc-300" @text="regionCount($data.target.regionLabel)"></span> observed regions<span webc:if="$data.target.current.headlineRegion">, and scored in <span class="font-mono font-medium text-zinc-600 dark:text-zinc-300" @text="$data.target.current.headlineRegion"></span></span>. Real DynamoDB doesn't behave identically in every region, so a target can match some regions more closely than others. Each figure below is divergence in those regions, best first. eu-west-2 is marked as the historical baseline, and a region that couldn't be resolved this sweep is flagged rather than counted as a disagreement.
     </p>
     <div class="space-y-3" @html="regionGroups($data.target.regions)"></div>
   </div>
@@ -69,15 +168,30 @@
   <!-- Affirmative: the areas this target implements completely -->
   <support-badges :supports="$data.target.supports"></support-badges>
 
-  <!-- History chart, or an honest note when there isn't enough to plot -->
+  <!-- History, or an honest note when there isn't enough to plot.
+       Two plots, not one, and for the same reason the board publishes two
+       figures: divergence falls when a target stops attempting an operation it
+       used to get wrong, so a divergence line alone can show an improvement that
+       is really a withdrawal. Dynalite is the live case - 88 failing tests became
+       skips on 24 July 2026, dropping its divergence 8.8 points and its coverage
+       8.8 points in the same run - and a reader looking only at the first plot would have read
+       that as the engine getting better. -->
   <div class="mb-12">
-    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Conformance over time</h2>
+    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Divergence and coverage over time</h2>
     <div webc:if="$data.target.baseline" class="rounded-xl border border-brand-200 dark:border-brand-500/30 bg-brand-50 dark:bg-brand-500/10 p-5 text-sm text-zinc-600 dark:text-zinc-300">
-      Real DynamoDB is the baseline every other target is measured against, so it's 100% across every run by definition, not a result that moves.
+      Real DynamoDB is the baseline every other target is measured against, so it diverges from itself nowhere on every run by definition, not a result that moves.
     </div>
-    <target-chart webc:elseif="$data.target.series.length > 1" :geo="chartGeometry($data.target.series)" :charttitle="$data.target.display + ' conformance history, ' + $data.target.firstDate + ' to ' + $data.target.lastDate"></target-chart>
+    <div webc:elseif="$data.target.series.length > 1" class="space-y-8">
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 max-w-2xl">
+        Both are plotted because neither reads correctly alone. Divergence falls when a target stops
+        attempting an operation it used to get wrong, so a fall in the first plot is only an
+        improvement if the second one holds.
+      </p>
+      <target-chart :geo="chartGeometry($data.target.series, { metric: 'divergence', H: 215 })" :charttitle="$data.target.display + ' divergence, ' + $data.target.firstDate + ' to ' + $data.target.lastDate"></target-chart>
+      <target-chart :geo="chartGeometry($data.target.series, { metric: 'coverage', H: 215 })" :charttitle="$data.target.display + ' coverage, ' + $data.target.firstDate + ' to ' + $data.target.lastDate"></target-chart>
+    </div>
     <div webc:else class="rounded-xl border border-zinc-200 dark:border-white/10 p-5 text-sm text-zinc-600 dark:text-zinc-400">
-      Only one run recorded so far. The history chart appears once a second run lands.
+      Only one run recorded so far. The history charts appear once a second run lands.
     </div>
   </div>
 
@@ -86,7 +200,9 @@
   <div webc:if="$data.target.areas.length" class="mb-12 defer-render">
     <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">By operation</h2>
     <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4 max-w-2xl">
-      Every operation this target implements, with the share of its tests that pass.
+      Every operation this target implements, with how much of it diverges and how much of it it
+      covers, on the same two axes as the figures above. The counts are fails over the operation's
+      whole size.
       <span class="whitespace-nowrap"><span class="text-pass-700 dark:text-pass-400 font-bold" aria-hidden="true">✓</span> full</span>,
       <span class="whitespace-nowrap"><span class="text-partial-700 dark:text-partial-400 font-bold" aria-hidden="true">◑</span> partial</span>,
       <span class="whitespace-nowrap"><span class="text-fail-700 dark:text-fail-400 font-bold" aria-hidden="true">✗</span> failing</span>,
@@ -96,15 +212,21 @@
     <div class="space-y-6" @html="targetOperations($data.target.areas)"></div>
   </div>
 
-  <!-- Where it falls short: per-area gaps in the latest run -->
-  <div webc:if="$data.target.breakdown.length" class="mb-12 defer-render">
+  <!-- Two lists, not one. A single "where it falls short" ran together the two
+       questions a reader actually has - what does it get wrong, and what does it
+       not do - distinguished only by a badge on the right-hand side. They are
+       different kinds of problem: a divergence is something you find in
+       production, an unsupported operation is something you plan around. -->
+  <div webc:if="fallsShort($data.target.breakdown).length" class="mb-12 defer-render">
     <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Where it falls short</h2>
     <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4 max-w-2xl">
-      Operation groups with gaps in the latest run, biggest first. <strong class="font-medium text-zinc-600 dark:text-zinc-300">Unsupported</strong> means the target doesn't implement that feature at all, often by design. Open one for the exact tests, or see the
+      Operations <span @text="$data.target.display"></span> implements and answers differently from real
+      DynamoDB, biggest gap first. This is what its divergence figure counts. Open one for the exact
+      tests, or see the
       <a :href="$data.site.sourceRepo" class="text-brand-700 dark:text-brand-300 underline">conformance suite</a>.
     </p>
     <ul class="space-y-2">
-      <li webc:for="a of $data.target.breakdown">
+      <li webc:for="a of fallsShort($data.target.breakdown)">
         <details class="rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03]">
           <summary class="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex items-center justify-between gap-3 p-4">
             <span class="flex items-center gap-2 min-w-0">
@@ -112,9 +234,8 @@
               <span class="text-[0.65rem] uppercase tracking-wide rounded px-1.5 py-0.5 bg-zinc-200/70 dark:bg-white/10 text-zinc-600 dark:text-zinc-300" @text="a.tier.replace('tier', 'Tier ')"></span>
             </span>
             <span class="flex items-center gap-2 shrink-0 text-xs tnum">
-              <span webc:if="a.failed" class="move-down font-medium" @text="a.failed + ' failing'"></span>
-              <span webc:if="a.skipped && a.passed === 0 && a.failed === 0" class="inline-flex items-center rounded-full bg-zinc-200/70 dark:bg-white/10 px-2 py-0.5 text-[0.65rem] uppercase tracking-wide text-zinc-600 dark:text-zinc-300">unsupported</span>
-              <span webc:elseif="a.skipped" class="text-zinc-500 dark:text-zinc-400" @text="a.skipped + ' skipped'"></span>
+              <span class="count-failing font-medium" @text="a.failed + ' diverging'"></span>
+              <span webc:if="a.skipped" class="text-zinc-500 dark:text-zinc-400" @text="a.skipped + ' not attempted'"></span>
             </span>
           </summary>
           <div class="px-4 pb-4">
@@ -144,19 +265,68 @@
     </ul>
   </div>
 
+  <!-- What it doesn't attempt: nothing wrong here, so none of it reaches the
+       divergence figure. It is what the coverage figure is made of. -->
+  <div webc:if="notAttempted($data.target.breakdown).length" class="mb-12 defer-render">
+    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">What it doesn't attempt</h2>
+    <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4 max-w-2xl">
+      Operations <span @text="$data.target.display"></span> declines rather than gets wrong, so none of this
+      counts towards its divergence. It is what the gap in its
+      <span class="font-mono tnum" @text="$data.target.current.coverage"></span> coverage is made of. Each
+      test here skipped itself because the target's own feature probe said the operation isn't
+      implemented, which is often a deliberate choice rather than a defect.
+    </p>
+    <ul class="space-y-2">
+      <li webc:for="a of notAttempted($data.target.breakdown)">
+        <details class="rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03]">
+          <summary class="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex items-center justify-between gap-3 p-4">
+            <span class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-sm text-zinc-900 dark:text-zinc-100 truncate" @text="a.group"></span>
+              <span class="text-[0.65rem] uppercase tracking-wide rounded px-1.5 py-0.5 bg-zinc-200/70 dark:bg-white/10 text-zinc-600 dark:text-zinc-300" @text="a.tier.replace('tier', 'Tier ')"></span>
+            </span>
+            <span class="flex items-center gap-2 shrink-0 text-xs tnum">
+              <!-- "none of it" and "the rest of it" are different facts, and the
+                   old single list showed both as the same "unsupported" badge. -->
+              <span webc:if="a.whole" class="inline-flex items-center rounded-full bg-zinc-200/70 dark:bg-white/10 px-2 py-0.5 text-[0.65rem] uppercase tracking-wide text-zinc-600 dark:text-zinc-300">none of it</span>
+              <span webc:else class="inline-flex items-center rounded-full bg-zinc-200/70 dark:bg-white/10 px-2 py-0.5 text-[0.65rem] uppercase tracking-wide text-zinc-600 dark:text-zinc-300">partly</span>
+              <span class="text-zinc-500 dark:text-zinc-400" @text="a.skipped + ' not attempted'"></span>
+            </span>
+          </summary>
+          <div class="px-4 pb-4">
+            <a :href="$data.site.sourceRepo + '/tree/main/tests/' + a.tier + '/' + a.group" target="_blank" rel="noopener noreferrer" class="text-xs text-brand-700 dark:text-brand-300 hover:underline">View these tests in the suite →</a>
+            <ul class="mt-3 space-y-1.5 text-sm">
+              <li webc:for="s of a.skips" class="flex items-start gap-2 text-zinc-500 dark:text-zinc-400">
+                <span class="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 bg-zinc-300 dark:bg-zinc-600" aria-hidden="true"></span>
+                <span @text="tidyDashes(s)"></span>
+              </li>
+            </ul>
+          </div>
+        </details>
+      </li>
+    </ul>
+  </div>
+
   <!-- Per-run table. Capped to the most recent runs so the DOM stays bounded as
        runs accumulate; the chart above carries the full trend, and every run is
        browsable from /runs. -->
-  <h2 id="run-history" class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3 scroll-mt-24">Run history</h2>
+  <h2 id="run-history" class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2 scroll-mt-24">Run history</h2>
+  <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3 max-w-2xl">
+    Every percentage here is divergence, per tier and over the whole suite, so lower is better in each column. Coverage is the exception it is named as.
+  </p>
   <div class="rounded-xl border border-zinc-200 dark:border-white/10 defer-render">
     <table class="w-full text-sm">
       <thead class="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-white/[0.03]">
         <tr>
           <th class="text-left font-medium px-4 py-3">Run</th>
+          <!-- "current criteria" because these letters are regraded, not
+               archival: if the criteria ever move, this column shows letters
+               past runs never published, and the header owns that. -->
+          <th class="text-center font-medium px-3 py-3">Grade<span class="block normal-case tracking-normal text-[0.6rem] font-normal text-zinc-400 dark:text-zinc-500">current criteria</span></th>
           <th class="text-right font-medium px-3 py-3 hidden sm:table-cell">Tier 1</th>
           <th class="text-right font-medium px-3 py-3 hidden sm:table-cell">Tier 2</th>
           <th class="text-right font-medium px-3 py-3 hidden sm:table-cell">Tier 3</th>
-          <th class="text-right font-medium px-3 py-3">Total</th>
+          <th class="text-right font-medium px-3 py-3">Divergence</th>
+          <th class="text-right font-medium px-3 py-3 hidden sm:table-cell">Coverage</th>
           <th class="text-left font-medium px-3 py-3 hidden sm:table-cell">Version</th>
           <th class="text-right font-medium px-4 py-3">Movement</th>
         </tr>
@@ -169,17 +339,24 @@
               <change-note webc:if="$data.changelog.byDate[p.date]" :entry="$data.changelog.byDate[p.date]"></change-note>
             </span>
           </td>
-          <td class="px-3 py-3 text-right font-mono tnum hidden sm:table-cell" @text="p.tiers.tier1.pct"></td>
-          <td class="px-3 py-3 text-right font-mono tnum hidden sm:table-cell" @text="p.tiers.tier2.pct"></td>
-          <td class="px-3 py-3 text-right font-mono tnum hidden sm:table-cell" @text="p.tiers.tier3.pct"></td>
-          <td class="px-3 py-3 text-right font-mono tnum font-semibold text-zinc-900 dark:text-zinc-100" @text="p.total"></td>
+          <!-- The grade each run would wear under the current criteria, so the
+               letter's history is visible without replaying the chart. Graded
+               from that run's own figures, like every other letter. -->
+          <td class="px-3 py-3 text-center">
+            <grade-chip :row="p" :slug="$data.target.slug" :size="'text-[0.65rem] !min-w-0 !px-1.5 !py-0.5'"></grade-chip>
+          </td>
+          <td class="px-3 py-3 text-right font-mono tnum hidden sm:table-cell" @text="p.tiers.tier1.divergence"></td>
+          <td class="px-3 py-3 text-right font-mono tnum hidden sm:table-cell" @text="p.tiers.tier2.divergence"></td>
+          <td class="px-3 py-3 text-right font-mono tnum hidden sm:table-cell" @text="p.tiers.tier3.divergence"></td>
+          <td class="px-3 py-3 text-right font-mono tnum font-semibold text-zinc-900 dark:text-zinc-100" @text="p.divergence"></td>
+          <td class="px-3 py-3 text-right font-mono tnum text-zinc-500 dark:text-zinc-400 hidden sm:table-cell" @text="p.coverage"></td>
           <td class="px-3 py-3 font-mono text-xs text-zinc-500 dark:text-zinc-400 max-w-[10rem] truncate hidden sm:table-cell" :title="p.version" @text="p.version"></td>
           <td class="px-4 py-3 text-right tnum">
             <span webc:if="p.movement.state === 'new'" class="text-xs text-zinc-500 dark:text-zinc-400">first run</span>
             <span webc:elseif="p.movement.state === 'baseline'" class="text-xs text-zinc-500 dark:text-zinc-400" aria-hidden="true">–</span>
             <span webc:else :class="'inline-flex items-center justify-end gap-1 text-xs font-medium move-' + p.movement.state">
               <span aria-hidden="true" @text="p.movement.arrow"></span>
-              <span @text="p.movement.deltaLabel"></span>
+              <span aria-hidden="true" @text="p.movement.deltaReading"></span>
               <span class="sr-only" @text="p.movement.label"></span>
             </span>
           </td>

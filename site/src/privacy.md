@@ -1,10 +1,10 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-07-23"
+lastmod: "2026-07-29"
 meta:
   title: Privacy
-  description: "What this site collects: cookieless analytics, no cookies, no accounts, no forms, and nothing stored on your device."
+  description: "What this site collects: cookieless analytics, and nothing stored on your device."
 ---
 
 # Privacy

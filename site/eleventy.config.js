@@ -1,15 +1,27 @@
 import pluginWebc from "@11ty/eleventy-plugin-webc";
+import anchor from "markdown-it-anchor";
 import syntaxHighlight from "@11ty/eleventy-plugin-syntaxhighlight";
 import { chartGeometry } from "./lib/chart.mjs";
 import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/matrix.mjs";
 import { renderCapabilities, renderCapabilityCards } from "./lib/capabilities.mjs";
-import { regionLabel, renderRegionGroups } from "./lib/summary.mjs";
-import { renderSplitEvidence } from "./lib/splits.mjs";
-import { isSelfMaintained } from "./lib/scoring.mjs";
+import { controlObservation, controlProvenance, controlSplit, regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
+import { renderSplitEvidence, splitCoverageNote } from "./lib/splits.mjs";
+import { GRADING_CRITERIA_EFFECTIVE, GRADING_VERSION, TARGETS, capClauseOf, configurationOf, coverageShareSentenceOf, distributionOf, fallsShort, gradeForRow, gradeLegendOf, gradeLineOf, gradeOf, gradingCriteriaEffectiveLabel, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
+import { channelIcon } from "./lib/channel-icons.mjs";
 import { targetLinks, targetRunHref } from "./lib/links.mjs";
 import { areaFailures, sourceUrl } from "./lib/findings.mjs";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// 2026-05-23 -> "23 May 2026". A named function as well as a filter, so the
+// helpers that build a dated sentence in JS format the date the same way the
+// templates do.
+function dateLabel(iso) {
+  if (!iso || iso === "-") return "-";
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return iso;
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+}
 
 export default function (eleventyConfig) {
   eleventyConfig.addPlugin(pluginWebc, {
@@ -17,6 +29,11 @@ export default function (eleventyConfig) {
   });
 
   eleventyConfig.addPlugin(syntaxHighlight);
+
+  // Every heading gets an id, so any section can be linked to without someone
+  // hand-writing an anchor first. The two that already exist stay: they are
+  // published URLs, and their slugs are not what the heading text would give.
+  eleventyConfig.amendLibrary("md", (md) => md.use(anchor, { level: [2, 3, 4] }));
 
   eleventyConfig.addPassthroughCopy({
     "src/images": "images",
@@ -35,13 +52,8 @@ export default function (eleventyConfig) {
     return title && title !== siteTitle ? `${title} | ${siteTitle}` : siteTitle;
   });
 
-  // 2026-05-23 -> "23 May 2026". Used across run and target pages.
-  eleventyConfig.addFilter("dateLabel", (iso) => {
-    if (!iso || iso === "-") return "-";
-    const [y, m, d] = iso.split("-").map(Number);
-    if (!y || !m || !d) return iso;
-    return `${d} ${MONTHS[m - 1]} ${y}`;
-  });
+  // Used across run and target pages.
+  eleventyConfig.addFilter("dateLabel", (iso) => dateLabel(iso));
 
   eleventyConfig.addFilter("dump", (obj) => JSON.stringify(obj));
 
@@ -59,7 +71,11 @@ export default function (eleventyConfig) {
   });
 
   // Inline-SVG chart geometry for a target's percentage history.
-  eleventyConfig.addFilter("chartGeometry", (series) => chartGeometry(series));
+  // Forwards every argument, not just the series. Written as `(series) => ...`
+  // it silently dropped the options object, so the target page's two plots -
+  // divergence and coverage - both fell back to the divergence default and
+  // rendered as the same chart twice, with no error anywhere.
+  eleventyConfig.addFilter("chartGeometry", (...args) => chartGeometry(...args));
 
   // Area-by-target support grid for the /support page. The wide grid is the
   // desktop view; supportCards is the phone view, one card per operation.
@@ -85,11 +101,52 @@ export default function (eleventyConfig) {
   // "eu-west-2 + 5 regions"). Delegates to the same helper the model uses so the
   // phrasing is identical everywhere.
   eleventyConfig.addFilter("regionLabel", (label) => regionLabel(label));
+  eleventyConfig.addFilter("regionCount", (label) => regionCount(label));
+  // What the real-AWS run observed, and which lanes it came from. The strip
+  // used to read the pinned baseline row and so claimed the whole suite for a
+  // run that recorded less.
+  eleventyConfig.addFilter("controlObservation", (groundTruth) => controlObservation(groundTruth));
+  eleventyConfig.addFilter("controlProvenance", (obs) => controlProvenance(obs, dateLabel));
+  eleventyConfig.addFilter("controlSplit", (obs) => controlSplit(obs));
 
   // Whether a target is maintained by the board's own author (a static fact, not
   // a per-run figure), so the conflict-of-interest disclosure renders from the
   // slug at build time and never depends on the data being freshly fetched.
   eleventyConfig.addFilter("isSelfMaintained", (slug) => isSelfMaintained(slug));
+  // The letter grade for a row's two published values, derived at render time
+  // so a letter can never disagree with the figures printed beside it. The
+  // two copy helpers keep the phrasing identical on every surface that
+  // prints it (standings, variant rows, other-builds cards).
+  eleventyConfig.addFilter("gradeOf", (divergenceValue, coverageValue) => gradeOf(divergenceValue, coverageValue));
+  // Prefer this over gradeOf in a template: it carries the baseline exemption.
+  eleventyConfig.addFilter("gradeForRow", (row, slug) => gradeForRow(row, slug));
+  eleventyConfig.addFilter("gradeLine", (row) => gradeLineOf(row));
+  eleventyConfig.addFilter("regionClause", (row) => regionClauseOf(row));
+  eleventyConfig.addFilter("capClause", (row, slug) => capClauseOf(row, slug));
+  // The legend, derived from the criteria so the block a reader checks a letter
+  // against cannot fall behind the letters.
+  eleventyConfig.addGlobalData("gradeLegend", () => gradeLegendOf());
+  eleventyConfig.addGlobalData("coverageShareSentence", () => coverageShareSentenceOf());
+  // The criteria's version and effective date, from the suite's constant. Five
+  // pages stated the date in prose and would have drifted apart one edit at a
+  // time; the feed also reads it as a predicate, so a page disagreeing with it
+  // would caption one thing while the feed did another.
+  eleventyConfig.addGlobalData("gradingCriteria", () => ({
+    version: GRADING_VERSION,
+    effective: GRADING_CRITERIA_EFFECTIVE,
+    effectiveLabel: gradingCriteriaEffectiveLabel(),
+  }));
+  eleventyConfig.addFilter("configurationOf", (slug) => configurationOf(slug));
+  eleventyConfig.addFilter("isVariant", (slug) => isVariant(slug));
+  // Every way a target can be run, as marks. Uncapped: seeing all of them at a
+  // glance is the point, and an icon costs a fraction of the room a label does.
+  eleventyConfig.addFilter("channels", (slug) =>
+    distributionOf(slug)
+      .map((d) => ({ ...d, ...channelIcon(d.channel) }))
+      .filter((d) => d.path));
+  // What a target needs before it will run, and any caveat about running it.
+  eleventyConfig.addFilter("requires", (slug) => TARGETS[slug]?.requires ?? null);
+  eleventyConfig.addFilter("runNote", (slug) => TARGETS[slug]?.note ?? null);
 
   // A target's project site and source, split out of the single URL the suite
   // carries. Static per target, like the disclosure above.
@@ -102,16 +159,42 @@ export default function (eleventyConfig) {
   // One confirmed regional split rendered as region cohorts, for the explainer's
   // live evidence (HTML, same nesting reason as the drilldown).
   eleventyConfig.addFilter("splitEvidence", (split) => renderSplitEvidence(split));
+  // The arithmetic under the cohorts: which observed regions the split does
+  // not account for, so the counts do not read as regions gone missing.
+  eleventyConfig.addFilter("splitCoverageNote", (split, observed) => splitCoverageNote(split, observed));
 
   // The suite's test titles carry em dashes; nothing on this site does. They are
   // normalised to a spaced hyphen on the way out, wording otherwise untouched.
   eleventyConfig.addFilter("tidyDashes", (s) => String(s).replace(/\s*—\s*/g, " - "));
+
+  // Templates explain themselves at length, and WebC passes HTML comments
+  // straight through, so the rationale was shipping to every visitor: 19% of
+  // the built HTML, and 31% of a run page. The comments stay in the source and
+  // stop at the build. Conditional comments are left alone, and so is anything
+  // inside <pre>, where a comment would be content rather than an aside.
+  eleventyConfig.addTransform("stripComments", function (content) {
+    if (!(this.page.outputPath || "").endsWith(".html")) return content;
+    // A NUL-delimited placeholder, because a bare number would collide with
+    // one already on the page and swap it for a code block.
+    const pre = [];
+    return content
+      .replace(/<pre[\s\S]*?<\/pre>/g, (m) => `\0${pre.push(m) - 1}\0`)
+      .replace(/<!--(?!\[if)[\s\S]*?-->/g, "")
+      .replace(/\0(\d+)\0/g, (_, i) => pre[Number(i)]);
+  });
 
   // Where a standings row links (that run's target view, or the current page),
   // the findings for one operation area, and a test's source pinned to the
   // commit that measured it.
   eleventyConfig.addFilter("targetRunHref", (row, runId) => targetRunHref(row, runId));
   eleventyConfig.addFilter("areaFailures", (area, findings) => areaFailures(area, findings));
+
+  // A target's gaps, split by kind: what it gets wrong, and what it never tries.
+  eleventyConfig.addFilter("fallsShort", (breakdown) => fallsShort(breakdown));
+  eleventyConfig.addFilter("notAttempted", (breakdown) => notAttempted(breakdown));
+
+  // Whether a run predates the metric change, so its page can say so.
+  eleventyConfig.addFilter("scoredOnCorrectness", (date) => scoredOnCorrectness(date));
   eleventyConfig.addFilter("findingSource", (finding, repoBase) => sourceUrl(finding, repoBase));
 
   // Serialise structured data for a <script type="application/ld+json"> block,
@@ -169,7 +252,7 @@ export default function (eleventyConfig) {
       "@id": data.site.url + "/#dataset",
       name: "DynamoDB emulator conformance results",
       description:
-        "Tier-level conformance scores for DynamoDB-compatible emulators, measured against live AWS DynamoDB and recorded run over run.",
+        "Divergence and coverage per tier and over the whole suite for DynamoDB-compatible emulators, measured against live AWS DynamoDB and recorded run over run.",
       url: data.site.url,
       license: data.site.dataLicense,
       isAccessibleForFree: true,
@@ -178,10 +261,10 @@ export default function (eleventyConfig) {
       keywords: ["DynamoDB", "conformance", "emulator", "AWS", "DynamoDB Local", "testing"],
       measurementTechnique: "AWS SDK behavioural tests against each target, baselined on live AWS DynamoDB",
       variableMeasured: [
-        "Tier 1 (Core) conformance %",
-        "Tier 2 (Complete) conformance %",
-        "Tier 3 (Strict) conformance %",
-        "Total conformance %",
+        "Tier 1 (Core) divergence % and coverage %",
+        "Tier 2 (Complete) divergence % and coverage %",
+        "Tier 3 (Strict) divergence % and coverage %",
+        "Whole-suite divergence % and coverage %",
       ],
       ...(latestRun ? { dateModified: latestRun } : {}),
       ...(firstRun ? { temporalCoverage: `${firstRun}/${latestRun || ".."}` } : {}),

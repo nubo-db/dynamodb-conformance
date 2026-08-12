@@ -30,47 +30,96 @@ DYNAMODB_ENDPOINT=http://localhost:8000 npm run test:tier1
 ## Results
 
 <!-- results:start -->
-_Scored against real DynamoDB's recorded behaviour in each observed region (`af-south-1`, `ap-east-1`, `ap-east-2`, `ap-northeast-1`, `ap-northeast-2`, `ap-northeast-3`, `ap-south-1`, `ap-south-2`, `ap-southeast-1`, `ap-southeast-2`, `ap-southeast-3`, `ap-southeast-4`, `ap-southeast-5`, `ap-southeast-6`, `ap-southeast-7`, `ca-central-1`, `ca-west-1`, `eu-central-1`, `eu-central-2`, `eu-north-1`, `eu-south-1`, `eu-south-2`, `eu-west-1`, `eu-west-2`, `eu-west-3`, `il-central-1`, `mx-central-1`, `sa-east-1`, `us-east-1`, `us-east-2`, `us-west-1`, `us-west-2`); a target's Total is its best-matching region, and the Region column names the cohort tied at that rate - all regions, the `eu-west-2` baseline plus a count, or a single region it matches that eu-west-2 disagrees with. Behaviour varies by region and over time, so these are point-in-time figures. `me-central-1`, `me-south-1` have been dropped from the observed set and are not scored against._
+_Scored against real DynamoDB's recorded behaviour in each observed region (`af-south-1`, `ap-east-1`, `ap-east-2`, `ap-northeast-1`, `ap-northeast-2`, `ap-northeast-3`, `ap-south-1`, `ap-south-2`, `ap-southeast-1`, `ap-southeast-2`, `ap-southeast-3`, `ap-southeast-4`, `ap-southeast-5`, `ap-southeast-6`, `ap-southeast-7`, `ca-central-1`, `ca-west-1`, `eu-central-1`, `eu-central-2`, `eu-north-1`, `eu-south-1`, `eu-south-2`, `eu-west-1`, `eu-west-2`, `eu-west-3`, `il-central-1`, `mx-central-1`, `sa-east-1`, `us-east-1`, `us-east-2`, `us-west-1`, `us-west-2`), at each target's best-matching region. **Divergence** is the share of the whole suite a target answers differently from real DynamoDB - the operations it implements and gets wrong. **Coverage** is the share it implements at all. They are reported apart because they carry opposite risks: a declined operation is discoverable in minutes, a wrong one in production. **Grade** is a reading of the pair: divergence sets the letter and coverage can only lower it, never raise it, under the versioned criteria in the [methodology](https://paritysuite.org/methodology). Sorted by divergence, so the order ranks risk rather than declaring a winner - a target with no divergences over a narrow surface is exactly what its two figures say it is. Regions is how many of the observed regions the headline was measured against. The tier columns are divergence too, within each tier, so lower is better in every column but Coverage. Real DynamoDB does not behave identically in every region, so each target is measured in every region above and scored against its best match; the per-region detail is in `results/summary.json`. Behaviour varies by region and over time, so these are point-in-time figures. `me-central-1`, `me-south-1` have been dropped from the observed set and are not scored against._
 
-| Target | Tier 1 | Tier 2 | Tier 3 | Total | Region | Pass | Fail | Skip | Version | Date |
-|--------|--------|--------|--------|-------|--------|------|------|------|---------|------|
-| [DynamoDB](https://aws.amazon.com/dynamodb/) | 100% | 100% | 100% | 100% | all regions | 998 | 0 | 0 | live (AWS) | 2026-08-09 |
-| [Dynoxide](https://github.com/nubo-db/dynoxide) | 100.0% | 100.0% | 100.0% | 100.0% | eu-west-2 + 5 regions | 984 | 0 | 14 | 0.13.0 | 2026-08-09 |
-| [Dynoxide (wasm)](https://github.com/nubo-db/dynoxide) † | 100.0% | 100.0% | 100.0% | 100.0% | eu-west-2 + 5 regions | 785 | 0 | 213 | 0.12.0 | 2026-07-24 |
-| [ExtendDB](https://github.com/ExtendDB/extenddb) | 99.2% | 94.0% | 97.2% | 97.8% | all regions | 891 | 20 | 87 | v0.1.2 | 2026-08-09 |
-| [Ministack](https://github.com/ministackorg/ministack) | 96.8% | 82.9% | 80.6% | 88.8% | all regions | 886 | 112 | 0 | ae248c59e9bf | 2026-08-09 |
-| [Dynalite](https://github.com/architect/dynalite) | 91.4% | 30.0% | 80.9% | 84.6% | 26 regions | 675 | 123 | 200 | 4.0.0 | 2026-08-09 |
-| [LocalStack](https://github.com/localstack/localstack) | 93.5% | 81.2% | 72.5% | 84.2% | 26 regions | 834 | 156 | 8 | 2026.7.2 | 2026-08-09 |
-| [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) | 92.2% | 82.0% | 72.2% | 83.7% | 26 regions | 818 | 159 | 21 | ff89bd48ff32 | 2026-08-09 |
-| [Floci](https://github.com/floci-io/floci) | 91.4% | 62.1% | 70.7% | 79.0% | all regions | 781 | 208 | 9 | eab36252ea43 | 2026-08-09 |
-
-_† Dynoxide (wasm) is a browser/OPFS preview, scored over the operations it implements. Its Skip count is unimplemented surface (PartiQL, transactions, tags, TTL), not passing behaviour, so read its percentage as correctness on what it implements - not a like-for-like comparison with an engine that implements everything._
+| Target | Grade | Divergence | Coverage | Regions | Tier 1 | Tier 2 | Tier 3 | Fail | Skip | Version | Date |
+|--------|-------|-----------|----------|---------|--------|--------|--------|------|------|---------|------|
+| [DynamoDB](https://aws.amazon.com/dynamodb/) | baseline | 0.0% | 100.0% | 32 of 32 | 0.0% | 0.0% | 0.0% | 0 | 0 | live (AWS) | 2026-08-09 |
+| [Dynoxide](https://github.com/nubo-db/dynoxide) · native | A | 0.0% | 98.6% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 14 | 0.13.0 | 2026-08-09 |
+| ↳ WebAssembly / OPFS | A | 0.0% | 86.7% | 6 of 32 | 0.0% | 0.0% | 0.0% | 0 | 133 | 0.13.0 | 2026-08-11 |
+| [ExtendDB](https://github.com/ExtendDB/extenddb) · PostgreSQL | A | 2.0% | 91.3% | 32 of 32 | 0.8% | 3.5% | 2.8% | 20 | 87 | v0.1.2 | 2026-08-09 |
+| [Ministack](https://github.com/ministackorg/ministack) | B | 11.2% | 100.0% | 32 of 32 | 3.2% | 17.1% | 19.4% | 112 | 0 | ae248c59e9bf | 2026-08-09 |
+| [Dynalite](https://github.com/architect/dynalite) | C | 12.3% | 80.0% | 26 of 32 | 8.6% | 14.1% | 16.7% | 123 | 200 | 4.0.0 | 2026-08-09 |
+| [LocalStack](https://github.com/localstack/localstack) | C | 15.6% | 99.2% | 26 of 32 | 6.5% | 18.1% | 27.5% | 156 | 8 | 2026.7.2 | 2026-08-09 |
+| [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) | C | 15.9% | 97.9% | 26 of 32 | 7.8% | 16.1% | 27.8% | 159 | 21 | ff89bd48ff32 | 2026-08-09 |
+| [Floci](https://github.com/floci-io/floci) | C | 20.8% | 99.1% | 32 of 32 | 8.6% | 36.2% | 29.3% | 208 | 9 | eab36252ea43 | 2026-08-09 |
 <!-- results:end -->
 
 **Live results:** [the Parity Suite board](https://paritysuite.org) - the full table for every target, tracked run over run.
 
-DynamoDB is the ground truth, recorded per region. Real DynamoDB disagrees
-with itself in a handful of places (the admitted cases are in
-`registry/splits.json`), so each target is scored against every observed
-region's recorded behaviour, and its published Total is its best-matching
-region. Where several regions tie at that rate, the Region column names the
-cohort rather than an arbitrary member: `all regions` when they all tie,
-`eu-west-2 + N regions` when the historical baseline is among the best, or a
-single region when the best cohort is one eu-west-2 disagrees with. A target
-fails a behaviour only when no observed region does what it does.
+Two figures, and they are never added together. **Divergence** is `Fail / Total`:
+the share of the whole suite a target answers differently from real DynamoDB.
+**Coverage** is `(Pass + Fail) / Total`: the share it implements at all. They
+stay apart because a skip and a fail are not the same kind of problem. An
+operation a target declines is something you find in minutes and plan around;
+one it gets quietly wrong is something you find in production.
 
-The percentage is correctness over the operations a target implements and
-the run could observe - `Pass / (Pass + Fail)`. Two kinds of test are
-excluded from it, for different reasons. A skipped test is deliberate: each
-test file probes for feature support in `beforeAll` and skips itself when
-the target doesn't implement that operation, so a skip records honest scope,
-not a correctness gap. An indeterminate test is a failed observation - a
-timeout, an exhausted throttle, a transport fault - and counts neither for
-nor against a target, because nobody knows what the answer was. The Skip
-column keeps the first visible; a Fail is a behaviour that diverges from
-every observed region of real DynamoDB.
+The **Grade** leads because a row carries several figures and a reader
+comparing eight targets needs somewhere to start. Divergence sets the letter (A
+under 5%, B under 15%, C under 25%, D under 35%, F beyond) and coverage can
+only lower it, never raise it: a third of whatever a target leaves
+unimplemented is added to its divergence before the bands are read, so a target
+implementing the whole suite is graded on divergence alone. A+ is exactly zero
+divergence at full coverage, and nothing holds it today. Both figures print
+beside the letter in this table and on every page of the board, so the grade is
+always recomputable; the criteria are versioned and dated in the
+[methodology](https://paritysuite.org/methodology#grading). The per-target
+badges are the exception: a shields endpoint has room for a label and a message
+and nothing else, so a badge carries the letter alone. A grade is an
+observation against this suite's tests on a date, not a certification.
 
-This table is regenerated by the **Update Results Table** workflow —
+Where coverage is holding a letter down the site says so on the row. On the 9
+August 2026 run, Dynalite diverged on 12.3% of the suite, which is the B band
+on its own, but implemented 80.0% of it, and the third of that shortfall reads
+it up to an effective 19.0 and grades it C. Dynoxide diverged nowhere and
+implemented 98.6%, and that 1.4-point gap is enough to deny it A+ and settle it
+at A.
+
+Real DynamoDB reads `baseline` rather than a letter. A grade measures how far a
+target sits from real DynamoDB, so grading the yardstick against itself would
+put it in a band an engine had to earn its way into. Its two figures still
+publish: they are the definition every other row is read against.
+
+Withdrawing a failing test lowers divergence and coverage by exactly the same
+amount, which is what makes the pair hard to game. The letter does not fully
+inherit that. A third of the withdrawal comes back, so the effective figure
+still falls by two thirds of whatever left: withdrawal costs more than it used
+to rather than costing everything. Closing it completely would mean weighting a
+declined test exactly as heavily as a failed one, and the distinction between
+those two is what the board is built on. **Rank on the two figures, not the
+letter, if that matters to you.** On the 9 August 2026 run the cheapest letter
+anyone could buy this way was LocalStack's, at 14 withdrawn tests, which is a
+measurement of that board rather than a property of the criteria.
+
+The 5% and 25% boundaries are the numbers this board has published as its
+colour bands since it began, though those bands sat on correctness over the
+operations a target implements and these sit on divergence over the whole
+suite. Same numbers, different denominator, and the two only coincide at full
+coverage. The coverage weight is what answers that: a target diverging 4.9%
+over 92% coverage is 94.7% correct, which the old sub-95% amber band caught,
+and reads an effective 7.6 here, which grades B. The splits at 15% and 35% are
+new, and so is the weight.
+
+A skipped test is deliberate: each test file probes for feature support in
+`beforeAll` and skips itself when the target doesn't implement that operation,
+so a skip records scope rather than a gap in correctness. An indeterminate test
+is a failed observation - a timeout, an exhausted throttle, a transport fault -
+and counts neither for nor against a target, because nobody knows what the
+answer was.
+
+Rows are ordered by divergence. That ranks how much a target gets wrong; it
+isn't a verdict on which emulator to pick, because that depends on which
+operations you need. A target with no divergences over a narrow surface sits
+high and its coverage figure says how narrow.
+
+DynamoDB is the ground truth, recorded per region. Real DynamoDB disagrees with
+itself in a handful of places (the admitted cases are in `registry/splits.json`),
+so each target is measured in every observed region and scored against its
+best-matching one. A target fails a behaviour only when no observed region does
+what it does. The spread is small - three tests out of about a thousand - so the
+per-region detail lives in `results/summary.json` rather than in the table.
+
+This table is regenerated by the **Update Results Table** workflow -
 automatically when a Conformance Tests run finishes on `main`, and on demand
 from the Actions tab. It pulls each target's result artifact, fills the Version
 (npm version, container image digest, release tag, or `live` for real AWS) and
@@ -85,7 +134,7 @@ Run date columns from the run, and commits the refreshed table. Run
 
 **Tier 3 - Strict.** Validation ordering, error behaviour at a range of strictness (exact where DynamoDB's wording is stable, structural where its rendering is non-deterministic), edge cases around limits, legacy API compatibility (ScanFilter, QueryFilter). An emulator that passes Tier 1 and Tier 2 but fails some Tier 3 is production-quality for local dev.
 
-The tiers give emulator authors something meaningful to report. "100% Tier 1, 95% Tier 2, 80% Tier 3" tells you far more than a single percentage.
+The tiers give emulator authors something meaningful to report. "0.0% Tier 1, 5.0% Tier 2, 20.0% Tier 3" tells you far more than a single figure over the whole suite.
 
 ### Tier 3 structure
 
@@ -368,7 +417,7 @@ tests/
     describeTable/          # basic
     listTables/             # basic
     updateTable/            # basic
-  tier2/                    # ~196 tests
+  tier2/                    # ~199 tests
     transactions/           # transactWrite, transactGet
     partiql/                # executeStatement, batchExecuteStatement, executeTransaction
     ttl/                    # basic
@@ -527,7 +576,9 @@ Genuinely not covered, with no tests yet:
 
 When the suite surfaces a divergence in a target and you want to reference it from that target's own issue tracker, cite the suite as the independent source it is. The reference carries weight precisely because the suite is not the engine's own test harness: it scores every target against the same live-AWS baseline, so "the conformance suite flags this" says more than a self-written test can.
 
-**Disclosure.** This suite is maintained by the same person who maintains Dynoxide, one of the engines it scores. Dynoxide runs through the same automated matrix as every other target, against the same live-AWS ground truth. The tests and the results are in this repo.
+**Disclosure.** This suite is maintained by the same person who maintains Dynoxide, one of the engines it scores. Dynoxide runs through the same automated matrix as every other target, against the same live-AWS ground truth. The tests and the results are in this repo. The grade bands and the coverage weight are hand-picked inputs to a published letter, and moving one regrades targets whose results never changed. So they carry a version. These are grading criteria version 1, and any change to a band, the coverage weight or the A+ gate bumps the version and is dated in the [methodology](https://paritysuite.org/methodology#grading), which is where the effective date lives.
+
+They are not the only hand-picked input. `registry/splits.json` is written by hand by design: it records the behaviours where real DynamoDB's own regions disagree, with the evidence each region returned, and a target matching any recorded answer is scored as conformant rather than wrong. Admitting a row there turns a fail into a pass with no re-run and no results file changing, which is the one thing "a score can't be tuned without changing the published results first" does not cover. So the registry is in this repo, every row carries its captured evidence and the date it was refreshed, and a behaviour enters only once confirmed across regions.
 
 Fill in the bracketed parts. The block is the same whichever engine the finding concerns:
 

@@ -1,5 +1,9 @@
 <ol class="space-y-3">
   <!-- The run this table belongs to, so each row links to that target's results
-       for this date rather than to its current page. -->
-  <standings-row webc:for="row of run.standings" :row="row" :run-id="run.id"></standings-row>
+       for this date rather than to its current page.
+       Builds render inside their parent's row, the same as on the board. Without
+       this guard a run page listed a build both nested under its project and
+       again as a peer beside it, so the two surfaces disagreed about whether a
+       build competes with the engine it is a build of. -->
+  <standings-row webc:for="row of run.standings" webc:if="!isVariant(row.slug)" :row="row" :run-id="run.id"></standings-row>
 </ol>

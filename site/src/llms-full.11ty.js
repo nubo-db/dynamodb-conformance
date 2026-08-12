@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { capClauseOf, gradeForRow } from "../lib/scoring.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -24,14 +25,22 @@ function latestResults(conformance) {
   if (!latest) return "";
   const lines = latest.standings.map((r) => {
     const t = r.tiers || {};
-    const tiers = `Tier 1 ${t.tier1?.pct ?? "-"}, Tier 2 ${t.tier2?.pct ?? "-"}, Tier 3 ${t.tier3?.pct ?? "-"}`;
-    const baseline = r.slug === "dynamodb" ? " (baseline)" : "";
-    return `- ${r.display}${baseline} - total ${r.total}; ${tiers}; coverage ${r.coverage}; version ${r.version}`;
+    const tiers = `Tier 1 ${t.tier1?.divergence ?? "-"}, Tier 2 ${t.tier2?.divergence ?? "-"}, Tier 3 ${t.tier3?.divergence ?? "-"}`;
+    const isBaseline = r.slug === "dynamodb";
+    const baseline = isBaseline ? " (baseline)" : "";
+    // The yardstick carries no letter here either, or this corpus would be the
+    // one surface telling an agent real DynamoDB scored A+ against itself.
+    const grade = gradeForRow(r);
+    // The same clause the pages render, from the same helper, so the corpus an
+    // agent reads cannot phrase a cap differently from the board a human reads.
+    const clause = capClauseOf(r);
+    const cap = clause ? ` (${clause})` : "";
+    return `- ${r.display}${baseline} - grade ${grade.letter ?? grade.qualifier}${cap}; diverges ${r.divergence} of the suite; covers ${r.coverage}; diverges per tier ${tiers}; version ${r.version}`;
   });
   return [
     `# Latest results`,
     "",
-    `Run ${latest.id} (${latest.date}), ${latest.suiteSize} tests. Correctness is passed / (passed + failed); coverage is implemented / total. DynamoDB is the baseline at 100% by definition.`,
+    `Run ${latest.id} (${latest.date}), ${latest.suiteSize} tests. Divergence is failed / total and coverage is implemented / total, over the whole suite and again within each tier; lower divergence is better and the two are never added together. The grade is a reading of the pair: divergence sets the letter and coverage can only lower it, never raise it, by adding a third of whatever is unimplemented to the divergence before the bands are read. Rank on the two figures rather than the letter: withdrawing a failing test still moves the effective figure down by two thirds of what left. DynamoDB is the baseline, diverging nowhere by definition.`,
     "",
     ...lines,
   ].join("\n");

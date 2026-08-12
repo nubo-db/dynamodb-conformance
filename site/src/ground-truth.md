@@ -1,10 +1,10 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-07-22"
+lastmod: "2026-08-11"
 meta:
   title: Regional ground truth
-  description: "Why the conformance suite scores against every AWS region rather than one, how the best-matching region becomes a target's headline, and why real DynamoDB is 100% by definition."
+  description: "Why the conformance suite scores against every AWS region rather than one, how the best-matching region becomes a target's headline, and why real DynamoDB diverges nowhere by definition."
 ---
 
 # Ground truth, one region at a time
@@ -24,16 +24,22 @@ The `{ NULL: false }` difference has since closed, but others are open. The suit
 
 <div class="not-prose space-y-3 my-6">{{ splits.featured | splitEvidence | safe }}</div>
 
-Each cohort is a real region's answer, so an emulator matching either is behaving like some real region. Pin a single region as the only right answer and the other cohort is marked wrong for doing what AWS does elsewhere.
+Each cohort is a real region's answer, so an emulator matching either is behaving like some real region. Pin a single region as the only right answer and the other cohort is marked wrong for doing what AWS does elsewhere. An observed region missing from both cohorts is not a gap in the split: it had no definite recorded answer for this behaviour when the evidence was captured, and an unresolved observation is flagged rather than counted on either side. {{ splits.featured | splitCoverageNote(summary.latest.regions.observed) }}
+{% endif %}
+
+## What real DynamoDB was measured on
+
+{% if summary.available and summary.latest.groundTruth %}
+The suite runs against real DynamoDB in three passes, split because the slowest tests take hours: the main run, plus separate passes for the S3/Kinesis integrations and for GSI lifecycle. The board's baseline row only claims the whole suite once all three have reported. {{ summary.latest.groundTruth | controlObservation | controlProvenance }}
 {% endif %}
 
 ## Scored against every region
 
 From 2.0.0, ground truth is per region. The full suite runs against real DynamoDB in every commercial region, and each emulator is scored against every region's answers. Its headline is its best-matching region: the one it agrees with most closely.
 
-That is why the tables name a region beside each score. Most of the time an emulator matches every region equally, and the label just reads "all regions". Where it matches some regions more closely than others, the label names the ones it is closest to. eu-west-2 stays the anchor, because it is the region the suite has always measured against and the one the history here is built on, so a target that is best in eu-west-2 and five other regions reads as "eu-west-2 + 5 regions". A target that matches a region eu-west-2 disagrees with, and scores higher there, is named for that region instead.
+That is why the tables name a region beside each score. Most of the time an emulator matches every region equally, and the label just reads "all regions". Where it matches some regions more closely than others, the label names the ones it is closest to. eu-west-2 stays the anchor, because it is the region the suite has always measured against and the one the history here is built on, so a target that is best in eu-west-2 and five other regions reads as "eu-west-2 + 5 regions". A target that matches a region eu-west-2 disagrees with, and diverges less there, is named for that region instead.
 
-Real DynamoDB sits at the top of every table at 100%. That is not a number typed in by hand. Each region is scored against its own answers, so it agrees with itself everywhere by definition, and the 100% is earned self-agreement measured the same way as every other score.
+Real DynamoDB sits at the top of every table diverging nowhere. That is not a number typed in by hand. Each region is scored against its own answers, so it agrees with itself everywhere by definition, and the zero is earned self-agreement measured the same way as every other score.
 
 ## Matching one region at a time
 

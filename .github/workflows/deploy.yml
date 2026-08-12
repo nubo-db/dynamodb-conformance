@@ -36,7 +36,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The publish gate. site:check-build asserts the things the methodology
+  # promises about what ships - the baseline carries no letter, a
+  # zero-divergence target fails only on confirmed splits, the legend renders
+  # every band - and it used to run only in ci.yml, which is a sibling workflow
+  # on its own triggers. deploy.yml publishes on push, dispatch and a daily
+  # cron, and on the cron path ci.yml does not run at all, so nothing checked
+  # what the cron published.
+  guard:
+    runs-on: ubuntu-latest
+    if: github.repository == 'paritysuite/dynamodb-conformance'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run site:check-build
+
   deploy:
+    needs: guard
     runs-on: ubuntu-latest
     if: github.repository == 'paritysuite/dynamodb-conformance'
     permissions:

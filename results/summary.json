@@ -182,7 +182,41 @@
   "groundTruth": {
     "slug": "dynamodb",
     "rate": 100,
-    "runDate": "2026-08-09"
+    "runDate": "2026-08-09",
+    "derived": false,
+    "testsObserved": 981,
+    "suiteSize": 998,
+    "lanes": [
+      {
+        "name": "gating",
+        "runDate": "2026-08-09",
+        "tests": 981
+      }
+    ],
+    "missingLanes": [
+      "integrations",
+      "gsi"
+    ],
+    "counts": null,
+    "unobserved": [
+      "tests/tier2/export/exportImport.test.ts::Export and import — S3 ExportTableToPointInTime initiates an export and reports it",
+      "tests/tier2/export/exportImport.test.ts::Export and import — S3 ImportTable ingests S3 data into a new table",
+      "tests/tier2/kinesis/streamingDestination.test.ts::Kinesis streaming destination enables a streaming destination and reports it via Describe",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — GSI validation rejects a GSI keyed on a table attribute omitted from the request AttributeDefinitions",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — GSI validation rejects adding a GSI with a name that already exists",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — GSI validation rejects adding a GSI with an attribute not in AttributeDefinitions",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — GSI validation rejects removing a non-existent GSI",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI accepts a conflicting redeclaration of an existing key attribute and keeps the stored type",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds a GSI with INCLUDE projection and NonKeyAttributes",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds a GSI with KEYS_ONLY projection",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds a composite GSI (hash + range) to an existing table",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds a hash-only GSI to an existing table",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI adds multiple GSIs sequentially",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI can query a newly created GSI after putting items",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI drops an unused AttributeDefinition supplied with a GSI add",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — remove GSI base table operations still work after removing a GSI",
+      "tests/tier2/updateTable/gsi.test.ts::UpdateTable — remove GSI removes a GSI from a table"
+    ]
   },
   "targets": {
     "dynalite": {
@@ -2901,7 +2935,139 @@
         }
       },
       "version": "0.13.0",
-      "runDate": "2026-08-09"
+      "runDate": "2026-08-09",
+      "regionFailures": {
+        "af-south-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-east-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-northeast-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-northeast-3": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-south-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-south-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-3": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-4": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-5": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-6": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-7": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ca-central-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ca-west-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-central-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-south-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-south-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-west-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-west-3": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "il-central-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "mx-central-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "sa-east-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "us-east-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "us-east-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "us-west-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "us-west-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ]
+      }
     },
     "dynoxide-wasm": {
       "headline": {
@@ -2910,10 +3076,10 @@
       },
       "regions": {
         "af-south-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -2924,24 +3090,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-east-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -2952,24 +3118,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-east-2": {
           "rate": 100,
-          "passed": 785,
+          "passed": 865,
           "failed": 0,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -2980,24 +3146,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 285,
+              "p": 289,
               "f": 0,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-northeast-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3008,24 +3174,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-northeast-2": {
           "rate": 100,
-          "passed": 785,
+          "passed": 865,
           "failed": 0,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3036,24 +3202,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 285,
+              "p": 289,
               "f": 0,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-northeast-3": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3064,24 +3230,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-south-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3092,24 +3258,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-south-2": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3120,24 +3286,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-southeast-1": {
           "rate": 100,
-          "passed": 785,
+          "passed": 865,
           "failed": 0,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3148,24 +3314,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 285,
+              "p": 289,
               "f": 0,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-southeast-2": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3176,24 +3342,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-southeast-3": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3204,24 +3370,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-southeast-4": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3232,24 +3398,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-southeast-5": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3260,24 +3426,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-southeast-6": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3288,24 +3454,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ap-southeast-7": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3316,24 +3482,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ca-central-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3344,24 +3510,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "ca-west-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3372,24 +3538,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "eu-central-1": {
           "rate": 100,
-          "passed": 785,
+          "passed": 865,
           "failed": 0,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3400,24 +3566,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 285,
+              "p": 289,
               "f": 0,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "eu-central-2": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3428,24 +3594,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "eu-north-1": {
           "rate": 100,
-          "passed": 785,
+          "passed": 865,
           "failed": 0,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3456,24 +3622,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 285,
+              "p": 289,
               "f": 0,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "eu-south-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3484,24 +3650,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "eu-south-2": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3512,24 +3678,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "eu-west-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3540,24 +3706,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "eu-west-2": {
           "rate": 100,
-          "passed": 785,
+          "passed": 865,
           "failed": 0,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3568,24 +3734,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 285,
+              "p": 289,
               "f": 0,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "eu-west-3": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3596,24 +3762,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "il-central-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3624,24 +3790,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "mx-central-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3652,24 +3818,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "sa-east-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3680,24 +3846,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "us-east-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3708,24 +3874,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "us-east-2": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3736,24 +3902,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "us-west-1": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3764,24 +3930,24 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         },
         "us-west-2": {
-          "rate": 99.6,
-          "passed": 782,
+          "rate": 99.7,
+          "passed": 862,
           "failed": 3,
-          "skipped": 213,
+          "skipped": 133,
           "indeterminate": 0,
           "count": 998,
           "tiers": {
@@ -3792,22 +3958,154 @@
               "i": 0
             },
             "tier2": {
-              "p": 25,
+              "p": 101,
               "f": 0,
-              "s": 174,
+              "s": 98,
               "i": 0
             },
             "tier3": {
-              "p": 282,
+              "p": 286,
               "f": 3,
-              "s": 39,
+              "s": 35,
               "i": 0
             }
           }
         }
       },
-      "version": "0.12.0",
-      "runDate": "2026-07-24"
+      "version": "0.13.0",
+      "runDate": "2026-08-11",
+      "regionFailures": {
+        "af-south-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-east-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-northeast-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-northeast-3": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-south-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-south-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-3": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-4": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-5": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-6": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ap-southeast-7": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ca-central-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "ca-west-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-central-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-south-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-south-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-west-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "eu-west-3": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "il-central-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "mx-central-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "sa-east-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "us-east-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "us-east-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "us-west-1": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ],
+        "us-west-2": [
+          "tests/tier3/limits/nestingDepth.test.ts::Nesting depth — 32-level document limit rejects a 32-level ExpressionAttributeValue with ValidationException",
+          "tests/tier3/validation-ordering/putItem.test.ts::PutItem — validation ordering empty TableName with invalid ReturnValues reports only tableName",
+          "tests/tier3/validation-ordering/updateItem.test.ts::UpdateItem — validation ordering rejects invalid ReturnValues (UpdateItem reports the first enum error)"
+        ]
+      }
     },
     "extenddb": {
       "headline": {

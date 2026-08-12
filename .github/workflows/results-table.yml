@@ -28,10 +28,17 @@ jobs:
     runs-on: ubuntu-latest
     # Manual runs always proceed; auto runs only for successful main runs (skip
     # PR conformance runs, which must never write to main).
+    # head_branch alone is not a gate. A pull request from a fork runs
+    # conformance.yml with the fork's own workflow and test code, uploads
+    # results-* artefacts, and reports head_branch as the branch name in the
+    # fork - so a PR opened from a fork branch called `main` passed this and
+    # had its artefacts committed to main and published, badges included.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main')
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
 
     steps:
       - name: Mint a token for the results bot
@@ -71,7 +78,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run download "${{ steps.run.outputs.id }}" --pattern 'results-*' --dir /tmp/artifacts
+          gh run download "${{ steps.run.outputs.id }}" \
+            --pattern 'results-*' \
+            --pattern 'integration-results' \
+            --pattern 'ground-truth-gsi' \
+            --dir /tmp/artifacts
           # Each results-<target> artifact carries that target's fresh files
           # (plus stale copies of the others), so take only each target's own.
           shopt -s nullglob
@@ -88,6 +99,51 @@ jobs:
               cp -f "$d$target.indeterminate.json" results/
             fi
           done
+
+          # Real AWS is observed in three lanes rather than one: the gating run,
+          # plus the service-integration and GSI-lifecycle jobs, whose runtimes
+          # don't fit the gating credential window. Both upload outside the
+          # results-* space so the loop above can never seat them as targets, so
+          # they are copied in here instead, under the sibling names
+          # scripts/summarise.mjs folds into the ground-truth document.
+          #
+          # A lane that didn't run is carried, not cleared. These two only run
+          # on schedule and dispatch, while this workflow fires on every
+          # conformance run including push, so clearing them would delete the
+          # last sweep's evidence within a day and drop the baseline row back
+          # to pinned. Each lane publishes its own capture date, so a carried
+          # lane is dated rather than passed off as this run's.
+          for lane in "integration-results/dynamodb.json:dynamodb.integrations.json" \
+                      "ground-truth-gsi/gsi.json:dynamodb.gsi.json"; do
+            src="/tmp/artifacts/${lane%%:*}"
+            dest="results/${lane##*:}"
+            if [ -f "$src" ]; then
+              cp -f "$src" "$dest"
+              # The sidecar travels with the document it qualifies. Without it
+              # a run-level indeterminate in the lane reads as plain failures,
+              # the tests count as observed, and the baseline row derives from
+              # a run that never answered.
+              rm -f "${dest%.json}.indeterminate.json"
+              if [ -f "${src%.json}.indeterminate.json" ]; then
+                cp -f "${src%.json}.indeterminate.json" "${dest%.json}.indeterminate.json"
+              fi
+            fi
+          done
+
+          # These two lanes drive live S3, Kinesis and KMS, so their failure
+          # messages carry bucket names, stream and role ARNs and request IDs,
+          # and the documents are committed to a public repo. Nothing
+          # downstream reads the message - the lanes are folded in on test
+          # identity - so it is cleared before it can be committed.
+          node scripts/strip-lane-detail.mjs \
+            results/dynamodb.integrations.json results/dynamodb.gsi.json
+
+      # The sanitiser rewrites account IDs inside ARNs and IAM principals; this
+      # is the check that it worked. It was written for exactly this path and
+      # had never been wired to anything, so nothing verified the sanitising
+      # before these files were committed.
+      - name: Refuse to commit a leaked account ID
+        run: node scripts/check-account-ids.mjs
 
       # Rewrites the README block between the results markers and refreshes
       # results/summary.json, the versioned per-region artefact the site reads.

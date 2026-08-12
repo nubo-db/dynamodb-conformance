@@ -11,8 +11,15 @@ dist/
 .DS_Store
 # Per-region ground truth is CI-artifact run output, never committed; only the
 # directory's README is tracked. See ground-truth/README.md.
+#
+# The real-AWS lane documents are the exception, and they are tracked under
+# results/ rather than here (results/dynamodb.gsi.json,
+# results/dynamodb.integrations.json): the published baseline row is scored
+# from them, so they have to be readable from the repo and not only from a
+# run's artefacts. Nothing below may grow to cover them.
 ground-truth/*.json
 .claude/settings.local.json
+.claude/worktrees/
 .claude/*.lock
 
 # Eleventy build output for the site workspace.
@@ -27,3 +34,4 @@ site/_site/
 # scripts/lib/score.mjs RESERVED_SLUGS.
 /results/local.json
 /results/local.badge.json
+/results/local.indeterminate.json

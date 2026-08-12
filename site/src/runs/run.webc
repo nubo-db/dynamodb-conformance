@@ -18,7 +18,17 @@
     </p>
   </div>
   <p class="text-zinc-600 dark:text-zinc-300 mb-4 max-w-2xl leading-relaxed">
-    Results as of this run. The arrow shows each target's movement since the previous run it was tested in.<span webc:if="$data.hasCarried"> Targets marked &ldquo;carried&rdquo; weren't re-run this time, so their most recent result is shown instead.</span><span webc:if="$data.run.suiteGrew"> The suite grew this run, so a downward arrow can be the new tests biting rather than a target regressing.</span>
+    Results as of this run. The arrow shows each target's movement since the previous run it was tested in.<span webc:if="$data.hasCarried"> Targets marked &ldquo;carried&rdquo; weren't re-run this time, so their most recent result is shown instead.</span><span webc:if="$data.run.suiteGrew"> The suite grew this run, so an upward arrow can be the new tests biting rather than a target getting worse.</span>
+  </p>
+
+  <!-- Runs before the metric changed were published as a single correctness
+       percentage. They are rebuilt from their own results and restated here in
+       divergence and coverage, so a figure quoted from this page at the time
+       will not match what it shows now. -->
+  <p webc:if="scoredOnCorrectness($data.run.date)" class="mb-6 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50/70 dark:bg-white/[0.03] px-4 py-3 text-sm text-zinc-600 dark:text-zinc-300 max-w-2xl">
+    When this run was published the board led with a single correctness percentage. The figures
+    here are that run's own results restated as divergence and coverage, so they read differently
+    from what this page showed at the time. The <a href="/changelog" class="underline hover:text-brand-700 dark:hover:text-brand-300">changelog</a> has the change.
   </p>
 
   <!-- Suite-growth callout: the suite expanding under a target is the usual
@@ -28,7 +38,7 @@
       Suite grew from <span @text="$data.run.prevSuiteSize"></span> to <span @text="$data.run.suiteSize"></span> tests this run.
     </p>
     <p class="mt-1 text-sm text-brand-700 dark:text-brand-200/80 max-w-2xl">
-      That's <span @text="$data.run.suiteGrowth"></span> new tests measured against every target. Movement below compares to the previous run, so a fall here is as likely to be the stricter suite as a real regression.
+      That's <span @text="$data.run.suiteGrowth"></span> new tests measured against every target. Movement below compares to the previous run, so a rise here is as likely to be the stricter suite as a real regression.
     </p>
   </div>
 
