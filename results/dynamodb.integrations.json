@@ -68,7 +68,7 @@
       "endTime": 1786531578103.9211,
       "status": "passed",
       "message": "",
-      "name": "/home/runner/work/dynamodb-conformance/dynamodb-conformance/tests/tier2/export/exportImport.test.ts"
+      "name": "tests/tier2/export/exportImport.test.ts"
     },
     {
       "assertionResults": [
@@ -94,7 +94,7 @@
       "endTime": 1786531610623.1455,
       "status": "passed",
       "message": "",
-      "name": "/home/runner/work/dynamodb-conformance/dynamodb-conformance/tests/tier2/kinesis/streamingDestination.test.ts"
+      "name": "tests/tier2/kinesis/streamingDestination.test.ts"
     }
   ]
 }

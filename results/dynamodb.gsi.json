@@ -276,7 +276,7 @@
       "endTime": 1786538161727.6357,
       "status": "passed",
       "message": "",
-      "name": "/home/runner/work/dynamodb-conformance/dynamodb-conformance/tests/tier2/updateTable/gsi.test.ts"
+      "name": "tests/tier2/updateTable/gsi.test.ts"
     },
     {
       "assertionResults": [
@@ -303,7 +303,7 @@
       "endTime": 1786539231677.2715,
       "status": "passed",
       "message": "",
-      "name": "/home/runner/work/dynamodb-conformance/dynamodb-conformance/tests/tier2/vectorSearch/updateLifecycle.test.ts"
+      "name": "tests/tier2/vectorSearch/updateLifecycle.test.ts"
     }
   ]
 }

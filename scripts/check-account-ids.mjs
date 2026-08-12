@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Check committed JSON files for leaked AWS account IDs.
- * Exit code 1 if any real account IDs are found.
+ * Check committed JSON files for anything that should not be published: a real
+ * AWS account ID, or a machine path from wherever the run happened.
+ *
+ * Exit code 1 if either is found.
+ *
+ * The path check exists because a results file records the directory layout of
+ * whatever machine produced it. Nothing downstream reads the prefix, so the
+ * invariant is simply that every recorded path is repo-relative.
  *
  * Usage:
  *   node scripts/check-account-ids.mjs
@@ -38,6 +44,18 @@ if (files.length === 0) {
 
 let found = false
 
+// A path that is not repo-relative carries the directory the run happened in.
+// Reported once per file with a sample: a single run leaks the same prefix on
+// every test it executed, and in every stack frame of every failure.
+//
+// The second pattern is the backstop: the first only knows about paths that
+// reach a `tests/` directory, so a home directory anywhere in the file is
+// reported whether or not it looks like a test path.
+const MACHINE_PATHS = [
+  /(?:\/[^/"\s]+)+\/tests\//g,
+  /\/(?:Users|home)\/[^/"\s]+/g,
+]
+
 for (const file of files) {
   const content = readFileSync(file, 'utf8')
   for (const pattern of ACCOUNT_PATTERNS) {
@@ -51,11 +69,23 @@ for (const file of files) {
       }
     }
   }
+
+  for (const pattern of MACHINE_PATHS) {
+    pattern.lastIndex = 0
+    const paths = [...content.matchAll(pattern)].map((m) => m[0])
+    if (paths.length > 0) {
+      console.error(
+        `LEAKED: ${file} carries ${paths.length} path(s) from the machine that ran it, e.g. ${paths[0]}`,
+      )
+      found = true
+      break
+    }
+  }
 }
 
 if (found) {
   console.error('\nRun: node scripts/sanitize-arns.mjs')
   process.exit(1)
 } else {
-  console.log('No leaked account IDs found.')
+  console.log('No leaked account IDs or machine paths found.')
 }

@@ -1,12 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * Sanitize AWS account IDs from JSON result files.
+ * Make a results file safe to commit to a public repo.
  *
- * Replaces all 12-digit account IDs in ARN patterns with '000000000000'.
- * Covers ARNs for any AWS service (TableArn, LatestStreamArn, IndexArn, backup,
+ * Two things get removed.
+ *
+ * Account IDs: all 12-digit IDs in ARN patterns become '000000000000'. Covers
+ * ARNs for any AWS service (TableArn, LatestStreamArn, IndexArn, backup,
  * Kinesis, KMS, S3 access points) and bare account IDs in IAM "AWS" principals
  * inside resource-policy documents.
+ *
+ * Machine paths: Vitest absolutises every test file against wherever the run
+ * happened, so a results file records that machine's directory layout. On CI
+ * that is a throwaway path; run anywhere else it is somebody's home directory.
+ * Nothing reads the prefix - every consumer slices from `tests/` - so it is
+ * reduced to the repo-relative form on the way in.
  *
  * Usage:
  *   node scripts/sanitize-arns.mjs results/*.json ground-truth/*.json
@@ -20,6 +28,14 @@ const REPLACERS = [
   { re: /(arn:aws[a-z-]*:[a-z0-9-]+:[^:]*:)\d{12}(:)/g, repl: '$1000000000000$2' },
   // Tolerates backslash-escaped quotes — policy docs land in result JSON escaped.
   { re: /(\\?"AWS\\?"\s*:\s*\\?")\d{12}(\\?")/g, repl: '$1000000000000$2' },
+  // Any absolute path into the checkout becomes repo-relative.
+  //
+  // Deliberately not anchored to the `name` field: Vitest embeds the same
+  // prefix in every stack frame inside failureMessages, and those frames reach
+  // into node_modules and src as well as tests. Anchoring on the repo-relative
+  // roots rather than on the prefix means it does not matter what the checkout
+  // was called. Line and column numbers are kept, so a trace reads as it did.
+  { re: /\/(?:[^/"\s]+\/)+(tests|src|scripts|site|node_modules)\//g, repl: '$1/' },
 ]
 
 const files = process.argv.slice(2)
@@ -52,13 +68,13 @@ for (const file of files) {
 
   if (replacements > 0) {
     writeFileSync(file, sanitized)
-    console.log(`${file}: ${replacements} account ID(s) sanitized`)
+    console.log(`${file}: ${replacements} replacement(s)`)
     totalReplacements += replacements
   }
 }
 
 if (totalReplacements === 0) {
-  console.log('No account IDs found — files are clean.')
+  console.log('No account IDs or machine paths found — files are clean.')
 } else {
-  console.log(`\nTotal: ${totalReplacements} account ID(s) sanitized across ${files.length} files.`)
+  console.log(`\nTotal: ${totalReplacements} replacement(s) across ${files.length} files.`)
 }
