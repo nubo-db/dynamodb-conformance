@@ -1,0 +1,100 @@
+{
+  "numTotalTestSuites": 4,
+  "numPassedTestSuites": 4,
+  "numFailedTestSuites": 0,
+  "numPendingTestSuites": 0,
+  "numTotalTests": 3,
+  "numPassedTests": 3,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "snapshot": {
+    "added": 0,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0,
+    "didUpdate": false
+  },
+  "startTime": 1786531429769,
+  "success": true,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Export and import — S3"
+          ],
+          "fullName": "Export and import — S3 ExportTableToPointInTime initiates an export and reports it",
+          "status": "passed",
+          "title": "ExportTableToPointInTime initiates an export and reports it",
+          "duration": 1906.3633250000003,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "export-import",
+            "control-plane",
+            "cloud-only",
+            "slow"
+          ]
+        },
+        {
+          "ancestorTitles": [
+            "Export and import — S3"
+          ],
+          "fullName": "Export and import — S3 ImportTable ingests S3 data into a new table",
+          "status": "passed",
+          "title": "ImportTable ingests S3 data into a new table",
+          "duration": 135801.921255,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "export-import",
+            "control-plane",
+            "cloud-only",
+            "slow"
+          ]
+        }
+      ],
+      "startTime": 1786531440395,
+      "endTime": 1786531578103.9211,
+      "status": "passed",
+      "message": "",
+      "name": "/home/runner/work/dynamodb-conformance/dynamodb-conformance/tests/tier2/export/exportImport.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Kinesis streaming destination"
+          ],
+          "fullName": "Kinesis streaming destination enables a streaming destination and reports it via Describe",
+          "status": "passed",
+          "title": "enables a streaming destination and reports it via Describe",
+          "duration": 12407.145410999976,
+          "failureMessages": [],
+          "meta": {},
+          "tags": [
+            "kinesis",
+            "control-plane",
+            "cloud-only",
+            "slow"
+          ]
+        }
+      ],
+      "startTime": 1786531598216,
+      "endTime": 1786531610623.1455,
+      "status": "passed",
+      "message": "",
+      "name": "/home/runner/work/dynamodb-conformance/dynamodb-conformance/tests/tier2/kinesis/streamingDestination.test.ts"
+    }
+  ]
+}
