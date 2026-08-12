@@ -1,7 +1,7 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-08-11"
+lastmod: "2026-08-12"
 meta:
   title: For agents
   description: "How to read Parity Suite's conformance scores, and where to get them as machine-readable data, for agents and anyone consuming the suite programmatically."

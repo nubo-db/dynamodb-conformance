@@ -1,7 +1,7 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-08-11"
+lastmod: "2026-08-12"
 meta:
   title: Methodology
   description: "How the conformance figures and grades are worked out, how runs and movement are reconstructed, what the suite does and doesn't test, and the trademark attributions."

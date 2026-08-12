@@ -40,7 +40,7 @@ export const GRADING_VERSION = 1
 // the literal says "criteria version 1" and links to the methodology, which
 // renders this. The CHANGELOG heading keeps its own date - that is the
 // release, a different fact that happens to coincide.
-export const GRADING_CRITERIA_EFFECTIVE = '2026-08-11'
+export const GRADING_CRITERIA_EFFECTIVE = '2026-08-12'
 
 /** The effective date in the long form the pages print. */
 export const gradingCriteriaEffectiveLabel = () =>

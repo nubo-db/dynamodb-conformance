@@ -3,7 +3,7 @@
 A dated log of how the conformance test suite has grown: tests added, tiers
 broadened, and targets brought into the run. Newest first.
 
-## 2026-08-11 (3.0.0)
+## 2026-08-12 (3.0.0)
 
 **Read this first if you consume the JSON.** The data endpoints go from schema
 2 to schema 4 in this one release. Schema 3 was never published on its own, so
