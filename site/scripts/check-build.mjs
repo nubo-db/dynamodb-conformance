@@ -436,8 +436,8 @@ try {
     strayDates.slice(0, 3).join(", "),
   );
 
-  // No figure typed by hand beside one the build derives, on the two pages that
-  // argue for the rule. Read from the markdown source rather than the output,
+  // No figure typed by hand beside one the build derives, on every hand-authored
+  // prose page. Read from the markdown source rather than the output,
   // because a rendered value and a typed one are the same characters by the time
   // they reach a page - which is how five claims drifted while every check here
   // stayed green. The rule and its exemption mechanism are in lib/prose-literals.mjs.

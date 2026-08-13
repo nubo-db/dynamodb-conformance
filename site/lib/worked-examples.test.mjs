@@ -30,8 +30,19 @@ const target = (slug, { failed, skipped, spread = 0 }) => ({
   suiteHeadlineRegion: "eu-west-2",
   divergenceBest: (failed / SUITE) * 100,
   divergenceWorst: ((failed + spread) / SUITE) * 100,
+  // divergenceValue is on every entry the real model builds (see regionEntry in
+  // summary.mjs), and the spread reads it to measure from the headline, so the
+  // fixture carries it rather than a simplified region.
   regions: [
-    { region: "eu-west-2", passed: SUITE - failed - skipped, failed, skipped, indeterminate: 0, count: SUITE },
+    {
+      region: "eu-west-2",
+      passed: SUITE - failed - skipped,
+      failed,
+      skipped,
+      indeterminate: 0,
+      count: SUITE,
+      divergenceValue: (failed / SUITE) * 100,
+    },
     {
       region: "us-east-1",
       passed: SUITE - failed - spread - skipped,
@@ -39,6 +50,7 @@ const target = (slug, { failed, skipped, spread = 0 }) => ({
       skipped,
       indeterminate: 0,
       count: SUITE,
+      divergenceValue: ((failed + spread) / SUITE) * 100,
     },
   ],
 });
@@ -150,8 +162,9 @@ test("the cheapest letter is the fewest withdrawals that move any row up a band"
 test("the cheapest letter is decided at the band edge, not by a continuous estimate", () => {
   // A row whose withdrawal lands the effective figure on exactly 5.0 has not
   // reached A: the band is `under 5`. Reading it off the arithmetic rather than
-  // off gradeOf undercounts by one test, which on a board where two rows sit one
-  // test apart is the difference between naming one target and another.
+  // off gradeOf undercounts by one test, which on a board where the cheapest two
+  // rows sit a test or two apart is the difference between naming one and the
+  // other.
   // 5 fails at 86.4% coverage: one withdrawal gives an effective 5.0 and holds
   // at B, two give 4.9 and reach A.
   const edge = board([["extenddb", { failed: 5, skipped: 136 }]]);
@@ -171,4 +184,32 @@ test("the regional spread is the widest gap on the board, in tests and in points
   assert.equal(spread.tests, 5);
   assert.equal(spread.points, 0.5);
   assert.equal(spread.suite, SUITE);
+});
+
+test("the spread is measured from the headline, not from the lowest failure count", () => {
+  // The page says "beyond its headline", and the headline is the best-matching
+  // region - which is not always the one with fewest failures. A region carrying
+  // indeterminates is not scored, so it cannot be a headline, but its failure
+  // count is still real. Reading max-minus-min here would publish a gap wider
+  // than any row ever showed.
+  const model = {
+    available: true,
+    targets: {
+      alpha: {
+        slug: "alpha",
+        suiteHeadlineRegion: "eu-west-2",
+        divergenceBest: 1.0,
+        divergenceWorst: 1.5,
+        regions: [
+          { region: "eu-west-2", failed: 10, divergenceValue: 1.0, indeterminate: 0, count: SUITE },
+          // Fewer failures, but unscored, so it never became the headline.
+          { region: "sa-east-1", failed: 8, divergenceValue: null, indeterminate: 3, count: SUITE },
+          { region: "us-east-1", failed: 15, divergenceValue: 1.5, indeterminate: 0, count: SUITE },
+        ],
+      },
+    },
+  };
+  const spread = regionalSpread(model);
+  assert.equal(spread.tests, 5); // 15 - 10, not 15 - 8
+  assert.equal(spread.points, 0.5);
 });

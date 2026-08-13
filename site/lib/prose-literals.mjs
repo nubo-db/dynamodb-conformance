@@ -1,4 +1,4 @@
-// No hand-typed figure beside a derived one, on the two pages that argue for it.
+// No hand-typed figure beside a derived one, on the pages that argue for it.
 //
 // The rule the whole site rests on is that a target's figures are derived and
 // never typed. The prose pages are where that rule leaks: a sentence explaining

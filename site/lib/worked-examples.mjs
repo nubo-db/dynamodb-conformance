@@ -152,10 +152,11 @@ export function cheapestWithdrawal(model) {
 export function renderCheapestWithdrawal(model) {
   const c = cheapestWithdrawal(model);
   if (!c) return "No letter on the current board can be bought this way at any price.";
-  // Named as the row the count lands on, not as a target singled out. It is
-  // decided by a single test today - the next row up needs one more - so it
-  // changes hands on almost any movement, and a reader who saw a different name
-  // last week needs the rule rather than a reason to wonder.
+  // Named as the row the count lands on, not as a target singled out. The rows
+  // sit close enough together that it changes hands on almost any movement, and
+  // a reader who saw a different name last week needs the rule rather than a
+  // reason to wonder. Deliberately unquantified: how close they sit is a figure
+  // that drifts, which is the whole subject of the guard two files over.
   return (
     `Whichever row currently sits closest to a band it has not earned is the one this costs least: ` +
     `on the current board that is ${c.name}, at ${c.tests} withdrawn tests.`
@@ -178,17 +179,25 @@ export function regionalSpread(model) {
   let widest = null;
   for (const t of Object.values(model.targets ?? {})) {
     if (t.slug === GROUND_TRUTH_SLUG) continue;
-    const failed = (t.regions ?? []).map((r) => r.failed);
-    if (!failed.length || t.divergenceBest == null || t.divergenceWorst == null) continue;
-    const tests = Math.max(...failed) - Math.min(...failed);
+    const regions = t.regions ?? [];
+    // Measured from the headline region, which is the row's published figure and
+    // what the sentence claims - "beyond its headline". Not from the lowest
+    // failure count on the board: those coincide today, because the headline is
+    // the best-matching region, but only while every region with fewer failures
+    // is also eligible to be one. A region carrying indeterminates is not scored
+    // and so cannot be a headline, while its failure count is still real, and
+    // max-minus-min would then report a gap no row ever published.
+    const headline = regions.find((r) => r.region === t.suiteHeadlineRegion) ?? regions[0];
+    if (!headline || headline.divergenceValue == null || t.divergenceWorst == null) continue;
+    const tests = Math.max(...regions.map((r) => r.failed)) - headline.failed;
     const better = !widest || tests > widest.tests || (tests === widest.tests && t.slug < widest.slug);
     if (!better) continue;
     widest = {
       slug: t.slug,
       name: nameOf(t.slug),
       tests,
-      points: Number((t.divergenceWorst - t.divergenceBest).toFixed(1)),
-      suite: (t.regions ?? [])[0]?.count ?? null,
+      points: Number((t.divergenceWorst - headline.divergenceValue).toFixed(1)),
+      suite: headline.count ?? null,
     };
   }
   return widest;
