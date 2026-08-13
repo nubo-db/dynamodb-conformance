@@ -29,6 +29,7 @@ import { execFileSync } from "node:child_process";
 
 import { GRADE_BANDS, gradeOf, gradingCriteriaEffectiveLabel } from "../lib/scoring.mjs";
 import { checkAPlusPremise } from "../lib/premise.mjs";
+import { checkProseLiterals } from "../lib/prose-literals.mjs";
 
 const failures = [];
 const check = (ok, label, detail = "") => {
@@ -434,6 +435,23 @@ try {
     "no page other than the methodology dates the criteria itself",
     strayDates.slice(0, 3).join(", "),
   );
+
+  // No figure typed by hand beside one the build derives, on the two pages that
+  // argue for the rule. Read from the markdown source rather than the output,
+  // because a rendered value and a typed one are the same characters by the time
+  // they reach a page - which is how five claims drifted while every check here
+  // stayed green. The rule and its exemption mechanism are in lib/prose-literals.mjs.
+  const prose = await checkProseLiterals(join(dirname(fileURLToPath(import.meta.url)), "..", ".."));
+  check(
+    prose.findings.length === 0,
+    "no prose page states a figure the build derives",
+    prose.findings.slice(0, 5).join("; "),
+  );
+  // Exemptions are reported rather than counted, so a page that passes because
+  // it is largely exempt does not read the same as a page that passes clean.
+  console.log(`        ${prose.exemptions.length} literal-figures exemption(s): ${
+    [...new Set(prose.exemptions.map((e) => e.kind))].sort().join(", ") || "none"
+  }`);
 
   // The A+ premise, checked against the data this build rendered.
   //
