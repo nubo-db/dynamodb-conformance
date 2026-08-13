@@ -577,17 +577,40 @@ describe('tableRows / renderTable', () => {
     expect(tableDateOf(carried)).toBe('2026-08-12')
     expect(tableDateOf([{ runDate: '-' }])).toBe(null)
 
+    // Every row here was measured in the same run, so there is no exception for
+    // the column to carry and it is not rendered at all. An empty column under a
+    // header promising dates is worse than no column: it reads as data missing
+    // rather than as nothing to report. The caption still dates the table, and
+    // drops the clause pointing at a column that is no longer there.
     const table = renderTable(summary)
-    expect(table).toContain('Measured 2026-07-06, except where a row carries its own date.')
-    // Every row here was measured in the same run, so no row restates it.
+    expect(table).toContain('_Measured 2026-07-06._')
+    expect(table).not.toContain('except where a row carries its own date')
+    expect(table).not.toContain('| Measured |')
+    // No row ends on an empty cell, which is what the dropped column left behind.
     for (const line of table.split('\n').filter((l) => l.startsWith('| ') && !l.startsWith('| Target'))) {
-      expect(line.endsWith('|  |') || line.endsWith('| - |')).toBe(true)
+      expect(line.endsWith('|  |'), line).toBe(false)
     }
+  })
+
+  it('brings the Measured column back for the first row carried forward', () => {
+    const carried = buildSummary(
+      Object.entries(docs).map(([slug, doc]) =>
+        target(slug, doc, slug === 'beta' ? { runDate: '2026-07-01' } : {}),
+      ),
+      { registry: REGISTRY, health: HEALTHY, suite: testIdentities(suiteDoc('passed')) },
+    )
+    const table = renderTable(carried)
+    expect(table).toContain('_Measured 2026-07-06, except where a row carries its own date._')
+    expect(table).toContain('| Regions | Measured |')
+    // And only the carried row restates a date; the rest leave the cell empty.
+    const dated = table.split('\n').filter((l) => /\| 2026-07-01 \|$/.test(l))
+    expect(dated).toHaveLength(1)
+    expect(dated[0]).toContain('beta')
   })
 
   it('orders the columns identity, headline, counts, tiers, then evidence', () => {
     expect(renderTable(summary)).toContain(
-      '| Target | Grade | Version | Divergence | Coverage | Fail | Skip | Tier 1 | Tier 2 | Tier 3 | Regions | Measured |',
+      '| Target | Grade | Version | Divergence | Coverage | Fail | Skip | Tier 1 | Tier 2 | Tier 3 | Regions |',
     )
   })
 

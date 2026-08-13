@@ -751,7 +751,7 @@ export function tableRows(summary) {
  * able to mistake an unresolved region for an agreeing one, so absence is
  * spelled out rather than implied.
  */
-export function tableCaption(regions, groundTruth = null, tableDate = null) {
+export function tableCaption(regions, groundTruth = null, tableDate = null, carried = true) {
   const list = (rs) => rs.map((r) => `\`${r}\``).join(', ')
   // Two figures, said plainly. The long form spent a paragraph on what they
   // measure before a reader reached a number, when the pair is simple:
@@ -835,8 +835,16 @@ export function tableCaption(regions, groundTruth = null, tableDate = null) {
   // Last and on its own line, because it dates the table rather than qualifying
   // any one column. It keeps the emphasis the rest of the caption dropped, so it
   // reads as a footer under the definitions instead of another one of them.
+  //
+  // The exception clause is dropped along with the column it describes: on a run
+  // that re-measured everything there is no row carrying its own date, and
+  // pointing at a column the table no longer has sends a reader looking for it.
   if (tableDate) {
-    sentences.push(`_Measured ${tableDate}, except where a row carries its own date._`)
+    sentences.push(
+      carried
+        ? `_Measured ${tableDate}, except where a row carries its own date._`
+        : `_Measured ${tableDate}._`,
+    )
   }
   return sentences.join('\n\n')
 }
@@ -871,11 +879,23 @@ export function renderTable(summary) {
   // otherwise, so a column of repeats hid the only rows worth spotting. A row
   // with a date in it is carried from an earlier run; the caption states the
   // date the rest were measured on.
+  //
+  // When there is no exception it is not a column either. A run that re-measured
+  // everything left every cell blank, and the table published an empty column to
+  // whoever arrived from an announcement - a header promising something the rows
+  // never deliver. The caption already carries the date they share, and the
+  // column returns with the first row carried forward. Variants are counted too:
+  // they are rendered as rows, so a carried variant under a re-measured project
+  // still needs somewhere to say so.
+  const carried = rows
+    .flatMap((r) => [r, ...(r.variants ?? [])])
+    .some((r) => r.runDate !== tableDate)
+  const measured = (r) => (carried ? ` ${r.runDate === tableDate ? '' : r.runDate} |` : '')
   const fmt = (r, name) =>
-    `| ${name} | ${r.grade} | ${r.version} | ${r.divergence} | ${r.coverage} | ${r.failed} | ${r.skipped} | ${r.tier1} | ${r.tier2} | ${r.tier3} | ${r.cohort ?? '-'} | ${r.runDate === tableDate ? '' : r.runDate} |`
+    `| ${name} | ${r.grade} | ${r.version} | ${r.divergence} | ${r.coverage} | ${r.failed} | ${r.skipped} | ${r.tier1} | ${r.tier2} | ${r.tier3} | ${r.cohort ?? '-'} |${measured(r)}`
   const body = [
-    '| Target | Grade | Version | Divergence | Coverage | Fail | Skip | Tier 1 | Tier 2 | Tier 3 | Regions | Measured |',
-    '|--------|-------|---------|-----------|----------|------|------|--------|--------|--------|---------|----------|',
+    `| Target | Grade | Version | Divergence | Coverage | Fail | Skip | Tier 1 | Tier 2 | Tier 3 | Regions |${carried ? ' Measured |' : ''}`,
+    `|--------|-------|---------|-----------|----------|------|------|--------|--------|--------|---------|${carried ? '----------|' : ''}`,
     ...rows.flatMap((r) => [
       // The parent's figures are its reference configuration's, so name that
       // configuration inline when the project has more than one shape. Without
@@ -887,7 +907,7 @@ export function renderTable(summary) {
       ),
     ]),
   ].join('\n')
-  return `${tableCaption(summary.regions, summary.groundTruth, tableDate)}\n\n${body}`
+  return `${tableCaption(summary.regions, summary.groundTruth, tableDate, carried)}\n\n${body}`
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
