@@ -7,6 +7,8 @@ import { buildMatrix, renderSupportCards, renderTargetOperations } from "./lib/m
 import { renderCapabilities, renderCapabilityCards } from "./lib/capabilities.mjs";
 import { controlObservation, controlProvenance, controlSplit, regionCount, regionLabel, renderRegionGroups } from "./lib/summary.mjs";
 import { renderSplitEvidence, splitCoverageNote } from "./lib/splits.mjs";
+import { regionalSpread, renderCappedExamples, renderCheapestWithdrawal } from "./lib/worked-examples.mjs";
+import { carriedEach, countWord } from "./lib/suite-shape.mjs";
 import { GRADING_CRITERIA_EFFECTIVE, GRADING_VERSION, TARGETS, capClauseOf, configurationOf, coverageShareSentenceOf, distributionOf, fallsShort, gradeForRow, gradeLegendOf, gradeLineOf, gradeOf, gradingCriteriaEffectiveLabel, isSelfMaintained, isVariant, notAttempted, regionClauseOf, scoredOnCorrectness } from "./lib/scoring.mjs";
 import { channelIcon } from "./lib/channel-icons.mjs";
 import { targetLinks, targetRunHref } from "./lib/links.mjs";
@@ -167,6 +169,18 @@ export default function (eleventyConfig) {
   // The arithmetic under the cohorts: which observed regions the split does
   // not account for, so the counts do not read as regions gone missing.
   eleventyConfig.addFilter("splitCoverageNote", (split, observed) => splitCoverageNote(split, observed));
+
+  // The methodology's worked examples, chosen from the board they describe
+  // rather than named in prose. Typed in, they went stale within a fortnight and
+  // ended up contradicting the standings a click above them.
+  eleventyConfig.addFilter("cappedExamples", (model) => renderCappedExamples(model));
+  eleventyConfig.addFilter("cheapestWithdrawal", (model) => renderCheapestWithdrawal(model));
+  // How far the regions disagree about any one target, in tests and in points:
+  // the residue the split registry has to account for.
+  eleventyConfig.addFilter("regionalSpread", (model) => regionalSpread(model));
+  // Counts the coverage-weighting sentence states, read from the suite manifest.
+  eleventyConfig.addFilter("carriedEach", (shape, names) => carriedEach(shape, names));
+  eleventyConfig.addFilter("countWord", (n) => countWord(n));
 
   // The suite's test titles carry em dashes; nothing on this site does. They are
   // normalised to a spaced hyphen on the way out, wording otherwise untouched.

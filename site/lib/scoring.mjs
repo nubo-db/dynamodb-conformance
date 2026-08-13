@@ -32,6 +32,7 @@ import {
   GRADING_CRITERIA_EFFECTIVE,
   GRADING_VERSION,
   bandOf,
+  effectiveOf,
   gradeOf,
   gradingCriteriaEffectiveLabel,
 } from "dynamodb-conformance/scripts/lib/grade.mjs";
@@ -49,7 +50,7 @@ export { axesOf };
 // grade is derived from a row's two published values at the point of use -
 // never stored on the row - so every surface that shows a letter shows the
 // one implied by the figures beside it.
-export { A_PLUS, BASELINE_GRADE, BASELINE_LABEL, COVERAGE_DIVISOR, GRADE_BANDS, GRADING_CRITERIA_EFFECTIVE, GRADING_VERSION, bandOf, gradeOf, gradingCriteriaEffectiveLabel };
+export { A_PLUS, BASELINE_GRADE, BASELINE_LABEL, COVERAGE_DIVISOR, GRADE_BANDS, GRADING_CRITERIA_EFFECTIVE, GRADING_VERSION, bandOf, effectiveOf, gradeOf, gradingCriteriaEffectiveLabel };
 
 // The one-line reading beside a grade chip: the qualifier in words, the
 // exact figure after it. The percentage stays for anyone who wants the
