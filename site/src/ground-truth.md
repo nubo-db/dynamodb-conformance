@@ -20,7 +20,7 @@ The clearest case the suite has recorded is a `PutItem` with a `{ NULL: false }`
 Until version 2.0.0, the suite pinned one region, eu-west-2, as ground truth. That was quietly unfair. An emulator that behaved exactly like us-east-1 on `{ NULL: false }` was marked wrong, not because it disagreed with real DynamoDB, but because it agreed with the wrong copy of it.
 
 {% if splits.available and splits.featured %}
-The `{ NULL: false }` difference has since closed, but others are open. The suite tracks {{ splits.count }} confirmed regional split{% if splits.count != 1 %}s{% endif %} today. Here is one, with what each region actually returned: {{ splits.featured.behaviour }}
+The `{ NULL: false }` difference has since closed, but others are open. The suite tracks {{ splits.count | countWord }} confirmed regional split{% if splits.count != 1 %}s{% endif %} today. Here is one, with what each region actually returned: {{ splits.featured.behaviour }}
 
 <div class="not-prose space-y-3 my-6">{{ splits.featured | splitEvidence | safe }}</div>
 
@@ -29,6 +29,7 @@ Each cohort is a real region's answer, so an emulator matching either is behavin
 
 ## What real DynamoDB was measured on
 
+<!-- literal-figures: structural, the three real-AWS lanes are the pipeline's own shape -->
 {% if summary.available and summary.latest.groundTruth %}
 The suite runs against real DynamoDB in three passes, split because the slowest tests take hours: the main run, plus separate passes for the S3/Kinesis integrations and for GSI lifecycle. The board's baseline row only claims the whole suite once all three have reported. {{ summary.latest.groundTruth | controlObservation | controlProvenance }}
 {% endif %}
@@ -37,6 +38,7 @@ The suite runs against real DynamoDB in three passes, split because the slowest 
 
 From 2.0.0, ground truth is per region. The full suite runs against real DynamoDB in every commercial region, and each emulator is scored against every region's answers. Its headline is its best-matching region: the one it agrees with most closely.
 
+<!-- literal-figures: illustrative, the quoted cohort labels are format samples, not rows on the board -->
 That is why the tables name a region beside each score. Most of the time an emulator matches every region equally, and the label just reads "all regions". Where it matches some regions more closely than others, the label names the ones it is closest to. eu-west-2 stays the anchor, because it is the region the suite has always measured against and the one the history here is built on, so a target that is best in eu-west-2 and five other regions reads as "eu-west-2 + 5 regions". A target that matches a region eu-west-2 disagrees with, and diverges less there, is named for that region instead.
 
 Real DynamoDB sits at the top of every table diverging nowhere. That is not a number typed in by hand. Each region is scored against its own answers, so it agrees with itself everywhere by definition, and the zero is earned self-agreement measured the same way as every other score.

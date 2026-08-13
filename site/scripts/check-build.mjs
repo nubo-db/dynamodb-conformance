@@ -373,9 +373,31 @@ try {
   // blocks through placeholders and skips conditional comments, and a comment
   // containing the string "<pre" would take content with it. Cheap to assert,
   // and it is the failure that would be silent.
-  const leftoverComments = docs.filter(
-    (d) => d.path.endsWith(".html") && /<!--(?!\[if)/.test(d.html),
+  // Every generated text format, not the two this check happened to collect.
+  //
+  // Twice now a pass has been scoped to HTML and the other outputs have been the
+  // ones that broke: four raw `{{ }}` reached llms-full.txt, and then the prose
+  // pages' build-time markers did. Both times the fix was to add the format that
+  // failed, which leaves the next one uncovered. So this reads the whole output
+  // tree and asserts the property directly - no built file of any kind ships a
+  // developer comment - rather than trusting a list of extensions to stay
+  // complete. Binary assets are skipped because they cannot carry one.
+  const BINARY = /\.(png|jpe?g|gif|webp|avif|ico|woff2?|ttf|otf|eot|pdf|zip|mp4|webm)$/i;
+  const generated = [];
+  for await (const f of glob("**/*", { cwd: out, withFileTypes: true })) {
+    if (!f.isFile() || BINARY.test(f.name)) continue;
+    generated.push(join(f.parentPath ?? f.path, f.name));
+  }
+  const commented = [];
+  for (const path of generated) {
+    if (/<!--(?!\[if)/.test(await readFile(path, "utf8"))) commented.push(path.slice(out.length));
+  }
+  check(
+    generated.length >= docs.length,
+    "the comment scan reaches every generated file, not only the collected pages",
+    `${generated.length} generated, ${docs.length} collected`,
   );
+  const leftoverComments = commented.map((path) => ({ path }));
   check(
     leftoverComments.length === 0,
     "no built page ships a developer comment",

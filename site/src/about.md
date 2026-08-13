@@ -1,7 +1,7 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-08-11"
+lastmod: "2026-08-13"
 meta:
   title: About
   description: "Why an independent DynamoDB conformance suite exists, how it scores emulators against live AWS, and what the tiers mean."
@@ -21,6 +21,7 @@ So the suite tests observable behaviour and nothing else. It drives the standard
 
 ## Three tiers, because one number hides too much
 
+<!-- literal-figures: structural, the three tiers are the suite's own shape, fixed in scripts/lib/score.mjs -->
 A target that gets 8% of the suite wrong tells you almost nothing on its own. Eight percent of *what*? Get 8% of the core operations wrong and you'll feel it constantly; get 8% of the strictest edge cases wrong and it's likely still fine for local development. Those are very different situations behind the same number, so the suite splits its tests into three tiers and reports divergence within each.
 
 **Tier 1 - Core.** The operations roughly 90% of DynamoDB users rely on: CRUD, queries, scans, batch operations, GSIs, UpdateTable. The more an emulator diverges here, the more often everyday code will hit a difference.
@@ -29,6 +30,7 @@ A target that gets 8% of the suite wrong tells you almost nothing on its own. Ei
 
 **Tier 3 - Strict.** Validation ordering, error behaviour at a range of strictness - exact where DynamoDB's wording is stable, structural (the type, field and constraint) where its rendering is non-deterministic - limits, and legacy API shapes. Missing some of this is usually fine when you're developing locally, where the exact error string rarely matters. It matters far more in CI: if your own test suite runs against an emulator and asserts on error messages or validation behaviour, a Tier 3 gap is exactly the kind of thing that lets a bug through a green build and only shows up against real DynamoDB in production.
 
+<!-- literal-figures: illustrative, an invented target carrying no claim about the board -->
 So a target diverging 8% over the whole suite might be right about every core operation and wrong about a fifth of Tier 3, or the other way round. The tier columns say which, and only one of those two is a problem for most people.
 
 ## Skips are scope, fails are bugs
@@ -53,4 +55,4 @@ What is reproducible is the scoring, not the site. Clone the repository and you 
 
 The letter grades need a second answer, because that argument only covers the figures. Where the bands sit was a choice, and moving one regrades targets whose results never changed - no run required, nothing to notice. So the [criteria are versioned and dated](/methodology#grading): they are grading criteria version {{ gradingCriteria.version }}, and any change to a band, the coverage weight or the A+ gate bumps the version and is dated on that page. Both figures print beside the letter on every surface the board controls, so you can recompute a grade yourself and check it, and a retune leaves a record rather than a quietly different board.
 
-The bands are not the only hand-picked input, and the other one deserves naming. The [split registry](/ground-truth) is written by hand by design: it records the behaviours where real DynamoDB's own regions disagree, with the evidence each region returned, and a target matching any recorded answer is scored as conformant rather than wrong. Admitting a row there can turn a fail into a pass with no re-run and no results file changing, which is the one thing "a score can't be tuned without changing the published results first" does not cover. So the registry is public, every row carries the captured evidence and the date it was refreshed, and a behaviour enters only once confirmed across regions. It currently holds three rows, and they are the three tests behind every zero-divergence target's regional residue.
+The bands are not the only hand-picked input, and the other one deserves naming. The [split registry](/ground-truth) is written by hand by design: it records the behaviours where real DynamoDB's own regions disagree, with the evidence each region returned, and a target matching any recorded answer is scored as conformant rather than wrong. Admitting a row there can turn a fail into a pass with no re-run and no results file changing, which is the one thing "a score can't be tuned without changing the published results first" does not cover. So the registry is public, every row carries the captured evidence and the date it was refreshed, and a behaviour enters only once confirmed across regions.{% if splits.available %} It currently holds {{ splits.count | countWord }} rows, and they are the entire set of behaviours on which matching one region rather than another can turn a fail into a pass.{% endif %}

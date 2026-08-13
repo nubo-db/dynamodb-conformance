@@ -191,8 +191,14 @@ export default function (eleventyConfig) {
   // the built HTML, and 31% of a run page. The comments stay in the source and
   // stop at the build. Conditional comments are left alone, and so is anything
   // inside <pre>, where a comment would be content rather than an aside.
+  //
+  // The text corpus is covered too. It is assembled from the same prose sources
+  // and skipping it shipped their build-time markers to the one surface an agent
+  // reading text rather than JSON consumes - the same page/format split that let
+  // four raw interpolations through before it.
   eleventyConfig.addTransform("stripComments", function (content) {
-    if (!(this.page.outputPath || "").endsWith(".html")) return content;
+    const out = this.page.outputPath || "";
+    if (!out.endsWith(".html") && !out.endsWith(".txt")) return content;
     // A NUL-delimited placeholder, because a bare number would collide with
     // one already on the page and swap it for a code block.
     const pre = [];

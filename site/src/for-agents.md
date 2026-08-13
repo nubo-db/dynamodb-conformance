@@ -1,7 +1,7 @@
 ---
 layout: layouts/prose.webc
 # Hand-authored page: bump when the prose changes so the sitemap stays honest.
-lastmod: "2026-08-12"
+lastmod: "2026-08-13"
 meta:
   title: For agents
   description: "How to read Parity Suite's conformance scores, and where to get them as machine-readable data, for agents and anyone consuming the suite programmatically."
@@ -21,6 +21,7 @@ Every figure on the site is published as JSON, regenerated at build time from th
 - [/feed.xml](/feed.xml) - an Atom feed, one entry per run. Entries for runs measured before criteria version 1 took effect carry no letter, because none was published at the time; they say so in the summary and carry `<category term="ungraded"/>`, so a single entry read on its own is not ambiguous. Their `<updated>` is unchanged, so if you archived those entries when they were first published, the letters you may have seen in an earlier copy of this feed were applied retroactively and have been withdrawn.
 - [registry/splits.json](https://raw.githubusercontent.com/paritysuite/dynamodb-conformance/main/registry/splits.json) - the behaviours where real AWS regions genuinely disagree, each with every region's recorded answer and the pinned one. Served from the suite repo rather than this site, because it is the suite's artefact. You need it to check the A+ premise for yourself: a zero-divergence target may fail a test in a non-headline region only where that test is recorded here.
 
+<!-- literal-figures: structural, the three real-AWS lanes are the pipeline's own shape -->
 The baseline's `observation` block, in every endpoint's envelope, says how much of the suite that row is currently standing on. Real AWS is measured in three passes for runtime reasons, and until all three have reported the row is pinned to its last clean measurement rather than derived: `lanes` is what has reported and when, `missingLanes` names what has not, and `unobserved` counts the tests carried rather than re-observed.
 
 Every target carries the identical schema, live AWS DynamoDB included. The data is published under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): use it freely, just credit paritysuite.org. The schema is versioned with a `schemaVersion` field, and a breaking change bumps it.
@@ -45,20 +46,24 @@ The denominator is the same for both and never moves, which fixes their relation
 
 The JSON keeps the raw counts (`passed`, `failed`, `skipped`, `implemented`, `total`) alongside both, so you can derive whatever figure you need rather than depending on the one the board leads with. The pass rate over implemented operations is still published, as `correctness`, for consumers that already read it. It used to be `total`, which is also the name of the raw test count in `counts`, so the same word meant a count in one place and a percentage in another.
 
+<!-- literal-figures: structural, the two ungraded row kinds are fixed in scripts/lib/grade.mjs -->
 From schema 4 each target also carries a `grade`: a letter (`A+` to `F`), a plain-language `qualifier`, a `band` (the colour tier: `pass`, `partial`, `fail` or `none`), a `capped` flag and a `capAt` letter. Two rows carry `letter: null` and must be handled before you recompute anything, because a literal reimplementation of the bands mis-grades a null (`null < 5` is `true` in JavaScript): a target with nothing scored has `qualifier: "not scored"`, and the live-AWS baseline has `qualifier: "baseline"`. The baseline is not graded at all. A letter reads how far a target sits from real DynamoDB, so there is nothing for the yardstick to measure against itself; its two figures still publish, and they are the definition every other row is read against.
 
+<!-- literal-figures: illustrative, an invented target carrying no claim about the board -->
 `capped` says whether coverage lowered the letter, and `capAt` is that lowered letter - so a target diverging 12.3% (the B band on divergence alone) over 80.0% coverage reads `capped: true, capAt: "C"`, and cannot read better than C until its coverage rises. The two carry the same fact: `capAt` is the letter whenever `capped` is true and null otherwise, so test `capped` and read `capAt`. Where coverage binds nothing they are `false` and `null`. Two rows sharing a letter are not comparable when one of them is at a ceiling.
 
 One property the letter does not inherit from the figures. Divergence cannot be lowered by declining operations without coverage falling by exactly as much, which is what makes the pair hard to game. The letter is weaker: a third of whatever a target leaves unimplemented is added to its divergence before the bands are read, so withdrawing a failing test still moves the effective figure down by two thirds of what left. Withdrawal costs more than it used to and is not free of gain. **If you are ranking targets programmatically, rank on `divergence` and `coverage`.** The letter is for reading, and the two figures are what carry the guarantee.
 
 A letter change between tested runs travels as `movement.gradeChange` (`{from, to, label}`), null when the letter held. Two more fields keep the data at parity with the cards: `runDate` is the run that actually measured the row (it lags the run's own date when a target was carried forward untested), and `region.worst` is the worst observed region's divergence - the figure behind a row's "up to X% in the other N" clause - null when the target has no regional spread.
 
-The grade is a reading of the two figures, never a blend of them - divergence sets the letter, with A+ meaning exactly zero failing tests against the target's headline region rather than a figure that rounds to 0.0%, and low coverage can only cap it - and the full criteria (bands, the A+ gate, the coverage divisor) travel in `metrics.grade`, versioned as `gradingVersion` separately from the schema, because a criteria change regrades targets whose figures didn't move. Recompute the letter from the two values if you need to check it; the [methodology](/methodology#grading) has the same criteria in prose. A grade is an observation against this suite's tests on a named date, not a certification, and not an endorsement.
+The grade is a reading of the two figures, never a blend of them - divergence sets the letter, with A+ meaning exactly zero failing tests against the target's headline region and nothing declined, both read as counts rather than as the published percentages, and low coverage can only cap it - and the full criteria (bands, the A+ gate, the coverage divisor) travel in `metrics.grade`, versioned as `gradingVersion` separately from the schema, because a criteria change regrades targets whose figures didn't move. Recompute the letter from the two values if you need to check it; the [methodology](/methodology#grading) has the same criteria in prose. A grade is an observation against this suite's tests on a named date, not a certification, and not an endorsement.
 
 [Skips are scope, not failure.](/about) A skipped test is the target's own feature-probe declining to run because it doesn't implement that operation at all. That's kept out of the score and reported separately. A fail means the operation is there and behaves differently from real DynamoDB, and that counts. They mean opposite things, so don't fold skips into a pass rate.
 
+<!-- literal-figures: illustrative, an invented target beside the suite's own three tiers -->
 There are [three tiers](/about) - Core, Complete and Strict - and one figure over the whole suite hides too much. A target diverging 8% overall might be right about every Core operation and wrong about a fifth of Strict, or the reverse, and those are different problems. Each tier carries divergence and coverage on the same terms as the headline: lower is better for every divergence figure, and higher is better for every coverage one. If a user only needs everyday CRUD, the Core figure is the one that matters; if they assert on error behaviour in CI, Strict is where a gap bites. Read the tier that maps to what they actually do.
 
+<!-- literal-figures: structural, the baseline agrees with itself by definition rather than by measurement -->
 DynamoDB sits at the top of every table at 0.0% divergence over full coverage, and wears no letter. That's the baseline, not a competitor that happened to win: it's the thing everything else is measured against, so it agrees with itself by definition, and grading it would seat the yardstick in a band an engine had to earn its way into.
 
 ## What the numbers don't tell you
