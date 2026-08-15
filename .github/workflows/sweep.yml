@@ -279,20 +279,74 @@ jobs:
           # Re-auth with the freshly minted token; checkout's persisted one has expired.
           git remote set-url origin "https://x-access-token:${BOT_TOKEN}@github.com/${{ github.repository }}.git"
           git add registry/regions.json
-          if git diff --staged --quiet; then
-            echo "Region health unchanged."
-          else
-            git commit -m "chore: update region health"
-            pushed=0
-            for i in 1 2 3; do
-              if git pull --rebase && git push; then pushed=1; break; fi
-              echo "push attempt $i failed; retrying"
-              sleep 5
-            done
-            if [ "$pushed" -ne 1 ]; then
-              echo "::warning title=Region health::push failed after 3 attempts; this sweep's health record was not persisted"
-              exit 1
+
+          # The published board is derived from this record, so it moves with
+          # it: the observed set is the denominator of every target's Regions
+          # column, and admitting or dropping a region can change which region
+          # is a target's headline and so its grade. Both the table and the
+          # badges read the health record through the shared scorer.
+          #
+          # Regenerating here rather than leaving it to a later run, because
+          # there is no later run: all three paths below sit in conformance.yml's
+          # paths-ignore, so this push starts no conformance run, and the results
+          # table only publishes off one. The board would keep the previous
+          # region set until an unrelated merge happened to refresh it, and the
+          # freshness tests in the cheap gate would hold main red until then.
+          # Regeneration degrades rather than aborting the step. Both scripts
+          # refuse to publish rather than publish something wrong - summarise
+          # asserts the suite it is scoring against, and the observed set it
+          # reads is the one this sweep just wrote - and the step runs under
+          # `bash -e`, so a throw between staging the record and committing it
+          # would end the step with the record uncommitted on a runner about to
+          # vanish. That is the loss the always() above exists to prevent, and
+          # it would cost a week of health for a board that can be rebuilt on
+          # the next run. So the record is committed either way, and a board
+          # that could not be rebuilt leaves main red and says so - the state
+          # this step was already in before it regenerated anything.
+          # Regeneration is unconditional, and the "nothing to do" exit comes
+          # after it rather than before. Gating it on the record having changed
+          # would strand exactly the run that needs it: a degraded run commits
+          # the record with a stale board, and the obvious way to fix that -
+          # re-running the sweep by hand the same day - produces a byte-identical
+          # record, so a gate on the record alone would skip the rebuild and do
+          # nothing. Rebuilding costs a second or two and is idempotent, so the
+          # step is safe to re-run and self-heals whether or not health moved.
+          msg="chore: update region health and the board derived from it"
+          if node scripts/summarise.mjs --write && node scripts/badges.mjs; then
+            git add README.md results
+            if git diff --staged --quiet -- registry/regions.json; then
+              # Health did not move, so this run only rebuilt a board that had
+              # drifted from it. Say that rather than claim a health update.
+              msg="chore: rebuild the board from the region health record"
             fi
+          else
+            echo "::warning title=Board::regeneration failed; committing the health record alone. The board is stale until a later run rebuilds it, and main stays red on the freshness tests until then."
+            # publish() splices README.md before it writes results/summary.json,
+            # so a half-written board is possible and has to go rather than be
+            # committed as though it were derived from the record beside it.
+            git checkout -- README.md results
+            msg="chore: update region health"
+          fi
+
+          if git diff --staged --quiet; then
+            echo "Region health unchanged, and the board already matches it."
+            exit 0
+          fi
+
+          git commit -m "$msg"
+          pushed=0
+          for i in 1 2 3; do
+            # A conflicted `git pull --rebase` leaves the rebase in progress and
+            # every later pull refuses while one is, so without this the second
+            # and third attempts cannot do anything the first did not.
+            git rebase --abort 2>/dev/null || true
+            if git pull --rebase && git push; then pushed=1; break; fi
+            echo "push attempt $i failed; retrying"
+            sleep 5
+          done
+          if [ "$pushed" -ne 1 ]; then
+            echo "::warning title=Region health::push failed after 3 attempts; this sweep's health record was not persisted"
+            exit 1
           fi
 
   cleanup:
