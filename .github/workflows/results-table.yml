@@ -33,10 +33,17 @@ jobs:
     # results-* artefacts, and reports head_branch as the branch name in the
     # fork - so a PR opened from a fork branch called `main` passed this and
     # had its artefacts committed to main and published, badges included.
+    # The head_repository check is what closes that, not the event list: a fork
+    # PR is excluded because its run belongs to the fork, whatever it is called.
+    # So the event list is only about which runs are a measurement worth
+    # publishing, and the weekly cron is the main one. Omitting `schedule` would
+    # have meant a Sunday run measuring every target and publishing none of it,
+    # leaving the board to move only on a merge to main.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.event == 'push' &&
+       (github.event.workflow_run.event == 'push' ||
+        github.event.workflow_run.event == 'schedule') &&
        github.event.workflow_run.head_branch == 'main' &&
        github.event.workflow_run.head_repository.full_name == github.repository)
 
