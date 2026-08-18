@@ -272,4 +272,15 @@ describe('PartiQL — exact error messages', { tags: ['partiql', 'data-plane', '
     expect(err.name).toBe('ResourceNotFoundException')
     expect(err.message).toContain('Requested resource not found')
   })
+
+  it('an ordering comparison on an unordered operand — exact message', async () => {
+    const err = await rejection(
+      `SELECT pk FROM "${hashTableDef.name}" WHERE pk = 'x' AND val < ?`,
+      { Parameters: [{ BOOL: true }] },
+    )
+    expect(err.name).toBe('ValidationException')
+    expect(err.message).toBe(
+      'Incorrect operand type for operator or function; operator or function: <, operand type: BOOL',
+    )
+  })
 })

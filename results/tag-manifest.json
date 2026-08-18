@@ -745,6 +745,12 @@
         "data-plane"
       ]
     },
+    "tests/tier2/partiql/comparison.test.ts": {
+      "ExecuteStatement — comparison on non-scalar types": [
+        "partiql",
+        "data-plane"
+      ]
+    },
     "tests/tier2/partiql/executeStatement.test.ts": {
       "ExecuteStatement — PartiQL": [
         "partiql",
@@ -1297,6 +1303,13 @@
       "Non-existent index — error surface": [
         "query",
         "scan",
+        "data-plane",
+        "negative-path"
+      ]
+    },
+    "tests/tier3/validation-ordering/partiql.test.ts": {
+      "PartiQL — validation ordering": [
+        "partiql",
         "data-plane",
         "negative-path"
       ]
