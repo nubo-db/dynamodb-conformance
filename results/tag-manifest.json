@@ -757,6 +757,14 @@
         "data-plane"
       ]
     },
+    "tests/tier2/partiql/indexQualifier.test.ts": {
+      "ExecuteStatement — index qualifier": [
+        "partiql",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ]
+    },
     "tests/tier2/resourcePolicy/basic.test.ts": {
       "Resource policies — Put/Get/Delete": [
         "resource-policy",

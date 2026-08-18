@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { createTableRegistry, isSuiteTable, uniqueTableName, absentTableName } from './helpers.js'
+import {
+  createTableRegistry,
+  isSuiteTable,
+  uniqueTableName,
+  absentTableName,
+  compositeIndexedTableDef,
+  partiqlIndexTableDef,
+  PARTIQL_UNPROJECTED_ATTR,
+} from './helpers.js'
 import { resolveTablePrefix, CI_TABLE_PREFIX, LOCAL_TABLE_NAMESPACE } from './table-namespace.js'
 import type { TestTableDef } from './types.js'
 
@@ -312,5 +320,69 @@ describe('absentTableName', () => {
 
   it('keeps the suffix it was given', () => {
     expect(absentTableName('nonexistent_table').endsWith('nonexistent_table')).toBe(true)
+  })
+})
+
+// The fixture the PartiQL index-qualifier cases are captured against. Asserted
+// here because the rules those cases encode are properties of the fixture as
+// much as of DynamoDB: an index that projects everything cannot demonstrate a
+// reach-back, and an attribute some index carries cannot demonstrate a
+// rejection.
+describe('partiqlIndexTableDef', () => {
+  const gsis = partiqlIndexTableDef.gsis ?? []
+  const lsis = partiqlIndexTableDef.lsis ?? []
+
+  it('carries the five indexes the capture used, at the capture projections', () => {
+    expect(gsis.map((g) => [g.indexName, g.projectionType])).toEqual([
+      ['gsi-all', 'ALL'],
+      ['gsi-inc', 'INCLUDE'],
+      ['gsi-keys', 'KEYS_ONLY'],
+    ])
+    expect(lsis.map((l) => [l.indexName, l.projectionType])).toEqual([
+      ['lsi-all', 'ALL'],
+      ['lsi-keys', 'KEYS_ONLY'],
+      ['lsi-inc', 'INCLUDE'],
+    ])
+  })
+
+  // Two GSIs on one partition key is what lets a token minted against one be
+  // replayed against the other, which is a case in its own right.
+  it('gives two GSIs the same partition key attribute', () => {
+    expect(gsis.find((g) => g.indexName === 'gsi-inc')!.hashKey.name).toBe('gsiPk2')
+    expect(gsis.find((g) => g.indexName === 'gsi-keys')!.hashKey.name).toBe('gsiPk2')
+  })
+
+  it('leaves the unprojected attribute out of every index', () => {
+    const carried = [
+      ...gsis.flatMap((g) => [g.hashKey.name, g.rangeKey?.name, ...(g.nonKeyAttributes ?? [])]),
+      ...lsis.flatMap((l) => [l.rangeKey.name, ...(l.nonKeyAttributes ?? [])]),
+    ].filter(Boolean)
+    expect(carried).not.toContain(PARTIQL_UNPROJECTED_ATTR)
+  })
+
+  // An ALL index projects everything, so it can never reject a projection or a
+  // filter. The rules need an index that does not.
+  it('includes an index projecting a named attribute and not that one', () => {
+    const inc = gsis.find((g) => g.indexName === 'gsi-inc')!
+    expect(inc.nonKeyAttributes).toEqual(['projattr'])
+    expect(inc.nonKeyAttributes).not.toContain(PARTIQL_UNPROJECTED_ATTR)
+  })
+
+  // Separating rows walked from rows kept needs an LSI carrying a non-key
+  // attribute to filter on: a KEYS_ONLY index has none, and its sort key is a
+  // key condition rather than a filter.
+  it('includes an LSI projecting a non-key attribute', () => {
+    const inc = lsis.find((l) => l.indexName === 'lsi-inc')!
+    expect(inc.nonKeyAttributes).toEqual(['projattr'])
+    expect(inc.rangeKey.name).not.toBe('projattr')
+  })
+
+  it('is a separate table from the shared indexed def', () => {
+    expect(partiqlIndexTableDef.name).not.toBe(compositeIndexedTableDef.name)
+  })
+
+  it('is a composite-key table, since the LSIs need a range key', () => {
+    expect(partiqlIndexTableDef.hashKey.name).toBe('pk')
+    expect(partiqlIndexTableDef.rangeKey?.name).toBe('sk')
   })
 })

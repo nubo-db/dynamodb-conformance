@@ -642,6 +642,58 @@ export const compositeIndexedTableDef: TestTableDef = {
   ],
 }
 
+// The fixture the August 2026 PartiQL index-qualifier captures were taken
+// against, mirrored so a case that behaves oddly can be replayed against the
+// recorded answer without translating between two schemas.
+//
+// Separate from compositeIndexedTableDef rather than an extension of it. That
+// def carries no KEYS_ONLY index and no attribute left unprojected by every
+// index, which is what the projection, reach-back and unprojected-filter rules
+// all turn on; extending it would also move the gsi/lsi tag surface for every
+// file already using it, and existing tests pin messages naming `gsi1` and
+// `lsi1sk` exactly.
+//
+// Index names match the capture. They appear verbatim in the rejection messages
+// this fixture exists to assert, so they are part of the fixture rather than
+// incidental.
+export const partiqlIndexTableDef: TestTableDef = {
+  name: uniqueTableName('partiqlIdx'),
+  hashKey: { name: 'pk', type: 'S' },
+  rangeKey: { name: 'sk', type: 'S' },
+  gsis: [
+    { indexName: 'gsi-all', hashKey: { name: 'gsiPk', type: 'S' }, projectionType: 'ALL' },
+    {
+      indexName: 'gsi-inc',
+      hashKey: { name: 'gsiPk2', type: 'S' },
+      projectionType: 'INCLUDE',
+      nonKeyAttributes: ['projattr'],
+    },
+    { indexName: 'gsi-keys', hashKey: { name: 'gsiPk2', type: 'S' }, projectionType: 'KEYS_ONLY' },
+  ],
+  lsis: [
+    { indexName: 'lsi-all', rangeKey: { name: 'lsiSk', type: 'S' }, projectionType: 'ALL' },
+    { indexName: 'lsi-keys', rangeKey: { name: 'lsiSk2', type: 'S' }, projectionType: 'KEYS_ONLY' },
+    // The reach-back capture's own index. A KEYS_ONLY LSI projects nothing but
+    // keys, so it has no non-key attribute to filter on, and a filter on its
+    // sort key is a key condition that narrows the scan rather than a filter
+    // applied to rows already read. Separating rows walked from rows kept needs
+    // an index projecting something that is not a key.
+    {
+      indexName: 'lsi-inc',
+      rangeKey: { name: 'lsiSk3', type: 'S' },
+      projectionType: 'INCLUDE',
+      nonKeyAttributes: ['projattr'],
+    },
+  ],
+}
+
+/**
+ * The attribute no index in partiqlIndexTableDef projects. Naming it in a
+ * projection is rejected on a GSI and served from the base table on an LSI;
+ * naming it in a filter is rejected on either, but only on a keyed read.
+ */
+export const PARTIQL_UNPROJECTED_ATTR = 'nonproj'
+
 export const compositeNTableDef: TestTableDef = {
   name: uniqueTableName('compositeN'),
   hashKey: { name: 'pk', type: 'S' },
