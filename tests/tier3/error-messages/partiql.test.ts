@@ -5,9 +5,14 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { isUnsupportedFault } from '../../../src/infra.js'
-import { declareTables, hashTableDef } from '../../../src/helpers.js'
+import {
+  declareTables,
+  hashTableDef,
+  partiqlIndexTableDef,
+  PARTIQL_UNPROJECTED_ATTR,
+} from '../../../src/helpers.js'
 
-declareTables(hashTableDef)
+declareTables(hashTableDef, partiqlIndexTableDef)
 
 // Exact AWS strings for the PartiQL RETURNING rejections, pinned against real
 // AWS (eu-west-2). Tier 2 (tests/tier2/partiql/) asserts the error shape; this
@@ -94,6 +99,56 @@ describe('PartiQL — exact error messages', { tags: ['partiql', 'data-plane', '
       expect((err as DynamoDBServiceException).name).toBe('ValidationException')
       expect((err as DynamoDBServiceException).message).toBe(
         'Validation failed in TransactStatements[0]: RETURNING clause is not supported in ExecuteTransaction.',
+      )
+    }
+  })
+
+  // The index rejections. Note the wording: `Secondary index`, with neither
+  // `Global` nor `Local` in front, on both kinds. Query builds its own string
+  // for the same condition, so a shared constant would make one of them wrong.
+  it('unprojected filter attribute on a GSI — exact message', async () => {
+    try {
+      await ddb.send(new ExecuteStatementCommand({
+        Statement: `SELECT pk FROM "${partiqlIndexTableDef.name}"."gsi-inc" WHERE gsiPk2 = 'y' AND ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      }))
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        `One or more parameter values were invalid: Secondary index gsi-inc does not project one or more filter attributes: [${PARTIQL_UNPROJECTED_ATTR}]`,
+      )
+    }
+  })
+
+  it('unprojected filter attribute on an LSI — same wording, no Local prefix', async () => {
+    try {
+      await ddb.send(new ExecuteStatementCommand({
+        Statement: `SELECT pk FROM "${partiqlIndexTableDef.name}"."lsi-keys" WHERE pk = 'p' AND ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      }))
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        `One or more parameter values were invalid: Secondary index lsi-keys does not project one or more filter attributes: [${PARTIQL_UNPROJECTED_ATTR}]`,
+      )
+    }
+  })
+
+  // The projection rejection is worded differently from the filter one, and this
+  // half does name the index kind.
+  it('unprojected projection attribute on a GSI — exact message', async () => {
+    try {
+      await ddb.send(new ExecuteStatementCommand({
+        Statement: `SELECT ${PARTIQL_UNPROJECTED_ATTR} FROM "${partiqlIndexTableDef.name}"."gsi-inc" WHERE gsiPk2 = 'y'`,
+      }))
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        `One or more parameter values were invalid: Global secondary index gsi-inc does not project [${PARTIQL_UNPROJECTED_ATTR}]`,
       )
     }
   })

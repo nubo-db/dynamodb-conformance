@@ -44,6 +44,14 @@ const ITEMS: Record<string, AttributeValue>[] = [
     lsiSk: { S: 'l4' }, lsiSk2: { S: 'k4' }, lsiSk3: { S: 'm4' },
     projattr: { S: 'proj4' }, [PARTIQL_UNPROJECTED_ATTR]: { S: 'np4' },
   },
+  // A second gsi-inc partition key, on its own table partition so it stays out
+  // of every `pk = 'p'` read. An OR across two index keys needs a second key to
+  // reach for.
+  {
+    pk: { S: 'q' }, sk: { S: 's5' },
+    gsiPk2: { S: 'y2' },
+    projattr: { S: 'proj5' }, [PARTIQL_UNPROJECTED_ATTR]: { S: 'np5' },
+  },
 ]
 
 /** Run a statement and hand back the rows and the per-arm capacity. */
@@ -60,6 +68,20 @@ async function select(Statement: string, extra: Record<string, unknown> = {}) {
     gsi: (name: string) => cc?.GlobalSecondaryIndexes?.[name]?.CapacityUnits ?? 0,
     lsi: (name: string) => cc?.LocalSecondaryIndexes?.[name]?.CapacityUnits ?? 0,
   }
+}
+
+/** Expect a statement to be refused, and hand back the error for inspection. */
+async function expectRejected(Statement: string, extra: Record<string, unknown> = {}) {
+  try {
+    await select(Statement, extra)
+    expect.unreachable(`should have been rejected: ${Statement}`)
+  } catch (err) {
+    expect(err).toBeInstanceOf(DynamoDBServiceException)
+    const e = err as DynamoDBServiceException
+    expect(e.name).toBe('ValidationException')
+    return e
+  }
+  throw new Error('unreachable')
 }
 
 /** The attribute names one row came back with, sorted so order means nothing. */
@@ -215,6 +237,131 @@ describe('ExecuteStatement — index qualifier', { tags: ['partiql', 'data-plane
       )
       expect(one.items.length).toBe(1)
       expect(one.table).toBeLessThan(all.table)
+    })
+  })
+
+  // A filter naming an attribute the index does not project is refused, but only
+  // when the read is keyed on the index partition key. Unkeyed the read is a
+  // scan, and a scan matches nothing rather than failing.
+  //
+  // This is a separate rule from the projection one above and was first read as
+  // the same rule. The mirror cases are what tell them apart, so none of them is
+  // redundant: without the LSI-unkeyed case this reads as a rule about index
+  // kind, and without the two-filter case it reads as a rule about how many
+  // conditions the statement carries.
+  describe('the unprojected-filter rejection turns on the key condition', () => {
+    it('rejects a keyed GSI read filtering on an unprojected attribute', async () => {
+      await expectRejected(
+        `SELECT pk FROM "${TABLE}"."gsi-inc" WHERE gsiPk2 = 'y' AND ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      )
+    })
+
+    it('rejects the LSI mirror, so the rule is not about index kind', async () => {
+      await expectRejected(
+        `SELECT pk FROM "${TABLE}"."lsi-keys" WHERE pk = 'p' AND ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      )
+    })
+
+    it('accepts the same GSI filter unkeyed, matching nothing', async () => {
+      const r = await select(
+        `SELECT pk FROM "${TABLE}"."gsi-inc" WHERE ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      )
+      expect(r.items.length).toBe(0)
+    })
+
+    // The mirror of the accepted GSI case. Together with the rejected LSI case
+    // above, this is what kills the index-kind reading outright.
+    it('accepts the same LSI filter unkeyed, matching nothing', async () => {
+      const r = await select(
+        `SELECT pk FROM "${TABLE}"."lsi-keys" WHERE ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      )
+      expect(r.items.length).toBe(0)
+    })
+
+    // Two conditions, no index key, still accepted: the trigger is not having
+    // more than one condition.
+    it('accepts two unprojected filters with no index key', async () => {
+      const r = await select(
+        `SELECT pk FROM "${TABLE}"."gsi-inc" WHERE ${PARTIQL_UNPROJECTED_ATTR} = 'np1' AND ${PARTIQL_UNPROJECTED_ATTR} = 'np2'`,
+      )
+      expect(r.items.length).toBe(0)
+    })
+
+    it('accepts a keyed read filtering on an attribute the index does project', async () => {
+      const r = await select(
+        `SELECT pk FROM "${TABLE}"."gsi-inc" WHERE gsiPk2 = 'y' AND projattr = 'proj1'`,
+      )
+      expect(r.items.length).toBe(1)
+    })
+
+    it.each(['IS MISSING', 'IS NOT MISSING'])(
+      'rejects a keyed read with %s on an unprojected attribute',
+      async (predicate) => {
+        await expectRejected(
+          `SELECT pk FROM "${TABLE}"."gsi-inc" WHERE gsiPk2 = 'y' AND ${PARTIQL_UNPROJECTED_ATTR} ${predicate}`,
+        )
+      },
+    )
+
+    it('rejects a keyed read with begins_with on an unprojected attribute', async () => {
+      await expectRejected(
+        `SELECT pk FROM "${TABLE}"."gsi-inc" WHERE gsiPk2 = 'y' AND begins_with(${PARTIQL_UNPROJECTED_ATTR}, 'np')`,
+      )
+    })
+
+    it('accepts the same predicate on a projected attribute', async () => {
+      const r = await select(
+        `SELECT pk FROM "${TABLE}"."gsi-inc" WHERE gsiPk2 = 'y' AND projattr IS NOT MISSING`,
+      )
+      expect(r.items.length).toBe(3)
+    })
+
+    // Negating the predicate does not get round the rule.
+    it('rejects a keyed read with a negated filter on an unprojected attribute', async () => {
+      await expectRejected(
+        `SELECT pk FROM "${TABLE}"."gsi-inc" WHERE gsiPk2 = 'y' AND NOT ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      )
+    })
+
+    // Unkeyed the read is a scan of the index, and the index has no such
+    // attribute at all. A comparison against a missing attribute is false, so
+    // the negation is true and every index row matches.
+    //
+    // That makes this the sharpest case in the file. An engine discarding the
+    // qualifier scans the base table, where the attribute is present and one row
+    // genuinely holds 'np1', and returns two rows where DynamoDB returns three.
+    it('matches every index row when the negated filter names an absent attribute', async () => {
+      const r = await select(
+        `SELECT pk, sk FROM "${TABLE}"."gsi-keys" WHERE NOT ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      )
+      expect(r.items.map((i) => i.sk.S).sort()).toEqual(['s1', 's2', 's4', 's5'])
+    })
+
+    // "Keyed" follows the shape of the key condition, not what the read can do
+    // with it. An IN cannot be pushed down as a single key and the read still
+    // scans, and the filter beside it is rejected anyway.
+    it('counts IN on the index partition key as keyed', async () => {
+      await expectRejected(
+        `SELECT pk FROM "${TABLE}"."gsi-inc" WHERE gsiPk2 IN ['y', 'z'] AND ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      )
+    })
+
+    // An index key reached through OR is not pushed down, and the filter sits
+    // inside a branch rather than beside a key condition at the top level. Both
+    // together are what make this accepted where the IN case above is refused.
+    it('accepts an unprojected filter inside an OR branch', async () => {
+      const r = await select(
+        `SELECT pk, sk FROM "${TABLE}"."gsi-inc" WHERE (gsiPk2 = 'y' AND ${PARTIQL_UNPROJECTED_ATTR} = 'np1') OR (gsiPk2 = 'y2')`,
+      )
+      // The first branch matches nothing: the index does not carry the
+      // attribute. The second returns its row, so the statement ran.
+      expect(r.items.map((i) => i.sk.S)).toEqual(['s5'])
+    })
+
+    it('counts BETWEEN on the index sort key as keyed', async () => {
+      await expectRejected(
+        `SELECT pk FROM "${TABLE}"."lsi-keys" WHERE pk = 'p' AND lsiSk2 BETWEEN 'k1' AND 'k4' AND ${PARTIQL_UNPROJECTED_ATTR} = 'np1'`,
+      )
     })
   })
 
