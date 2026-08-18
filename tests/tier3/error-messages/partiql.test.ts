@@ -1,6 +1,7 @@
 import {
   ExecuteStatementCommand,
   ExecuteTransactionCommand,
+  QueryCommand,
   DynamoDBServiceException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
@@ -10,6 +11,7 @@ import {
   hashTableDef,
   partiqlIndexTableDef,
   PARTIQL_UNPROJECTED_ATTR,
+  absentTableName,
 } from '../../../src/helpers.js'
 
 declareTables(hashTableDef, partiqlIndexTableDef)
@@ -151,5 +153,123 @@ describe('PartiQL — exact error messages', { tags: ['partiql', 'data-plane', '
         `One or more parameter values were invalid: Global secondary index gsi-inc does not project [${PARTIQL_UNPROJECTED_ATTR}]`,
       )
     }
+  })
+
+  /** Run a statement and hand back the ValidationException it raises. */
+  async function rejection(Statement: string, extra: Record<string, unknown> = {}) {
+    try {
+      await ddb.send(new ExecuteStatementCommand({ Statement, ...extra }))
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      return err as DynamoDBServiceException
+    }
+    throw new Error('unreachable')
+  }
+
+  // The trap here is the absent suffix. Query builds the same sentence and
+  // appends the index name; the PartiQL surface does not, so a shared constant
+  // makes one of the two wrong.
+  it('a qualifier naming no index — exact message, with no name appended', async () => {
+    const err = await rejection(
+      `SELECT * FROM "${partiqlIndexTableDef.name}"."no-such-index" WHERE pk = 'p'`,
+    )
+    expect(err.name).toBe('ValidationException')
+    expect(err.message).toBe('The table does not have the specified index')
+  })
+
+  it('a qualifier naming the table itself — same message', async () => {
+    const err = await rejection(
+      `SELECT * FROM "${partiqlIndexTableDef.name}"."${partiqlIndexTableDef.name}" WHERE pk = 'p'`,
+    )
+    expect(err.name).toBe('ValidationException')
+    expect(err.message).toBe('The table does not have the specified index')
+  })
+
+  it('a three-component path — exact message', async () => {
+    const err = await rejection(
+      `SELECT * FROM "${partiqlIndexTableDef.name}"."gsi-all"."extra" WHERE pk = 'p'`,
+    )
+    expect(err.name).toBe('ValidationException')
+    expect(err.message).toBe('A path may contain at most 2 components in the FROM clause')
+  })
+
+  it('an empty index component — exact message', async () => {
+    const err = await rejection(`SELECT * FROM "${partiqlIndexTableDef.name}"."" WHERE pk = 'p'`)
+    expect(err.name).toBe('ValidationException')
+    expect(err.message).toBe('Path component cannot be an empty string')
+  })
+
+  // The same rejection on the table half, and it fires ahead of resolving the
+  // table rather than after failing to find it.
+  it('an empty table component — same message, before table resolution', async () => {
+    const err = await rejection(`SELECT * FROM "" WHERE pk = 'p'`)
+    expect(err.name).toBe('ValidationException')
+    expect(err.message).toBe('Path component cannot be an empty string')
+  })
+
+  it('ConsistentRead against a GSI qualifier — exact message', async () => {
+    const err = await rejection(
+      `SELECT * FROM "${partiqlIndexTableDef.name}"."gsi-all" WHERE gsiPk = 'x'`,
+      { ConsistentRead: true },
+    )
+    expect(err.name).toBe('ValidationException')
+    expect(err.message).toBe('Strongly consistent read is not supported on Global Secondary Indexes')
+  })
+
+  // The paired control. Query answers the same condition in different words, so
+  // both are pinned and neither can be folded into the other.
+  it('Query rejects the same condition in different words', async () => {
+    try {
+      await ddb.send(new QueryCommand({
+        TableName: partiqlIndexTableDef.name,
+        IndexName: 'gsi-all',
+        KeyConditionExpression: 'gsiPk = :v',
+        ExpressionAttributeValues: { ':v': { S: 'x' } },
+        ConsistentRead: true,
+      }))
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Consistent reads are not supported on global secondary indexes',
+      )
+    }
+  })
+
+  it('an index-qualified read inside a transaction — exact message', async () => {
+    try {
+      await ddb.send(new ExecuteTransactionCommand({
+        TransactStatements: [
+          { Statement: `SELECT * FROM "${partiqlIndexTableDef.name}"."gsi-all" WHERE gsiPk = 'x'` },
+        ],
+      }))
+      expect.unreachable('should have thrown')
+    } catch (err) {
+      expect(err).toBeInstanceOf(DynamoDBServiceException)
+      expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+      expect((err as DynamoDBServiceException).message).toBe(
+        'Validation failed in TransactStatements[0]: Reads on indices are not supported within transactions.',
+      )
+    }
+  })
+
+  // Two deliberately structural. An unterminated quote is answered with the
+  // envelope and nothing after it, and the detail being absent is a rendering
+  // choice rather than an outcome; a trailing space in a string literal is also
+  // the kind of thing a formatter eats silently. ResourceNotFoundException gets
+  // the same treatment because an implementation naming the table is adding
+  // detail, not giving a different answer.
+  it('an unterminated quoted name — envelope, asserted structurally', async () => {
+    const err = await rejection(`SELECT * FROM "${partiqlIndexTableDef.name}`)
+    expect(err.name).toBe('ValidationException')
+    expect(err.message).toContain("Statement wasn't well formed, can't be processed")
+  })
+
+  it('a table that does not exist — ResourceNotFoundException, asserted structurally', async () => {
+    const err = await rejection(`SELECT * FROM "${absentTableName('em_partiql_missing')}" WHERE pk = 'p'`)
+    expect(err.name).toBe('ResourceNotFoundException')
+    expect(err.message).toContain('Requested resource not found')
   })
 })

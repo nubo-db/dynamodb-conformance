@@ -365,6 +365,74 @@ describe('ExecuteStatement — index qualifier', { tags: ['partiql', 'data-plane
     })
   })
 
+  describe('pagination across a qualified read', () => {
+    it('mints a token when a bounded read leaves rows behind', async () => {
+      const first = await select(`SELECT pk, sk FROM "${TABLE}"."gsi-all" WHERE gsiPk = 'x'`, { Limit: 1 })
+      expect(first.items.length).toBe(1)
+      expect(first.nextToken).toBeDefined()
+
+      // The continuation returns the other row rather than repeating the first,
+      // which is the property a broken token silently loses.
+      const second = await select(
+        `SELECT pk, sk FROM "${TABLE}"."gsi-all" WHERE gsiPk = 'x'`,
+        { NextToken: first.nextToken },
+      )
+      const seen = [...first.items, ...second.items].map((i) => i.sk.S).sort()
+      expect(seen).toEqual(['s1', 's4'])
+    })
+
+    it('rejects a token minted against one index and replayed against another', async () => {
+      const first = await select(`SELECT pk, sk FROM "${TABLE}"."gsi-inc" WHERE gsiPk2 = 'y'`, { Limit: 1 })
+      expect(first.nextToken).toBeDefined()
+
+      await expectRejected(
+        `SELECT pk, sk FROM "${TABLE}"."gsi-keys" WHERE gsiPk2 = 'y'`,
+        { NextToken: first.nextToken },
+      )
+    })
+  })
+
+  // The qualifier is grammatical on UPDATE and DELETE and ungrammatical on
+  // INSERT, so the three rejections are not interchangeable. An engine
+  // answering all three with a parse failure diverges on two of them even
+  // though every case is a rejection either way.
+  describe('write statements reject the qualifier, and not all the same way', () => {
+    it('rejects an INSERT carrying a qualifier at parse position', async () => {
+      const err = await expectRejected(
+        `INSERT INTO "${TABLE}"."gsi-all" VALUE {'pk': 'w1', 'sk': 'w1'}`,
+      )
+      expect(err.message).toContain('FROM clause may only contain a single table name')
+    })
+
+    it('rejects an INSERT whose qualifier names no index with the same message', async () => {
+      const err = await expectRejected(
+        `INSERT INTO "${TABLE}"."no-such-index" VALUE {'pk': 'w2', 'sk': 'w2'}`,
+      )
+      // Identical to the real-index case, so the rejection is at parse rather
+      // than after resolving the name.
+      expect(err.message).toContain('FROM clause may only contain a single table name')
+    })
+
+    it('rejects an UPDATE carrying a qualifier semantically', async () => {
+      const err = await expectRejected(
+        `UPDATE "${TABLE}"."gsi-all" SET projattr = 'z' WHERE pk = 'p' AND sk = 's1'`,
+      )
+      expect(err.message).toContain('This operation is not supported on an index')
+    })
+
+    it('rejects a DELETE carrying a qualifier semantically', async () => {
+      const err = await expectRejected(
+        `DELETE FROM "${TABLE}"."gsi-all" WHERE pk = 'p' AND sk = 's1'`,
+      )
+      expect(err.message).toContain('This operation is not supported on an index')
+    })
+
+    it('leaves the rows untouched after the rejected writes', async () => {
+      const r = await select(`SELECT pk, sk FROM "${TABLE}" WHERE pk = 'p'`)
+      expect(r.items.map((i) => i.sk.S).sort()).toEqual(['s1', 's2', 's3', 's4'])
+    })
+  })
+
   describe('capacity lands on the index arm', () => {
     it('a keyed GSI read charges the index and a zero table arm', async () => {
       const r = await select(`SELECT pk FROM "${TABLE}"."gsi-all" WHERE gsiPk = 'x'`)

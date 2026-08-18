@@ -754,7 +754,8 @@
     "tests/tier2/partiql/executeTransaction.test.ts": {
       "ExecuteTransaction — PartiQL": [
         "partiql",
-        "data-plane"
+        "data-plane",
+        "gsi"
       ]
     },
     "tests/tier2/partiql/indexQualifier.test.ts": {

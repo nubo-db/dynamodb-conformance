@@ -6,11 +6,17 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { isUnsupportedFault } from '../../../src/infra.js'
-import { declareTables, hashTableDef, cleanupItems, expectDynamoError } from '../../../src/helpers.js'
+import {
+  declareTables,
+  hashTableDef,
+  partiqlIndexTableDef,
+  cleanupItems,
+  expectDynamoError,
+} from '../../../src/helpers.js'
 
-declareTables(hashTableDef)
+declareTables(hashTableDef, partiqlIndexTableDef)
 
-describe('ExecuteTransaction — PartiQL', { tags: ['partiql', 'data-plane'] }, () => {
+describe('ExecuteTransaction — PartiQL', { tags: ['partiql', 'data-plane', 'gsi'] }, () => {
   let supported = true
 
   const keysToCleanup: Record<string, { S: string }>[] = []
@@ -230,5 +236,34 @@ describe('ExecuteTransaction — PartiQL', { tags: ['partiql', 'data-plane'] }, 
       })),
       'ValidationException',
     )
+  })
+
+  // An index-qualified read inside a transaction is refused outright, as a plain
+  // validation error rather than a cancellation. Together with the batch
+  // surface refusing one for its own reason, neither multi-statement surface
+  // ever serves an index read, so neither owes an index capacity arm.
+  it('rejects an index-qualified SELECT outright, not as a cancellation', async () => {
+    await expectDynamoError(
+      () =>
+        ddb.send(new ExecuteTransactionCommand({
+          TransactStatements: [
+            { Statement: `SELECT * FROM "${partiqlIndexTableDef.name}"."gsi-all" WHERE gsiPk = 'x'` },
+          ],
+        })),
+      'ValidationException',
+      'Reads on indices are not supported within transactions',
+    )
+  })
+
+  // The control: the same shape without a qualifier runs, so the rejection is
+  // the qualifier rather than the statement or the table.
+  it('accepts the same read unqualified', async () => {
+    const res = await ddb.send(new ExecuteTransactionCommand({
+      TransactStatements: [
+        { Statement: `SELECT * FROM "${partiqlIndexTableDef.name}" WHERE pk = 'p' AND sk = 's1'` },
+      ],
+    }))
+    expect(res.Responses).toBeDefined()
+    expect(res.Responses!.length).toBe(1)
   })
 })
