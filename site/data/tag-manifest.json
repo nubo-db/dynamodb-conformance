@@ -742,7 +742,8 @@
     "tests/tier2/partiql/batchExecuteStatement.test.ts": {
       "BatchExecuteStatement — PartiQL": [
         "partiql",
-        "data-plane"
+        "data-plane",
+        "gsi"
       ]
     },
     "tests/tier2/partiql/comparison.test.ts": {
