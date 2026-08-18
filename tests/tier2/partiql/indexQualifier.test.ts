@@ -1,6 +1,8 @@
 import {
   ExecuteStatementCommand,
+  ExecuteTransactionCommand,
   PutItemCommand,
+  DeleteItemCommand,
   DynamoDBServiceException,
 } from '@aws-sdk/client-dynamodb'
 import type { AttributeValue } from '@aws-sdk/client-dynamodb'
@@ -70,18 +72,26 @@ async function select(Statement: string, extra: Record<string, unknown> = {}) {
   }
 }
 
+/** Keys the rejected INSERT cases would create on an engine that accepts them. */
+const REJECTED_INSERT_KEYS = [
+  { pk: { S: 'w1' }, sk: { S: 'w1' } },
+  { pk: { S: 'w2' }, sk: { S: 'w2' } },
+]
+
 /** Expect a statement to be refused, and hand back the error for inspection. */
 async function expectRejected(Statement: string, extra: Record<string, unknown> = {}) {
   try {
     await select(Statement, extra)
+    // Rethrown below rather than swallowed by the sibling catch, so a statement
+    // that was wrongly accepted reports itself instead of reporting that an
+    // assertion error is not an AWS exception.
     expect.unreachable(`should have been rejected: ${Statement}`)
+    throw new Error('unreachable')
   } catch (err) {
-    expect(err).toBeInstanceOf(DynamoDBServiceException)
-    const e = err as DynamoDBServiceException
-    expect(e.name).toBe('ValidationException')
-    return e
+    if (!(err instanceof DynamoDBServiceException)) throw err
+    expect(err.name).toBe('ValidationException')
+    return err
   }
-  throw new Error('unreachable')
 }
 
 /** The attribute names one row came back with, sorted so order means nothing. */
@@ -122,13 +132,40 @@ describe('ExecuteStatement — index qualifier', { tags: ['partiql', 'data-plane
       partitionKey: { name: 'gsiPk2', value: { S: 'y' } },
       expectedCount: 3,
     })
+    // gsi-keys is a separate index and fills on its own schedule, and the s5 row
+    // arrives under its own partition key. Both are read below, and an index
+    // still filling is indistinguishable from an engine returning wrong rows.
+    await waitForGsiConsistency({
+      tableName: TABLE,
+      indexName: 'gsi-keys',
+      partitionKey: { name: 'gsiPk2', value: { S: 'y' } },
+      expectedCount: 3,
+    })
+    await waitForGsiConsistency({
+      tableName: TABLE,
+      indexName: 'gsi-inc',
+      partitionKey: { name: 'gsiPk2', value: { S: 'y2' } },
+      expectedCount: 1,
+    })
+    await waitForGsiConsistency({
+      tableName: TABLE,
+      indexName: 'gsi-keys',
+      partitionKey: { name: 'gsiPk2', value: { S: 'y2' } },
+      expectedCount: 1,
+    })
   })
 
   beforeEach(({ skip }) => { if (!supported) skip() })
 
   afterAll(async () => {
     if (!supported) return
-    await cleanupItems(TABLE, ITEMS.map((i) => ({ pk: i.pk, sk: i.sk })))
+    await cleanupItems(TABLE, [
+      ...ITEMS.map((i) => ({ pk: i.pk, sk: i.sk })),
+      // The qualified INSERTs below are rejected by DynamoDB and write nothing.
+      // An engine that wrongly accepts one leaves a row behind, in a table the
+      // run shares with every other file.
+      ...REJECTED_INSERT_KEYS,
+    ])
   })
 
   describe('membership', () => {
@@ -200,8 +237,8 @@ describe('ExecuteStatement — index qualifier', { tags: ['partiql', 'data-plane
         await select(`SELECT ${PARTIQL_UNPROJECTED_ATTR} FROM "${TABLE}"."gsi-inc" WHERE gsiPk2 = 'y'`)
         expect.unreachable('should have thrown')
       } catch (err) {
-        expect(err).toBeInstanceOf(DynamoDBServiceException)
-        expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+        if (!(err instanceof DynamoDBServiceException)) throw err
+        expect(err.name).toBe('ValidationException')
       }
     })
 
@@ -433,6 +470,39 @@ describe('ExecuteStatement — index qualifier', { tags: ['partiql', 'data-plane
     })
   })
 
+  // Neither multi-statement surface ever serves an index read. A transaction
+  // refuses one outright as a validation error rather than cancelling, and the
+  // batch surface refuses it for its own reason (see batchExecuteStatement), so
+  // neither owes an index capacity arm.
+  describe('a transaction refuses an index-qualified read', () => {
+    it('rejects it outright, not as a cancellation', async () => {
+      try {
+        await ddb.send(new ExecuteTransactionCommand({
+          TransactStatements: [
+            { Statement: `SELECT * FROM "${TABLE}"."gsi-all" WHERE gsiPk = 'x'` },
+          ],
+        }))
+        expect.unreachable('should have thrown')
+      } catch (err) {
+        if (!(err instanceof DynamoDBServiceException)) throw err
+        expect(err.name).toBe('ValidationException')
+        expect(err.message).toContain('Reads on indices are not supported within transactions')
+      }
+    })
+
+    // The control: the same shape unqualified runs, so what is refused is the
+    // qualifier rather than the statement or the table.
+    it('accepts the same read unqualified', async () => {
+      const res = await ddb.send(new ExecuteTransactionCommand({
+        TransactStatements: [
+          { Statement: `SELECT * FROM "${TABLE}" WHERE pk = 'p' AND sk = 's1'` },
+        ],
+      }))
+      expect(res.Responses).toBeDefined()
+      expect(res.Responses!.length).toBe(1)
+    })
+  })
+
   describe('capacity lands on the index arm', () => {
     it('a keyed GSI read charges the index and a zero table arm', async () => {
       const r = await select(`SELECT pk FROM "${TABLE}"."gsi-all" WHERE gsiPk = 'x'`)
@@ -477,8 +547,8 @@ describe('ExecuteStatement — index qualifier', { tags: ['partiql', 'data-plane
         await select(`SELECT pk FROM "${TABLE}"."gsi-all" WHERE gsiPk = 'x'`, { ConsistentRead: true })
         expect.unreachable('should have thrown')
       } catch (err) {
-        expect(err).toBeInstanceOf(DynamoDBServiceException)
-        expect((err as DynamoDBServiceException).name).toBe('ValidationException')
+        if (!(err instanceof DynamoDBServiceException)) throw err
+        expect(err.name).toBe('ValidationException')
       }
     })
   })

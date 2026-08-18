@@ -352,12 +352,35 @@ describe('partiqlIndexTableDef', () => {
     expect(gsis.find((g) => g.indexName === 'gsi-keys')!.hashKey.name).toBe('gsiPk2')
   })
 
-  it('leaves the unprojected attribute out of every index', () => {
-    const carried = [
-      ...gsis.flatMap((g) => [g.hashKey.name, g.rangeKey?.name, ...(g.nonKeyAttributes ?? [])]),
-      ...lsis.flatMap((l) => [l.rangeKey.name, ...(l.nonKeyAttributes ?? [])]),
-    ].filter(Boolean)
-    expect(carried).not.toContain(PARTIQL_UNPROJECTED_ATTR)
+  // Scoped to the non-ALL indexes on purpose. An ALL index projects everything,
+  // so it carries this attribute too and declares no NonKeyAttributes to say so:
+  // asserting over every index would be an assertion that cannot fail rather
+  // than one that holds.
+  it('leaves the unprojected attribute out of every non-ALL index', () => {
+    const partial = [
+      ...gsis.filter((g) => g.projectionType !== 'ALL'),
+      ...lsis.filter((l) => l.projectionType !== 'ALL'),
+    ]
+    expect(partial.length).toBeGreaterThan(0)
+
+    for (const idx of partial) {
+      const carried = [
+        'hashKey' in idx ? idx.hashKey.name : undefined,
+        idx.rangeKey?.name,
+        ...(idx.nonKeyAttributes ?? []),
+      ].filter(Boolean)
+      expect(carried, idx.indexName).not.toContain(PARTIQL_UNPROJECTED_ATTR)
+    }
+  })
+
+  // The other half of the same contract: the ALL indexes do carry it, which is
+  // why a rejection case must not name one of them.
+  it('records which indexes do project it, so a later case does not name one', () => {
+    const all = [
+      ...gsis.filter((g) => g.projectionType === 'ALL').map((g) => g.indexName),
+      ...lsis.filter((l) => l.projectionType === 'ALL').map((l) => l.indexName),
+    ]
+    expect(all).toEqual(['gsi-all', 'lsi-all'])
   })
 
   // An ALL index projects everything, so it can never reject a projection or a

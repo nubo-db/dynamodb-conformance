@@ -688,9 +688,13 @@ export const partiqlIndexTableDef: TestTableDef = {
 }
 
 /**
- * The attribute no index in partiqlIndexTableDef projects. Naming it in a
- * projection is rejected on a GSI and served from the base table on an LSI;
- * naming it in a filter is rejected on either, but only on a keyed read.
+ * The attribute no *non-ALL* index in partiqlIndexTableDef projects. `gsi-all`
+ * and `lsi-all` project everything, this attribute included, so a case testing
+ * the projection or filter rules must name one of the other four indexes.
+ *
+ * Against those four: naming it in a projection is rejected on a GSI and served
+ * from the base table on an LSI; naming it in a filter is rejected on either,
+ * but only when the read is keyed on the index partition key.
  */
 export const PARTIQL_UNPROJECTED_ATTR = 'nonproj'
 
