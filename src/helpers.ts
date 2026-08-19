@@ -558,10 +558,11 @@ function sleep(ms: number): Promise<void> {
 export const hashTableDef: TestTableDef = {
   name: uniqueTableName('hash'),
   hashKey: { name: 'pk', type: 'S' },
-  // On-demand, like hashNTableDef. The shared tables now live for the whole run
+  // On-demand, like hashNTableDef. The shared tables live for the whole run
   // (provisioned once), so a provisioned 5-WCU table runs out of burst capacity
-  // for the near-400KB writes in tests/tier3/limits/itemSize.test.ts and throttles.
-  // Nothing asserts this table is provisioned; createTable/config covers that mode.
+  // under a run's worth of writes and throttles. Nothing asserts this table is
+  // provisioned; createTable/config covers that mode. The near-400KB writes that
+  // first forced this now have itemSizeTableDef to themselves.
   billingMode: 'PAY_PER_REQUEST',
 }
 
@@ -697,6 +698,33 @@ export const partiqlIndexTableDef: TestTableDef = {
  * but only when the read is keyed on the index partition key.
  */
 export const PARTIQL_UNPROJECTED_ATTR = 'nonproj'
+
+// The tables the 400KB item-size work writes to, and nothing else does.
+//
+// Those tests write items a few bytes under the item limit, dozens of them, and
+// that is not a neighbour the shared tables can carry. A Scan reads a bounded
+// amount of data per page, so a handful of near-400KB rows fills the first page
+// on its own and every other row in the table falls onto a page the reading test
+// never asks for. tests/tier1/scan/filterOperators.test.ts reads one page and
+// counts what matched, which is a fair thing to do on a table holding six small
+// rows and impossible on one holding six large ones. Separate tables, and the
+// question does not arise.
+export const itemSizeTableDef: TestTableDef = {
+  name: uniqueTableName('itemSize'),
+  hashKey: { name: 'pk', type: 'S' },
+  // A provisioned table runs out of burst capacity partway through a run of
+  // near-400KB writes and throttles, which reads as a rejection the size gate
+  // did not make.
+  billingMode: 'PAY_PER_REQUEST',
+}
+
+/** The composite-key variant, for the cases that need a sort key. */
+export const itemSizeCompositeTableDef: TestTableDef = {
+  name: uniqueTableName('itemSizeComposite'),
+  hashKey: { name: 'pk', type: 'S' },
+  rangeKey: { name: 'sk', type: 'S' },
+  billingMode: 'PAY_PER_REQUEST',
+}
 
 // A partition key whose *name* carries bytes. Every other shared def names its
 // key `pk`, which is two bytes, so nothing in the suite could separate the key

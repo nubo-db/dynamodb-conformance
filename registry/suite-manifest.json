@@ -1,6 +1,6 @@
 {
   "generated": "2026-08-19",
-  "commit": "761dfaddb0ca67d7a21b360ae3e618813a14b798",
+  "commit": "6bb28c482b1a0d54175c6b00d4b1403a4874ca83",
   "count": 1248,
   "tests": [
     "tests/tier1/batchGetItem/basic.test.ts::BatchGetItem — ProjectionExpression returns only projected attributes",

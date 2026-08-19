@@ -2,7 +2,7 @@ import { GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb'
 import type { AttributeValue } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import {
-  hashTableDef,
+  itemSizeTableDef,
   cleanupItems,
   declareTables,
   expectDynamoError,
@@ -15,7 +15,7 @@ import {
   utf8Bytes,
 } from '../../../src/item-size.js'
 
-declareTables(hashTableDef)
+declareTables(itemSizeTableDef)
 
 // What a number costs, to the byte.
 //
@@ -48,7 +48,7 @@ declareTables(hashTableDef)
 // `123456` with the same digit count costs 4.
 //
 // Captured against eu-west-2 on 2026-08-18.
-const TABLE = hashTableDef.name
+const TABLE = itemSizeTableDef.name
 const PUT_WORDING = 'Item size has exceeded the maximum allowed size'
 const PREFIX = 'lim-nbs-'
 const keysToClean: Record<string, AttributeValue>[] = []
@@ -87,11 +87,10 @@ describe("A number's byte cost", { tags: ['put-item', 'data-plane'] }, () => {
   // Titles carry the figure so a failure names the literal and the cost it was
   // measured at, rather than an index.
   it.each(
-    CAPTURED_NUMBER_BYTES.map(([literal, bytes, why]) => ({
+    CAPTURED_NUMBER_BYTES.map(([literal, bytes]) => ({
       literal,
       bytes,
       cost: `${bytes} byte${bytes === 1 ? '' : 's'}`,
-      why,
     })),
   )('sizes $literal at $cost', async ({ literal, bytes }) => {
     const accepted = key(`at-${literal}`)
@@ -112,8 +111,8 @@ describe("A number's byte cost", { tags: ['put-item', 'data-plane'] }, () => {
 })
 
 // The size follows the significant digits; the stored form is the expanded
-// decimal. An engine conflating the two sizes `1E125` as its 126-digit expansion
-// and lands 61 bytes out on a single attribute.
+// decimal. An engine conflating the two applies the formula to `1E125`'s
+// 126-digit expansion and charges 64 bytes where AWS charges 2.
 describe('A number is stored expanded and sized by its significant digits', { tags: ['put-item', 'data-plane'] }, () => {
   async function roundTrip(id: string, literal: string): Promise<string> {
     const k = key(`rt-${id}`)
@@ -136,7 +135,6 @@ describe('A number is stored expanded and sized by its significant digits', { ta
 
   it('costs the same either way: the expanded form is not what is measured', async () => {
     // 1E125 stores as 126 digits and costs 2 bytes, the same as the literal `1`.
-    // An engine sizing the stored text charges 64.
     const k = key('exp-cost')
     await ddb.send(new PutItemCommand({
       TableName: TABLE,

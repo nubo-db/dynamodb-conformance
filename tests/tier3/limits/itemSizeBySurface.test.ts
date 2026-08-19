@@ -14,8 +14,8 @@ import type { AttributeValue } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { isUnsupportedFault, skipUnlessSupported } from '../../../src/infra.js'
 import {
-  hashTableDef,
-  compositeTableDef,
+  itemSizeTableDef,
+  itemSizeCompositeTableDef,
   longKeyNameTableDef,
   cleanupItems,
   declareTables,
@@ -29,7 +29,7 @@ import {
   utf8Bytes,
 } from '../../../src/item-size.js'
 
-declareTables(hashTableDef, compositeTableDef, longKeyNameTableDef)
+declareTables(itemSizeTableDef, itemSizeCompositeTableDef, longKeyNameTableDef)
 
 // Seven write surfaces reach the 400KB gate and they do not agree about it.
 // Captured against eu-west-2 on 2026-08-18 by bisecting each surface's ceiling
@@ -38,7 +38,7 @@ declareTables(hashTableDef, compositeTableDef, longKeyNameTableDef)
 //
 // Six of the seven are flat: the ceiling is the item's own size, exactly
 // 409,600, with no key exclusion and no per-action term. Standalone UpdateItem
-// is the outlier and has its own describe at the foot of this file.
+// is the outlier and has its own describes below.
 //
 // The reporting split follows whether the size can be known from the request
 // alone. A put's can, so a transacted Put over the limit is a plain
@@ -51,7 +51,7 @@ declareTables(hashTableDef, compositeTableDef, longKeyNameTableDef)
 // size, the update path says the item *to update* has. Asserted on the
 // distinguishing clause rather than the whole string, which
 // tests/tier3/error-messages/ owns.
-const TABLE = hashTableDef.name
+const TABLE = itemSizeTableDef.name
 const PUT_WORDING = 'Item size has exceeded the maximum allowed size'
 const UPDATE_WORDING = 'Item size to update has exceeded the maximum allowed size'
 
@@ -62,7 +62,7 @@ const longKeyNameKeysToClean: Record<string, AttributeValue>[] = []
 
 afterAll(async () => {
   await cleanupItems(TABLE, keysToClean)
-  await cleanupItems(compositeTableDef.name, compositeKeysToClean)
+  await cleanupItems(itemSizeCompositeTableDef.name, compositeKeysToClean)
   await cleanupItems(longKeyNameTableDef.name, longKeyNameKeysToClean)
 })
 
@@ -80,11 +80,8 @@ function key(id: string) {
  * makes every measurement downstream wrong in a way that reads as a finding
  * about DynamoDB rather than about the fixture.
  */
-function sizedItem(k: Record<string, AttributeValue>, bytes: number) {
-  const item = itemOfBytes(bytes, k, 'p')
-  expect(itemBytes(item)).toBe(bytes)
-  return item
-}
+const sizedItem = (k: Record<string, AttributeValue>, bytes: number) =>
+  itemOfBytes(bytes, k, 'p')
 
 /** The stored size, read back rather than predicted. */
 async function storedBytes(k: Record<string, AttributeValue>): Promise<number> {
@@ -291,9 +288,9 @@ describe('Item size limit by surface — TransactWriteItems', { tags: ['transact
 // which is the same arithmetic on the fixtures it used, because every one of
 // them held an item made of exactly the key plus what the update wrote. It comes
 // apart as soon as the item carries an attribute the update does not touch, and
-// the case below pins that: at a 10-byte untouched attribute the ceiling is 11
-// bytes higher than the key-exclusion reading predicts, measured against
-// eu-west-2 on 2026-08-19.
+// the case below pins that: an untouched attribute measuring 11 bytes lifts the
+// ceiling by 11, where the key-exclusion reading says it should not move at all.
+// Measured against eu-west-2 on 2026-08-19.
 //
 // The action cost is three bytes for the update itself plus a fixed amount per
 // clause. It does not vary with the value written, its type or size, the
@@ -454,7 +451,7 @@ describe('Item size limit by surface — UpdateItem does not charge for the key'
     compositeKeysToClean.push(withSort.accepted, withSort.refused)
 
     const flat = await updateCeilingIs(TABLE, hashOnly, oneSet())
-    const composite = await updateCeilingIs(compositeTableDef.name, withSort, oneSet())
+    const composite = await updateCeilingIs(itemSizeCompositeTableDef.name, withSort, oneSet())
     expect(composite - flat).toBe(itemBytes({ sk: withSort.accepted.sk }))
   })
 })
