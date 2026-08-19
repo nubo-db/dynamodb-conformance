@@ -904,6 +904,16 @@
         "put-item",
         "data-plane",
         "vector"
+      ],
+      "PutItem — a vector index is charged on the change to its stored view": [
+        "put-item",
+        "data-plane",
+        "vector"
+      ],
+      "PutItem — VectorWriteRequestBytes": [
+        "put-item",
+        "data-plane",
+        "vector"
       ]
     },
     "tests/tier2/vectorSearch/lifecycle.test.ts": {

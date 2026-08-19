@@ -1,7 +1,7 @@
 {
   "generated": "2026-08-19",
-  "commit": "9c8bf0208413ab157cba5f2cf6489bcd7a54464a",
-  "count": 1241,
+  "commit": "761dfaddb0ca67d7a21b360ae3e618813a14b798",
+  "count": 1248,
   "tests": [
     "tests/tier1/batchGetItem/basic.test.ts::BatchGetItem — ProjectionExpression returns only projected attributes",
     "tests/tier1/batchGetItem/basic.test.ts::BatchGetItem — basic handles a mix of existing and non-existing keys",
@@ -808,6 +808,13 @@
     "tests/tier2/updateTable/gsi.test.ts::UpdateTable — add GSI drops an unused AttributeDefinition supplied with a GSI add",
     "tests/tier2/updateTable/gsi.test.ts::UpdateTable — remove GSI base table operations still work after removing a GSI",
     "tests/tier2/updateTable/gsi.test.ts::UpdateTable — remove GSI removes a GSI from a table",
+    "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — VectorWriteRequestBytes applies the floor per index, not per write",
+    "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — VectorWriteRequestBytes charges a projected non-vector attribute its own item size",
+    "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — VectorWriteRequestBytes charges four bytes per dimension",
+    "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — VectorWriteRequestBytes charges the vector attribute’s name by its own length",
+    "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — VectorWriteRequestBytes reports the 1024 floor for an entry below it on every term",
+    "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — a vector index is charged on the change to its stored view charges neither when the write changes nothing either index holds",
+    "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — a vector index is charged on the change to its stored view charges the index that projects the changed attribute, and not the one that does not",
     "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — vector write capacity shape INDEXES adds a per-index VectorWriteRequestBytes map beside the classic fields",
     "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — vector write capacity shape TOTAL folds nothing in: no vector fields at all",
     "tests/tier2/vectorSearch/consumedCapacity.test.ts::PutItem — vector write capacity shape a write not touching the vector attribute reports no vector write",
