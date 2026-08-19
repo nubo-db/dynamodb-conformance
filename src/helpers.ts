@@ -698,6 +698,23 @@ export const partiqlIndexTableDef: TestTableDef = {
  */
 export const PARTIQL_UNPROJECTED_ATTR = 'nonproj'
 
+// A partition key whose *name* carries bytes. Every other shared def names its
+// key `pk`, which is two bytes, so nothing in the suite could separate the key
+// name's contribution to a figure from the key value's.
+//
+// UpdateItem is where that matters: it excludes the key attributes from the size
+// it measures against the 400KB gate, names included, so lengthening the name
+// buys back exactly the headroom that lengthening the value does. A def with a
+// 16-byte key name makes the two halves comparable at one keystroke.
+export const longKeyNameTableDef: TestTableDef = {
+  name: uniqueTableName('longKeyName'),
+  hashKey: { name: 'partitionKeyName', type: 'S' },
+  // On-demand, like the other defs the near-400KB writes use: a provisioned
+  // table runs out of burst capacity and throttles, which would read as a
+  // rejection the size gate did not make.
+  billingMode: 'PAY_PER_REQUEST',
+}
+
 export const compositeNTableDef: TestTableDef = {
   name: uniqueTableName('compositeN'),
   hashKey: { name: 'pk', type: 'S' },
