@@ -1247,6 +1247,46 @@
       "Item size limit — number sizing": [
         "put-item",
         "data-plane"
+      ],
+      "Item size limit — the gate, to the byte": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/itemSizeBySurface.test.ts": {
+      "Item size limit by surface — BatchWriteItem": [
+        "batch",
+        "data-plane"
+      ],
+      "Item size limit by surface — PartiQL": [
+        "partiql",
+        "data-plane"
+      ],
+      "Item size limit by surface — TransactWriteItems": [
+        "transactions",
+        "data-plane"
+      ],
+      "Item size limit by surface — UpdateItem does not charge for the key": [
+        "update-item",
+        "data-plane"
+      ],
+      "Item size limit by surface — UpdateItem charges per action": [
+        "update-item",
+        "data-plane"
+      ],
+      "Item size limit by surface — UpdateItem through a document path": [
+        "update-item",
+        "data-plane"
+      ],
+      "Item size limit by surface — a PartiQL UPDATE does not inherit the exclusion": [
+        "partiql",
+        "update-item",
+        "data-plane"
+      ],
+      "Item size limit by surface — a transacted Update does not inherit the exclusion": [
+        "transactions",
+        "update-item",
+        "data-plane"
       ]
     },
     "tests/tier3/limits/keyLength.test.ts": {
@@ -1260,6 +1300,16 @@
       "Nesting depth — 32-level document limit": [
         "put-item",
         "update-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/numberByteSize.test.ts": {
+      "A number's byte cost": [
+        "put-item",
+        "data-plane"
+      ],
+      "A number is stored expanded and sized by its significant digits": [
+        "put-item",
         "data-plane"
       ]
     },
