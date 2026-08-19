@@ -305,7 +305,6 @@ describe('Item size limit by surface — TransactWriteItems', { tags: ['transact
 const UPDATE_BASE_COST = 3
 const SET_COST = 19
 const REMOVE_COST = 2
-const LIST_INDEX_SET_COST = 20
 
 /**
  * The largest finished item UpdateItem accepts.
@@ -505,6 +504,10 @@ describe('Item size limit by surface — UpdateItem charges per action', { tags:
       actionCost: UPDATE_BASE_COST + SET_COST * 2,
     }))
     expect(large).toBe(small)
+    // Both sides collapse onto 409,600 the moment the key outgrows the action
+    // cost, and the equality then holds whatever the per-clause cost is. The
+    // keys here are short enough that it does not, and this says so.
+    expect(small).toBeLessThan(MAX_ITEM_BYTES)
   })
 
   // The half the capture's own reading missed. An attribute the statement never
@@ -526,6 +529,7 @@ describe('Item size limit by surface — UpdateItem charges per action', { tags:
       names: { '#twelvechars': 'b' },
     }))
     expect(byAlias).toBe(byName)
+    expect(byName).toBeLessThan(MAX_ITEM_BYTES)
   })
 })
 
@@ -606,8 +610,10 @@ describe('Item size limit by surface — UpdateItem through a document path', { 
     expect(await accepts(() => throughPath(over)(reference + 1))).toBe(false)
   })
 
-  // One byte dearer than writing the same list whole, measured against that
-  // clause's own threshold rather than predicted from a constant.
+  // The capture measured a list-index SET at 20 bytes against 19 for a plain
+  // one. Asserted as the difference against the plain clause's own measured
+  // threshold rather than against either constant, so what fails is the one byte
+  // rather than a figure nothing else checks.
   it('charges a SET through a list index exactly one byte more', async () => {
     const plainly = (at: Record<string, AttributeValue>) => (padding: number) =>
       update(at, 'SET d = :whole', { ':whole': wholeList(padding) })
