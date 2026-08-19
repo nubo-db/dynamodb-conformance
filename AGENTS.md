@@ -110,11 +110,21 @@ Before opening a PR that adds or modifies a test:
    boundary is incomplete. Put the error-code assertion in the
    operation's own tier (or `tests/tier3/validation-ordering/`) and the
    exact message, where it's stable, in `tests/tier3/error-messages/`.
-5. **Required if you added, moved or renamed a test: regenerate the
-   suite manifest in the same commit.** `node scripts/suite-manifest.mjs`
+5. **Required if you added, moved or renamed a test: regenerate both
+   manifests in the same commit.** `node scripts/suite-manifest.mjs`
    rewrites `registry/suite-manifest.json`, which is what every published
    figure divides by. CI fails the PR if it is stale, because a board
    grading against a suite it no longer has is worse than a red build.
+   `npm run results:tags` rewrites `results/tag-manifest.json`, which
+   groups the published results by capability. Its guard runs in
+   `npm run test:tooling` and reports a stale manifest as a failing test,
+   so it reads as a broken test rather than a missing step. Run both.
+
+   Renaming a test is the expensive one. Every committed results file
+   names its tests in full, so a rename leaves them measuring a
+   population the suite no longer has, and the publishing gate refuses
+   the manifest until each target is re-run. Land a rename with a
+   results refresh, not with a coverage change.
 
 Regenerating the published results table across all tracked targets
 (DynamoDB, Dynoxide, Dynoxide (wasm), DynamoDB Local, Dynalite,

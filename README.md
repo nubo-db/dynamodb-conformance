@@ -161,13 +161,13 @@ A new test goes in whichever sub-directory matches what it asserts. If you care 
 
 | Operation | Tier 1 | Tier 2 | Tier 3 |
 |-----------|--------|--------|--------|
-| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, indexConsumedCapacity (GSI/LSI write cost) | vector write validation, vector write capacity | error messages |
+| PutItem | basic, conditions (incl. parens), validation, expressions, dataTypes, consumedCapacity, indexConsumedCapacity (GSI/LSI write cost) | vector write validation, vector write capacity (projection rule, byte formula) | error messages, item size to the byte, number byte cost |
 | GetItem | basic, validation, projection, consumedCapacity | | error messages |
-| UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths, index write-capacity ladder | | error messages |
+| UpdateItem | basic, conditions (incl. parens, non-existent key branch), validation, paths, index write-capacity ladder | | error messages, item size (charged on what the statement writes, plus a per-clause cost) |
 | DeleteItem | basic, conditions (incl. parens), validation, index write capacity | | error messages |
-| Query | basic, GSI, LSI, expressions (incl. KeyCondition + Filter parens), select, numericKeys, binaryKeys, pagination | | error messages, validation ordering |
-| Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens | | error messages, validation ordering |
-| BatchWriteItem | basic, validation, index write capacity | | error messages |
+| Query | basic, GSI, LSI, expressions (incl. KeyCondition + Filter parens), select, numericKeys, binaryKeys, pagination, consumedCapacity (sized before the filter and the projection) | | error messages, validation ordering |
+| Scan | basic, validation, GSI (incl. pagination), LSI (incl. pagination), parallel, select, filterOperators, filterExpression parens, consumedCapacity (sized before the filter and the projection) | | error messages, validation ordering |
+| BatchWriteItem | basic, validation, index write capacity | | error messages, item size |
 | BatchGetItem | basic, validation | | error messages |
 | CreateTable | basic, GSI, LSI | vector indexes (lifecycle, SearchSchema, validation) | error messages, validation ordering |
 | DeleteTable | basic | | |
@@ -175,10 +175,10 @@ A new test goes in whichever sub-directory matches what it asserts. If you care 
 | ListTables | basic | | |
 | UpdateTable | basic (throughput, billing mode) | GSI lifecycle, vector index lifecycle | |
 | SearchVectors | | scores per distance function, projection, capacity shape, request validation | error messages |
-| TransactWriteItems | | basic, conditions (incl. parens, non-existent key branch), idempotency, cancellation | error messages |
+| TransactWriteItems | | basic, conditions (incl. parens, non-existent key branch), idempotency, cancellation | error messages, item size (flat on both actions, reported two ways) |
 | TransactGetItems | | basic, validation | error messages |
-| ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised, RETURNING, vector index non-reach | error messages (RETURNING) |
-| BatchExecuteStatement | | batch, partial failure, RETURNING honoured | |
+| ExecuteStatement | | INSERT, SELECT, UPDATE, DELETE, parameterised, RETURNING, vector index non-reach, index qualifiers (membership, projection, reach-back, capacity arms, qualified writes), comparison on non-scalar types | error messages (RETURNING, index qualifiers), item size |
+| BatchExecuteStatement | | batch, partial failure, RETURNING honoured, per-member ConsistentRead, primary-key requirement, TableName echo | |
 | ExecuteTransaction | | atomic, rollback, RETURNING rejected | error messages (RETURNING) |
 | UpdateTimeToLive | | enable, validation | |
 | DescribeTimeToLive | | describe | |
