@@ -9,7 +9,7 @@ section its date and version, so several branches can write ahead of one.
 ## Unreleased
 
 Twelve captures against eu-west-2 turned into coverage, and the suite grew from
-1054 tests to 1248. All of it was ground truth the suite had no assertion on, so
+1056 tests to 1250. All of it was ground truth the suite had no assertion on, so
 an engine could discard a PartiQL index qualifier and scan the base table,
 answer false for equality on every set and map it was given, drop `TableName`
 from a failed batch member, and store an item AWS would refuse, and still score
