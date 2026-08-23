@@ -223,8 +223,11 @@ describe('UpdateTable — vector index lifecycle', { tags: ['update-table', 'del
   // index is being created, the table underneath it cannot be deleted. AWS
   // documents this in the tutorial's readiness callout, quoting the message as
   // "Cannot delete table while indexes are being created, updated, or deleted."
-  // The answer carries the ResourceInUseException envelope in front of that
-  // sentence, so the assertion matches the documented clause within it.
+  // The answer carries a ResourceInUseException envelope clause in front of
+  // that sentence, and the assertion matches the pair whole rather than the
+  // documented half. Matching the inner clause alone passes a target that
+  // returns only the second half of the answer, which is a real divergence in
+  // the wording a caller reads.
   //
   // Only the UpdateTable path can ask the question. Measured in eu-west-2 on
   // 2026-08-21, an index created as part of CreateTable reaches ACTIVE in the
@@ -314,7 +317,7 @@ describe('UpdateTable — vector index lifecycle', { tags: ['update-table', 'del
     await expectDynamoError(
       () => ddb.send(new DeleteTableCommand({ TableName: tableName })),
       'ResourceInUseException',
-      'Cannot delete table while indexes are being created, updated, or deleted.',
+      /^Attempt to change a resource which is still in use: Cannot delete table while indexes are being created, updated, or deleted\.$/,
     )
 
     // Cancelling is what makes this cheap, and it is its own small claim: a
@@ -344,4 +347,212 @@ describe('UpdateTable — vector index lifecycle', { tags: ['update-table', 'del
     // Timeout: the reach ceiling (300s) plus the cancel ceiling (300s) plus
     // setup margin, on the same rule as the test above.
   }, 700_000)
+
+  // Index creation is not one phase, and only the second of them takes a
+  // cancel. Measured in eu-west-2 on 2026-08-23, on the same five-item table
+  // shape as the tests above: an index added to a live table spends its first
+  // stretch in a resource allocation phase, then starts backfilling.
+  // DescribeTable tells them apart through Backfilling — false while
+  // allocating, true once the backfill is running — and the base table sits in
+  // UPDATING for the first of them, returning to ACTIVE about thirty seconds
+  // in while the index carries on building.
+  //
+  // None of that was pinned before. The first test polls at five-second
+  // intervals and asserts only over what it happened to see, so it never has to
+  // occupy the early window; the DeleteTable test waits for the table to return
+  // to ACTIVE before it cancels, and that wait is exactly what carries it past
+  // resource allocation. So "a CREATING index accepts a Delete" was true as
+  // written and true only of the second phase, and a target that accepted one
+  // in the first phase passed anyway.
+  //
+  // It also asks the one-online-action limit the question the first test
+  // cannot: a second create in an UpdateTable of its own, while the
+  // first index is still going. That test sends both creates in one VectorIndexUpdates array,
+  // so a target that simply refuses arrays longer than one passes it and still
+  // accepts a second concurrent create. The limit is on the table.
+  //
+  // Cheap for this lane despite living in it. Nothing here waits out the
+  // backfill — the last poll it needs is the one where Backfilling first reads
+  // true, a minute or so in — where the first test runs for seventeen.
+  it('reports UPDATING with Backfilling false while allocating, and takes a cancel only once backfilling starts', async ({ skip }) => {
+    const tableName = uniqueTableName('vec_phase')
+    tablesToCleanup.push(tableName)
+    await ddb.send(
+      new CreateTableCommand({
+        TableName: tableName,
+        AttributeDefinitions: [{ AttributeName: 'pk', AttributeType: 'S' }],
+        KeySchema: [{ AttributeName: 'pk', KeyType: 'HASH' }],
+        BillingMode: 'PAY_PER_REQUEST',
+      }),
+    )
+    await waitUntilActive(tableName)
+    for (let i = 0; i < 5; i++) {
+      await ddb.send(
+        new PutItemCommand({
+          TableName: tableName,
+          Item: {
+            pk: { S: `item-${i}` },
+            embedding: { L: [{ N: String(i) }, { N: '1' }, { N: '0' }] },
+          },
+        }),
+      )
+    }
+
+    // As above: a target may implement vector indexes at CreateTable without
+    // implementing VectorIndexUpdates, and that is scope rather than divergence.
+    let created
+    try {
+      created = await ddb.send(
+        new UpdateTableCommand({
+          TableName: tableName,
+          VectorIndexUpdates: [
+            {
+              Create: {
+                IndexName: 'vix',
+                VectorAttribute: { AttributeName: 'embedding' },
+                Dimensions: 3,
+                DistanceFunction: 'COSINE',
+                Projection: { ProjectionType: 'ALL' },
+              },
+            },
+          ],
+        }),
+      )
+    } catch (err) {
+      if (
+        isUnsupportedFault(err) ||
+        (err instanceof DynamoDBServiceException && err.name === 'ValidationException')
+      ) {
+        return skip()
+      }
+      throw err
+    }
+
+    // The call answers with the table already moved off ACTIVE, so the first
+    // evidence that adding an index disturbs the table's own status is in the
+    // UpdateTable response rather than in a later description.
+    expect(created.TableDescription?.TableStatus).toBe('UPDATING')
+
+    // First read, within a beat of the call returning. Asserted directly rather
+    // than collected over a poll loop: "immediately after the UpdateTable" is
+    // the claim, and a flag set anywhere in a loop would not carry it. All
+    // three fields are read from one DescribeTable, or the pairing would be
+    // meaningless.
+    const first = await ddb.send(new DescribeTableCommand({ TableName: tableName }))
+    const firstIx = (first.Table?.VectorIndexes ?? []).find((i) => i.IndexName === 'vix')
+    expect(first.Table?.TableStatus).toBe('UPDATING')
+    expect(firstIx?.IndexStatus).toBe('CREATING')
+    // Present and false, not absent. The field's absence means something else
+    // on this path (the index has finished), so `toBe(false)` is the assertion
+    // and `toBeFalsy()` would not be.
+    expect(firstIx?.Backfilling).toBe(false)
+
+    // Still allocating, so the cancel is refused, and the answer names both the
+    // phase it is in and the phase to retry in. Matched whole and anchored at
+    // both ends: the ResourceInUseException envelope clause is part of the
+    // answer, and a target returning only the sentence after it is diverging —
+    // an assertion on the inner clause alone would read that as a pass. The
+    // two identifiers it ends on are the bare table and index names rather
+    // than ARNs (eu-west-2, 2026-08-23), so they are pinned as they are read.
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new UpdateTableCommand({
+            TableName: tableName,
+            VectorIndexUpdates: [{ Delete: { IndexName: 'vix' } }],
+          }),
+        ),
+      'ResourceInUseException',
+      new RegExp(
+        '^Attempt to change a resource which is still in use: ' +
+          'Index creation is in resource allocation phase\\. ' +
+          'Retry deletion during backfilling phase or when the index is active\\. ' +
+          `Table: ${tableName} Index: vix$`,
+      ),
+    )
+
+    // Still allocating, and a create of a second index in its own UpdateTable
+    // is refused too — for the limit rather than for the phase. The two
+    // refusals side by side are what separate the claims: the phase governs
+    // what the index already being built will accept, and the limit governs
+    // the table rather than the call. The first test in this file fires both
+    // creates in a single VectorIndexUpdates array, which a target passes by
+    // rejecting arrays longer than one while still taking this.
+    await expectDynamoError(
+      () =>
+        ddb.send(
+          new UpdateTableCommand({
+            TableName: tableName,
+            VectorIndexUpdates: [
+              {
+                Create: {
+                  IndexName: 'vix2',
+                  VectorAttribute: { AttributeName: 'embedding' },
+                  Dimensions: 3,
+                  DistanceFunction: 'COSINE',
+                  Projection: { ProjectionType: 'KEYS_ONLY' },
+                },
+              },
+            ],
+          }),
+        ),
+      'LimitExceededException',
+      /^Subscriber limit exceeded: Only 1 online index can be created or deleted simultaneously per table$/,
+    )
+
+    // Walk to the second phase. Backfilling turning true is the only signal
+    // that allocation is over — IndexStatus stays CREATING across both, and
+    // there is no third status value to read the boundary from — so it is what
+    // the loop waits on and what the cancel below is timed against.
+    let sawActiveTableWhileCreating = false
+    const backfillDeadline = Date.now() + 600_000
+    for (;;) {
+      const described = await ddb.send(new DescribeTableCommand({ TableName: tableName }))
+      const ix = (described.Table?.VectorIndexes ?? []).find((i) => i.IndexName === 'vix')
+      // An index that reached ACTIVE here never occupied the phase this test is
+      // about; the backfill of even five items runs for minutes.
+      expect(ix?.IndexStatus).toBe('CREATING')
+      // The table's status is the one that moves first, and it moves back while
+      // the index is still building — which is the whole reason a table waiter
+      // is the wrong gate for a question about an index.
+      if (described.Table?.TableStatus === 'ACTIVE') sawActiveTableWhileCreating = true
+      else expect(described.Table?.TableStatus).toBe('UPDATING')
+      if (ix?.Backfilling === true) break
+      expect(ix?.Backfilling).toBe(false)
+      if (Date.now() > backfillDeadline) {
+        throw new IndeterminateError(
+          'vector-index-timeout',
+          `Vector index vix on ${tableName} never started backfilling`,
+        )
+      }
+      await new Promise((r) => setTimeout(r, 1000))
+    }
+    expect(sawActiveTableWhileCreating).toBe(true)
+
+    // Backfilling now, and the identical call the allocation phase refused is
+    // taken. That is the claim the phase split exists to make: the difference
+    // is the index's phase, not the request.
+    await ddb.send(
+      new UpdateTableCommand({
+        TableName: tableName,
+        VectorIndexUpdates: [{ Delete: { IndexName: 'vix' } }],
+      }),
+    )
+    const goneDeadline = Date.now() + 300_000
+    for (;;) {
+      const ix = await describeVectorIndex(tableName, 'vix')
+      if (!ix) break
+      if (Date.now() > goneDeadline) {
+        throw new IndeterminateError(
+          'vector-index-timeout',
+          `Cancelled vector index vix on ${tableName} never disappeared`,
+        )
+      }
+      await new Promise((r) => setTimeout(r, 2000))
+    }
+    // Timeout: the backfill-start ceiling (600s) plus the cancel ceiling (300s)
+    // plus setup margin, on the same rule as the tests above — the outer bound
+    // must exceed the summed internal deadlines or vitest kills the test as a
+    // failure before either can type the expiry as indeterminate.
+  }, 1_000_000)
 })

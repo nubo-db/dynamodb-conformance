@@ -8,12 +8,12 @@ section its date and version, so several branches can write ahead of one.
 
 ## Unreleased
 
-Twelve captures against eu-west-2 turned into coverage, and the suite grew from
-1056 tests to 1250. All of it was ground truth the suite had no assertion on, so
-an engine could discard a PartiQL index qualifier and scan the base table,
-answer false for equality on every set and map it was given, drop `TableName`
-from a failed batch member, and store an item AWS would refuse, and still score
-a clean pass.
+Thirteen captures against eu-west-2 turned into coverage, and the suite grew
+from 1056 tests to 1251. All of it was ground truth the suite had no assertion
+on, so an engine could discard a PartiQL index qualifier and scan the base
+table, answer false for equality on every set and map it was given, drop
+`TableName` from a failed batch member, and store an item AWS would refuse, and
+still score a clean pass.
 
 PartiQL now covers the index qualifier properly: what an index-qualified
 `SELECT` returns, when naming an unprojected attribute is rejected and when it
@@ -44,6 +44,19 @@ projection, one write, two answers. `VectorWriteRequestBytes` is pinned term by
 term. `VectorSearchRequestBytes` stays shape-only, and stays that way
 deliberately: five identical searches against an unchanged index reported 14214,
 13903, 14214, 14214 and 14518.
+
+Adding a vector index to a live table runs two phases inside the one `CREATING`
+status, and only the second of them takes a cancel. The first is resource
+allocation: the table sits in `UPDATING`, `Backfilling` reads false, and a
+delete of the index is refused with the phase named in the answer. `Backfilling`
+turning true is the only signal the first phase is over. None of it was
+asserted before, because the existing walk polls every five seconds and checks
+only what it happened to catch, and the `DeleteTable` case waits for the table
+to return to `ACTIVE` first, which is the wait that carries it past the window.
+The one-online-index limit binds the table rather than the call, so it now gets
+a second create in its own `UpdateTable` to answer. Two `ResourceInUseException`
+messages are matched whole rather than by the clause AWS documents, since a
+target returning only that clause was passing.
 
 A local run against real DynamoDB now takes its own table namespace, so it can
 no longer delete tables belonging to a CI run.
