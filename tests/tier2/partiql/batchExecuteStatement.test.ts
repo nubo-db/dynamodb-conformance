@@ -510,7 +510,17 @@ describe('BatchExecuteStatement — PartiQL', { tags: ['partiql', 'data-plane', 
     // The control. The same option on a TransactWriteItems ConditionCheck does
     // return the failed item, so the absence above is the batch surface rather
     // than a badly-formed request.
-    it('does return the item on a TransactWriteItems ConditionCheck', async () => {
+    //
+    // It is also the one test here that leaves the batch surface, so it is the
+    // one that can meet a target implementing PartiQL without transactions.
+    // The file-level canary only speaks for ExecuteStatement, and an
+    // unsupported answer to this call is scope rather than a disagreement
+    // about ReturnValuesOnConditionCheckFailure. Guarded on the call the test
+    // already makes rather than on a probe of its own: a probe would have to
+    // send a differently shaped request, and a target can answer an empty
+    // TransactItems with a validation error while still not implementing the
+    // operation.
+    it('does return the item on a TransactWriteItems ConditionCheck', async ({ skip }) => {
       try {
         await ddb.send(new TransactWriteItemsCommand({
           TransactItems: [{
@@ -525,6 +535,7 @@ describe('BatchExecuteStatement — PartiQL', { tags: ['partiql', 'data-plane', 
         }))
         expect.unreachable('should have thrown')
       } catch (err) {
+        if (isUnsupportedFault(err)) return skip()
         expect(err).toBeInstanceOf(DynamoDBServiceException)
         const e = err as DynamoDBServiceException & { CancellationReasons?: { Item?: unknown }[] }
         expect(e.name).toBe('TransactionCanceledException')
