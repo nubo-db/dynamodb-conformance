@@ -19,7 +19,7 @@ import {
 
 declareTables(hashTableDef, partiqlIndexTableDef)
 
-describe('BatchExecuteStatement — PartiQL', { tags: ['partiql', 'data-plane', 'gsi'] }, () => {
+describe('BatchExecuteStatement — PartiQL', { tags: ['partiql', 'data-plane', 'gsi', 'lsi'] }, () => {
   let supported = true
 
   const keysToCleanup: Record<string, { S: string }>[] = []
