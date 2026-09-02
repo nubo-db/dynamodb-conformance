@@ -31,6 +31,28 @@ function sharedDefNames() {
   )
 }
 
+/**
+ * Shared defs carrying GSIs and LSIs together.
+ *
+ * Derived rather than named, because the list grows: this was hard-coded to
+ * `compositeIndexedTableDef` and missed `partiqlIndexTableDef` when it arrived,
+ * so the guard below passed on exactly the file it exists to catch.
+ */
+function dualIndexDefNames() {
+  const src = readFileSync(HELPERS, 'utf8')
+  const names = new Set()
+  const heads = /^export const (\w+TableDef)\s*:[^=]*=\s*\{$/gm
+  for (const m of src.matchAll(heads)) {
+    // A def's own terminator is the only `}` at column 0 after its head; every
+    // nested object inside it is indented.
+    const rest = src.slice(m.index + m[0].length)
+    const end = rest.search(/^\}/m)
+    const body = end === -1 ? rest : rest.slice(0, end)
+    if (/^\s*gsis:/m.test(body) && /^\s*lsis:/m.test(body)) names.add(m[1])
+  }
+  return names
+}
+
 /** The defs named in a file's `declareTables(...)` call. */
 function declaredIn(stripped) {
   const call = stripped.match(/declareTables\(([^)]*)\)/)
@@ -130,17 +152,24 @@ describe('shared table declaration guard', () => {
     ).toEqual([])
   })
 
-  it('a file declaring the index-bearing composite table carries both index tags', () => {
-    // compositeIndexedTableDef carries LSIs and GSIs together, so a run
-    // excluding either axis must exclude the whole file - otherwise the
-    // excluded index kind is created anyway and an engine lacking it fails in
-    // setup, which is the failure the exclusion exists to prevent.
+  it('a file declaring a table with both index kinds carries both index tags', () => {
+    // A def carrying LSIs and GSIs together means a run excluding either axis
+    // must exclude the whole file - otherwise the excluded index kind is
+    // created anyway and an engine lacking it fails in setup, which is the
+    // failure the exclusion exists to prevent.
+    const dualIndex = dualIndexDefNames()
+    expect(
+      dualIndex.size,
+      'no shared def carries both index kinds, so this guard is checking nothing',
+    ).toBeGreaterThan(0)
+
     const problems = []
     for (const file of testFiles) {
       const src = readFileSync(file, 'utf8')
       const stripped = stripLiterals(src)
       const declared = declaredIn(stripped)
-      if (!declared?.has('compositeIndexedTableDef')) continue
+      const dual = [...(declared ?? [])].filter((n) => dualIndex.has(n))
+      if (dual.length === 0) continue
 
       for (const line of src.split('\n')) {
         if (!line.startsWith('describe(')) continue
@@ -151,7 +180,9 @@ describe('shared table declaration guard', () => {
         const missing = ['gsi', 'lsi'].filter((t) => !names.includes(t))
         if (missing.length) {
           const title = line.match(/^describe\((['"])(.*?)\1/)?.[2] ?? line.slice(0, 60)
-          problems.push(`${file} « ${title} »: missing ${missing.join(', ')}`)
+          problems.push(
+            `${file} « ${title} » declares ${dual.join(', ')}: missing ${missing.join(', ')}`,
+          )
         }
       }
     }
