@@ -1039,13 +1039,13 @@ describe('committed results pipeline', () => {
       const target = targets.find((x) => x.slug === slug);
       const verdicts = classifyResults(target.raw, target.sidecar ?? null);
       for (const [region, r] of Object.entries(t.regions)) {
-        const fails = verdictsForRegion(verdicts, context.registry, region).filter(
+        const fails = verdictsForRegion(verdicts, measuredInputs.registry, region).filter(
           (v) => v.verdict === 'fail',
         );
         expect(fails.length, `${slug}'s scored fail count in ${region}`).toBe(r.failed);
         for (const f of fails) {
           expect(
-            splitFor(context.registry, f),
+            splitFor(measuredInputs.registry, f),
             `${slug} fails "${f.fullName}" in ${region}, and it is not one of the registry's confirmed splits - a non-split behaviour is varying by region`,
           ).toBeTruthy();
         }
