@@ -14,9 +14,8 @@
 # Sources, by target:
 #   dynamodb              live AWS service (no version)
 #   dynoxide / dynalite   npm published version (`npm view`)
-#   dynoxide-wasm         the triggering dynoxide release, else the npm version;
-#                         the wasm preview ships inside the dynoxide release
-#                         rather than as its own published package
+#   dynoxide-wasm         the triggering dynoxide release, else the version the
+#                         wasm engine publishes for itself on npm
 #   localstack            its /_localstack/info version endpoint
 #   extenddb              the built release tag; the SQLite row reports the
 #   extenddb-sqlite       same tag, being the same release built with a
@@ -33,12 +32,17 @@ case "$target" in
   extenddb | extenddb-sqlite) ver="${EXTENDDB_REF:-}" ;;
   dynoxide)   ver=$(npm view dynoxide version 2>/dev/null) ;;
   dynoxide-wasm)
-    # The ref is a release tag (v0.13.0) while the native row reads its version
-    # from npm (0.13.0). They are the same release on two adjacent rows, so the
-    # prefix goes rather than having the board render it two ways.
+    # The ref is a release tag (v1.0.0) while the board renders the version bare
+    # (1.0.0), so the prefix goes rather than having two adjacent rows render
+    # the same release two ways.
     ver="${DYNOXIDE_WASM_REF:-}"
     ver="${ver#v}"
-    [ -z "$ver" ] && ver=$(npm view dynoxide version 2>/dev/null)
+    # The wasm engine publishes a package of its own, so ask that one. It used
+    # to borrow the native binary's version, on the reasoning that the bundle
+    # shipped inside the dynoxide release; it no longer does. The two track each
+    # other today, and the moment they stop this row would carry a version it
+    # never ran.
+    [ -z "$ver" ] && ver=$(npm view @dynoxide/wasm-engine version 2>/dev/null)
     ;;
   dynalite)   ver=$(npm view dynalite version 2>/dev/null) ;;
   localstack)
