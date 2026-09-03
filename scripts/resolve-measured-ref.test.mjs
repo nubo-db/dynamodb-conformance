@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import yaml from 'js-yaml'
+import { load as loadYaml } from 'js-yaml'
 import {
   assertPlainVersion,
   assertUnambiguousRef,
@@ -139,7 +139,7 @@ describe('confirmTagKind', () => {
 })
 
 describe('the committed workflow consumes the resolved ref', () => {
-  const workflow = yaml.load(readFileSync('.github/workflows/conformance.yml', 'utf8'))
+  const workflow = loadYaml(readFileSync('.github/workflows/conformance.yml', 'utf8'))
   const jobs = Object.entries(workflow.jobs)
 
   // The checkout that reads this repo, as opposed to the second checkouts that
@@ -193,7 +193,7 @@ describe('the committed workflow consumes the resolved ref', () => {
 })
 
 describe('the sweep measures the same suite the board publishes', () => {
-  const sweep = yaml.load(readFileSync('.github/workflows/sweep.yml', 'utf8'))
+  const sweep = loadYaml(readFileSync('.github/workflows/sweep.yml', 'utf8'))
 
   it('resolves the measured ref once and publishes it as an output', () => {
     const outputs = sweep.jobs.regions.outputs

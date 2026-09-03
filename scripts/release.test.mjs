@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import yaml from 'js-yaml'
+import { load as loadYaml } from 'js-yaml'
 import { parseChangelog } from '../site/lib/changelog.mjs'
 import {
   assertAhead,
@@ -363,7 +363,7 @@ describe('draftToPublish', () => {
 })
 
 describe('release.yml', () => {
-  const workflow = yaml.load(readFileSync('.github/workflows/release.yml', 'utf8'))
+  const workflow = loadYaml(readFileSync('.github/workflows/release.yml', 'utf8'))
 
   it('is dispatch-only, so a release is never a side effect of a merge', () => {
     expect(Object.keys(workflow.true ?? workflow.on)).toEqual(['workflow_dispatch'])
@@ -474,7 +474,7 @@ describe('release.yml', () => {
 
 describe('publish-release.yml', () => {
   const yamlText = readFileSync('.github/workflows/publish-release.yml', 'utf8')
-  const workflow = yaml.load(yamlText)
+  const workflow = loadYaml(yamlText)
 
   it('triggers on the board changing, not on one of the two workflows that write it', () => {
     // sweep.yml and results-table.yml both commit results/summary.json, so a
