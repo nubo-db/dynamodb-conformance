@@ -9,7 +9,7 @@
       "behaviour": "PutItem with an empty TableName and an invalid ReturnValues: part of the 2026-06 validation-framework rollout. New-cohort regions short-circuit at the table name and report one error; old-cohort regions aggregate both.",
       "pinned": "eu-west-2",
       "firstObserved": "2026-06-09",
-      "lastRefreshed": "2026-08-12",
+      "lastRefreshed": "2026-09-02",
       "regions": {
         "eu-west-2": {
           "outcome": "rejected",
@@ -36,21 +36,21 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "af-south-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-east-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-northeast-1": {
@@ -64,14 +64,14 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-south-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-south-2": {
@@ -85,21 +85,21 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-southeast-4": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-southeast-5": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-southeast-6": {
@@ -127,7 +127,7 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "eu-central-2": {
@@ -162,14 +162,14 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "il-central-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "me-central-1": {
@@ -183,14 +183,14 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "sa-east-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "us-east-2": {
@@ -204,14 +204,42 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "us-west-2": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]; Value '' at 'tableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+          }
+        },
+        "ap-east-2": {
+          "outcome": "rejected",
+          "error": {
+            "name": "ValidationException",
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+          }
+        },
+        "ap-northeast-2": {
+          "outcome": "rejected",
+          "error": {
+            "name": "ValidationException",
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+          }
+        },
+        "ap-southeast-1": {
+          "outcome": "rejected",
+          "error": {
+            "name": "ValidationException",
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
+          }
+        },
+        "eu-north-1": {
+          "outcome": "rejected",
+          "error": {
+            "name": "ValidationException",
+            "message": "1 validation error detected: Value at 'TableName' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         }
       },
@@ -219,7 +247,8 @@
         "captures/2026-06-09-validation-rewording.json",
         "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29334921301",
         "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29364537167",
-        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31586467950"
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31586467950",
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/33670413331"
       ],
       "admitted": {
         "by": "Martin Hicks",
@@ -236,7 +265,7 @@
       "behaviour": "UpdateItem with invalid ReturnValues and ReturnConsumedCapacity: part of the 2026-06 validation-framework rollout. New-cohort regions stop at the first invalid enum and report one error; old-cohort regions aggregate both.",
       "pinned": "eu-west-2",
       "firstObserved": "2026-06-09",
-      "lastRefreshed": "2026-08-12",
+      "lastRefreshed": "2026-09-02",
       "regions": {
         "eu-west-2": {
           "outcome": "rejected",
@@ -263,21 +292,21 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "af-south-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "ap-east-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "ap-northeast-1": {
@@ -291,14 +320,14 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "ap-south-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "ap-south-2": {
@@ -312,21 +341,21 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "ap-southeast-4": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "ap-southeast-5": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "ap-southeast-6": {
@@ -354,7 +383,7 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "eu-central-2": {
@@ -389,14 +418,14 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "il-central-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "me-central-1": {
@@ -410,14 +439,14 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "sa-east-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "us-east-2": {
@@ -431,14 +460,42 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         },
         "us-west-2": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "2 validation errors detected: Value 'INVALID' at 'returnConsumedCapacity' failed to satisfy constraint: Member must satisfy enum value set: [INDEXES, TOTAL, NONE]; Value 'INVALID' at 'returnValues' failed to satisfy constraint: Member must satisfy enum value set: [ALL_NEW, UPDATED_OLD, ALL_OLD, NONE, UPDATED_NEW]"
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
+          }
+        },
+        "ap-east-2": {
+          "outcome": "rejected",
+          "error": {
+            "name": "ValidationException",
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
+          }
+        },
+        "ap-northeast-2": {
+          "outcome": "rejected",
+          "error": {
+            "name": "ValidationException",
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
+          }
+        },
+        "ap-southeast-1": {
+          "outcome": "rejected",
+          "error": {
+            "name": "ValidationException",
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
+          }
+        },
+        "eu-north-1": {
+          "outcome": "rejected",
+          "error": {
+            "name": "ValidationException",
+            "message": "1 validation error detected: Failed to satisfy constraint: Member must satisfy enum value set: [ALL_OLD, UPDATED_OLD, ALL_NEW, UPDATE_NEW, NONE]"
           }
         }
       },
@@ -446,7 +503,8 @@
         "captures/2026-06-09-validation-rewording.json",
         "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29334921301",
         "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29364537167",
-        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31586467950"
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31586467950",
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/33670413331"
       ],
       "admitted": {
         "by": "Martin Hicks",
@@ -463,7 +521,7 @@
       "behaviour": "UpdateItem carrying a 32-level ExpressionAttributeValue. 32 is the documented limit, so this is a boundary disagreement rather than a violation: strict regions reject it in validation, the rest accept the value and go on to evaluate the condition. Probed against a key that is never written, so the condition is false everywhere and a ConditionalCheckFailedException is proof the value was accepted rather than a sign of differing regional state. The test lives in tests/tier3/limits/, which sets no assertion-strictness convention, and its regex matches both wordings: it does not enforce which side a region is on, so this row is the only place the exact answers are pinned.",
       "pinned": "eu-west-2",
       "firstObserved": "2026-07-15",
-      "lastRefreshed": "2026-08-12",
+      "lastRefreshed": "2026-09-02",
       "regions": {
         "af-south-1": {
           "outcome": "rejected",
@@ -475,8 +533,8 @@
         "ap-east-1": {
           "outcome": "rejected",
           "error": {
-            "name": "ConditionalCheckFailedException",
-            "message": "The conditional request failed"
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
           }
         },
         "ap-east-2": {
@@ -503,15 +561,15 @@
         "ap-northeast-3": {
           "outcome": "rejected",
           "error": {
-            "name": "ConditionalCheckFailedException",
-            "message": "The conditional request failed"
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
           }
         },
         "ap-south-1": {
           "outcome": "rejected",
           "error": {
-            "name": "ConditionalCheckFailedException",
-            "message": "The conditional request failed"
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
           }
         },
         "ap-south-2": {
@@ -531,8 +589,8 @@
         "ap-southeast-2": {
           "outcome": "rejected",
           "error": {
-            "name": "ConditionalCheckFailedException",
-            "message": "The conditional request failed"
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
           }
         },
         "ap-southeast-3": {
@@ -580,8 +638,8 @@
         "ca-west-1": {
           "outcome": "rejected",
           "error": {
-            "name": "ConditionalCheckFailedException",
-            "message": "The conditional request failed"
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
           }
         },
         "eu-central-1": {
@@ -636,8 +694,8 @@
         "eu-west-3": {
           "outcome": "rejected",
           "error": {
-            "name": "ConditionalCheckFailedException",
-            "message": "The conditional request failed"
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
           }
         },
         "il-central-1": {
@@ -650,15 +708,15 @@
         "mx-central-1": {
           "outcome": "rejected",
           "error": {
-            "name": "ConditionalCheckFailedException",
-            "message": "The conditional request failed"
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
           }
         },
         "sa-east-1": {
           "outcome": "rejected",
           "error": {
-            "name": "ConditionalCheckFailedException",
-            "message": "The conditional request failed"
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
           }
         },
         "us-east-1": {
@@ -678,11 +736,18 @@
         "us-west-1": {
           "outcome": "rejected",
           "error": {
-            "name": "ConditionalCheckFailedException",
-            "message": "The conditional request failed"
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
           }
         },
         "us-west-2": {
+          "outcome": "rejected",
+          "error": {
+            "name": "ValidationException",
+            "message": "1 validation error detected: Nesting Levels have exceeded supported limits: Attributes in the item have nested levels beyond supported limit"
+          }
+        },
+        "me-central-1": {
           "outcome": "rejected",
           "error": {
             "name": "ConditionalCheckFailedException",
@@ -694,7 +759,8 @@
         "https://github.com/paritysuite/dynamodb-conformance/actions/runs/29433077383",
         "https://github.com/paritysuite/dynamodb-conformance/issues/88",
         "captures/2026-08-12-batch-empty-and-nesting.json",
-        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31586467950"
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31586467950",
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/33670413331"
       ],
       "admitted": {
         "by": "Martin Hicks",
@@ -711,7 +777,7 @@
       "behaviour": "BatchGetItem with an empty RequestItems map: part of the 2026-06 validation-framework rollout. New-cohort regions reject with the framework's generic constraint message naming 'RequestItems'; the rest return the bespoke required-parameter sentence. eu-west-2 crossed to the new cohort between the 2026-08-08 and 2026-08-15 sweeps, so the pinned answer is now the generic message.",
       "pinned": "eu-west-2",
       "firstObserved": "2026-08-08",
-      "lastRefreshed": "2026-08-17",
+      "lastRefreshed": "2026-09-02",
       "regions": {
         "af-south-1": {
           "outcome": "rejected",
@@ -724,21 +790,21 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-east-2": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-northeast-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-northeast-2": {
@@ -752,21 +818,21 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-south-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-south-2": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-southeast-1": {
@@ -780,7 +846,7 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-southeast-3": {
@@ -808,28 +874,28 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ap-southeast-7": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ca-central-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "ca-west-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "eu-central-1": {
@@ -843,7 +909,7 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "eu-north-1": {
@@ -857,21 +923,21 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "eu-south-2": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "eu-west-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "eu-west-2": {
@@ -885,7 +951,7 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "il-central-1": {
@@ -906,28 +972,28 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "sa-east-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "us-east-1": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "us-east-2": {
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         },
         "us-west-1": {
@@ -941,14 +1007,15 @@
           "outcome": "rejected",
           "error": {
             "name": "ValidationException",
-            "message": "The requestItems parameter is required for BatchGetItem"
+            "message": "1 validation error detected: Value at 'RequestItems' failed to satisfy constraint: Member must have length greater than or equal to 1"
           }
         }
       },
       "evidence": [
         "captures/2026-08-12-batch-empty-and-nesting.json",
         "captures/2026-08-17-batch-empty-request-items.json",
-        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31861859337"
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/31861859337",
+        "https://github.com/paritysuite/dynamodb-conformance/actions/runs/33670413331"
       ],
       "admitted": {
         "by": "Martin Hicks",
