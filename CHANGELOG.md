@@ -8,6 +8,45 @@ section its date and version, so several branches can write ahead of one.
 
 ## Unreleased
 
+Thirteen captures against eu-west-2 turned into coverage, and the suite grew
+from 1056 tests to 1251. All of it was ground truth nothing asserted, so an
+engine could discard a PartiQL index qualifier or store an item AWS would
+refuse and still score a clean pass.
+
+- **PartiQL index qualifier.** What a qualified `SELECT` returns, when an
+  unprojected attribute is rejected and when it is served from the base table,
+  how the reach-back is charged, that a qualified write is rejected, and the
+  exact wording of each rejection.
+- **PartiQL comparison on non-scalar types.** Equality and inequality on every
+  set, map and list, each checked against the same predicate written as a
+  `ConditionExpression`.
+- **`BatchExecuteStatement` member fields.** Per-member `ConsistentRead`, the
+  primary-key requirement, and which failures echo `TableName`.
+- **The 400KB gate, to the byte.** 409,600 accepted and 409,601 refused across
+  seven write surfaces. `UpdateItem` is the outlier: it charges what the
+  statement writes plus a fixed cost per clause, so the key and every untouched
+  attribute stay out of the figure.
+- **A number's byte cost.** Twenty-three literals, each measured by an accept
+  and a refusal either side of the gate. The rule the developer guide documents
+  is wrong in two ways, and both have a case.
+- **Reads are sized before the filter.** `Scan`, `Query` and PartiQL all charge
+  before the `WHERE` clause and the projection, so discarding rows saves
+  nothing.
+- **Vector write capacity.** `VectorWriteRequestBytes` pinned term by term,
+  charged on the change to the index's own stored view like a GSI.
+  `VectorSearchRequestBytes` stays shape-only: five identical searches against
+  an unchanged index reported 14214, 13903, 14214, 14214 and 14518.
+- **Vector index creation has two phases.** Resource allocation, where the table
+  sits in `UPDATING`, `Backfilling` reads false and a cancel is refused, then
+  backfilling, which takes one. The one-online-index limit binds the table
+  rather than the call.
+
+Two fixes came with it. A local run against real DynamoDB takes its own table
+namespace, so it can no longer delete a CI run's tables. And a
+`TransactWriteItems` control, plus the whole PartiQL validation-ordering file,
+were feeding an unsupported fault into an assertion about wording and scoring a
+declared gap as a disagreement; both now skip.
+
 `BatchWriteItem` with an empty `RequestItems` map is now a recorded regional
 split. eu-north-1 answers the validation framework's generic constraint message
 where the other 32 answering regions answer the bespoke required-parameter

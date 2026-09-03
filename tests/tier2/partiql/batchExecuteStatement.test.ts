@@ -1,16 +1,25 @@
 import {
   BatchExecuteStatementCommand,
   ExecuteStatementCommand,
+  TransactWriteItemsCommand,
   PutItemCommand,
   GetItemCommand,
+  DynamoDBServiceException,
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { isUnsupportedFault } from '../../../src/infra.js'
-import { declareTables, hashTableDef, cleanupItems, expectDynamoError, absentTableName } from '../../../src/helpers.js'
+import {
+  declareTables,
+  hashTableDef,
+  partiqlIndexTableDef,
+  cleanupItems,
+  expectDynamoError,
+  absentTableName,
+} from '../../../src/helpers.js'
 
-declareTables(hashTableDef)
+declareTables(hashTableDef, partiqlIndexTableDef)
 
-describe('BatchExecuteStatement — PartiQL', { tags: ['partiql', 'data-plane'] }, () => {
+describe('BatchExecuteStatement — PartiQL', { tags: ['partiql', 'data-plane', 'gsi', 'lsi'] }, () => {
   let supported = true
 
   const keysToCleanup: Record<string, { S: string }>[] = []
@@ -304,5 +313,234 @@ describe('BatchExecuteStatement — PartiQL', { tags: ['partiql', 'data-plane'] 
       })),
       'ValidationException',
     )
+  })
+
+  // ConsistentRead is carried per member and it is not inert. The mixed batch is
+  // the case that proves it: the total is the sum of two differently-rated
+  // members rather than one mode applied to the whole batch.
+  describe('ConsistentRead is honoured per member', () => {
+    const K = (n: string) => `batch-cr-${n}`
+
+    async function batchSelect(members: { key: string; consistent?: boolean }[]) {
+      const res = await ddb.send(new BatchExecuteStatementCommand({
+        Statements: members.map((m) => ({
+          Statement: `SELECT * FROM "${hashTableDef.name}" WHERE pk = ?`,
+          Parameters: [{ S: m.key }],
+          ...(m.consistent === undefined ? {} : { ConsistentRead: m.consistent }),
+        })),
+        ReturnConsumedCapacity: 'TOTAL',
+      }))
+      const cc = res.ConsumedCapacity ?? []
+      return {
+        responses: res.Responses ?? [],
+        total: cc.reduce((sum, c) => sum + (c.CapacityUnits ?? 0), 0),
+      }
+    }
+
+    beforeAll(async () => {
+      if (!supported) return
+      for (const n of ['a', 'b']) {
+        const key = { pk: { S: K(n) } }
+        keysToCleanup.push(key)
+        await ddb.send(new PutItemCommand({
+          TableName: hashTableDef.name, Item: { ...key, val: { S: n } },
+        }))
+      }
+    })
+
+    it('charges a small eventually-consistent read half a unit', async () => {
+      const r = await batchSelect([{ key: K('a') }])
+      expect(r.responses[0].Item).toBeDefined()
+      expect(r.total).toBe(0.5)
+    })
+
+    it('charges exactly twice that when the member asks for consistency', async () => {
+      const eventual = await batchSelect([{ key: K('a') }])
+      const consistent = await batchSelect([{ key: K('a'), consistent: true }])
+      expect(consistent.total).toBe(eventual.total * 2)
+    })
+
+    it('treats an explicit false the same as omitting it', async () => {
+      const omitted = await batchSelect([{ key: K('a') }])
+      const explicit = await batchSelect([{ key: K('a'), consistent: false }])
+      expect(explicit.total).toBe(omitted.total)
+    })
+
+    // One consistent member and one eventual: the sum of the two rates, not
+    // twice either of them.
+    it('rates each member of a mixed batch on its own setting', async () => {
+      const eventual = await batchSelect([{ key: K('a') }])
+      const consistent = await batchSelect([{ key: K('a'), consistent: true }])
+      const mixed = await batchSelect([
+        { key: K('a'), consistent: true },
+        { key: K('b') },
+      ])
+      expect(mixed.total).toBe(consistent.total + eventual.total)
+    })
+  })
+
+  // A batch SELECT must name the table primary key. That rejection also swallows
+  // the index case, so an index-served read is not reachable from a batch at all
+  // and the surface owes a validation rather than an index capacity arm.
+  describe('a batch SELECT must name the table primary key', () => {
+    async function memberError(Statement: string) {
+      const res = await ddb.send(new BatchExecuteStatementCommand({
+        Statements: [{ Statement }],
+      }))
+      return res.Responses?.[0]
+    }
+
+    it('rejects a member that filters on a non-key attribute', async () => {
+      const r = await memberError(`SELECT * FROM "${hashTableDef.name}" WHERE val = 'a'`)
+      expect(r?.Error?.Code).toBe('ValidationError')
+      expect(r?.Error?.Message).toContain('must specify the primary key in the where clause')
+    })
+
+    it('rejects an index-qualified member naming the index key', async () => {
+      const r = await memberError(
+        `SELECT * FROM "${partiqlIndexTableDef.name}"."gsi-all" WHERE gsiPk = 'x'`,
+      )
+      expect(r?.Error?.Code).toBe('ValidationError')
+      expect(r?.Error?.Message).toContain('must specify the primary key in the where clause')
+    })
+
+    // Even naming the table key alongside the index key does not reach it.
+    it('rejects one naming both the table primary key and the index key', async () => {
+      const r = await memberError(
+        `SELECT * FROM "${partiqlIndexTableDef.name}"."gsi-all" WHERE pk = 'p' AND sk = 's1' AND gsiPk = 'x'`,
+      )
+      expect(r?.Error?.Code).toBe('ValidationError')
+      expect(r?.Error?.Message).toContain('must specify the primary key in the where clause')
+    })
+
+    it('leaves the rest of the batch running', async () => {
+      const key = { pk: { S: 'batch-pk-ok' } }
+      keysToCleanup.push(key)
+      await ddb.send(new PutItemCommand({
+        TableName: hashTableDef.name, Item: { ...key, val: { S: 'here' } },
+      }))
+
+      const res = await ddb.send(new BatchExecuteStatementCommand({
+        Statements: [
+          { Statement: `SELECT * FROM "${hashTableDef.name}" WHERE val = 'nope'` },
+          { Statement: `SELECT * FROM "${hashTableDef.name}" WHERE pk = 'batch-pk-ok'` },
+        ],
+      }))
+      expect(res.Responses![0].Error?.Code).toBe('ValidationError')
+      expect(res.Responses![1].Item).toBeDefined()
+    })
+  })
+
+  // TableName is echoed on a member that ran and failed, and absent on one
+  // rejected before it ran. The split tracks whether the statement reached its
+  // table at all.
+  describe('a failed member echoes its table only if it ran', () => {
+    const K = (n: string) => `batch-tn-${n}`
+
+    it('carries TableName on a conditional failure', async () => {
+      const key = { pk: { S: K('cond') } }
+      keysToCleanup.push(key)
+      await ddb.send(new PutItemCommand({
+        TableName: hashTableDef.name, Item: { ...key, val: { S: 'here' } },
+      }))
+
+      const res = await ddb.send(new BatchExecuteStatementCommand({
+        Statements: [{
+          Statement: `UPDATE "${hashTableDef.name}" SET touched = 'yes' WHERE pk = ? AND val = ?`,
+          Parameters: [{ S: K('cond') }, { S: 'wrong' }],
+        }],
+      }))
+      expect(res.Responses![0].Error?.Code).toBe('ConditionalCheckFailed')
+      expect(res.Responses![0].TableName).toBe(hashTableDef.name)
+    })
+
+    it('carries TableName on a duplicate insert', async () => {
+      const key = { pk: { S: K('dup') } }
+      keysToCleanup.push(key)
+      await ddb.send(new PutItemCommand({ TableName: hashTableDef.name, Item: key }))
+
+      const res = await ddb.send(new BatchExecuteStatementCommand({
+        Statements: [{
+          Statement: `INSERT INTO "${hashTableDef.name}" VALUE {'pk': ?}`,
+          Parameters: [{ S: K('dup') }],
+        }],
+      }))
+      expect(res.Responses![0].Error?.Code).toBe('DuplicateItem')
+      expect(res.Responses![0].TableName).toBe(hashTableDef.name)
+    })
+
+    it('omits TableName on a member rejected before it ran', async () => {
+      const res = await ddb.send(new BatchExecuteStatementCommand({
+        Statements: [{ Statement: `SELECT * FROM "${hashTableDef.name}" WHERE val = 'a'` }],
+      }))
+      expect(res.Responses![0].Error?.Code).toBe('ValidationError')
+      expect(res.Responses![0].TableName).toBeUndefined()
+    })
+  })
+
+  // The option is inert on a batch member: no Item comes back whatever it is set
+  // to. That is a claim about absence, so it needs the control below or it looks
+  // like an untested probe.
+  describe('ReturnValuesOnConditionCheckFailure on a batch member', () => {
+    const KEY = 'batch-rvocf'
+
+    beforeAll(async () => {
+      if (!supported) return
+      const key = { pk: { S: KEY } }
+      keysToCleanup.push(key)
+      await ddb.send(new PutItemCommand({
+        TableName: hashTableDef.name, Item: { ...key, val: { S: 'here' } },
+      }))
+    })
+
+    const SETTINGS = ['ALL_OLD', 'NONE', undefined] as const
+
+    it.each(SETTINGS)('returns no Item with the option set to %s', async (setting) => {
+      const res = await ddb.send(new BatchExecuteStatementCommand({
+        Statements: [{
+          Statement: `UPDATE "${hashTableDef.name}" SET touched = 'yes' WHERE pk = ? AND val = ?`,
+          Parameters: [{ S: KEY }, { S: 'wrong' }],
+          ...(setting === undefined ? {} : { ReturnValuesOnConditionCheckFailure: setting }),
+        }],
+      }))
+      expect(res.Responses![0].Error?.Code).toBe('ConditionalCheckFailed')
+      expect(res.Responses![0].Item).toBeUndefined()
+    })
+
+    // The control. The same option on a TransactWriteItems ConditionCheck does
+    // return the failed item, so the absence above is the batch surface rather
+    // than a badly-formed request.
+    //
+    // It is also the one test here that leaves the batch surface, so it is the
+    // one that can meet a target implementing PartiQL without transactions.
+    // The file-level canary only speaks for ExecuteStatement, and an
+    // unsupported answer to this call is scope rather than a disagreement
+    // about ReturnValuesOnConditionCheckFailure. Guarded on the call the test
+    // already makes rather than on a probe of its own: a probe would have to
+    // send a differently shaped request, and a target can answer an empty
+    // TransactItems with a validation error while still not implementing the
+    // operation.
+    it('does return the item on a TransactWriteItems ConditionCheck', async ({ skip }) => {
+      try {
+        await ddb.send(new TransactWriteItemsCommand({
+          TransactItems: [{
+            ConditionCheck: {
+              TableName: hashTableDef.name,
+              Key: { pk: { S: KEY } },
+              ConditionExpression: 'val = :v',
+              ExpressionAttributeValues: { ':v': { S: 'wrong' } },
+              ReturnValuesOnConditionCheckFailure: 'ALL_OLD',
+            },
+          }],
+        }))
+        expect.unreachable('should have thrown')
+      } catch (err) {
+        if (isUnsupportedFault(err)) return skip()
+        expect(err).toBeInstanceOf(DynamoDBServiceException)
+        const e = err as DynamoDBServiceException & { CancellationReasons?: { Item?: unknown }[] }
+        expect(e.name).toBe('TransactionCanceledException')
+        expect(e.CancellationReasons?.[0]?.Item).toBeDefined()
+      }
+    })
   })
 })

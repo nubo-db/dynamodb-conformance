@@ -2,21 +2,24 @@ import {
   PutItemCommand,
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb'
+import type { AttributeValue } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import {
-  hashTableDef,
+  itemSizeTableDef,
   hashNTableDef,
   cleanupItems,
   declareTables,
+  expectDynamoError,
 } from '../../../src/helpers.js'
+import { MAX_ITEM_BYTES, itemBytes, itemOfBytes } from '../../../src/item-size.js'
 
-declareTables(hashTableDef, hashNTableDef)
+declareTables(itemSizeTableDef, hashNTableDef)
 
 const PREFIX = 'lim-is-'
 const keysToClean: { pk: { S: string } }[] = []
 
 afterAll(async () => {
-  await cleanupItems(hashTableDef.name, keysToClean)
+  await cleanupItems(itemSizeTableDef.name, keysToClean)
 })
 
 function key(id: string) {
@@ -34,14 +37,14 @@ describe('Item size limit (400KB)', { tags: ['put-item', 'data-plane'] }, () => 
     const k = key('under')
     await ddb.send(
       new PutItemCommand({
-        TableName: hashTableDef.name,
+        TableName: itemSizeTableDef.name,
         Item: { ...k, data: { S: 'x'.repeat(390_000) } },
       }),
     )
 
     const get = await ddb.send(
       new GetItemCommand({
-        TableName: hashTableDef.name,
+        TableName: itemSizeTableDef.name,
         Key: k,
         ConsistentRead: true,
       }),
@@ -56,7 +59,7 @@ describe('Item size limit (400KB)', { tags: ['put-item', 'data-plane'] }, () => 
     try {
       await ddb.send(
         new PutItemCommand({
-          TableName: hashTableDef.name,
+          TableName: itemSizeTableDef.name,
           Item: { ...k, bigval: { S: 'x'.repeat(410_000) } },
         }),
       )
@@ -83,7 +86,7 @@ describe('Item size limit (400KB)', { tags: ['put-item', 'data-plane'] }, () => 
     try {
       await ddb.send(
         new PutItemCommand({
-          TableName: hashTableDef.name,
+          TableName: itemSizeTableDef.name,
           Item: { ...k, ...item },
         }),
       )
@@ -115,7 +118,7 @@ describe('Item size limit (400KB)', { tags: ['put-item', 'data-plane'] }, () => 
     try {
       await ddb.send(
         new PutItemCommand({
-          TableName: hashTableDef.name,
+          TableName: itemSizeTableDef.name,
           Item: { ...k, nested: nestedMap },
         }),
       )
@@ -137,7 +140,7 @@ describe('Item size limit (400KB)', { tags: ['put-item', 'data-plane'] }, () => 
     try {
       await ddb.send(
         new PutItemCommand({
-          TableName: hashTableDef.name,
+          TableName: itemSizeTableDef.name,
           Item: { ...k, bigset: { SS: elements } },
         }),
       )
@@ -158,7 +161,7 @@ describe('Item size limit (400KB)', { tags: ['put-item', 'data-plane'] }, () => 
     try {
       await ddb.send(
         new PutItemCommand({
-          TableName: hashTableDef.name,
+          TableName: itemSizeTableDef.name,
           Item: { ...k, biglist: { L: elements } },
         }),
       )
@@ -177,14 +180,14 @@ describe('Item size limit (400KB)', { tags: ['put-item', 'data-plane'] }, () => 
     const buf = new Uint8Array(350_000)
     await ddb.send(
       new PutItemCommand({
-        TableName: hashTableDef.name,
+        TableName: itemSizeTableDef.name,
         Item: { ...k, bindata: { B: buf } },
       }),
     )
 
     const get = await ddb.send(
       new GetItemCommand({
-        TableName: hashTableDef.name,
+        TableName: itemSizeTableDef.name,
         Key: k,
         ConsistentRead: true,
       }),
@@ -200,7 +203,7 @@ describe('Item size limit (400KB)', { tags: ['put-item', 'data-plane'] }, () => 
     try {
       await ddb.send(
         new PutItemCommand({
-          TableName: hashTableDef.name,
+          TableName: itemSizeTableDef.name,
           Item: { ...k, bindata: { B: buf } },
         }),
       )
@@ -264,5 +267,70 @@ describe('Item size limit — number sizing', { tags: ['put-item', 'data-plane']
         /[Ii]tem size has exceeded the maximum allowed size|[Ii]tem size to update has exceeded the maximum allowed size/,
       )
     }
+  })
+})
+
+// Where the gate actually sits. The tests above bracket it loosely, from 390,000
+// bytes on one side to 410,000 on the other, which cannot tell 409,600 from any
+// other figure in a 20,000-byte window. Captured against eu-west-2 on
+// 2026-08-18: exactly 409,600 is accepted and 409,601 is refused, so the
+// comparison DynamoDB makes is `size > 409600`.
+//
+// This pair is the instrument the rest of the sizing coverage rests on. Consumed
+// capacity is 1KB-granular and far too coarse to see one attribute's cost, but a
+// gate that resolves to the byte measures it in two requests. If this pair does
+// not hold, every figure asserted against the boundary elsewhere is measuring
+// something else.
+// no negative-path: acceptance-mixed (asserts accepted and rejected cases)
+describe('Item size limit — the gate, to the byte', { tags: ['put-item', 'data-plane'] }, () => {
+  // The put path's wording. The update path says something else; the split is
+  // asserted per surface in itemSizeBySurface.test.ts.
+  const PUT_WORDING = 'Item size has exceeded the maximum allowed size'
+
+  async function putSized(k: { pk: { S: string } }, bytes: number, attributes = 1) {
+    const base: Record<string, AttributeValue> = { ...k }
+    for (let i = 1; i < attributes; i++) base[`a${i}`] = { S: 'y'.repeat(10) }
+    // itemOfBytes throws unless it landed on the target exactly, so a fixture
+    // that came out short can never be read as a finding about DynamoDB.
+    const Item = itemOfBytes(bytes, base, 'a0')
+    await ddb.send(new PutItemCommand({ TableName: itemSizeTableDef.name, Item }))
+  }
+
+  /** The stored size, read back rather than predicted. */
+  async function storedBytes(k: { pk: { S: string } }): Promise<number> {
+    const got = await ddb.send(
+      new GetItemCommand({ TableName: itemSizeTableDef.name, Key: k, ConsistentRead: true }),
+    )
+    expect(got.Item).toBeDefined()
+    return itemBytes(got.Item as Record<string, AttributeValue>)
+  }
+
+  it('accepts an item measuring exactly 409,600 bytes', async () => {
+    const k = key('gate-at')
+    await putSized(k, MAX_ITEM_BYTES)
+    expect(await storedBytes(k)).toBe(MAX_ITEM_BYTES)
+  })
+
+  it('refuses the same item one byte over, with the put wording', async () => {
+    const k = key('gate-over')
+    await expectDynamoError(
+      () => putSized(k, MAX_ITEM_BYTES + 1),
+      'ValidationException',
+      PUT_WORDING,
+    )
+  })
+
+  // A per-attribute term would move the ceiling as the attribute count rises. It
+  // does not: the figure is the item's own size and nothing else.
+  it.each([1, 2, 5, 10])('holds the ceiling at 409,600 across %i payload attributes', async (count) => {
+    const accepted = key(`flat-${count}-at`)
+    await putSized(accepted, MAX_ITEM_BYTES, count)
+    expect(await storedBytes(accepted)).toBe(MAX_ITEM_BYTES)
+
+    await expectDynamoError(
+      () => putSized(key(`flat-${count}-over`), MAX_ITEM_BYTES + 1, count),
+      'ValidationException',
+      PUT_WORDING,
+    )
   })
 })

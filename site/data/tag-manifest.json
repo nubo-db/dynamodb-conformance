@@ -361,6 +361,12 @@
         "data-plane"
       ]
     },
+    "tests/tier1/query/consumedCapacity.test.ts": {
+      "ConsumedCapacity — a Query is sized before the filter and the projection": [
+        "query",
+        "data-plane"
+      ]
+    },
     "tests/tier1/query/expressions.test.ts": {
       "Query — FilterExpression functions and operators": [
         "query",
@@ -503,6 +509,12 @@
         "data-plane"
       ],
       "Scan — ExclusiveStartKey exclusivity and filtered Limit": [
+        "scan",
+        "data-plane"
+      ]
+    },
+    "tests/tier1/scan/consumedCapacity.test.ts": {
+      "ConsumedCapacity — a Scan is sized before the filter and the projection": [
         "scan",
         "data-plane"
       ]
@@ -742,6 +754,14 @@
     "tests/tier2/partiql/batchExecuteStatement.test.ts": {
       "BatchExecuteStatement — PartiQL": [
         "partiql",
+        "data-plane",
+        "gsi",
+        "lsi"
+      ]
+    },
+    "tests/tier2/partiql/comparison.test.ts": {
+      "ExecuteStatement — comparison on non-scalar types": [
+        "partiql",
         "data-plane"
       ]
     },
@@ -755,6 +775,14 @@
       "ExecuteTransaction — PartiQL": [
         "partiql",
         "data-plane"
+      ]
+    },
+    "tests/tier2/partiql/indexQualifier.test.ts": {
+      "ExecuteStatement — index qualifier": [
+        "partiql",
+        "data-plane",
+        "gsi",
+        "lsi"
       ]
     },
     "tests/tier2/resourcePolicy/basic.test.ts": {
@@ -874,6 +902,16 @@
         "vector"
       ],
       "PutItem — vector write capacity shape": [
+        "put-item",
+        "data-plane",
+        "vector"
+      ],
+      "PutItem — a vector index is charged on the change to its stored view": [
+        "put-item",
+        "data-plane",
+        "vector"
+      ],
+      "PutItem — VectorWriteRequestBytes": [
         "put-item",
         "data-plane",
         "vector"
@@ -1036,6 +1074,15 @@
       "PartiQL — exact error messages": [
         "partiql",
         "data-plane",
+        "negative-path"
+      ]
+    },
+    "tests/tier3/error-messages/partiqlIndexQualifier.test.ts": {
+      "PartiQL index qualifier — exact error messages": [
+        "partiql",
+        "data-plane",
+        "gsi",
+        "lsi",
         "negative-path"
       ]
     },
@@ -1211,6 +1258,46 @@
       "Item size limit — number sizing": [
         "put-item",
         "data-plane"
+      ],
+      "Item size limit — the gate, to the byte": [
+        "put-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/itemSizeBySurface.test.ts": {
+      "Item size limit by surface — BatchWriteItem": [
+        "batch",
+        "data-plane"
+      ],
+      "Item size limit by surface — PartiQL": [
+        "partiql",
+        "data-plane"
+      ],
+      "Item size limit by surface — TransactWriteItems": [
+        "transactions",
+        "data-plane"
+      ],
+      "Item size limit by surface — UpdateItem does not charge for the key": [
+        "update-item",
+        "data-plane"
+      ],
+      "Item size limit by surface — UpdateItem charges per action": [
+        "update-item",
+        "data-plane"
+      ],
+      "Item size limit by surface — UpdateItem through a document path": [
+        "update-item",
+        "data-plane"
+      ],
+      "Item size limit by surface — a PartiQL UPDATE does not inherit the exclusion": [
+        "partiql",
+        "update-item",
+        "data-plane"
+      ],
+      "Item size limit by surface — a transacted Update does not inherit the exclusion": [
+        "transactions",
+        "update-item",
+        "data-plane"
       ]
     },
     "tests/tier3/limits/keyLength.test.ts": {
@@ -1224,6 +1311,16 @@
       "Nesting depth — 32-level document limit": [
         "put-item",
         "update-item",
+        "data-plane"
+      ]
+    },
+    "tests/tier3/limits/numberByteSize.test.ts": {
+      "A number's byte cost": [
+        "put-item",
+        "data-plane"
+      ],
+      "A number is stored expanded and sized by its significant digits": [
+        "put-item",
         "data-plane"
       ]
     },
@@ -1288,6 +1385,13 @@
       "Non-existent index — error surface": [
         "query",
         "scan",
+        "data-plane",
+        "negative-path"
+      ]
+    },
+    "tests/tier3/validation-ordering/partiql.test.ts": {
+      "PartiQL — validation ordering": [
+        "partiql",
         "data-plane",
         "negative-path"
       ]

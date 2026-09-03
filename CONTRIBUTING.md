@@ -52,11 +52,19 @@ Before opening a PR that adds or modifies a test:
    from DynamoDB. Put the error-code check in the operation's own tier
    (or `tests/tier3/validation-ordering/`) and the exact message, where
    it's stable, in `tests/tier3/error-messages/`.
-5. **Required if you added, moved or renamed a test:** regenerate the
-   suite manifest in the same commit with
-   `node scripts/suite-manifest.mjs`. It rewrites
-   `registry/suite-manifest.json`, the count every published figure
-   divides by, and CI fails the PR if it is stale.
+5. **Required if you added, moved or renamed a test:** regenerate both
+   manifests in the same commit. `node scripts/suite-manifest.mjs`
+   rewrites `registry/suite-manifest.json`, the count every published
+   figure divides by, and CI fails the PR if it is stale. `npm run
+   results:tags` rewrites `results/tag-manifest.json`, which groups the
+   published results by capability; its guard reports a stale manifest
+   as a failing test in `npm run test:tooling`, so it looks like a
+   broken test rather than a missing step.
+
+   Renaming a test also invalidates every committed results file, which
+   names its tests in full, so a rename needs those targets re-run
+   before the manifest will publish. Land one with a results refresh
+   rather than alongside a coverage change.
 
 Regenerating the published results table across every tracked target
 is a maintainer task and does not block your PR.

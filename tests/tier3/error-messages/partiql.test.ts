@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import { ddb } from '../../../src/client.js'
 import { isUnsupportedFault } from '../../../src/infra.js'
-import { declareTables, hashTableDef } from '../../../src/helpers.js'
+import { declareTables, hashTableDef, absentTableName } from '../../../src/helpers.js'
 
 declareTables(hashTableDef)
 
@@ -96,5 +96,28 @@ describe('PartiQL — exact error messages', { tags: ['partiql', 'data-plane', '
         'Validation failed in TransactStatements[0]: RETURNING clause is not supported in ExecuteTransaction.',
       )
     }
+  })
+
+  /** Run a statement and hand back the exception it raises. */
+  async function rejection(Statement: string, extra: Record<string, unknown> = {}) {
+    try {
+      await ddb.send(new ExecuteStatementCommand({ Statement, ...extra }))
+      expect.unreachable('should have thrown')
+      throw new Error('unreachable')
+    } catch (err) {
+      if (err instanceof DynamoDBServiceException) return err
+      throw err
+    }
+  }
+
+  it('an ordering comparison on an unordered operand — exact message', async () => {
+    const err = await rejection(
+      `SELECT pk FROM "${hashTableDef.name}" WHERE pk = 'x' AND val < ?`,
+      { Parameters: [{ BOOL: true }] },
+    )
+    expect(err.name).toBe('ValidationException')
+    expect(err.message).toBe(
+      'Incorrect operand type for operator or function; operator or function: <, operand type: BOOL',
+    )
   })
 })

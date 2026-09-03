@@ -558,10 +558,11 @@ function sleep(ms: number): Promise<void> {
 export const hashTableDef: TestTableDef = {
   name: uniqueTableName('hash'),
   hashKey: { name: 'pk', type: 'S' },
-  // On-demand, like hashNTableDef. The shared tables now live for the whole run
+  // On-demand, like hashNTableDef. The shared tables live for the whole run
   // (provisioned once), so a provisioned 5-WCU table runs out of burst capacity
-  // for the near-400KB writes in tests/tier3/limits/itemSize.test.ts and throttles.
-  // Nothing asserts this table is provisioned; createTable/config covers that mode.
+  // under a run's worth of writes and throttles. Nothing asserts this table is
+  // provisioned; createTable/config covers that mode. The near-400KB writes that
+  // first forced this now have itemSizeTableDef to themselves.
   billingMode: 'PAY_PER_REQUEST',
 }
 
@@ -640,6 +641,106 @@ export const compositeIndexedTableDef: TestTableDef = {
       nonKeyAttributes: ['data'],
     },
   ],
+}
+
+// The fixture the August 2026 PartiQL index-qualifier captures were taken
+// against, mirrored so a case that behaves oddly can be replayed against the
+// recorded answer without translating between two schemas.
+//
+// Separate from compositeIndexedTableDef rather than an extension of it. That
+// def carries no KEYS_ONLY index and no attribute left unprojected by every
+// index, which is what the projection, reach-back and unprojected-filter rules
+// all turn on; extending it would also move the gsi/lsi tag surface for every
+// file already using it, and existing tests pin messages naming `gsi1` and
+// `lsi1sk` exactly.
+//
+// Index names match the capture. They appear verbatim in the rejection messages
+// this fixture exists to assert, so they are part of the fixture rather than
+// incidental.
+export const partiqlIndexTableDef: TestTableDef = {
+  name: uniqueTableName('partiqlIdx'),
+  hashKey: { name: 'pk', type: 'S' },
+  rangeKey: { name: 'sk', type: 'S' },
+  gsis: [
+    { indexName: 'gsi-all', hashKey: { name: 'gsiPk', type: 'S' }, projectionType: 'ALL' },
+    {
+      indexName: 'gsi-inc',
+      hashKey: { name: 'gsiPk2', type: 'S' },
+      projectionType: 'INCLUDE',
+      nonKeyAttributes: ['projattr'],
+    },
+    { indexName: 'gsi-keys', hashKey: { name: 'gsiPk2', type: 'S' }, projectionType: 'KEYS_ONLY' },
+  ],
+  lsis: [
+    { indexName: 'lsi-all', rangeKey: { name: 'lsiSk', type: 'S' }, projectionType: 'ALL' },
+    { indexName: 'lsi-keys', rangeKey: { name: 'lsiSk2', type: 'S' }, projectionType: 'KEYS_ONLY' },
+    // The reach-back capture's own index. A KEYS_ONLY LSI projects nothing but
+    // keys, so it has no non-key attribute to filter on, and a filter on its
+    // sort key is a key condition that narrows the scan rather than a filter
+    // applied to rows already read. Separating rows walked from rows kept needs
+    // an index projecting something that is not a key.
+    {
+      indexName: 'lsi-inc',
+      rangeKey: { name: 'lsiSk3', type: 'S' },
+      projectionType: 'INCLUDE',
+      nonKeyAttributes: ['projattr'],
+    },
+  ],
+}
+
+/**
+ * The attribute no *non-ALL* index in partiqlIndexTableDef projects. `gsi-all`
+ * and `lsi-all` project everything, this attribute included, so a case testing
+ * the projection or filter rules must name one of the other four indexes.
+ *
+ * Against those four: naming it in a projection is rejected on a GSI and served
+ * from the base table on an LSI; naming it in a filter is rejected on either,
+ * but only when the read is keyed on the index partition key.
+ */
+export const PARTIQL_UNPROJECTED_ATTR = 'nonproj'
+
+// The tables the 400KB item-size work writes to, and nothing else does.
+//
+// Those tests write items a few bytes under the item limit, dozens of them, and
+// that is not a neighbour the shared tables can carry. A Scan reads a bounded
+// amount of data per page, so a handful of near-400KB rows fills the first page
+// on its own and every other row in the table falls onto a page the reading test
+// never asks for. tests/tier1/scan/filterOperators.test.ts reads one page and
+// counts what matched, which is a fair thing to do on a table holding six small
+// rows and impossible on one holding six large ones. Separate tables, and the
+// question does not arise.
+export const itemSizeTableDef: TestTableDef = {
+  name: uniqueTableName('itemSize'),
+  hashKey: { name: 'pk', type: 'S' },
+  // A provisioned table runs out of burst capacity partway through a run of
+  // near-400KB writes and throttles, which reads as a rejection the size gate
+  // did not make.
+  billingMode: 'PAY_PER_REQUEST',
+}
+
+/** The composite-key variant, for the cases that need a sort key. */
+export const itemSizeCompositeTableDef: TestTableDef = {
+  name: uniqueTableName('itemSizeComposite'),
+  hashKey: { name: 'pk', type: 'S' },
+  rangeKey: { name: 'sk', type: 'S' },
+  billingMode: 'PAY_PER_REQUEST',
+}
+
+// A partition key whose *name* carries bytes. Every other shared def names its
+// key `pk`, which is two bytes, so nothing in the suite could separate the key
+// name's contribution to a figure from the key value's.
+//
+// UpdateItem is where that matters: it excludes the key attributes from the size
+// it measures against the 400KB gate, names included, so lengthening the name
+// buys back exactly the headroom that lengthening the value does. A def with a
+// 16-byte key name makes the two halves comparable at one keystroke.
+export const longKeyNameTableDef: TestTableDef = {
+  name: uniqueTableName('longKeyName'),
+  hashKey: { name: 'partitionKeyName', type: 'S' },
+  // On-demand, like the other defs the near-400KB writes use: a provisioned
+  // table runs out of burst capacity and throttles, which would read as a
+  // rejection the size gate did not make.
+  billingMode: 'PAY_PER_REQUEST',
 }
 
 export const compositeNTableDef: TestTableDef = {

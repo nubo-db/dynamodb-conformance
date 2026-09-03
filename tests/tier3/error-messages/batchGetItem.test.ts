@@ -15,7 +15,8 @@ describe('BatchGetItem — exact error messages', { tags: ['batch', 'data-plane'
     // the answer differs by region, so what the target actually returned is
     // recorded for per-region scoring. eu-west-2 is pinned, and it moved to the
     // validation framework's generic constraint message between the 2026-08-08
-    // and 2026-08-15 sweeps; 22 regions still answer the bespoke sentence
+    // and 2026-08-15 sweeps. The rest have followed it since: as of the
+    // 2026-09-02 sweep only me-central-1 still answers the bespoke sentence
     // `The requestItems parameter is required for BatchGetItem`.
     try {
       await observeSplit(ctx.task, () => ddb.send(new BatchGetItemCommand({ RequestItems: {} })))
