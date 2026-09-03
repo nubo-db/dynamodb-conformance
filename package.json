@@ -1,6 +1,6 @@
 {
   "name": "dynamodb-conformance",
-  "version": "3.2.1",
+  "version": "3.3.0",
   "description": "Independent conformance test suite for DynamoDB-compatible endpoints",
   "keywords": [
     "dynamodb",

@@ -8,6 +8,8 @@ section its date and version, so several branches can write ahead of one.
 
 ## Unreleased
 
+## 2026-09-03 (3.3.0)
+
 Thirteen captures against eu-west-2 turned into coverage, and the suite grew
 from 1056 tests to 1251. All of it was ground truth nothing asserted, so an
 engine could discard a PartiQL index qualifier or store an item AWS would
