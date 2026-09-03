@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import yaml from 'js-yaml'
+import { load as loadYaml } from 'js-yaml'
 import { MEASURED_FIELDS } from './lib/measured.mjs'
 
 // The measured-ref design holds together across four workflow files, and most
@@ -74,7 +74,7 @@ describe('the release measurement reaches the publisher', () => {
     // the draft never flips, which is what happened to v3.2.0: three hours
     // green, nothing published, nothing red to say why. Only the identity
     // holding the token fixes it, so only the identity is asserted here.
-    const steps = yaml.load(read('release')).jobs.release.steps
+    const steps = loadYaml(read('release')).jobs.release.steps
     const measure = steps.find((step) => step.name === 'Measure the new tag')
     expect(measure, 'release.yml no longer has a step named "Measure the new tag"').toBeTruthy()
 
@@ -100,7 +100,7 @@ describe('a lane never measures a ref the resolver did not give it', () => {
   // skip them. But when the `changes` job itself fails, its outputs are empty,
   // and actions/checkout reads an empty `ref` as "use the triggering ref" - so
   // the lane spends real-AWS time measuring main while reporting nothing wrong.
-  const workflow = yaml.load(read('conformance'))
+  const workflow = loadYaml(read('conformance'))
 
   const alwaysLanes = Object.entries(workflow.jobs).filter(
     ([, job]) =>
